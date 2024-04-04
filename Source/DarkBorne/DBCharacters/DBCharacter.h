@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "DBCharacter.generated.h"
 
+
 UCLASS()
 class DARKBORNE_API ADBCharacter : public ACharacter
 {
@@ -26,6 +27,23 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class UBlahComponent* Blah;
+public:
+	//player Mapping Context
+	UPROPERTY(EditAnywhere)
+	class UInputMappingContext* imc_DBMapping;
+
+	//player input
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_DB_Move;
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_DB_Look;
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_DB_Jump;
+	
+
+public:
+	//Default 이동 관련 함수들
+	void EnhancedMove(const struct FInputActionValue& value);
+	void EnhancedJump(const struct FInputActionValue& value);
+	void EnhancedLook(const struct FInputActionValue& value);
 };
