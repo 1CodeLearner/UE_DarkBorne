@@ -6,6 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "DBItem.generated.h"
 
+USTRUCT()
+struct FItemStat
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	float MoveSlowRate;
+};
+
 class USkeletalMeshComponent; 
 
 UCLASS()
@@ -19,9 +28,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 protected:
 	virtual void BeginPlay() override;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TObjectPtr<USkeletalMeshComponent> SKMComp;
 
 private:
-	
-
+	FName Id;
+	FItemStat ItemStat;
 };

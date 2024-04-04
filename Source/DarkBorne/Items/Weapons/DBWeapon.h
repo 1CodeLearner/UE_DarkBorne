@@ -7,11 +7,20 @@
 #include "DBWeapon.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class DARKBORNE_API ADBWeapon : public ADBItem
 {
 	GENERATED_BODY()
+
+public:
+
+protected:
 	
+protected:
+	UPROPERTY(EditAnywhere, Category = "Settings")
+	float Attack;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+	TArray<UAnimMontage*> AnimMontages;
 };
