@@ -43,4 +43,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float Speed;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool HasWeapon;
 };

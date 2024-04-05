@@ -31,18 +31,16 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		pitchAngle = -player->GetBaseAimRotation().GetNormalized().Pitch;
 
-		// 앞 뒤가 0보다 크거나 좌우가 0보다 크면
-		if (dirH > 0 || dirV > 0)
+		// GetVelocity의 크기가 0보다 크면 무브 true 로
+		if (player->GetVelocity().Length() > 0)
 		{
 			ShouldMove = true;
 		}
-		else if(dirH == 0 && dirV == 0)
+		else
 		{
 			ShouldMove = false;
 		}
-		//else if (dirH < 0 || dirV < 0)
-		//{
-		//	ShouldMove = true;
-		//}
+
+		UE_LOG(LogTemp, Warning, TEXT("dirH : %f dirV : %f"), dirH, dirV);
 	}
 }
