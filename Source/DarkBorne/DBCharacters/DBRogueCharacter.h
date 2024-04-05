@@ -17,6 +17,12 @@ class DARKBORNE_API ADBRogueCharacter : public ADBCharacter
 public:
 	ADBRogueCharacter();
 
+public:
+	//camera
+	UPROPERTY(EditAnywhere)
+	class UCameraComponent* camera;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
