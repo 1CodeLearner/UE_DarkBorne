@@ -40,6 +40,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_DB_Jump;
 	
+public:
+	// Skill Component
+	UPROPERTY(EditAnywhere)
+	class UDBCharacterSkillComponent* SkillComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UDBCharacterAttackComponent* AttackComponent;
 
 public:
 	//Default 이동 관련 함수들
