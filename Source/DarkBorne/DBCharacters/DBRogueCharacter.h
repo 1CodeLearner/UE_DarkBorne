@@ -22,6 +22,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* camera;
 
+	UPROPERTY(EditAnywhere)
+	class UDBRogueWeaponComponent* RogueWeaponComp;
 
 protected:
 	// Called when the game starts or when spawned

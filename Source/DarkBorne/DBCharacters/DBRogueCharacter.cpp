@@ -3,6 +3,7 @@
 
 #include "DBRogueCharacter.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
+#include "../DBWeapon/DBRogueWeaponComponent.h"
 
 ADBRogueCharacter::ADBRogueCharacter()
 {
@@ -23,6 +24,9 @@ ADBRogueCharacter::ADBRogueCharacter()
 	camera->SetupAttachment(GetMesh(), FName(TEXT("headSocket")));
 	camera->SetRelativeLocation(FVector(9.8f, 13.2f, 0));
 	camera->SetRelativeRotation(FRotator(0, 80, 270));
+
+	RogueWeaponComp = CreateDefaultSubobject<UDBRogueWeaponComponent>(TEXT("WeaponComp"));
+	RogueWeaponComp->SetupAttachment(GetMesh(), FName(TEXT("RightHandWeapon")));
 }
 
 void ADBRogueCharacter::BeginPlay()

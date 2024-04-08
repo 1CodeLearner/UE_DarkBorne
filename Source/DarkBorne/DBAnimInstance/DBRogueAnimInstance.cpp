@@ -41,6 +41,5 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			ShouldMove = false;
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("dirH : %f dirV : %f"), dirH, dirV);
 	}
 }
