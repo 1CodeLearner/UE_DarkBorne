@@ -13,15 +13,18 @@ UENUM()
 enum class ESlotType : uint8
 {
 	WEAPON UMETA(DisplayName = "Weapon"),
+	UTILITY UMETA(DisplayName = "Utility"),
+	CONSUMABLE UMETA(DisplayName = "Consumable"),
+	HEAD UMETA(DisplayName = "Head"),
 	UPPERWEAR UMETA(DisplayName = "UpperWear"),
 	BOTTOMWEAR UMETA(DisplayName = "BottomWear"),
 	GLOVES UMETA(DisplayName = "Gloves"),
 	BOOTS UMETA(DisplayName = "Boots"),
-	CONSUMABLE UMETA(DisplayName = "Consumable")
+	NONE UMETA(Displayname = "None")
 };
 
 USTRUCT()
-struct FLoc
+struct FDimension
 {
 	GENERATED_BODY()
 
@@ -30,41 +33,9 @@ struct FLoc
 	UPROPERTY(EditAnywhere)
 	float Y;
 };
-USTRUCT()
-struct FItemSlot
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	FName Id;
-
-	UPROPERTY(EditAnywhere)
-	FText DisplayName;
-
-	UPROPERTY(EditAnywhere)
-	USoundBase* EquipSound;
-
-	//인벤토리 안에 아이탬 옮기다 소리
-	UPROPERTY(EditAnywhere)
-	USoundBase* InventorySound;
-
-	UPROPERTY(EditAnywhere)
-	ESlotType SlotType;
-
-	//아이템이 인벤토리 차지하는 사이즈
-	UPROPERTY(EditAnywhere)
-	FLoc SlotDimension;
-
-	//아이템이 현재 있는 coordinates
-	UPROPERTY(EditAnywhere)
-	FLoc SlotLocation;
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<ADBItem> ItemClass;
-};
 
 USTRUCT()
-struct FWeapon : public FTableRowBase
+struct FItem : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -76,13 +47,25 @@ struct FWeapon : public FTableRowBase
 };
 
 USTRUCT()
-struct FConsumable : public FTableRowBase
+struct FWeapon : public FItem
 {
 	GENERATED_BODY()
+};
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<ADBItem> ItemClass;
+USTRUCT()
+struct FArmor : public FItem
+{
+	GENERATED_BODY()
+};
 
-	UPROPERTY(EditAnywhere)
-	UPDA_ItemSlot* ItemSlot;
+USTRUCT()
+struct FConsumable : public FItem
+{
+	GENERATED_BODY()
+};
+
+USTRUCT()
+struct FUtility : public FItem
+{
+	GENERATED_BODY()
 };

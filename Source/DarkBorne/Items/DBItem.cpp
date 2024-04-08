@@ -2,12 +2,12 @@
 
 
 #include "DBItem.h"
-#include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 ADBItem::ADBItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	SKMComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SKMComp"));
+	SMComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SMComp"));
 }
 
 void ADBItem::BeginPlay()
