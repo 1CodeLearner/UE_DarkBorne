@@ -6,32 +6,52 @@
 #include "../Items/DBItem.h"
 #include "ItemType.generated.h"
 
-
 class UPDA_ItemSlot;
 
 UENUM()
-enum class ESlotType : uint8
+enum class EItemType : uint8
 {
 	WEAPON UMETA(DisplayName = "Weapon"),
-	UTILITY UMETA(DisplayName = "Utility"),
+	ARMOR UMETA(DisplayName = "Armor"),
 	CONSUMABLE UMETA(DisplayName = "Consumable"),
-	HEAD UMETA(DisplayName = "Head"),
-	UPPERWEAR UMETA(DisplayName = "UpperWear"),
-	BOTTOMWEAR UMETA(DisplayName = "BottomWear"),
-	GLOVES UMETA(DisplayName = "Gloves"),
-	BOOTS UMETA(DisplayName = "Boots"),
-	NONE UMETA(Displayname = "None")
+	UTILITY UMETA(DisplayName = "Utility")
 };
 
 USTRUCT()
-struct FDimension
+struct FDroppedItem
 {
 	GENERATED_BODY()
+public:
+	FDroppedItem() = default;
+	FDroppedItem(EItemType Type, float rate)
+		: 
+		ItemType(Type), 
+		Probability(rate)
+	{}
 
 	UPROPERTY(EditAnywhere)
-	float X;
+	EItemType ItemType;
+
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "0"), meta = (ClampMax = "1"))
+	float Probability = 0.f;
+};
+
+USTRUCT()
+struct FDropRate : public FTableRowBase
+{
+	GENERATED_BODY()
+public:
+
+	FDropRate()
+	{
+		Items.Add({ EItemType::WEAPON, 0.f });
+		Items.Add({ EItemType::ARMOR, 0.f });
+		Items.Add({ EItemType::CONSUMABLE, 0.f });
+		Items.Add({ EItemType::UTILITY, 0.f });
+	}
+	
 	UPROPERTY(EditAnywhere)
-	float Y;
+	TArray<FDroppedItem> Items;
 };
 
 USTRUCT()
