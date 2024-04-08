@@ -15,8 +15,11 @@ class DARKBORNE_API UPDA_ItemSlot : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 public:
-		UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere)
 	FName Id;
+
+	UPROPERTY(EditAnywhere)
+	UTexture2D* DisplayImage;
 
 	UPROPERTY(EditAnywhere)
 	FText DisplayName;
@@ -24,6 +27,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	FText Description;
 
+	//아이탬 장착할때 내는 소리
 	UPROPERTY(EditAnywhere)
 	USoundBase* EquipSound;
 
@@ -36,11 +40,7 @@ public:
 
 	//아이템이 인벤토리 차지하는 사이즈
 	UPROPERTY(EditAnywhere)
-	FLoc SlotDimension;
-
-	//아이템이 현재 있는 coordinates
-	UPROPERTY(EditAnywhere)
-	FLoc SlotLocation;
+	FDimension SlotDimension;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ADBItem> ItemClass;

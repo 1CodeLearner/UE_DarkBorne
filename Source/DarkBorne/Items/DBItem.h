@@ -15,7 +15,7 @@ struct FItemStat
 	float MoveSlowRate;
 };
 
-class USkeletalMeshComponent; 
+class UStaticMeshComponent;
 
 UCLASS()
 class DARKBORNE_API ADBItem : public AActor
@@ -29,7 +29,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
-	TObjectPtr<USkeletalMeshComponent> SKMComp;
+	TObjectPtr<UStaticMeshComponent> SMComp;
 
 private:
 	FName Id;
