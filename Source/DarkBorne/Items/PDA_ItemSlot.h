@@ -25,14 +25,14 @@ enum class ESlotType : uint8
 	NONE UMETA(Displayname = "None")
 };
 
-USTRUCT()
+USTRUCT(Blueprintable)
 struct FDimension
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float X;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float Y;
 };
 
@@ -41,33 +41,33 @@ class DARKBORNE_API UPDA_ItemSlot : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
 	FName Id;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	UTexture2D* DisplayImage;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FText DisplayName;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FText Description;
 
 	//아이탬 장착할때 내는 소리
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	USoundBase* EquipSound;
 
 	//인벤토리 안에 아이탬 옮기는 소리
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	USoundBase* InventorySound;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	ESlotType SlotType;
 
 	//아이템이 인벤토리 차지하는 사이즈
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FDimension SlotDimension;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	TSubclassOf<ADBItem> ItemClass;
 };

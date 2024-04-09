@@ -35,8 +35,6 @@ void ADBItem::BeginPlay()
 {
 	Super::BeginPlay();
 
-	float what = FMath::RandRange(0.f, 1.f);
-	UE_LOG(LogTemp, Warning, TEXT("Prob: %f"), what);
 }
 
 void ADBItem::Tick(float DeltaTime)

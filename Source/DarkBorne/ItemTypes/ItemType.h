@@ -8,19 +8,20 @@
 
 class UPDA_ItemSlot;
 
-UENUM()
+UENUM(BlueprintType)
 enum class EItemType : uint8
 {
+	NONE UMETA(DisplayName = "None"),
 	WEAPON UMETA(DisplayName = "Weapon"),
 	ARMOR UMETA(DisplayName = "Armor"),
 	CONSUMABLE UMETA(DisplayName = "Consumable"),
 	UTILITY UMETA(DisplayName = "Utility")
 };
 
-USTRUCT()
+USTRUCT(Blueprintable)
 struct FDroppedItem
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 public:
 	FDroppedItem() = default;
 	FDroppedItem(EItemType Type, float rate)
@@ -29,17 +30,17 @@ public:
 		Probability(rate)
 	{}
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EItemType ItemType;
 
-	UPROPERTY(EditAnywhere, meta = (ClampMin = "0"), meta = (ClampMax = "1"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0"), meta = (ClampMax = "1"))
 	float Probability = 0.f;
 };
 
-USTRUCT()
+USTRUCT(Blueprintable)
 struct FDropRate : public FTableRowBase
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 public:
 
 	FDropRate()
@@ -50,42 +51,49 @@ public:
 		Items.Add({ EItemType::UTILITY, 0.f });
 	}
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FDroppedItem> Items;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int Amount;
 };
 
-USTRUCT()
+USTRUCT(Blueprintable)
 struct FItem : public FTableRowBase
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere)
+	FItem()
+	: ItemClass(nullptr), ItemSlot(nullptr)
+	{}
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<ADBItem> ItemClass;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
 };
 
-USTRUCT()
+USTRUCT(Blueprintable)
 struct FWeapon : public FItem
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 };
 
-USTRUCT()
+USTRUCT(Blueprintable)
 struct FArmor : public FItem
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 };
 
-USTRUCT()
+USTRUCT(Blueprintable)
 struct FConsumable : public FItem
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 };
 
-USTRUCT()
+USTRUCT(Blueprintable)
 struct FUtility : public FItem
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 };
