@@ -46,4 +46,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool HasWeapon;
+
+public:
+	UFUNCTION()
+	void AnimNotify_Damage();
 };

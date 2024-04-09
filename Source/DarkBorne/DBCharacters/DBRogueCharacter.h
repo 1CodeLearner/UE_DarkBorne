@@ -36,11 +36,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UDBRogueWeaponComponent* RogueWeaponComp;
 
-public:
 	// 로그 스킬 Comp
 	UPROPERTY(EditAnywhere)
 	class UDBRogueSkillComponent* RogueSkillComponent;
 	
+	UPROPERTY(EditAnywhere)
+	class UDBRogueAttackComponent* RogueAttackComponent;
 
+public:
+	float MaxHP = 100;
+	float CurrHP;
 
 };

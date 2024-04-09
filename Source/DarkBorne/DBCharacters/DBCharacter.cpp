@@ -56,6 +56,16 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	}
 }
 
+void ADBCharacter::OnDamaged(float Damage, ADBCharacter* Attacker)
+{
+	
+}
+
+void ADBCharacter::OnDead(ADBCharacter* Attacker)
+{
+
+}
+
 void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 {
 	FVector2D dir = value.Get<FVector2D>();

@@ -2,6 +2,8 @@
 
 
 #include "DBRogueWeaponComponent.h"
+#include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
+#include "../Items/Weapons/DBWeapon.h"
 
 // Sets default values for this component's properties
 UDBRogueWeaponComponent::UDBRogueWeaponComponent()
@@ -30,5 +32,25 @@ void UDBRogueWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UDBRogueWeaponComponent::SetupPlayerInputComponent(UEnhancedInputComponent* enhancedInputComponent)
+{
+	enhancedInputComponent->BindAction(ia_WeaponSlot, ETriggerEvent::Triggered, this, &UDBRogueWeaponComponent::AttachWeapon);
+		
+}
+
+void UDBRogueWeaponComponent::AttachWeapon()
+{
+	
+	UE_LOG(LogTemp, Warning, TEXT("Attach Weapon"));
+	Dagger = GetWorld()->SpawnActor<ADBWeapon>(DaggerFactory, GetComponentLocation(), GetComponentRotation());
+	if (Dagger)
+	{
+		Dagger->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+	}
+
+	
 }
 
