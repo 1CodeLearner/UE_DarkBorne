@@ -16,9 +16,9 @@ void ADBDropItemManager::BeginPlay()
 	
 }
 
-TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
+TArray<UPDA_ItemSlot*> ADBDropItemManager::GenerateItems(FName RowName)
 {
-	TArray<FItem> ItemsToGenerate;
+	TArray<UPDA_ItemSlot*> ItemsToGenerate;
 	ItemsToGenerate.Empty();
 
 	if (ensureAlways(DT_DropRate && !RowName.IsNone()))
@@ -26,10 +26,10 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 		FDropRate* dropRate = DT_DropRate->FindRow<FDropRate>(RowName, FString::Printf(TEXT("Context")));
 
 		if (!ensureAlwaysMsgf(dropRate, TEXT("Could not find RowName")))
-			return TArray<FItem>();
+			return TArray<UPDA_ItemSlot*>();
 
 		if(!FindCumulativeProbability(dropRate))
-			return TArray<FItem>();
+			return TArray<UPDA_ItemSlot*>();
 
 
 		const int amount = dropRate->Amount;
@@ -57,15 +57,19 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 				int rand = FMath::RandRange(0, RowNames.Num() - 1);
 				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
 
-				ItemsToGenerate.Add(item);
+				
 			}
 		}
 	}
 	else
 	{
-		return TArray<FItem>();
+		return TArray<UPDA_ItemSlot*>();
 	}
 
+
+	ItemsToGenerate.Add(item);
+	
+	
 	return ItemsToGenerate;
 }
 

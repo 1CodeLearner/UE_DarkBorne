@@ -8,6 +8,7 @@
 
 enum class EItemType : uint8;
 struct FDropRate;
+class UPDA_ItemSlot; 
 
 UCLASS()
 class DARKBORNE_API ADBDropItemManager : public AActor
@@ -18,7 +19,7 @@ public:
 	ADBDropItemManager();
 		
 	UFUNCTION(BlueprintCallable)
-	TArray<FItem> GenerateItems(FName RowName);
+	TArray<UPDA_ItemSlot*> GenerateItems(FName RowName);
 
 protected:
 	virtual void BeginPlay() override;

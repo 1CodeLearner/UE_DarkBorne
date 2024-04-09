@@ -53,10 +53,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FText Description;
 
-	//아이탬 장착할때 내는 소리
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
-	USoundBase* EquipSound;
-
 	//인벤토리 안에 아이탬 옮기는 소리
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	USoundBase* InventorySound;
@@ -67,7 +63,17 @@ public:
 	//아이템이 인벤토리 차지하는 사이즈
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FDimension SlotDimension;
+	
+	//아이탬 장착할때 내는 소리
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	USoundBase* EquipSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	EItemType ItemType;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	TSubclassOf<ADBItem> ItemClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	FEffect Effect;
 };

@@ -18,9 +18,9 @@ ATP_ThirdPersonGameMode::ATP_ThirdPersonGameMode()
 	}
 }
 
-TArray<FItem> ATP_ThirdPersonGameMode::GenerateItems(FName MonsterName)
+TArray<UPDA_ItemSlot*> ATP_ThirdPersonGameMode::GenerateItems(FName MonsterName)
 {
-	TArray<FItem> Generated;
+	TArray<UPDA_ItemSlot*> Generated;
 	if (ensureAlways(DropItemManager)) {
 		Generated = DropItemManager->GenerateItems(MonsterName);
 	}
