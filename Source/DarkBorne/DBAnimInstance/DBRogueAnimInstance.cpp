@@ -28,6 +28,7 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		//0 ~ 360 --> -180 ~ 180
 		pitchAngle = -player->GetBaseAimRotation().Pitch;
+		
 
 		pitchAngle = -player->GetBaseAimRotation().GetNormalized().Pitch;
 
@@ -42,4 +43,9 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		}
 
 	}
+}
+
+void UDBRogueAnimInstance::AnimNotify_Damage()
+{
+	
 }

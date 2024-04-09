@@ -6,83 +6,94 @@
 #include "../Items/DBItem.h"
 #include "ItemType.generated.h"
 
-
 class UPDA_ItemSlot;
 
-UENUM()
-enum class ESlotType : uint8
+UENUM(BlueprintType)
+enum class EItemType : uint8
 {
+	NONE UMETA(DisplayName = "None"),
 	WEAPON UMETA(DisplayName = "Weapon"),
-	UPPERWEAR UMETA(DisplayName = "UpperWear"),
-	BOTTOMWEAR UMETA(DisplayName = "BottomWear"),
-	GLOVES UMETA(DisplayName = "Gloves"),
-	BOOTS UMETA(DisplayName = "Boots"),
-	CONSUMABLE UMETA(DisplayName = "Consumable")
+	ARMOR UMETA(DisplayName = "Armor"),
+	CONSUMABLE UMETA(DisplayName = "Consumable"),
+	UTILITY UMETA(DisplayName = "Utility")
 };
 
-USTRUCT()
-struct FLoc
+USTRUCT(Blueprintable)
+struct FDroppedItem
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
+public:
+	FDroppedItem() = default;
+	FDroppedItem(EItemType Type, float rate)
+		: 
+		ItemType(Type), 
+		Probability(rate)
+	{}
 
-	UPROPERTY(EditAnywhere)
-	float X;
-	UPROPERTY(EditAnywhere)
-	float Y;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EItemType ItemType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0"), meta = (ClampMax = "1"))
+	float Probability = 0.f;
 };
-USTRUCT()
-struct FItemSlot
+
+USTRUCT(Blueprintable)
+struct FDropRate : public FTableRowBase
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
+public:
 
-	UPROPERTY(EditAnywhere)
-	FName Id;
+	FDropRate()
+	{
+		Items.Add({ EItemType::WEAPON, 0.f });
+		Items.Add({ EItemType::ARMOR, 0.f });
+		Items.Add({ EItemType::CONSUMABLE, 0.f });
+		Items.Add({ EItemType::UTILITY, 0.f });
+	}
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FDroppedItem> Items;
 
-	UPROPERTY(EditAnywhere)
-	FText DisplayName;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int Amount;
+};
 
-	UPROPERTY(EditAnywhere)
-	USoundBase* EquipSound;
+USTRUCT(Blueprintable)
+struct FItem : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
 
-	//인벤토리 안에 아이탬 옮기다 소리
-	UPROPERTY(EditAnywhere)
-	USoundBase* InventorySound;
+	FItem()
+	: ItemClass(nullptr), ItemSlot(nullptr)
+	{}
 
-	UPROPERTY(EditAnywhere)
-	ESlotType SlotType;
-
-	//아이템이 인벤토리 차지하는 사이즈
-	UPROPERTY(EditAnywhere)
-	FLoc SlotDimension;
-
-	//아이템이 현재 있는 coordinates
-	UPROPERTY(EditAnywhere)
-	FLoc SlotLocation;
-
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<ADBItem> ItemClass;
-};
 
-USTRUCT()
-struct FWeapon : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<ADBItem> ItemClass;
-
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
 };
 
-USTRUCT()
-struct FConsumable : public FTableRowBase
+USTRUCT(Blueprintable)
+struct FWeapon : public FItem
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
+};
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<ADBItem> ItemClass;
+USTRUCT(Blueprintable)
+struct FArmor : public FItem
+{
+	GENERATED_USTRUCT_BODY()
+};
 
-	UPROPERTY(EditAnywhere)
-	UPDA_ItemSlot* ItemSlot;
+USTRUCT(Blueprintable)
+struct FConsumable : public FItem
+{
+	GENERATED_USTRUCT_BODY()
+};
+
+USTRUCT(Blueprintable)
+struct FUtility : public FItem
+{
+	GENERATED_USTRUCT_BODY()
 };

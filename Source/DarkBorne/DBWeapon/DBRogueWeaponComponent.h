@@ -24,5 +24,19 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+public:
+	// Called to bind functionality to input
+	void SetupPlayerInputComponent(class UEnhancedInputComponent* enhancedInputComponent);
+
+public:
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_WeaponSlot;
+
+	UPROPERTY(EditAnywhere)
+	class ADBWeapon* Dagger;
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ADBWeapon> DaggerFactory;
+public:
+	void AttachWeapon();
 };

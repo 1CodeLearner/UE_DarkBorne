@@ -4,6 +4,9 @@
 #include "DBCharacter.h"
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h>
+#include "DBCharacterSkill/DBCharacterSkillComponent.h"
+#include "DBCharacterAttack/DBCharacterAttackComponent.h"
+
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -48,7 +51,19 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedJump);
 		enhancedInputComponent->BindAction(ia_DB_Look, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedLook);
 		
+
+		
 	}
+}
+
+void ADBCharacter::OnDamaged(float Damage, ADBCharacter* Attacker)
+{
+	
+}
+
+void ADBCharacter::OnDead(ADBCharacter* Attacker)
+{
+
 }
 
 void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
@@ -63,6 +78,7 @@ void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 void ADBCharacter::EnhancedJump(const struct FInputActionValue& value)
 {
 	Jump();
+
 }
 
 void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)

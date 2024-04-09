@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "../DBItem.h"
-#include "DBEquipment.generated.h"
+#include "DBUtility.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKBORNE_API ADBEquipment : public ADBItem
+class DARKBORNE_API ADBUtility : public ADBItem
 {
 	GENERATED_BODY()
 	

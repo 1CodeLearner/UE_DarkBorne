@@ -15,21 +15,32 @@ struct FItemStat
 	float MoveSlowRate;
 };
 
-class USkeletalMeshComponent; 
+class UStaticMeshComponent;
 
 UCLASS()
 class DARKBORNE_API ADBItem : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ADBItem();
-	
+
+
+	/*
+	몬타지 플레이 하고 싶은 케릭터를 매개변수에 넣는다.
+	if montage successfully plays, returns true. Returns false otherwise.
+	*/
+	UFUNCTION(BlueprintCallable)
+	bool PlayMontage(ACharacter* PlayerCharacter, FName SectionName);
+
 	virtual void Tick(float DeltaTime) override;
 protected:
 	virtual void BeginPlay() override;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
-	TObjectPtr<USkeletalMeshComponent> SKMComp;
+	TObjectPtr<UStaticMeshComponent> SMComp;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+	TObjectPtr<UAnimMontage> AnimMontage;
 
 private:
 	FName Id;

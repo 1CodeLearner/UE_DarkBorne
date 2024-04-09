@@ -27,6 +27,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void OnDamaged(float Damage, ADBCharacter* Attacker);
+	virtual void OnDead(ADBCharacter* Attacker);
+
 public:
 	//player Mapping Context
 	UPROPERTY(EditAnywhere)
@@ -40,7 +43,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_DB_Jump;
 	
-
 public:
 	//Default 이동 관련 함수들
 	void EnhancedMove(const struct FInputActionValue& value);
