@@ -17,14 +17,6 @@ class DARKBORNE_API ADBRogueCharacter : public ADBCharacter
 public:
 	ADBRogueCharacter();
 
-public:
-	//camera
-	UPROPERTY(EditAnywhere)
-	class UCameraComponent* camera;
-
-	UPROPERTY(EditAnywhere)
-	class UDBRogueWeaponComponent* RogueWeaponComp;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -33,6 +25,21 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+public:
+	//camera
+	UPROPERTY(EditAnywhere)
+	class UCameraComponent* camera;
+
+	// 로그 무기 장착 Scene Comp
+	UPROPERTY(EditAnywhere)
+	class UDBRogueWeaponComponent* RogueWeaponComp;
+
+public:
+	// 로그 스킬 Comp
+	UPROPERTY(EditAnywhere)
+	class UDBRogueSkillComponent* RogueSkillComponent;
 	
 
 
