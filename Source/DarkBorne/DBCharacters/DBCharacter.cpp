@@ -7,14 +7,13 @@
 #include "DBCharacterSkill/DBCharacterSkillComponent.h"
 #include "DBCharacterAttack/DBCharacterAttackComponent.h"
 
+
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	SkillComponent = CreateDefaultSubobject<UDBCharacterSkillComponent>(TEXT("SkillComp"));
-	AttackComponent = CreateDefaultSubobject<UDBCharacterAttackComponent>(TEXT("AttackComp"));
 }
 
 // Called when the game starts or when spawned
@@ -52,9 +51,8 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedJump);
 		enhancedInputComponent->BindAction(ia_DB_Look, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedLook);
 		
-		// Component input Ãß°¡
-		SkillComponent->SetupPlayerInputComponent(enhancedInputComponent);
-		AttackComponent->SetupPlayerInputComponent(enhancedInputComponent);
+
+		
 	}
 }
 

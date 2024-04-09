@@ -4,6 +4,10 @@
 #include "DBRogueCharacter.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
 #include "../DBWeapon/DBRogueWeaponComponent.h"
+#include "DBCharacterSkill/DBCharacterSkillComponent.h"
+#include "DBCharacterSkill/DBRogueSkillComponent.h"
+#include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
+
 
 ADBRogueCharacter::ADBRogueCharacter()
 {
@@ -27,6 +31,8 @@ ADBRogueCharacter::ADBRogueCharacter()
 
 	RogueWeaponComp = CreateDefaultSubobject<UDBRogueWeaponComponent>(TEXT("WeaponComp"));
 	RogueWeaponComp->SetupAttachment(GetMesh(), FName(TEXT("RightHandWeapon")));
+
+	RogueSkillComponent = CreateDefaultSubobject<UDBRogueSkillComponent>(TEXT("RogueSkillComp"));
 }
 
 void ADBRogueCharacter::BeginPlay()
@@ -41,6 +47,16 @@ void ADBRogueCharacter::Tick(float DeltaTime)
 
 }
 
+void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (enhancedInputComponent != nullptr)
+	{
+		RogueSkillComponent->SetupPlayerInputComponent(enhancedInputComponent);
+	}
+}
 
 
 
