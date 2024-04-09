@@ -9,6 +9,8 @@
 enum class EItemType : uint8;
 struct FDropRate;
 class UPDA_ItemSlot; 
+struct FItem;
+struct FEffect; 
 
 UCLASS()
 class DARKBORNE_API ADBDropItemManager : public AActor
@@ -32,5 +34,6 @@ protected:
 
 private:
 	bool FindCumulativeProbability(const FDropRate* DropRate);
+	FEffect CalculateEffect(const FItem& Item);
 	TArray<float> CumulativeProbability;
 };

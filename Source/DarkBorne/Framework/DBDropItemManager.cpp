@@ -3,6 +3,7 @@
 
 #include "DBDropItemManager.h"
 #include "../ItemTypes/ItemType.h"
+#include "../Items/PDA_ItemSlot.h"
 
 ADBDropItemManager::ADBDropItemManager()
 {
@@ -56,8 +57,12 @@ TArray<UPDA_ItemSlot*> ADBDropItemManager::GenerateItems(FName RowName)
 
 				int rand = FMath::RandRange(0, RowNames.Num() - 1);
 				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
-
+								
+				FEffect TempEffect = CalculateEffect(item);
 				
+				item.ItemSlot->Effect = TempEffect;
+
+				ItemsToGenerate.Add(item.ItemSlot);
 			}
 		}
 	}
@@ -65,11 +70,7 @@ TArray<UPDA_ItemSlot*> ADBDropItemManager::GenerateItems(FName RowName)
 	{
 		return TArray<UPDA_ItemSlot*>();
 	}
-
-
-	ItemsToGenerate.Add(item);
-	
-	
+		
 	return ItemsToGenerate;
 }
 
@@ -89,4 +90,21 @@ bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
 	}
 
 	return true;
+}
+
+FEffect ADBDropItemManager::CalculateEffect(const FItem& Item)
+{
+	int max = (int)ERarity::MAX; 
+	int rand = FMath::RandRange(0,  max - 2);
+	
+	FEffect Effect = Item.Effects[rand];
+	
+	if(Effect.Range.min == Effect.Range.max) return Effect;
+	else {
+		rand = FMath::RandRange(Effect.Range.min, Effect.Range.max);
+		Effect.Range.min = rand; 
+		Effect.Range.max = rand;
+	}
+
+	return Effect;
 }
