@@ -15,7 +15,41 @@ enum class EItemType : uint8
 	WEAPON UMETA(DisplayName = "Weapon"),
 	ARMOR UMETA(DisplayName = "Armor"),
 	CONSUMABLE UMETA(DisplayName = "Consumable"),
-	UTILITY UMETA(DisplayName = "Utility")
+	UTILITY UMETA(DisplayName = "Utility"),
+	MAX UMETA(DisplayName = "Max")
+};
+
+UENUM(BlueprintType)
+enum class ERarity : uint8
+{
+	NONE UMETA(DisplayName = "None"),
+	COMMON UMETA(DisplayName = "Common"),
+	RARE UMETA(DisplayName = "Rare"),
+	EPIC UMETA(DisplayName = "Epic"),
+	MAX UMETA(DisplayName = "Max")
+};
+
+USTRUCT(Blueprintable)
+struct FEffectRange
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
+	float min;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
+	float max;
+};
+
+USTRUCT(Blueprintable)
+struct FEffect
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	ERarity Rarity;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FEffectRange Range;
 };
 
 USTRUCT(Blueprintable)
@@ -25,8 +59,8 @@ struct FDroppedItem
 public:
 	FDroppedItem() = default;
 	FDroppedItem(EItemType Type, float rate)
-		: 
-		ItemType(Type), 
+		:
+		ItemType(Type),
 		Probability(rate)
 	{}
 
@@ -50,7 +84,7 @@ public:
 		Items.Add({ EItemType::CONSUMABLE, 0.f });
 		Items.Add({ EItemType::UTILITY, 0.f });
 	}
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FDroppedItem> Items;
 
@@ -64,14 +98,18 @@ struct FItem : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 
 	FItem()
-	: ItemClass(nullptr), ItemSlot(nullptr)
-	{}
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<ADBItem> ItemClass;
+		: ItemSlot(nullptr)
+	{
+		Effects.Add({ERarity::COMMON, {0.f, 0.f}});
+		Effects.Add({ERarity::RARE, {0.f, 0.f}});
+		Effects.Add({ERarity::EPIC, {0.f, 0.f}});
+	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FEffect> Effects;
 };
 
 USTRUCT(Blueprintable)

@@ -3,6 +3,7 @@
 
 #include "DBDropItemManager.h"
 #include "../ItemTypes/ItemType.h"
+#include "../Items/PDA_ItemSlot.h"
 
 ADBDropItemManager::ADBDropItemManager()
 {
@@ -16,9 +17,9 @@ void ADBDropItemManager::BeginPlay()
 	
 }
 
-TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
+TArray<UPDA_ItemSlot*> ADBDropItemManager::GenerateItems(FName RowName)
 {
-	TArray<FItem> ItemsToGenerate;
+	TArray<UPDA_ItemSlot*> ItemsToGenerate;
 	ItemsToGenerate.Empty();
 
 	if (ensureAlways(DT_DropRate && !RowName.IsNone()))
@@ -26,10 +27,10 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 		FDropRate* dropRate = DT_DropRate->FindRow<FDropRate>(RowName, FString::Printf(TEXT("Context")));
 
 		if (!ensureAlwaysMsgf(dropRate, TEXT("Could not find RowName")))
-			return TArray<FItem>();
+			return TArray<UPDA_ItemSlot*>();
 
 		if(!FindCumulativeProbability(dropRate))
-			return TArray<FItem>();
+			return TArray<UPDA_ItemSlot*>();
 
 
 		const int amount = dropRate->Amount;
@@ -56,16 +57,20 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 
 				int rand = FMath::RandRange(0, RowNames.Num() - 1);
 				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
+								
+				FEffect TempEffect = CalculateEffect(item);
+				
+				item.ItemSlot->Effect = TempEffect;
 
-				ItemsToGenerate.Add(item);
+				ItemsToGenerate.Add(item.ItemSlot);
 			}
 		}
 	}
 	else
 	{
-		return TArray<FItem>();
+		return TArray<UPDA_ItemSlot*>();
 	}
-
+		
 	return ItemsToGenerate;
 }
 
@@ -85,4 +90,21 @@ bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
 	}
 
 	return true;
+}
+
+FEffect ADBDropItemManager::CalculateEffect(const FItem& Item)
+{
+	int max = (int)ERarity::MAX; 
+	int rand = FMath::RandRange(0,  max - 2);
+	
+	FEffect Effect = Item.Effects[rand];
+	
+	if(Effect.Range.min == Effect.Range.max) return Effect;
+	else {
+		rand = FMath::RandRange(Effect.Range.min, Effect.Range.max);
+		Effect.Range.min = rand; 
+		Effect.Range.max = rand;
+	}
+
+	return Effect;
 }
