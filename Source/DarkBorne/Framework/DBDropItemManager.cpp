@@ -17,9 +17,9 @@ void ADBDropItemManager::BeginPlay()
 	
 }
 
-TArray<UPDA_ItemSlot*> ADBDropItemManager::GenerateItems(FName RowName)
+TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 {
-	TArray<UPDA_ItemSlot*> ItemsToGenerate;
+	TArray<FItem> ItemsToGenerate;
 	ItemsToGenerate.Empty();
 
 	if (ensureAlways(DT_DropRate && !RowName.IsNone()))
@@ -27,18 +27,18 @@ TArray<UPDA_ItemSlot*> ADBDropItemManager::GenerateItems(FName RowName)
 		FDropRate* dropRate = DT_DropRate->FindRow<FDropRate>(RowName, FString::Printf(TEXT("Context")));
 
 		if (!ensureAlwaysMsgf(dropRate, TEXT("Could not find RowName")))
-			return TArray<UPDA_ItemSlot*>();
+			return TArray<FItem>();
 
 		if(!FindCumulativeProbability(dropRate))
-			return TArray<UPDA_ItemSlot*>();
+			return TArray<FItem>();
 
 
 		const int amount = dropRate->Amount;
-
+		const TArray<FDroppedItem>& items = dropRate->Items;
+		
 		for (int i = 0; i < amount; ++i)
 		{
 			FDroppedItem itemDropped;
-			const TArray<FDroppedItem>& items = dropRate->Items;
 			float rate = FMath::RandRange(0.f, 1.f);
 
 			for (int j = 0; j < CumulativeProbability.Num(); ++j)
@@ -56,20 +56,14 @@ TArray<UPDA_ItemSlot*> ADBDropItemManager::GenerateItems(FName RowName)
 				TArray<FName> RowNames = ItemTable->GetRowNames();
 
 				int rand = FMath::RandRange(0, RowNames.Num() - 1);
-				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
-								
-				FEffect TempEffect = CalculateEffect(item);
+				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));								
 				
-				item.ItemSlot->Effect = TempEffect;
-
-				ItemsToGenerate.Add(item.ItemSlot);
+				AssignEffect(item);
+				ItemsToGenerate.Add(item);
 			}
 		}
 	}
-	else
-	{
-		return TArray<UPDA_ItemSlot*>();
-	}
+	else return TArray<FItem>();
 		
 	return ItemsToGenerate;
 }
@@ -92,19 +86,19 @@ bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
 	return true;
 }
 
-FEffect ADBDropItemManager::CalculateEffect(const FItem& Item)
+void ADBDropItemManager::AssignEffect(FItem& Item)
 {
-	int max = (int)ERarity::MAX; 
-	int rand = FMath::RandRange(0,  max - 2);
+	int max = Item.Effects.Num() - 1; 
+	int rand = FMath::RandRange(0,  max);
 	
 	FEffect Effect = Item.Effects[rand];
 	
-	if(Effect.Range.min == Effect.Range.max) return Effect;
-	else {
+	if(Effect.Range.min != Effect.Range.max)
+	{
 		rand = FMath::RandRange(Effect.Range.min, Effect.Range.max);
 		Effect.Range.min = rand; 
 		Effect.Range.max = rand;
 	}
-
-	return Effect;
+	Item.Effects.Empty();
+	Item.Effects.Add(Effect);
 }

@@ -18,9 +18,9 @@ ATP_ThirdPersonGameMode::ATP_ThirdPersonGameMode()
 	}
 }
 
-TArray<UPDA_ItemSlot*> ATP_ThirdPersonGameMode::GenerateItems(FName MonsterName)
+TArray<FItem> ATP_ThirdPersonGameMode::GenerateItems(FName MonsterName)
 {
-	TArray<UPDA_ItemSlot*> Generated;
+	TArray<FItem> Generated;
 	if (ensureAlways(DropItemManager)) {
 		Generated = DropItemManager->GenerateItems(MonsterName);
 	}
@@ -41,6 +41,6 @@ void ATP_ThirdPersonGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	UE_LOG(LogTemp,Warning, TEXT("What's up? %s"), *GetNameSafe(DropItemManager));
+	//UE_LOG(LogTemp,Warning, TEXT("What's up? %s"), *GetNameSafe(DropItemManager));
 }
 

@@ -48,8 +48,23 @@ struct FEffect
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ERarity Rarity;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FEffectRange Range;
+};
+
+USTRUCT(Blueprintable)
+struct FDamageOnHit : public FEffect
+{
+	GENERATED_USTRUCT_BODY()
+	float what; 
+};
+
+USTRUCT(Blueprintable)
+struct FMagicResistance : public FEffect
+{
+	GENERATED_USTRUCT_BODY()
+	int testing;
 };
 
 USTRUCT(Blueprintable)
@@ -100,14 +115,14 @@ struct FItem : public FTableRowBase
 	FItem()
 		: ItemSlot(nullptr)
 	{
-		Effects.Add({ERarity::COMMON, {0.f, 0.f}});
-		Effects.Add({ERarity::RARE, {0.f, 0.f}});
-		Effects.Add({ERarity::EPIC, {0.f, 0.f}});
+		Effects.Add({ ERarity::COMMON, {0.f, 0.f} });
+		Effects.Add({ ERarity::RARE, {0.f, 0.f} });
+		Effects.Add({ ERarity::EPIC, {0.f, 0.f} });
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FEffect> Effects;
 };

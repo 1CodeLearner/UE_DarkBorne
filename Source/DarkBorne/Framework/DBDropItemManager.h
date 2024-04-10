@@ -7,8 +7,7 @@
 #include "DBDropItemManager.generated.h"
 
 enum class EItemType : uint8;
-struct FDropRate;
-class UPDA_ItemSlot; 
+struct FDropRate; 
 struct FItem;
 struct FEffect; 
 
@@ -21,7 +20,7 @@ public:
 	ADBDropItemManager();
 		
 	UFUNCTION(BlueprintCallable)
-	TArray<UPDA_ItemSlot*> GenerateItems(FName RowName);
+	TArray<FItem> GenerateItems(FName RowName);
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,6 +33,6 @@ protected:
 
 private:
 	bool FindCumulativeProbability(const FDropRate* DropRate);
-	FEffect CalculateEffect(const FItem& Item);
+	void AssignEffect(FItem& Item);
 	TArray<float> CumulativeProbability;
 };
