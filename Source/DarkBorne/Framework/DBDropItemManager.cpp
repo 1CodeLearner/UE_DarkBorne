@@ -95,7 +95,7 @@ void ADBDropItemManager::AssignEffect(FItem& Item)
 	
 	if(Effect.Range.min != Effect.Range.max)
 	{
-		rand = FMath::RandRange(Effect.Range.min, Effect.Range.max);
+		rand = FMath::RandRange(Effect.Range.min, Effect.Range.max + 1.f);
 		Effect.Range.min = rand; 
 		Effect.Range.max = rand;
 	}

@@ -54,17 +54,12 @@ struct FEffect
 };
 
 USTRUCT(Blueprintable)
-struct FDamageOnHit : public FEffect
+struct FEffectHolder
 {
 	GENERATED_USTRUCT_BODY()
-	float what; 
-};
 
-USTRUCT(Blueprintable)
-struct FMagicResistance : public FEffect
-{
-	GENERATED_USTRUCT_BODY()
-	int testing;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FEffect> Effects;
 };
 
 USTRUCT(Blueprintable)
@@ -115,9 +110,13 @@ struct FItem : public FTableRowBase
 	FItem()
 		: ItemSlot(nullptr)
 	{
-		Effects.Add({ ERarity::COMMON, {0.f, 0.f} });
-		Effects.Add({ ERarity::RARE, {0.f, 0.f} });
-		Effects.Add({ ERarity::EPIC, {0.f, 0.f} });
+		TArray<FEffect> effect;
+
+		effect.Add({ ERarity::COMMON, {0.f, 0.f} });
+		effect.Add({ ERarity::RARE, {0.f, 0.f} });
+		effect.Add({ ERarity::EPIC, {0.f, 0.f} });
+		Effects = effect;
+		//EffectHolder.Add({effect});
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
