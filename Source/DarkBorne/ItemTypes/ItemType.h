@@ -7,6 +7,7 @@
 #include "ItemType.generated.h"
 
 class UPDA_ItemSlot;
+enum class ESlotType : uint8;
 
 UENUM(BlueprintType)
 enum class EItemType : uint8
@@ -30,7 +31,7 @@ enum class ERarity : uint8
 };
 
 USTRUCT(Blueprintable)
-struct FEffectRange
+struct FRange
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -41,6 +42,9 @@ struct FEffectRange
 	float max;
 };
 
+/// <summary>
+/// Defines base stat for any given item, excluding enhancements.
+/// </summary>
 USTRUCT(Blueprintable)
 struct FEffect
 {
@@ -50,7 +54,7 @@ struct FEffect
 	ERarity Rarity;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FEffectRange Range;
+	FRange Range;
 };
 
 USTRUCT(Blueprintable)
@@ -60,6 +64,25 @@ struct FEffectHolder
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FEffect> Effects;
+};
+
+UENUM(BlueprintType)
+enum class EAttribute : uint8 
+{
+	STRENGTH UMETA(DisplayName="Strength"),
+	DEXTERITY UMETA(DisplayName="Dexterity")
+};
+
+USTRUCT(Blueprintable)
+struct FEnhancement : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EAttribute Attribute;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FRange Range;
 };
 
 USTRUCT(Blueprintable)
@@ -81,6 +104,10 @@ public:
 	float Probability = 0.f;
 };
 
+
+/// <summary>
+/// Defines the probability of drops and what types of items are dropped from monsters.
+/// </summary>
 USTRUCT(Blueprintable)
 struct FDropRate : public FTableRowBase
 {
@@ -102,6 +129,9 @@ public:
 	int Amount;
 };
 
+/// <summary>
+/// Item used in inventory, Do not modify anything in ItemSlot.
+/// </summary>
 USTRUCT(Blueprintable)
 struct FItem : public FTableRowBase
 {
@@ -110,19 +140,13 @@ struct FItem : public FTableRowBase
 	FItem()
 		: ItemSlot(nullptr)
 	{
-		TArray<FEffect> effect;
-
-		effect.Add({ ERarity::COMMON, {0.f, 0.f} });
-		effect.Add({ ERarity::RARE, {0.f, 0.f} });
-		effect.Add({ ERarity::EPIC, {0.f, 0.f} });
-		Effects = effect;
 		//EffectHolder.Add({effect});
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	TArray<FEffect> Effects;
 };
 
@@ -136,7 +160,7 @@ USTRUCT(Blueprintable)
 struct FArmor : public FItem
 {
 	GENERATED_USTRUCT_BODY()
-};
+}; 
 
 USTRUCT(Blueprintable)
 struct FConsumable : public FItem

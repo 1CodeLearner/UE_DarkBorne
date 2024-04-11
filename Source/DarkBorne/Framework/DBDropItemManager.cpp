@@ -16,7 +16,16 @@ void ADBDropItemManager::BeginPlay()
 	Super::BeginPlay();
 	
 }
-
+/// <summary>
+/// Creates array of FItem instances for inventory. 
+/// Each FItem instance is assigned a unique stat named Effect.
+///  
+/// </summary>
+/// <param name="RowName"> : Name of a monster from which to generate items. Name must match the row names of DT_DropRate data table.
+/// </param>
+/// <returns>
+/// Returns instances of generated items. Returns empty if an error occured.
+/// </returns>
 TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 {
 	TArray<FItem> ItemsToGenerate;
@@ -61,6 +70,7 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 				AssignEffect(item);
 				ItemsToGenerate.Add(item);
 			}
+			else return TArray<FItem>();
 		}
 	}
 	else return TArray<FItem>();
@@ -88,10 +98,10 @@ bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
 
 void ADBDropItemManager::AssignEffect(FItem& Item)
 {
-	int max = Item.Effects.Num() - 1; 
+	int max = Item.ItemSlot->Effects.Num() - 1; 
 	int rand = FMath::RandRange(0,  max);
 	
-	FEffect Effect = Item.Effects[rand];
+	FEffect Effect = Item.ItemSlot->Effects[rand];
 	
 	if(Effect.Range.min != Effect.Range.max)
 	{

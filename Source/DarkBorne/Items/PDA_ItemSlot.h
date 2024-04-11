@@ -8,9 +8,9 @@
 #include "PDA_ItemSlot.generated.h"
 
 /**
- * 
+ *
  */
-  
+
 UENUM()
 enum class ESlotType : uint8
 {
@@ -41,7 +41,15 @@ class DARKBORNE_API UPDA_ItemSlot : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
+	UPDA_ItemSlot() 
+	{
+		Effects.Add({ ERarity::COMMON, {0.f, 0.f} });
+		Effects.Add({ ERarity::RARE, {0.f, 0.f} });
+		Effects.Add({ ERarity::EPIC, {0.f, 0.f} });
+	}
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FName Id;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
@@ -63,17 +71,17 @@ public:
 	//아이템이 인벤토리 차지하는 사이즈
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FDimension SlotDimension;
-	
+
 	//아이탬 장착할때 내는 소리
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	USoundBase* EquipSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	EItemType ItemType;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
-	TSubclassOf<ADBItem> ItemClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
-	FEffect Effect;
+	TArray<FEffect> Effects;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	TSubclassOf<ADBItem> ItemClass;
 };
