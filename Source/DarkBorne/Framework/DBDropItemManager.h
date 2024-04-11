@@ -7,18 +7,18 @@
 #include "DBDropItemManager.generated.h"
 
 enum class EItemType : uint8;
-struct FDropRate; 
+struct FDropRate;
 struct FItem;
-struct FEffect; 
+struct FEffect;
 
 UCLASS()
 class DARKBORNE_API ADBDropItemManager : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ADBDropItemManager();
-		
+
 	UFUNCTION(BlueprintCallable)
 	TArray<FItem> GenerateItems(FName RowName);
 
@@ -30,9 +30,14 @@ protected:
 	TMap<EItemType, UDataTable*> ItemTableMap;
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	UDataTable* DT_DropRate;
+	UPROPERTY(EditAnywhere, Category = "Settings")
+	UDataTable* DT_Enhancements;
 
 private:
 	bool FindCumulativeProbability(const FDropRate* DropRate);
 	void AssignEffect(FItem& Item);
+	void AssignEnhancement(FItem& Item);
 	TArray<float> CumulativeProbability;
+
+
 };

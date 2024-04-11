@@ -14,7 +14,7 @@ ADBDropItemManager::ADBDropItemManager()
 void ADBDropItemManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 /// <summary>
 /// Creates array of FItem instances for inventory. 
@@ -38,13 +38,13 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 		if (!ensureAlwaysMsgf(dropRate, TEXT("Could not find RowName")))
 			return TArray<FItem>();
 
-		if(!FindCumulativeProbability(dropRate))
+		if (!FindCumulativeProbability(dropRate))
 			return TArray<FItem>();
 
 
 		const int amount = dropRate->Amount;
 		const TArray<FDroppedItem>& items = dropRate->Items;
-		
+
 		for (int i = 0; i < amount; ++i)
 		{
 			FDroppedItem itemDropped;
@@ -54,8 +54,8 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 			{
 				if (rate <= CumulativeProbability[j])
 				{
-					 itemDropped = items[j];
-					 break;
+					itemDropped = items[j];
+					break;
 				}
 			}
 
@@ -65,16 +65,17 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 				TArray<FName> RowNames = ItemTable->GetRowNames();
 
 				int rand = FMath::RandRange(0, RowNames.Num() - 1);
-				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));								
-				
+				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
+
 				AssignEffect(item);
+				AssignEnhancement(item);
 				ItemsToGenerate.Add(item);
 			}
 			else return TArray<FItem>();
 		}
 	}
 	else return TArray<FItem>();
-		
+
 	return ItemsToGenerate;
 }
 
@@ -98,17 +99,61 @@ bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
 
 void ADBDropItemManager::AssignEffect(FItem& Item)
 {
-	int max = Item.ItemSlot->Effects.Num() - 1; 
-	int rand = FMath::RandRange(0,  max);
-	
+	int max = Item.ItemSlot->Effects.Num() - 1;
+	int rand = FMath::RandRange(0, max);
+
 	FEffect Effect = Item.ItemSlot->Effects[rand];
-	
-	if(Effect.Range.min != Effect.Range.max)
+
+	if (Effect.Range.min != Effect.Range.max)
 	{
 		rand = FMath::RandRange(Effect.Range.min, Effect.Range.max + 1.f);
-		Effect.Range.min = rand; 
+		Effect.Range.min = rand;
 		Effect.Range.max = rand;
 	}
 	Item.Effects.Empty();
 	Item.Effects.Add(Effect);
+}
+
+void ADBDropItemManager::AssignEnhancement(FItem& Item)
+{
+	if (!ensureAlwaysMsgf(Item.Effects.Num() > 0, TEXT("Ensure AssignEffect() is called before AssignEnhancement()")))
+		return;
+
+	if (!ensureAlways(DT_Enhancements))
+		return;
+
+	FEnhancement* Enhancement = nullptr;
+
+	ERarity rarity = Item.Effects[0].Rarity;
+
+	ESlotType SlotType = Item.ItemSlot->SlotType;
+	FName SlotTypeName = FName(UEnum::GetValueAsString<ESlotType>(SlotType));
+
+	TArray<FName> RowNames = DT_Enhancements->GetRowNames();
+
+	for (FName RowName : RowNames) {
+		if (SlotTypeName == RowName) {
+			Enhancement = DT_Enhancements->FindRow<FEnhancement>(RowName, FString::Printf(TEXT("AssignEnhancement")));
+			break;
+		}
+	}
+
+	if(!ensureAlways(Enhancement)) return;
+
+	std::vector<std::vector<bool>> added;
+	
+	added.emplace_back(Enhancement->Attributes.Num(), false);
+
+	//int EnhancementAmt = (int)rarity;
+	//TArray<FEnhancement> EnhancementsAdded;
+	//for (int i = 0; i < EnhancementAmt; ++i) {
+	//	bool flag = true;
+	//	while (flag) {
+
+
+
+
+
+	//	}
+	//}
 }
