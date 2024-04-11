@@ -161,7 +161,7 @@ struct FItem : public FTableRowBase
 	GENERATED_BODY()
 
 	FItem()
-		: FItem(nullptr, TArray<FEffect>(), TArray<FEnhancement>())
+		: ItemSlot(nullptr), Effects(TArray<FEffect>()), Enhancements(TArray<FEnhancement>()), id(TEXT(""))
 	{
 
 		//EffectHolder.Add({effect});
@@ -170,17 +170,23 @@ struct FItem : public FTableRowBase
 	FItem(UPDA_ItemSlot* _Slot, TArray<FEffect> _Effects, TArray<FEnhancement> _Enhancements)
 		: ItemSlot(_Slot), Effects(_Effects), Enhancements(_Enhancements)
 	{
-		if (id.IsEmpty()) {
-			FGuid guid = FGuid::NewGuid();
-			id = guid.ToString();
-		}
+		FGuid guid = FGuid::NewGuid();
+		id = guid.ToString();
 	}
 
 	FItem(const FItem& other)
-		: FItem(other.ItemSlot, other.Effects, other.Enhancements)
+		: ItemSlot(other.ItemSlot), Effects(other.Effects), Enhancements(other.Enhancements), id(other.id)
 	{}
 
-	bool operator==(const FItem& other) const 
+	FItem& operator=(const FItem& other) {
+		ItemSlot = other.ItemSlot;
+		Effects = other.Effects;
+		Enhancements = other.Enhancements; 
+		id = other.id;
+		return *this;
+	}
+
+	bool operator==(const FItem& other) const
 	{
 		return id == other.id;
 	}
