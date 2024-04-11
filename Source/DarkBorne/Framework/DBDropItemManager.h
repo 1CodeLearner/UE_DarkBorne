@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "../ItemTypes/ItemType.h"
 #include "DBDropItemManager.generated.h"
 
 enum class EItemType : uint8;
 struct FDropRate;
-struct FItem;
 struct FEffect;
 
 UCLASS()
@@ -38,6 +38,4 @@ private:
 	void AssignEffect(FItem& Item);
 	void AssignEnhancement(FItem& Item);
 	TArray<float> CumulativeProbability;
-
-
 };
