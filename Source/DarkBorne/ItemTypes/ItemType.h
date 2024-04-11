@@ -7,7 +7,20 @@
 #include "ItemType.generated.h"
 
 class UPDA_ItemSlot;
-enum class ESlotType : uint8;
+
+UENUM()
+enum class ESlotType : uint8
+{
+	WEAPON UMETA(DisplayName = "Weapon"),
+	UTILITY UMETA(DisplayName = "Utility"),
+	CONSUMABLE UMETA(DisplayName = "Consumable"),
+	HEAD UMETA(DisplayName = "Head"),
+	UPPERWEAR UMETA(DisplayName = "UpperWear"),
+	BOTTOMWEAR UMETA(DisplayName = "BottomWear"),
+	GLOVES UMETA(DisplayName = "Gloves"),
+	BOOTS UMETA(DisplayName = "Boots"),
+	NONE UMETA(Displayname = "None")
+};
 
 UENUM(BlueprintType)
 enum class EItemType : uint8
@@ -67,10 +80,22 @@ struct FEffectHolder
 };
 
 UENUM(BlueprintType)
-enum class EAttribute : uint8 
+enum class EAttributeType : uint8 
 {
 	STRENGTH UMETA(DisplayName="Strength"),
 	DEXTERITY UMETA(DisplayName="Dexterity")
+};
+
+USTRUCT(Blueprintable)
+struct FAttribute
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EAttributeType AttributeType;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FRange Range;
 };
 
 USTRUCT(Blueprintable)
@@ -79,10 +104,7 @@ struct FEnhancement : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	EAttribute Attribute;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FRange Range;
+	TArray<FAttribute> Attributes;
 };
 
 USTRUCT(Blueprintable)
@@ -148,6 +170,9 @@ struct FItem : public FTableRowBase
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FEffect> Effects;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FEnhancement> Enhancements;
 };
 
 USTRUCT(Blueprintable)

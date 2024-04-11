@@ -11,19 +11,6 @@
  *
  */
 
-UENUM()
-enum class ESlotType : uint8
-{
-	WEAPON UMETA(DisplayName = "Weapon"),
-	UTILITY UMETA(DisplayName = "Utility"),
-	CONSUMABLE UMETA(DisplayName = "Consumable"),
-	HEAD UMETA(DisplayName = "Head"),
-	UPPERWEAR UMETA(DisplayName = "UpperWear"),
-	BOTTOMWEAR UMETA(DisplayName = "BottomWear"),
-	GLOVES UMETA(DisplayName = "Gloves"),
-	BOOTS UMETA(DisplayName = "Boots"),
-	NONE UMETA(Displayname = "None")
-};
 
 USTRUCT(Blueprintable)
 struct FDimension
@@ -41,12 +28,7 @@ class DARKBORNE_API UPDA_ItemSlot : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 public:
-	UPDA_ItemSlot() 
-	{
-		Effects.Add({ ERarity::COMMON, {0.f, 0.f} });
-		Effects.Add({ ERarity::RARE, {0.f, 0.f} });
-		Effects.Add({ ERarity::EPIC, {0.f, 0.f} });
-	}
+	UPDA_ItemSlot() = default;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
