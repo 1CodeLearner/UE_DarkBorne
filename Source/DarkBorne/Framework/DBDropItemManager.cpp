@@ -68,7 +68,7 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
 
 				AssignEffect(item);
-				AssignEnhancement(item);
+				AssignEnchantment(item);
 				ItemsToGenerate.Add(item);
 			}
 			else return TArray<FItem>();
@@ -113,7 +113,7 @@ void ADBDropItemManager::AssignEffect(FItem& Item)
 	Item.Effects.Add(Effect);
 }
 
-void ADBDropItemManager::AssignEnhancement(FItem& Item)
+void ADBDropItemManager::AssignEnchantment(FItem& Item)
 {
 	if (!ensureAlwaysMsgf(Item.Effects.Num() > 0, TEXT("Ensure AssignEffect() is called before AssignEnhancement()")))
 		return;
@@ -121,7 +121,7 @@ void ADBDropItemManager::AssignEnhancement(FItem& Item)
 	if (!ensureAlways(DT_Enhancements))
 		return;
 
-	FEnhancement* Enhancement = nullptr;
+	FEnchantment* Enchantment = nullptr;
 
 	ERarity rarity = Item.Effects[0].Rarity;
 
@@ -132,27 +132,29 @@ void ADBDropItemManager::AssignEnhancement(FItem& Item)
 
 	for (FName RowName : RowNames) {
 		if (SlotTypeName == RowName) {
-			Enhancement = DT_Enhancements->FindRow<FEnhancement>(RowName, FString::Printf(TEXT("AssignEnhancement")));
+			Enchantment = DT_Enhancements->FindRow<FEnchantment>(RowName, FString::Printf(TEXT("AssignEnhancement")));
 			break;
 		}
 	}
 
-	if (!ensureAlways(Enhancement)) return;
+	if (!ensureAlways(Enchantment)) return;
 
 	std::vector<std::vector<bool>> added;
 
-	added.emplace_back(Enhancement->Attributes.Num(), false);
+	added.emplace_back(Enchantment->Attributes.Num(), false);
 
-	//int EnhancementAmt = (int)rarity;
-	//TArray<FEnhancement> EnhancementsAdded;
-	//for (int i = 0; i < EnhancementAmt; ++i) {
-	//	bool flag = true;
-	//	while (flag) {
+	int EnchantmentAmt = (int)rarity;
+	TArray<FEnchantment> EnchantmentsAdded;
+	for (int i = 0; i < EnchantmentAmt; ++i) {
+		bool flag = true;
+		while (flag) {
+			int j = FMath::RandRange(0, added.size() - 1);
+			int k = FMath::RandRange(0, added[j].size() - 1);
 
+			if(added[j][k]) continue;
 
+			flag = false;
 
-
-
-	//	}
-	//}
+		}
+	}
 }

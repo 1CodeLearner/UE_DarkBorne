@@ -99,13 +99,23 @@ struct FAttribute
 	FRange Range;
 };
 
+UENUM()
+enum class EEnchantmentType : uint8
+{
+	NONE UMETA(DisplayName="None"),
+	ATTRIBUTE UMETA(DisplayName="Attribute"),
+	MAX UMETA(DisplayName="MAX")
+};
+
 USTRUCT(Blueprintable)
-struct FEnhancement : public FTableRowBase
+struct FEnchantment : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FAttribute> Attributes;
+
+	
 };
 
 USTRUCT(Blueprintable)
@@ -210,7 +220,7 @@ struct FItem : public FTableRowBase
 	TArray<FEffect> Effects;
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FEnhancement> Enhancements;
+	TArray<FEnchantment> Enchantments;
 
 	//UPROPERTY(BlueprintReadOnly)
 	//FString id = TEXT("");

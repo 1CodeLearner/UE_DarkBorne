@@ -36,6 +36,6 @@ protected:
 private:
 	bool FindCumulativeProbability(const FDropRate* DropRate);
 	void AssignEffect(FItem& Item);
-	void AssignEnhancement(FItem& Item);
+	void AssignEnchantment(FItem& Item);
 	TArray<float> CumulativeProbability;
 };
