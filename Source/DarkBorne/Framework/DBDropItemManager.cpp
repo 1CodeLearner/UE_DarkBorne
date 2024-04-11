@@ -75,7 +75,6 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 		}
 	}
 	else return TArray<FItem>();
-
 	return ItemsToGenerate;
 }
 
@@ -138,10 +137,10 @@ void ADBDropItemManager::AssignEnhancement(FItem& Item)
 		}
 	}
 
-	if(!ensureAlways(Enhancement)) return;
+	if (!ensureAlways(Enhancement)) return;
 
 	std::vector<std::vector<bool>> added;
-	
+
 	added.emplace_back(Enhancement->Attributes.Num(), false);
 
 	//int EnhancementAmt = (int)rarity;

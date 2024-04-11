@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "../Items/DBItem.h"
+#include "Misc/Crc.h"
 #include "ItemType.generated.h"
 
 class UPDA_ItemSlot;
@@ -80,10 +81,10 @@ struct FEffectHolder
 };
 
 UENUM(BlueprintType)
-enum class EAttributeType : uint8 
+enum class EAttributeType : uint8
 {
-	STRENGTH UMETA(DisplayName="Strength"),
-	DEXTERITY UMETA(DisplayName="Dexterity")
+	STRENGTH UMETA(DisplayName = "Strength"),
+	DEXTERITY UMETA(DisplayName = "Dexterity")
 };
 
 USTRUCT(Blueprintable)
@@ -93,7 +94,7 @@ struct FAttribute
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EAttributeType AttributeType;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FRange Range;
 };
@@ -157,12 +158,37 @@ public:
 USTRUCT(Blueprintable)
 struct FItem : public FTableRowBase
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	FItem()
-		: ItemSlot(nullptr)
+		: ItemSlot(nullptr), Effects(TArray<FEffect>()), Enhancements(TArray<FEnhancement>()), id(TEXT(""))
 	{
+
 		//EffectHolder.Add({effect});
+	}
+
+	FItem(UPDA_ItemSlot* _Slot, TArray<FEffect> _Effects, TArray<FEnhancement> _Enhancements)
+		: ItemSlot(_Slot), Effects(_Effects), Enhancements(_Enhancements)
+	{
+		FGuid guid = FGuid::NewGuid();
+		id = guid.ToString();
+	}
+
+	FItem(const FItem& other)
+		: ItemSlot(other.ItemSlot), Effects(other.Effects), Enhancements(other.Enhancements), id(other.id)
+	{}
+
+	FItem& operator=(const FItem& other) {
+		ItemSlot = other.ItemSlot;
+		Effects = other.Effects;
+		Enhancements = other.Enhancements; 
+		id = other.id;
+		return *this;
+	}
+
+	bool operator==(const FItem& other) const
+	{
+		return id == other.id;
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -173,7 +199,24 @@ struct FItem : public FTableRowBase
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FEnhancement> Enhancements;
+
+	UPROPERTY(BlueprintReadOnly)
+	FString id = TEXT("");
 };
+
+#if UE_BUILD_DEBUG
+uint32 GetTypeHash(const FItem& Thing)
+{
+	uint32 Hash = FCrc::MemCrc32(&Thing, sizeof(FItem));
+	return Hash;
+}
+#else // optimize by inlining in shipping and development builds
+FORCEINLINE uint32 GetTypeHash(const FItem& Thing)
+{
+	uint32 Hash = FCrc::MemCrc32(&Thing, sizeof(FItem));
+	return Hash;
+}
+#endif
 
 USTRUCT(Blueprintable)
 struct FWeapon : public FItem
@@ -185,7 +228,7 @@ USTRUCT(Blueprintable)
 struct FArmor : public FItem
 {
 	GENERATED_USTRUCT_BODY()
-}; 
+};
 
 USTRUCT(Blueprintable)
 struct FConsumable : public FItem
