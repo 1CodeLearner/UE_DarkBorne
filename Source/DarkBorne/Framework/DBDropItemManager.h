@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "../ItemTypes/ItemType.h"
 #include "DBDropItemManager.generated.h"
 
 enum class EItemType : uint8;
@@ -38,6 +37,9 @@ private:
 	void AssignEffect(FItem& Item);
 	void AssignEnchantment(FItem& Item);
 
+	template<typename U>
+	void ProcessEnchantment(TArray<U>& Generated, const TArray<U>& Enchantment, std::vector<bool>& checkDuplicate, int& counter);
+
 	template<class T>
 	void GenerateStatFromRange(T& Range);
 	TArray<float> CumulativeProbability;
@@ -52,4 +54,25 @@ inline void ADBDropItemManager::GenerateStatFromRange(T& Range)
 		Range.min = rand;
 		Range.max = rand;
 	}
+}
+
+
+
+template<typename U>
+void ADBDropItemManager::ProcessEnchantment(TArray<U>& Generated, const TArray<U>& Enchantment, std::vector<bool>& checkDuplicate, int& counter)
+{
+	if (checkDuplicate.size() == 0)
+		checkDuplicate.resize(Enchantment.Num(), false);
+
+	int randIndex = FMath::RandRange(0, Enchantment.Num() - 1);
+	if (checkDuplicate[randIndex])
+		return;
+
+	U NewEnchantment = Enchantment[randIndex];
+
+	GenerateStatFromRange(NewEnchantment.Range);
+
+	Generated.Add(NewEnchantment);
+	checkDuplicate[randIndex] = true;
+	counter++;
 }

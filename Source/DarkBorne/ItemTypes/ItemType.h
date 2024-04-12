@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../Items/DBItem.h"
-#include "Misc/Crc.h"
+#include "EnchantmentTypes.h"
 #include "ItemType.generated.h"
 
 class UPDA_ItemSlot;
@@ -27,6 +26,7 @@ enum class ESlotType : uint8
 	MAX UMETA(DisplayName = "Max")
 };
 
+
 UENUM(BlueprintType)
 enum class EItemType : uint8
 {
@@ -36,99 +36,6 @@ enum class EItemType : uint8
 	CONSUMABLE UMETA(DisplayName = "Consumable"),
 	UTILITY UMETA(DisplayName = "Utility"),
 	MAX UMETA(DisplayName = "Max")
-};
-
-UENUM(BlueprintType)
-enum class ERarity : uint8
-{
-	NONE UMETA(DisplayName = "None"),
-	COMMON UMETA(DisplayName = "Common"),
-	RARE UMETA(DisplayName = "Rare"),
-	EPIC UMETA(DisplayName = "Epic"),
-	MAX UMETA(DisplayName = "Max")
-};
-
-USTRUCT(Blueprintable)
-struct FRange
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
-	float min;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
-	float max;
-};
-
-/// <summary>
-/// Defines base stat for any given item, excluding enhancements.
-/// </summary>
-USTRUCT(Blueprintable)
-struct FEffect
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	ERarity Rarity;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FRange Range;
-};
-
-USTRUCT(Blueprintable)
-struct FEffectHolder
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<FEffect> Effects;
-};
-
-UENUM(BlueprintType)
-enum class EAttributeType : uint8
-{
-	STRENGTH UMETA(DisplayName = "Strength"),
-	DEXTERITY UMETA(DisplayName = "Dexterity"),
-	KNOWLEDGE UMETA(DisplayName = "Knowledge")
-};
-
-USTRUCT(Blueprintable)
-struct FAttribute
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	EAttributeType AttributeType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FRange Range;
-};
-
-USTRUCT(Blueprintable)
-struct FAttributeHolder : public FTableRowBase
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<FAttribute> Attributes;
-};
-
-UENUM()
-enum class EEnchantmentType : uint8
-{
-	ATTRIBUTE UMETA(DisplayName="Attribute"),
-	MAX UMETA(DisplayName="MAX")
-};
-
-USTRUCT(Blueprintable)
-struct FEnchantmentsHolder
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<FAttribute> Attributes;
-
-
 };
 
 USTRUCT(Blueprintable)
