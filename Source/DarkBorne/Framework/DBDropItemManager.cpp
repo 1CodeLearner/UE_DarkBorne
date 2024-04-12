@@ -126,9 +126,12 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 	std::vector<bool> attributeCheck;
 	TArray<FAttribute> AttributesGenerated;
 
+	TArray<FPhysicalDamage> PhysicalDamageGenerated;
+	std::vector<bool> PhysicalDamageCheck;
+
 	int counter = 0;
 
-	while (counter < 2)
+	while (counter < EnchantmentNum)
 	{
 		int DataTableIndex = FMath::RandRange(0, Enchantments.Num() - 1);
 		FName SlotTypeName = FName(UEnum::GetValueAsString<ESlotType>(Item.ItemSlot->SlotType));
@@ -136,32 +139,23 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 		UDataTable* Enchantment = Enchantments[DataTableIndex];
 
 		if (Enchantment) {
-			switch (EEnchantmentType(DataTableIndex))
+			switch ((EEnchantmentType)DataTableIndex)
 			{
 			case EEnchantmentType::ATTRIBUTE: {
 				FAttributeHolder* Holder = Enchantment->FindRow<FAttributeHolder>(SlotTypeName, FString::Printf(TEXT("Enchantment")));
 
-				if(!Holder || Holder->Attributes.IsEmpty()) 
-					break;
+				if (!Holder || Holder->Attributes.IsEmpty())
+					continue;
 
-				UE_LOG(LogTemp, Warning, TEXT("ATTRIBUTE FOUND BRO, %s"), Holder ? TEXT("YES") : TEXT("NO"));
-
-				if (attributeCheck.size() == 0)
-					attributeCheck.resize(Holder->Attributes.Num(), false);
-
-				int randIndex = FMath::RandRange(0, Holder->Attributes.Num() - 1);
-				if (attributeCheck[randIndex]) 
-					break;
-
-				FAttribute NewAttribute = Holder->Attributes[randIndex];
-
-				GenerateStatFromRange(NewAttribute.Range);
-
-				AttributesGenerated.Add(NewAttribute);
-				attributeCheck[randIndex] = true;
-				counter++;
-
+				ProcessEnchantment<FAttribute>(AttributesGenerated, Holder->Attributes, attributeCheck, counter);
 				break;
+			}
+			case EEnchantmentType::PHYSICALDAMAGE: {
+				FPhysicalDamageHolder* Holder = Enchantment->FindRow<FPhysicalDamageHolder>(SlotTypeName, FString::Printf(TEXT("Enchantment")));
+
+				if (!Holder || Holder->PhysicalDamages.IsEmpty())
+					continue;
+				ProcessEnchantment<FPhysicalDamage>(PhysicalDamageGenerated, Holder->PhysicalDamages, PhysicalDamageCheck, counter);
 			}
 			}
 		}
@@ -171,5 +165,8 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 
 	holder.Attributes = AttributesGenerated;
 
+	holder.PhysicalDamages = PhysicalDamageGenerated;
+
 	Item.Enchantments = holder;
 }
+

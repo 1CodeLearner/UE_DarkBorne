@@ -11,6 +11,7 @@
  *
  */
 
+ class ADBItem;
 
 USTRUCT(Blueprintable)
 struct FDimension

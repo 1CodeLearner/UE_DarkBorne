@@ -5,6 +5,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "../Framework/DBDropItemManager.h"
 #include "../ItemTypes/ItemType.h"
+#include "../ItemTypes/EnchantmentTypes.h"
 
 ATP_ThirdPersonGameMode::ATP_ThirdPersonGameMode()
 {
@@ -35,6 +36,8 @@ void ATP_ThirdPersonGameMode::InitGame(const FString& MapName, const FString& Op
 	auto manager = GetWorld()->SpawnActor<ADBDropItemManager>(DropItemManagerClass);
 	if (manager) 
 		DropItemManager = manager;
+
+	//UE_LOG(LogTemp, Warning, TEXT("------------- count : %d"), p->PropertiesSize());
 }
 
 void ATP_ThirdPersonGameMode::Tick(float DeltaSeconds)
