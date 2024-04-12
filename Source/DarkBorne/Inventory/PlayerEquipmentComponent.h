@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-//#include "ItemTypes/ItemType.h"
 #include "PlayerEquipmentComponent.generated.h"
 
 struct FItem;
+
 
 USTRUCT()
 struct FTile
@@ -44,10 +44,10 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	bool TryAddItem(FItem ItemObject);
+	bool TryAddItem(class UItemObject* ItemObject);
 
 	//UFUNCTION()
-	//TMap<FItem, FTile> GetAllItems();
+	//TMap<UItemObject, FTile> GetAllItems();
 
 
 	UFUNCTION()
@@ -57,16 +57,19 @@ public:
 	int32 TileToIndex(FTile Tile);
 
 	UFUNCTION()
-	bool AddItemAt(FItem ItemObject, int32 TopLeftIndex);
+	void AddItemAt(class UItemObject* ItemObject, int32 TopLeftIndex);
 
 	UFUNCTION()
-	bool IsRoomAvailable(FItem ItemObject, int32 TopLeftIndex);
+	bool IsRoomAvailable(class UItemObject* ItemObject, int32 TopLeftIndex);
 
 	UFUNCTION()
-	bool RemoveItem(FItem ItemObject);
-
+	bool RemoveItem(class UItemObject* ItemObject);
 
 	
+	TTuple<bool,class UItemObject*> GetItematIndex(int32 Index);
+	
+	UFUNCTION()
+	bool IsTileValid(FTile tile);
 	
 
 
@@ -78,7 +81,7 @@ public:
 	int32 Rows;
 
 private:
-	//TArray<struct FItem> itemArray;
+	TArray<class UItemObject*> itemArray;
 
 	bool isDirty = false;
 	

@@ -4,6 +4,7 @@
 #include "Materials/Material.h"
 #include "Math/IntPoint.h"
 #include "UObject/NoExportTypes.h"
+
 #include "ItemObject.generated.h"
 
 UCLASS()
@@ -13,11 +14,15 @@ class DARKBORNE_API UItemObject : public UObject
 
 public:
 	UFUNCTION(BlueprintPure)
-	FIntPoint GetDimensions();  // Ã¶ÀÚ ¼öÁ¤
+	FIntPoint GetDimentions();  // Ã¶ÀÚ ¼öÁ¤
 	UFUNCTION(BlueprintPure)
 	class UMaterial* GetIcon();
+	UFUNCTION(BlueprintPure)
+	class AActor* GetItemClass();
+	
 	
 private:
-	FIntPoint _dimensions;  // Ã¶ÀÚ ¼öÁ¤
+	FIntPoint _dimentions;  // Ã¶ÀÚ ¼öÁ¤
 	class UMaterial* Icon;
+	class AActor* ItemClass;
 };
