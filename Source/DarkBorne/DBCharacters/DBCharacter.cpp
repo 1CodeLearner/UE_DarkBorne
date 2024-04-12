@@ -21,15 +21,23 @@ void ADBCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//get APlayerController
-	APlayerController* playerContoller = Cast<APlayerController>(GetController());
-	//get subSystem
-	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerContoller->GetLocalPlayer());
-
-	if (subSystem)
+	if (IsLocallyControlled())
 	{
-		subSystem->AddMappingContext(imc_DBMapping, 0);
+		//get APlayerController
+		APlayerController* playerContoller = Cast<APlayerController>(GetController());
+
+		if(playerContoller == nullptr) return;
+		//get subSystem
+		UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerContoller->GetLocalPlayer());
+
+		//서브시스템을 가져왔다면
+		if (subSystem)
+		{
+			subSystem->AddMappingContext(imc_DBMapping, 0);
+		}
 	}
+	
+	
 }
 
 // Called every frame
@@ -56,15 +64,7 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	}
 }
 
-void ADBCharacter::OnDamaged(float Damage, ADBCharacter* Attacker)
-{
-	
-}
 
-void ADBCharacter::OnDead(ADBCharacter* Attacker)
-{
-
-}
 
 void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 {
