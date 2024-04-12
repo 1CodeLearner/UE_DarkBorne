@@ -31,5 +31,11 @@ public:
 	class UInputAction* ia_Q_Skill;
 
 public:
+	UPROPERTY(EditAnywhere)
+	class UMaterialInterface* VanishMat;
+
+	
+public:
 	void RogueQSkill();
+
 };

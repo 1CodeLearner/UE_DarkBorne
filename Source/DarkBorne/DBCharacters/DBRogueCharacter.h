@@ -44,6 +44,10 @@ public:
 	class UDBRogueAttackComponent* RogueAttackComponent;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<class UMaterialInterface*> MatArr;
+
+public:
 	float MaxHP = 100;
 	float CurrHP;
 

@@ -10,6 +10,7 @@
 #include "DBCharacterAttack/DBRogueAttackComponent.h"
 
 
+
 ADBRogueCharacter::ADBRogueCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -30,11 +31,17 @@ ADBRogueCharacter::ADBRogueCharacter()
 
 	RogueSkillComponent = CreateDefaultSubobject<UDBRogueSkillComponent>(TEXT("RogueSkillComp"));
 	RogueAttackComponent = CreateDefaultSubobject<UDBRogueAttackComponent>(TEXT("RogueAttackComp"));
+
+	
 }
 
 void ADBRogueCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	//get materials
+	MatArr = GetMesh()->GetMaterials();
+	
 
 	CurrHP = MaxHP;
 }
