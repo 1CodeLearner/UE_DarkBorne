@@ -31,11 +31,25 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	UDataTable* DT_DropRate;
 	UPROPERTY(EditAnywhere, Category = "Settings")
-	UDataTable* DT_Enhancements;
+	TArray<UDataTable*> Enchantments;
 
 private:
 	bool FindCumulativeProbability(const FDropRate* DropRate);
 	void AssignEffect(FItem& Item);
 	void AssignEnchantment(FItem& Item);
+
+	template<class T>
+	void GenerateStatFromRange(T& Range);
 	TArray<float> CumulativeProbability;
 };
+
+template<class T>
+inline void ADBDropItemManager::GenerateStatFromRange(T& Range)
+{
+	if (Range.min != Range.max)
+	{
+		int rand = FMath::RandRange(Range.min, Range.max + .5f);
+		Range.min = rand;
+		Range.max = rand;
+	}
+}

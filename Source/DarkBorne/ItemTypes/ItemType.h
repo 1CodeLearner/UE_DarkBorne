@@ -13,14 +13,18 @@ UENUM()
 enum class ESlotType : uint8
 {
 	WEAPON UMETA(DisplayName = "Weapon"),
-	UTILITY UMETA(DisplayName = "Utility"),
-	CONSUMABLE UMETA(DisplayName = "Consumable"),
 	HEAD UMETA(DisplayName = "Head"),
 	UPPERWEAR UMETA(DisplayName = "UpperWear"),
 	BOTTOMWEAR UMETA(DisplayName = "BottomWear"),
 	GLOVES UMETA(DisplayName = "Gloves"),
 	BOOTS UMETA(DisplayName = "Boots"),
-	NONE UMETA(Displayname = "None")
+
+	//Any elements beyond _EnchantmentMark_ cannot have enchantments 
+	_ENCHANTMENTMARK_ UMETA(DisplayName = "_EnchantmentMark_"),
+
+	UTILITY UMETA(DisplayName = "Utility"),
+	CONSUMABLE UMETA(DisplayName = "Consumable"),
+	MAX UMETA(DisplayName = "Max")
 };
 
 UENUM(BlueprintType)
@@ -84,7 +88,8 @@ UENUM(BlueprintType)
 enum class EAttributeType : uint8
 {
 	STRENGTH UMETA(DisplayName = "Strength"),
-	DEXTERITY UMETA(DisplayName = "Dexterity")
+	DEXTERITY UMETA(DisplayName = "Dexterity"),
+	KNOWLEDGE UMETA(DisplayName = "Knowledge")
 };
 
 USTRUCT(Blueprintable)
@@ -99,23 +104,31 @@ struct FAttribute
 	FRange Range;
 };
 
+USTRUCT(Blueprintable)
+struct FAttributeHolder : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FAttribute> Attributes;
+};
+
 UENUM()
 enum class EEnchantmentType : uint8
 {
-	NONE UMETA(DisplayName="None"),
 	ATTRIBUTE UMETA(DisplayName="Attribute"),
 	MAX UMETA(DisplayName="MAX")
 };
 
 USTRUCT(Blueprintable)
-struct FEnchantment : public FTableRowBase
+struct FEnchantmentsHolder
 {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FAttribute> Attributes;
 
-	
+
 };
 
 USTRUCT(Blueprintable)
@@ -170,49 +183,6 @@ struct FItem : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	//FItem()
-	//	: ItemSlot(nullptr), Effects(TArray<FEffect>()), Enhancements(TArray<FEnhancement>())
-	//{
-	//	FGuid guid = FGuid::NewGuid();
-	//	id = guid.ToString();
-	//	//EffectHolder.Add({effect});
-	//}
-
-	//FItem(UPDA_ItemSlot* _Slot, TArray<FEffect> _Effects, TArray<FEnhancement> _Enhancements, FString _id)
-	//	: ItemSlot(_Slot), Effects(_Effects), Enhancements(_Enhancements)
-	//{
-	//	if (id.IsEmpty()) {
-	//		FGuid guid = FGuid::NewGuid();
-	//		id = guid.ToString();
-	//	}
-	//	else {
-	//		id = _id;
-	//	}
-	//}
-
-	//FItem(const FItem& other)
-	//	: ItemSlot(other.ItemSlot), Effects(other.Effects), Enhancements(other.Enhancements), id(other.id)
-	//{}
-
-	//FItem& operator=(const FItem& other) {
-	//	ItemSlot = other.ItemSlot;
-	//	Effects = other.Effects;
-	//	Enhancements = other.Enhancements;
-	//	if (id.IsEmpty()) {
-	//		FGuid guid = FGuid::NewGuid();
-	//		id = guid.ToString();
-	//	}
-	//	else {
-	//		id = other.id;
-	//	}
-	//	return *this;
-	//}
-
-	//bool operator==(const FItem& other) const
-	//{
-	//	return id == other.id;
-	//}
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
 
@@ -220,25 +190,8 @@ struct FItem : public FTableRowBase
 	TArray<FEffect> Effects;
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FEnchantment> Enchantments;
-
-	//UPROPERTY(BlueprintReadOnly)
-	//FString id = TEXT("");
+	FEnchantmentsHolder Enchantments;
 };
-
-//#if UE_BUILD_DEBUG
-//uint32 GetTypeHash(const FItem& Thing)
-//{
-//	uint32 Hash = FCrc::MemCrc32(&Thing, sizeof(FItem));
-//	return Hash;
-//}
-//#else // optimize by inlining in shipping and development builds
-//FORCEINLINE uint32 GetTypeHash(const FItem& Thing)
-//{
-//	uint32 Hash = FCrc::MemCrc32(&Thing, sizeof(FItem));
-//	return Hash;
-//}
-//#endif
 
 USTRUCT(Blueprintable)
 struct FWeapon : public FItem

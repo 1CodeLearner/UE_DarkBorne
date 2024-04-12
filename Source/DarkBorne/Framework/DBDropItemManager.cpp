@@ -103,12 +103,8 @@ void ADBDropItemManager::AssignEffect(FItem& Item)
 
 	FEffect Effect = Item.ItemSlot->Effects[rand];
 
-	if (Effect.Range.min != Effect.Range.max)
-	{
-		rand = FMath::RandRange(Effect.Range.min, Effect.Range.max + 1.f);
-		Effect.Range.min = rand;
-		Effect.Range.max = rand;
-	}
+	GenerateStatFromRange(Effect.Range);
+
 	Item.Effects.Empty();
 	Item.Effects.Add(Effect);
 }
@@ -118,43 +114,62 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 	if (!ensureAlwaysMsgf(Item.Effects.Num() > 0, TEXT("Ensure AssignEffect() is called before AssignEnhancement()")))
 		return;
 
-	if (!ensureAlways(DT_Enhancements))
+	if (!ensureAlways(!Enchantments.IsEmpty()))
 		return;
 
-	FEnchantment* Enchantment = nullptr;
+	if ((int)Item.ItemSlot->SlotType >= (int)ESlotType::_ENCHANTMENTMARK_)
+		return;
 
 	ERarity rarity = Item.Effects[0].Rarity;
+	int EnchantmentNum = int(rarity);
 
-	ESlotType SlotType = Item.ItemSlot->SlotType;
-	FName SlotTypeName = FName(UEnum::GetValueAsString<ESlotType>(SlotType));
+	std::vector<bool> attributeCheck;
+	TArray<FAttribute> AttributesGenerated;
 
-	TArray<FName> RowNames = DT_Enhancements->GetRowNames();
+	int counter = 0;
 
-	for (FName RowName : RowNames) {
-		if (SlotTypeName == RowName) {
-			Enchantment = DT_Enhancements->FindRow<FEnchantment>(RowName, FString::Printf(TEXT("AssignEnhancement")));
-			break;
+	while (counter < 2)
+	{
+		int DataTableIndex = FMath::RandRange(0, Enchantments.Num() - 1);
+		FName SlotTypeName = FName(UEnum::GetValueAsString<ESlotType>(Item.ItemSlot->SlotType));
+
+		UDataTable* Enchantment = Enchantments[DataTableIndex];
+
+		if (Enchantment) {
+			switch (EEnchantmentType(DataTableIndex))
+			{
+			case EEnchantmentType::ATTRIBUTE: {
+				FAttributeHolder* Holder = Enchantment->FindRow<FAttributeHolder>(SlotTypeName, FString::Printf(TEXT("Enchantment")));
+
+				if(!Holder || Holder->Attributes.IsEmpty()) 
+					break;
+
+				UE_LOG(LogTemp, Warning, TEXT("ATTRIBUTE FOUND BRO, %s"), Holder ? TEXT("YES") : TEXT("NO"));
+
+				if (attributeCheck.size() == 0)
+					attributeCheck.resize(Holder->Attributes.Num(), false);
+
+				int randIndex = FMath::RandRange(0, Holder->Attributes.Num() - 1);
+				if (attributeCheck[randIndex]) 
+					break;
+
+				FAttribute NewAttribute = Holder->Attributes[randIndex];
+
+				GenerateStatFromRange(NewAttribute.Range);
+
+				AttributesGenerated.Add(NewAttribute);
+				attributeCheck[randIndex] = true;
+				counter++;
+
+				break;
+			}
+			}
 		}
 	}
 
-	if (!ensureAlways(Enchantment)) return;
+	FEnchantmentsHolder holder;
 
-	std::vector<std::vector<bool>> added;
+	holder.Attributes = AttributesGenerated;
 
-	added.emplace_back(Enchantment->Attributes.Num(), false);
-
-	int EnchantmentAmt = (int)rarity;
-	TArray<FEnchantment> EnchantmentsAdded;
-	for (int i = 0; i < EnchantmentAmt; ++i) {
-		bool flag = true;
-		while (flag) {
-			int j = FMath::RandRange(0, added.size() - 1);
-			int k = FMath::RandRange(0, added[j].size() - 1);
-
-			if(added[j][k]) continue;
-
-			flag = false;
-
-		}
-	}
+	Item.Enchantments = holder;
 }
