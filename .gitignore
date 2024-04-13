@@ -80,3 +80,13 @@ Content/StarterContent/*
 Config/DefaultEditorPerProjectUserSettings.ini
 enc_temp_folder
 
+Content/horror_grunge_gui/sources/psd_ai/horror_grunge_skills.psd
+Content/horror_grunge_gui/sources/psd_ai/horror_grunge_shop.psd
+Content/horror_grunge_gui/sources/psd_ai/horror_grunge_settings.psd
+Content/horror_grunge_gui/sources/psd_ai/horror_grunge_quests.psd
+Content/horror_grunge_gui/sources/psd_ai/horror_grunge_login.psd
+Content/horror_grunge_gui/sources/psd_ai/horror_grunge_inventory.psd
+Content/horror_grunge_gui/sources/psd_ai/horror_grunge_create_character.psd
+Content/horror_grunge_gui/sources/psd_ai/horror_grunge_chat.psd
+Content/horror_grunge_gui/sources/psd_ai/horror_grunge_characters.psd
+Content/horror_grunge_gui/sources/psd_ai/horror_grunge_achievements.psd
