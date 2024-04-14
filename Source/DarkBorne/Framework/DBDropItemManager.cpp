@@ -2,8 +2,10 @@
 
 
 #include "DBDropItemManager.h"
-#include "../ItemTypes/ItemType.h"
 #include "../Items/PDA_ItemSlot.h"
+#include "Interfaces/ItemInterface.h"
+#include "../Items/DBItem.h"
+#include "../Framework/BFL/ItemLibrary.h"
 
 ADBDropItemManager::ADBDropItemManager()
 {
@@ -67,7 +69,7 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 				int rand = FMath::RandRange(0, RowNames.Num() - 1);
 				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
 
-				AssignEffect(item);
+				AssignRarity(item);
 				AssignEnchantment(item);
 				ItemsToGenerate.Add(item);
 			}
@@ -77,6 +79,25 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 	else return TArray<FItem>();
 	return ItemsToGenerate;
 }
+
+ADBItem* ADBDropItemManager::SpawnItem(AActor* Instigated, FItem _ItemToSpawn)
+{
+	ADBItem* Item = GetWorld()->SpawnActorDeferred<ADBItem>
+		(
+			_ItemToSpawn.ItemSlot->ItemClass,
+			Instigated->GetTransform(),
+			Instigated
+		);
+
+	if (Item)
+	{	
+		return Item;
+	}
+
+	return nullptr;
+}
+
+
 
 bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
 {
@@ -96,22 +117,22 @@ bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
 	return true;
 }
 
-void ADBDropItemManager::AssignEffect(FItem& Item)
+void ADBDropItemManager::AssignRarity(FItem& Item)
 {
-	int max = Item.ItemSlot->Effects.Num() - 1;
+	int max = Item.ItemSlot->Rarities.Num() - 1;
 	int rand = FMath::RandRange(0, max);
 
-	FEffect Effect = Item.ItemSlot->Effects[rand];
+	FRarity Rarity = Item.ItemSlot->Rarities[rand];
 
-	GenerateStatFromRange(Effect.Range);
+	GenerateStatFromRange(Rarity.Range);
 
-	Item.Effects.Empty();
-	Item.Effects.Add(Effect);
+	Item.Rarities.Empty();
+	Item.Rarities.Add(Rarity);
 }
 
 void ADBDropItemManager::AssignEnchantment(FItem& Item)
 {
-	if (!ensureAlwaysMsgf(Item.Effects.Num() > 0, TEXT("Ensure AssignEffect() is called before AssignEnhancement()")))
+	if (!ensureAlwaysMsgf(Item.Rarities.Num() > 0, TEXT("Ensure AssignEffect() is called before AssignEnhancement()")))
 		return;
 
 	if (!ensureAlways(!Enchantments.IsEmpty()))
@@ -120,8 +141,8 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 	if ((int)Item.ItemSlot->SlotType >= (int)ESlotType::_ENCHANTMENTMARK_)
 		return;
 
-	ERarity rarity = Item.Effects[0].Rarity;
-	int EnchantmentNum = int(rarity);
+	ERarityType rarityType = Item.Rarities[0].RarityType;
+	int EnchantmentNum = int(rarityType);
 
 	std::vector<bool> attributeCheck;
 	TArray<FAttribute> AttributesGenerated;
@@ -139,9 +160,9 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 		UDataTable* Enchantment = Enchantments[DataTableIndex];
 
 		if (Enchantment) {
-			switch ((EEnchantmentType)DataTableIndex)
+			switch ((EDarkBornStatType)DataTableIndex)
 			{
-			case EEnchantmentType::ATTRIBUTE: {
+			case EDarkBornStatType::ATTRIBUTE: {
 				FAttributeHolder* Holder = Enchantment->FindRow<FAttributeHolder>(SlotTypeName, FString::Printf(TEXT("Enchantment")));
 
 				if (!Holder || Holder->Attributes.IsEmpty())
@@ -150,7 +171,7 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 				ProcessEnchantment<FAttribute>(AttributesGenerated, Holder->Attributes, attributeCheck, counter);
 				break;
 			}
-			case EEnchantmentType::PHYSICALDAMAGE: {
+			case EDarkBornStatType::PHYSICALDAMAGE: {
 				FPhysicalDamageHolder* Holder = Enchantment->FindRow<FPhysicalDamageHolder>(SlotTypeName, FString::Printf(TEXT("Enchantment")));
 
 				if (!Holder || Holder->PhysicalDamages.IsEmpty())
@@ -161,7 +182,7 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 		}
 	}
 
-	FEnchantmentsHolder holder;
+	FDarkBorneStats holder;
 
 	holder.Attributes = AttributesGenerated;
 

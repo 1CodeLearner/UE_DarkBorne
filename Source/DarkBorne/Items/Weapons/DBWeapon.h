@@ -15,14 +15,11 @@ class DARKBORNE_API ADBWeapon : public ADBItem
 	GENERATED_BODY()
 
 public:
+	//Delete this later
 	UPROPERTY(EditAnywhere)
 	int WeaponDamage = 10;
-
 protected:
-	
-protected:
+	//Delete this later
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	float Attack;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings")
-	TArray<UAnimMontage*> AnimMontages;
 };

@@ -29,7 +29,12 @@ class DARKBORNE_API UPDA_ItemSlot : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
 public:
-	UPDA_ItemSlot() = default;
+	UPDA_ItemSlot()
+	{
+		Rarities.Add({ERarityType::COMMON, {0.f, 0.f}});
+		Rarities.Add({ERarityType::RARE, {0.f, 0.f}});
+		Rarities.Add({ERarityType::EPIC, {0.f, 0.f}});
+	};
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
@@ -63,7 +68,7 @@ public:
 	EItemType ItemType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
-	TArray<FEffect> Effects;
+	TArray<FRarity> Rarities;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	TSubclassOf<ADBItem> ItemClass;

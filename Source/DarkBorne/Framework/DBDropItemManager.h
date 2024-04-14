@@ -15,11 +15,18 @@ class DARKBORNE_API ADBDropItemManager : public AActor
 {
 	GENERATED_BODY()
 
+	friend class ATP_ThirdPersonGameMode;
+
 public:
 	ADBDropItemManager();
 
+
+protected:	
 	UFUNCTION(BlueprintCallable)
 	TArray<FItem> GenerateItems(FName RowName);
+	
+	UFUNCTION(BlueprintCallable)
+	ADBItem* SpawnItem(AActor* Instigated, FItem _ItemToSpawn);
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,7 +41,7 @@ protected:
 
 private:
 	bool FindCumulativeProbability(const FDropRate* DropRate);
-	void AssignEffect(FItem& Item);
+	void AssignRarity(FItem& Item);
 	void AssignEnchantment(FItem& Item);
 
 	template<typename U>

@@ -8,6 +8,7 @@
 
 class ADBDropItemManager;
 struct FItem;
+class ADBItem;
 
 UCLASS(minimalapi)
 class ATP_ThirdPersonGameMode : public AGameModeBase
@@ -20,9 +21,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TArray<FItem> GenerateItems(FName MonsterName);
 
+	UFUNCTION(BlueprintCallable)
+	ADBItem* SpawnItem(AActor* Instigated, FItem Item);
+
 protected:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void BeginPlay() override;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Settings")

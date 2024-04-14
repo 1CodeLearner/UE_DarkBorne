@@ -4,27 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "../Framework/Interfaces/ItemInterface.h"
 #include "DBItem.generated.h"
-
-USTRUCT()
-struct FItemStat
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere)
-	float MoveSlowRate;
-};
 
 class UStaticMeshComponent;
 
 UCLASS()
-class DARKBORNE_API ADBItem : public AActor
+class DARKBORNE_API ADBItem : public AActor, public IItemInterface
 {
 	GENERATED_BODY()
 
 public:
 	ADBItem();
-
 
 	/*
 	몬타지 플레이 하고 싶은 케릭터를 매개변수에 넣는다.
@@ -44,5 +35,4 @@ protected:
 
 private:
 	FName Id;
-	FItemStat ItemStat;
 };

@@ -17,8 +17,10 @@ struct FRange
 	float max;
 };
 
+
+
 UENUM(BlueprintType)
-enum class ERarity : uint8
+enum class ERarityType : uint8
 {
 	NONE UMETA(DisplayName = "None"),
 	COMMON UMETA(DisplayName = "Common"),
@@ -27,30 +29,31 @@ enum class ERarity : uint8
 	MAX UMETA(DisplayName = "Max")
 };
 
-/// <summary>
-/// Defines base stat for any given item, excluding enhancements.
-/// </summary>
 USTRUCT(Blueprintable)
-struct FEffect
+struct FRarity
 {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	ERarity Rarity;
+	ERarityType RarityType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FRange Range;
 };
 
+//Defines rarity & rarity value for items, excluding enchantments.
 USTRUCT(Blueprintable)
-struct FEffectHolder
+struct FRarityHolder
 {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<FEffect> Effects;
+	TArray<FRarity> Rarity;
 };
 
+/// <summary>
+/// Each element represents an index of Attribute arrays in FCharacterStat. DO NOT change the orders of the elements
+/// </summary>
 UENUM(BlueprintType)
 enum class EAttributeType : uint8
 {
@@ -59,6 +62,10 @@ enum class EAttributeType : uint8
 	KNOWLEDGE UMETA(DisplayName = "Knowledge")
 };
 
+
+/// <summary>
+/// basic stats, such as Strength, Dexterity, and Will
+/// </summary>
 USTRUCT(Blueprintable)
 struct FAttribute
 {
@@ -69,6 +76,16 @@ struct FAttribute
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FRange Range;
+};
+
+USTRUCT(BlueprintType)
+struct FAttributeStat
+{
+	GENERATED_USTRUCT_BODY()
+
+	float Strength;
+	float Dexterity; 
+	float Knowledge;
 };
 
 USTRUCT(Blueprintable)
@@ -86,6 +103,9 @@ enum class EPhysicalDamageType : uint8
 	PHYSICALDAMAGEBONUS UMETA(DisplayName = "PhysicalDamageBonus")
 };
 
+/// <summary>
+/// Additional physical damage that weapons deal.
+/// </summary>
 USTRUCT(Blueprintable)
 struct FPhysicalDamage
 {
@@ -99,6 +119,14 @@ struct FPhysicalDamage
 };
 
 USTRUCT(Blueprintable)
+struct FPhysicalDamageStat
+{
+	GENERATED_USTRUCT_BODY()
+
+	float PhysicalDamageBonus;
+};
+
+USTRUCT(Blueprintable)
 struct FPhysicalDamageHolder : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
@@ -107,32 +135,15 @@ struct FPhysicalDamageHolder : public FTableRowBase
 	TArray<FPhysicalDamage> PhysicalDamages;
 };
 
-UENUM()
-enum class EEnchantmentType : uint8
-{
-	ATTRIBUTE UMETA(DisplayName = "Attribute"),
-	PHYSICALDAMAGE UMETA(DisplayName = "PhysicalDamage"),
-	MAX UMETA(DisplayName = "MAX")
-};
-
+/// <summary>
+/// Character's stats without any equipments
+/// </summary>
 USTRUCT(Blueprintable)
-struct FEnchantmentsHolder
+struct FCharacterBaseStat : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<FAttribute> Attributes;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<FPhysicalDamage> PhysicalDamages;
-};
-
-USTRUCT(Blueprintable)
-struct FCharacterStat : public FTableRowBase
-{
-	GENERATED_USTRUCT_BODY()
-
-	FCharacterStat()
+	FCharacterBaseStat()
 	{
 		Attributes.Add({ EAttributeType::STRENGTH, {0.f, 0.f} });
 		Attributes.Add({ EAttributeType::DEXTERITY, {0.f, 0.f} });
@@ -144,4 +155,44 @@ struct FCharacterStat : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float health;
+};
+
+/// <summary>
+/// Stats that are randomly chosen for high rarity equipments.
+/// </summary>
+UENUM()
+enum class EDarkBornStatType : uint8
+{
+	ATTRIBUTE UMETA(DisplayName = "Attribute"),
+	PHYSICALDAMAGE UMETA(DisplayName = "PhysicalDamage"),
+	MAX UMETA(DisplayName = "MAX")
+};
+
+
+/// <summary>
+/// Stats pulled from Data Table. These stats are not sorted/processed.
+/// </summary>
+USTRUCT(Blueprintable)
+struct FDarkBorneStats
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FAttribute> Attributes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FPhysicalDamage> PhysicalDamages;
+};
+
+/// <summary>
+/// Stats used for damage calculation and UI display 
+/// </summary>
+USTRUCT(Blueprintable)
+struct FFinalStat
+{
+	GENERATED_USTRUCT_BODY()
+
+	FAttributeStat AttributeStat;
+
+	FPhysicalDamageStat PhysDmgStat;
 };

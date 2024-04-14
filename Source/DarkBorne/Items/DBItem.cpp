@@ -4,6 +4,7 @@
 #include "DBItem.h"
 #include "Components/StaticMeshComponent.h"
 #include "../DBAnimInstance/DBRogueAnimInstance.h"
+#include "PDA_ItemSlot.h"
 #include "GameFramework/Character.h"
 
 ADBItem::ADBItem()
@@ -21,10 +22,10 @@ bool ADBItem::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
 
 		if (result == 0.f)
 			return false;
-		
+
 		if (!SectionName.IsNone())
 			AnimInstance->Montage_JumpToSection(SectionName);
-		
+
 		return true;
 	}
 	else

@@ -83,7 +83,7 @@ public:
 };
 
 /// <summary>
-/// Item used in inventory, Do not modify anything in ItemSlot.
+/// Item used in inventory, Do not modify anything in ItemSlot during runtime.
 /// </summary>
 USTRUCT(Blueprintable)
 struct FItem : public FTableRowBase
@@ -94,11 +94,12 @@ struct FItem : public FTableRowBase
 	UPDA_ItemSlot* ItemSlot;
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FEffect> Effects;
+	TArray<FRarity> Rarities;
 
 	UPROPERTY(BlueprintReadOnly)
-	FEnchantmentsHolder Enchantments;
+	FDarkBorneStats Enchantments;
 };
+
 
 USTRUCT(Blueprintable)
 struct FWeapon : public FItem

@@ -21,12 +21,18 @@ ATP_ThirdPersonGameMode::ATP_ThirdPersonGameMode()
 
 TArray<FItem> ATP_ThirdPersonGameMode::GenerateItems(FName MonsterName)
 {
-	TArray<FItem> Generated;
 	if (ensureAlways(DropItemManager)) {
-		Generated = DropItemManager->GenerateItems(MonsterName);
+		return DropItemManager->GenerateItems(MonsterName);
 	}
+	return TArray<FItem>();
+}
 
-	return Generated;
+ADBItem* ATP_ThirdPersonGameMode::SpawnItem(AActor* Instigated, FItem Item)
+{
+	if (ensureAlways(DropItemManager)) {
+		return DropItemManager->SpawnItem(Instigated, Item);
+	}
+	return nullptr;
 }
 
 void ATP_ThirdPersonGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
@@ -34,7 +40,7 @@ void ATP_ThirdPersonGameMode::InitGame(const FString& MapName, const FString& Op
 	Super::InitGame(MapName, Options, ErrorMessage);
 
 	auto manager = GetWorld()->SpawnActor<ADBDropItemManager>(DropItemManagerClass);
-	if (manager) 
+	if (manager)
 		DropItemManager = manager;
 
 	//UE_LOG(LogTemp, Warning, TEXT("------------- count : %d"), p->PropertiesSize());
@@ -45,5 +51,10 @@ void ATP_ThirdPersonGameMode::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	//UE_LOG(LogTemp,Warning, TEXT("What's up? %s"), *GetNameSafe(DropItemManager));
+}
+
+void ATP_ThirdPersonGameMode::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
