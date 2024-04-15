@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-//#include "ItemTypes/ItemType.h"
 #include "PlayerEquipmentComponent.generated.h"
 
-struct FItem;
+
+
+DECLARE_DELEGATE(FOnInventoryChangedDel)
+
 
 USTRUCT()
 struct FTile
@@ -40,14 +42,13 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	bool TryAddItem(FItem ItemObject);
+	bool TryAddItem(class UItemObject* ItemObject);
 
 	//UFUNCTION()
-	//TMap<FItem, FTile> GetAllItems();
+	TMap<class UItemObject*, FTile> GetAllItems();
 
 
 	UFUNCTION()
@@ -57,31 +58,35 @@ public:
 	int32 TileToIndex(FTile Tile);
 
 	UFUNCTION()
-	bool AddItemAt(FItem ItemObject, int32 TopLeftIndex);
+	void AddItemAt(class UItemObject* ItemObject, int32 TopLeftIndex);
 
 	UFUNCTION()
-	bool IsRoomAvailable(FItem ItemObject, int32 TopLeftIndex);
+	bool IsRoomAvailable(class UItemObject* ItemObject, int32 TopLeftIndex);
 
 	UFUNCTION()
-	bool RemoveItem(FItem ItemObject);
-
+	void RemoveItem(class UItemObject* ItemObject);
 
 	
+	TTuple<bool,class UItemObject*> GetItematIndex(int32 Index);
+	
+	UFUNCTION()
+	bool IsTileValid(FTile tile);
 	
 
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Columns;
+	int32 Columns = -1;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	int32 Rows;
+	int32 Rows = -1;
 
 private:
-	//TArray<struct FItem> itemArray;
+	TArray<class UItemObject*> itemArray;
 
 	bool isDirty = false;
 	
 	
-		
+public:
+	FOnInventoryChangedDel onInventoryChangedDel;
 };

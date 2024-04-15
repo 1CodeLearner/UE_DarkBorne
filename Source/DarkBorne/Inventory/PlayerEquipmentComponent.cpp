@@ -4,6 +4,7 @@
 #include "PlayerEquipmentComponent.h"
 #include "../ItemTypes/ItemType.h"
 #include "../Items/PDA_ItemSlot.h"
+#include "../Inventory/ItemObject.h"
 
 
 // Sets default values for this component's properties
@@ -17,58 +18,150 @@ UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 }
 
 
-// Called when the game starts
+
+
 void UPlayerEquipmentComponent::BeginPlay()
 {
-	Super::BeginPlay();
-
-	// ...
-
 	
-	
+	itemArray.SetNum(Columns * Rows);
 }
 
-
-// Called every frame
 void UPlayerEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 }
 
-bool UPlayerEquipmentComponent::TryAddItem(FItem ItemObject)
+bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 {
+	if (!IsValid(ItemObject)) return false;
+	for(int i = 0; i <= itemArray.Num(); i++)
+	{
+		if (IsRoomAvailable(ItemObject, i))
+		{
+			AddItemAt(ItemObject,i);
+			return true;
+		}
+		else continue;
+	}
 	return false;
 }
 
-//TMap<FItem, FTile> UPlayerEquipmentComponent::GetAllItems()
-//{
-//	return TMap<FItem, FTile>();
-//}
-
-FTile UPlayerEquipmentComponent::IndexToTile(int32 Index)
+TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems()
 {
-	return FTile();
+	TMap<UItemObject*, FTile> AllItems;
+	UItemObject* CurrentItemObject;
+
+	for (int i = 0; i < itemArray.Num(); i++)
+	{
+		CurrentItemObject = itemArray[i];
+		if (IsValid(CurrentItemObject) && !AllItems.Contains(CurrentItemObject))
+		{
+			AllItems.Add(CurrentItemObject, IndexToTile(i));
+		}
+	}
+	return AllItems;
 }
 
-int32 UPlayerEquipmentComponent::TileToIndex(struct FTile Tile)
+inline FTile UPlayerEquipmentComponent::IndexToTile(int32 Index)
 {
-	return -1;
+	FTile Result;
+	Result.X = Index % Columns;
+	Result.Y = Index / Columns;
+	return Result;
 }
 
-bool UPlayerEquipmentComponent::AddItemAt(FItem ItemObject, int32 TopLeftIndex)
+int32 UPlayerEquipmentComponent::TileToIndex(FTile Tile)
 {
-	return false;
+	int32 value = Tile.X + Tile.Y * Columns;
+	return value;
 }
 
-bool UPlayerEquipmentComponent::IsRoomAvailable(FItem ItemObject, int32 TopLeftIndex)
+void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex)
 {
-	return false;
+	////ForEachIndex
+	FTile refTile = IndexToTile(TopLeftIndex);
+	FIntPoint dimentions = ItemObject->GetDimentions();
+	FTile newTile;
+	for (int32 i = refTile.X; i < refTile.X + (dimentions.X - 1); i++)
+	{
+		for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y - 1); i++)
+		{
+			newTile.X = i;
+			newTile.Y = j;
+			itemArray[TileToIndex(newTile)] = ItemObject;
+		}
+	}
+	isDirty = true;
+
 }
 
-bool UPlayerEquipmentComponent::RemoveItem(FItem ItemObject)
+bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 TopLeftIndex)
 {
-	return false;
+	//ForEachIndex
+	FTile refTile = IndexToTile(TopLeftIndex);
+	FIntPoint dimentions = ItemObject->GetDimentions();
+	FTile newTile;
+	for (int32 i = refTile.X; i < refTile.X + (dimentions.X - 1); i++)
+	{
+		for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y - 1); i++)
+		{
+			newTile.X = i;
+			newTile.Y = j;
+			
+			//isTileValid
+			if (IsTileValid(newTile))
+			{
+				int32 num = TileToIndex(newTile);
+				TTuple<bool,UItemObject*> output = GetItematIndex(num);
+				bool valid = output.Get<0>();
+				UItemObject* outItemObject= output.Get<1>();
+				if (valid)
+				{
+					if (IsValid(outItemObject))
+					{
+						return false;
+					}
+				}
+				else return false;
+			}
+			else return false;
+
+		}
+	}
+	return true;
+	
 }
 
+void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject)
+{
+	if (!IsValid(ItemObject)) return;
+	for (int32 i = 0; i < itemArray.Num(); i++)
+	{
+		if (itemArray[i] == ItemObject)
+		{
+			itemArray[i] = nullptr; 
+			isDirty = true; 
+		}
+	}
+}
+
+inline TTuple<bool,UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index)
+{
+	TTuple<bool, UItemObject*> returnTuple;
+	if (IsValid(itemArray[Index]))
+	{
+		return MakeTuple(true,itemArray[Index]);
+	}
+	return MakeTuple(false,nullptr);
+}
+
+inline bool UPlayerEquipmentComponent::IsTileValid(FTile tile)
+{
+	if (tile.X >= 0 && tile.Y >= 0 && tile.X < Columns && tile.Y < Columns)
+	{
+		return true;
+	}
+	
+		return false;
+	
+}
