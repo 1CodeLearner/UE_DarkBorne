@@ -42,15 +42,11 @@ void ATP_ThirdPersonGameMode::InitGame(const FString& MapName, const FString& Op
 	auto manager = GetWorld()->SpawnActor<ADBDropItemManager>(DropItemManagerClass);
 	if (manager)
 		DropItemManager = manager;
-
-	//UE_LOG(LogTemp, Warning, TEXT("------------- count : %d"), p->PropertiesSize());
 }
 
 void ATP_ThirdPersonGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	//UE_LOG(LogTemp,Warning, TEXT("What's up? %s"), *GetNameSafe(DropItemManager));
 }
 
 void ATP_ThirdPersonGameMode::BeginPlay()

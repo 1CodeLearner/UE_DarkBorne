@@ -6,6 +6,8 @@
 #include "Interfaces/ItemInterface.h"
 #include "../Items/DBItem.h"
 #include "../Framework/BFL/ItemLibrary.h"
+//#include "../DBCharacters/DBCharacter.h"
+#include "../Test/J_TestCharacter.h"
 
 ADBDropItemManager::ADBDropItemManager()
 {
@@ -90,13 +92,58 @@ ADBItem* ADBDropItemManager::SpawnItem(AActor* Instigated, FItem _ItemToSpawn)
 		);
 
 	if (Item)
-	{	
+	{
 		return Item;
 	}
 
 	return nullptr;
 }
 
+void ADBDropItemManager::AdjustFinalStat(AActor* Instigated, const FItem& item, bool bIsAdd)
+{
+	AJ_TestCharacter* Character = Cast<AJ_TestCharacter>(Instigated);
+	if (Character)
+	{
+		for (int i = 0; i < Character->FinalStat.Attributes.Num(); ++i) {
+			UE_LOG(LogTemp, Warning, TEXT("%s: %f"), *UEnum::GetValueAsString(Character->FinalStat.Attributes[i].AttributeType), Character->FinalStat.Attributes[i].Range.max);
+		}
+		for (int i = 0; i < Character->FinalStat.PhysDamages.Num(); ++i) {
+			UE_LOG(LogTemp, Warning, TEXT("%s: %f"), *UEnum::GetValueAsString(Character->FinalStat.PhysDamages[i].PhysicalDamageType), Character->FinalStat.PhysDamages[i].Range.max);
+		}
+
+		if (bIsAdd)
+		{
+			for (int i = 0; i < item.Enchantments.Attributes.Num(); ++i) {
+				int32 index = (int32)item.Enchantments.Attributes[i].AttributeType;
+				Character->FinalStat.Attributes[index] += item.Enchantments.Attributes[i];
+			}
+			for (int i = 0; i < item.Enchantments.PhysicalDamages.Num(); ++i) {
+				int32 index = (int32)item.Enchantments.PhysicalDamages[i].PhysicalDamageType;
+				Character->FinalStat.PhysDamages[index] += item.Enchantments.PhysicalDamages[i];
+			}
+		}
+		else
+		{
+			for (int i = 0; i < item.Enchantments.Attributes.Num(); ++i) {
+				int32 index = (int32)item.Enchantments.Attributes[i].AttributeType;
+				Character->FinalStat.Attributes[index] -= item.Enchantments.Attributes[i];
+			}
+			for (int i = 0; i < item.Enchantments.PhysicalDamages.Num(); ++i) {
+				int32 index = (int32)item.Enchantments.PhysicalDamages[i].PhysicalDamageType;
+				Character->FinalStat.PhysDamages[index] -= item.Enchantments.PhysicalDamages[i];
+			}
+		}
+
+		for (int i = 0; i < Character->FinalStat.Attributes.Num(); ++i) {
+			UE_LOG(LogTemp, Warning, TEXT("%s: %f"), *UEnum::GetValueAsString(Character->FinalStat.Attributes[i].AttributeType), Character->FinalStat.Attributes[i].Range.max);
+		}
+		for (int i = 0; i < Character->FinalStat.PhysDamages.Num(); ++i) {
+			UE_LOG(LogTemp, Warning, TEXT("%s: %f"), *UEnum::GetValueAsString(Character->FinalStat.PhysDamages[i].PhysicalDamageType), Character->FinalStat.PhysDamages[i].Range.max);
+		}
+
+	}
+
+}
 
 
 bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
@@ -152,7 +199,8 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 
 	int counter = 0;
 
-	while (counter < EnchantmentNum)
+	//No enchantments for common. 1 enchantment for rare. 2 enchantments for epic;
+	while (counter < EnchantmentNum - 1)
 	{
 		int DataTableIndex = FMath::RandRange(0, Enchantments.Num() - 1);
 		FName SlotTypeName = FName(UEnum::GetValueAsString<ESlotType>(Item.ItemSlot->SlotType));

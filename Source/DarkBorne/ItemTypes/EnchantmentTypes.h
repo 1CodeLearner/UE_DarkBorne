@@ -10,6 +10,25 @@ struct FRange
 {
 	GENERATED_USTRUCT_BODY()
 
+	FRange operator+(const FRange& other) {
+		return FRange(min + other.min, max + other.max);
+	}
+	FRange operator-(const FRange& other) {
+		ensureAlways(min - other.min >= 0.f && max - other.max >= 0.f);
+		return FRange(min - other.min, max - other.max);
+	}
+	FRange& operator+=(const FRange& other) {
+		min += other.min;
+		max += other.max;
+		return *this;
+	}
+	FRange& operator-=(const FRange& other) {
+		ensureAlways(min - other.min >= 0.f && max - other.max >= 0.f);
+		min -= other.min;
+		max -= other.max;
+		return *this;
+	}
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
 	float min;
 
@@ -71,21 +90,31 @@ struct FAttribute
 {
 	GENERATED_USTRUCT_BODY()
 
+	FAttribute operator+(const FAttribute& other) {
+		ensureAlways(AttributeType == other.AttributeType);
+		return FAttribute({ AttributeType, Range + other.Range });
+	}
+	FAttribute operator-(const FAttribute& other) {
+		ensureAlways(AttributeType == other.AttributeType);
+		return FAttribute({AttributeType, Range - other.Range});
+	}
+	FAttribute& operator+=(const FAttribute& other) {
+		ensureAlways(AttributeType == other.AttributeType);
+		Range += other.Range;
+		return *this;
+	}
+	FAttribute& operator-=(const FAttribute& other) {
+		ensureAlways(AttributeType == other.AttributeType);
+		Range -= other.Range;
+		return *this;
+	}
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EAttributeType AttributeType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FRange Range;
-};
-
-USTRUCT(BlueprintType)
-struct FAttributeStat
-{
-	GENERATED_USTRUCT_BODY()
-
-	float Strength;
-	float Dexterity; 
-	float Knowledge;
 };
 
 USTRUCT(Blueprintable)
@@ -97,6 +126,9 @@ struct FAttributeHolder : public FTableRowBase
 	TArray<FAttribute> Attributes;
 };
 
+/// <summary>
+/// DO NOT change the orders of the elements
+/// </summary>
 UENUM(BlueprintType)
 enum class EPhysicalDamageType : uint8
 {
@@ -111,19 +143,30 @@ struct FPhysicalDamage
 {
 	GENERATED_USTRUCT_BODY()
 
+	FPhysicalDamage operator+(const FPhysicalDamage& other) {
+		ensureAlways(PhysicalDamageType == other.PhysicalDamageType);
+		return FPhysicalDamage({ PhysicalDamageType, Range + other.Range });
+	}
+	FPhysicalDamage operator-(const FPhysicalDamage& other) {
+		ensureAlways(PhysicalDamageType == other.PhysicalDamageType);
+		return FPhysicalDamage({ PhysicalDamageType, Range - other.Range });
+	}
+	FPhysicalDamage& operator+=(const FPhysicalDamage& other) {
+		ensureAlways(PhysicalDamageType == other.PhysicalDamageType);
+		Range += other.Range;
+		return *this;
+	}
+	FPhysicalDamage& operator-=(const FPhysicalDamage& other) {
+		ensureAlways(PhysicalDamageType == other.PhysicalDamageType);
+		Range -= other.Range;
+		return *this;
+	}
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EPhysicalDamageType PhysicalDamageType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FRange Range;
-};
-
-USTRUCT(Blueprintable)
-struct FPhysicalDamageStat
-{
-	GENERATED_USTRUCT_BODY()
-
-	float PhysicalDamageBonus;
 };
 
 USTRUCT(Blueprintable)
@@ -157,9 +200,6 @@ struct FCharacterBaseStat : public FTableRowBase
 	float health;
 };
 
-/// <summary>
-/// Stats that are randomly chosen for high rarity equipments.
-/// </summary>
 UENUM()
 enum class EDarkBornStatType : uint8
 {
@@ -170,7 +210,7 @@ enum class EDarkBornStatType : uint8
 
 
 /// <summary>
-/// Stats pulled from Data Table. These stats are not sorted/processed.
+/// Stats pulled from Data Table and assigned to items. These stats are not sorted. They are later added to FFinalStat for damage calculations
 /// </summary>
 USTRUCT(Blueprintable)
 struct FDarkBorneStats
@@ -184,15 +224,48 @@ struct FDarkBorneStats
 	TArray<FPhysicalDamage> PhysicalDamages;
 };
 
+//USTRUCT(BlueprintType)
+//struct FAttributeStat
+//{
+//	GENERATED_USTRUCT_BODY()
+//
+//	float Strength;
+//	float Dexterity;
+//	float Knowledge;
+//};
+//
+//USTRUCT(Blueprintable)
+//struct FPhysicalDamageStat
+//{
+//	GENERATED_USTRUCT_BODY()
+//
+//	float PhysicalDamageBonus;
+//};
+
 /// <summary>
-/// Stats used for damage calculation and UI display 
+/// Stats used for damage calculation and UI display. Values are sorted by their enum types
 /// </summary>
 USTRUCT(Blueprintable)
 struct FFinalStat
 {
 	GENERATED_USTRUCT_BODY()
 
-	FAttributeStat AttributeStat;
+	float health;
 
-	FPhysicalDamageStat PhysDmgStat;
+	FFinalStat()
+	{
+		health = 0.f;
+
+		Attributes.Add({ EAttributeType::STRENGTH, {0.f, 0.f} });
+		Attributes.Add({ EAttributeType::DEXTERITY, {0.f, 0.f} });
+		Attributes.Add({ EAttributeType::KNOWLEDGE, {0.f, 0.f} });
+
+		PhysDamages.Add({ EPhysicalDamageType::PHYSICALDAMAGEBONUS, {0.f, 0.f} });
+	}
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<FAttribute> Attributes;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<FPhysicalDamage> PhysDamages;
 };
