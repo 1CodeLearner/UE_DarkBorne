@@ -7,7 +7,7 @@
 
 #include "ItemObject.generated.h"
 
-UCLASS()
+UCLASS(BlueprintAble)
 class DARKBORNE_API UItemObject : public UObject
 {
 	GENERATED_BODY()

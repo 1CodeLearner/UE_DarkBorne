@@ -11,20 +11,24 @@
 DECLARE_DELEGATE(FOnInventoryChangedDel)
 
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FTile
 {
 	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
 	int32 X;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
 	int32 Y;
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FLine
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
 	FVector2D Start;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
 	FVector2D End;
 };
 
@@ -44,32 +48,31 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	bool TryAddItem(class UItemObject* ItemObject);
 
-	//UFUNCTION()
 	TMap<class UItemObject*, FTile> GetAllItems();
 
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	FTile IndexToTile(int32 Index);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	int32 TileToIndex(FTile Tile);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void AddItemAt(class UItemObject* ItemObject, int32 TopLeftIndex);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	bool IsRoomAvailable(class UItemObject* ItemObject, int32 TopLeftIndex);
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void RemoveItem(class UItemObject* ItemObject);
 
 	
 	TTuple<bool,class UItemObject*> GetItematIndex(int32 Index);
 	
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	bool IsTileValid(FTile tile);
 	
 
