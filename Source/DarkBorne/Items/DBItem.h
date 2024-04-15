@@ -25,10 +25,12 @@ public:
 	bool PlayMontage(ACharacter* PlayerCharacter, FName SectionName);
 
 	virtual void Tick(float DeltaTime) override;
-protected:
-	virtual void BeginPlay() override;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TObjectPtr<UStaticMeshComponent> SMComp;
+
+protected:
+	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TObjectPtr<UAnimMontage> AnimMontage;

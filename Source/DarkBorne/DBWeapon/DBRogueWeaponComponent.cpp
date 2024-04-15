@@ -22,7 +22,7 @@ void UDBRogueWeaponComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+	hasWeapon = false;
 }
 
 
@@ -42,15 +42,28 @@ void UDBRogueWeaponComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 
 void UDBRogueWeaponComponent::AttachWeapon()
 {
-	
-	UE_LOG(LogTemp, Warning, TEXT("Attach Weapon"));
-	Dagger = GetWorld()->SpawnActor<ADBWeapon>(DaggerFactory, GetComponentLocation(), GetComponentRotation());
-	if (Dagger)
+	// hasWeapon이 true 면 취소
+	if(hasWeapon) return;
+
+	hasWeapon = true;
+	// 만약 hasweapon이 true라면
+	if (hasWeapon)
 	{
-		Dagger->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
+		UE_LOG(LogTemp, Warning, TEXT("Attach Weapon"));
+		Dagger = GetWorld()->SpawnActor<ADBWeapon>(DaggerFactory, GetComponentLocation(), GetComponentRotation());
+		if (Dagger)
+		{
+		
+			// 단검을 붙이자
+			Dagger->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		
+			// 단검 메쉬의 머터리얼을 가져오자
+			DaggerSMMat = Dagger->SMComp->GetMaterials();
+			UE_LOG(LogTemp, Warning, TEXT("WeaponComp Index : %d"), DaggerSMMat.Num());
+		}
+		
 	}
-
 	
 }
 

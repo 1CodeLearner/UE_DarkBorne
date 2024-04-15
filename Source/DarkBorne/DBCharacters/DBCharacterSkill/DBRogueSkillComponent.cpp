@@ -4,6 +4,8 @@
 #include "DBRogueSkillComponent.h"
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include "../DBRogueCharacter.h"
+#include "../../DBWeapon/DBRogueWeaponComponent.h"
+#include "../../Items/Weapons/DBWeapon.h"
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -24,7 +26,7 @@ void UDBRogueSkillComponent::BeginPlay()
 
 
 	// ...
-	
+	isVanish = false;
 }
 
 
@@ -45,19 +47,38 @@ void UDBRogueSkillComponent::SetupPlayerInputComponent(class UEnhancedInputCompo
 void UDBRogueSkillComponent::RogueQSkill()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Rogue Q Skill"));
-
 	//로그 캐릭터 가져오기 
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
-	//로그 캐릭터 머티리얼 가져와서
-	// 머티리얼 인덱스 0 부터 last까지 가져와서
-	for (int32 i = 0; i < RoguePlayer->MatArr.Num(); i++)
+	UDBRogueWeaponComponent* weaponComponent = Cast<UDBRogueWeaponComponent>(GetOwner());
+	UE_LOG(LogTemp, Warning, TEXT("SkillComp Index : %d"), weaponComponent->DaggerSMMat.Num());
+	
+	isVanish = true;
+	if (isVanish)
+	{
+		//로그 캐릭터 머티리얼 가져와서
+		// 머티리얼 인덱스 0 부터 last까지 가져와서
+		for (int32 i = 0; i < RoguePlayer->MatArr.Num(); i++)
+		{
+
+			// 기존 캐릭터 메쉬 머티리얼을 투명한 머티리얼로 바꾸자
+			RoguePlayer->GetMesh()->SetMaterial(i, VanishMat);
+		}
+		// 
+		if (weaponComponent != nullptr)
+		{
+		
+			for (int32 i = 0; i < weaponComponent->DaggerSMMat.Num(); i++)
+			{
+				
+				weaponComponent->Dagger->SMComp->SetMaterial(i, VanishMat);
+			}
+		}
+	}
+	else if (!isVanish)
 	{
 
-		// 기존 캐릭터 메쉬 머티리얼을 투명한 머티리얼로 바꾸자
-		RoguePlayer->GetMesh()->SetMaterial(i, VanishMat);
 	}
 	
-	// set material로 내가 설정한 머티리얼로 머티리얼 인덱스 변경
 	
 
 }
