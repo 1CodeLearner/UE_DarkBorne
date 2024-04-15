@@ -47,12 +47,5 @@ public:
 	
 	//UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	//class FItem ItemData;
-
-
-
-
-
-	
-
-	
+		
 };
