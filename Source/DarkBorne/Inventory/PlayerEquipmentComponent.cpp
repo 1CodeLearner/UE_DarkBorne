@@ -118,6 +118,16 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 
 bool UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject)
 {
+	if (!IsValid(ItemObject)) return false;
+	for(int i = 0; i < itemArray.Num(); i++)
+	{
+		if (IsRoomAvailable(ItemObject, i))
+		{
+			AddItemAt(ItemObject,i);
+			return true;
+		}
+		else continue;
+	}
 	return false;
 }
 

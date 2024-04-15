@@ -6,7 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "PlayerEquipmentComponent.generated.h"
 
-struct FItem;
+
+
+DECLARE_DELEGATE(FOnInventoryChangedDel)
 
 
 USTRUCT()
@@ -40,14 +42,13 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
 	bool TryAddItem(class UItemObject* ItemObject);
 
 	//UFUNCTION()
-	//TMap<UItemObject, FTile> GetAllItems();
+	TMap<class UItemObject*, FTile> GetAllItems();
 
 
 	UFUNCTION()
@@ -63,7 +64,7 @@ public:
 	bool IsRoomAvailable(class UItemObject* ItemObject, int32 TopLeftIndex);
 
 	UFUNCTION()
-	bool RemoveItem(class UItemObject* ItemObject);
+	void RemoveItem(class UItemObject* ItemObject);
 
 	
 	TTuple<bool,class UItemObject*> GetItematIndex(int32 Index);
@@ -75,10 +76,10 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Columns;
+	int32 Columns = -1;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	int32 Rows;
+	int32 Rows = -1;
 
 private:
 	TArray<class UItemObject*> itemArray;
@@ -86,5 +87,6 @@ private:
 	bool isDirty = false;
 	
 	
-		
+public:
+	FOnInventoryChangedDel onInventoryChangedDel;
 };
