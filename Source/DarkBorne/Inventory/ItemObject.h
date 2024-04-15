@@ -19,8 +19,10 @@ public:
 	class UMaterial* GetIcon();
 	UFUNCTION(BlueprintPure)
 	class AActor* GetItemClass();
-	
-	
+
+protected:
+	UFUNCTION()
+	virtual UWorld* GetWorld() const override;
 private:
 	FIntPoint _dimentions;  // Ã¶ÀÚ ¼öÁ¤
 	class UMaterial* Icon;

@@ -20,3 +20,15 @@ AActor* UItemObject::GetItemClass()
 {
 	return ItemClass;
 }
+
+UWorld* UItemObject::GetWorld() const
+{
+	// Outer is set when creating action via NewObject<T>
+	AActor* Actor = Cast<AActor>(GetOuter());
+	if (Actor)
+	{
+		return Actor->GetWorld();
+	}
+
+	return nullptr;
+}

@@ -28,7 +28,12 @@ void UPlayerEquipmentComponent::BeginPlay()
 
 void UPlayerEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-
+	if (isDirty)
+	{
+		isDirty = false;
+		onInventoryChangedDel.Execute();
+		
+	}
 }
 
 bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
