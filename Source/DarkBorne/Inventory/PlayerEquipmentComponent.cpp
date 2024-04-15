@@ -46,6 +46,22 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 	return false;
 }
 
+TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems()
+{
+	TMap<UItemObject*, FTile> AllItems;
+	UItemObject* CurrentItemObject;
+
+	for (int i = 0; i < itemArray.Num(); i++)
+	{
+		CurrentItemObject = itemArray[i];
+		if (IsValid(CurrentItemObject) && !AllItems.Contains(CurrentItemObject))
+		{
+			AllItems.Add(CurrentItemObject, IndexToTile(i));
+		}
+	}
+	return AllItems;
+}
+
 inline FTile UPlayerEquipmentComponent::IndexToTile(int32 Index)
 {
 	FTile Result;
@@ -116,19 +132,17 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 	
 }
 
-bool UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject)
+void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject)
 {
-	if (!IsValid(ItemObject)) return false;
-	for(int i = 0; i < itemArray.Num(); i++)
+	if (!IsValid(ItemObject)) return;
+	for (int32 i = 0; i < itemArray.Num(); i++)
 	{
-		if (IsRoomAvailable(ItemObject, i))
+		if (itemArray[i] == ItemObject)
 		{
-			AddItemAt(ItemObject,i);
-			return true;
+			itemArray[i] = nullptr; 
+			isDirty = true; 
 		}
-		else continue;
 	}
-	return false;
 }
 
 inline TTuple<bool,UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index)
