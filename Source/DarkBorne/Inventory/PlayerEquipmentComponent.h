@@ -54,26 +54,26 @@ public:
 	TMap<class UItemObject*, FTile> GetAllItems();
 
 
-	UFUNCTION(BlueprintPure)
-	FTile IndexToTile(int32 Index);
+	UFUNCTION(BlueprintCallable)
+	FTile IndexToTile(int32 Index) const;
 
-	UFUNCTION(BlueprintPure)
-	int32 TileToIndex(FTile Tile);
+	UFUNCTION(BlueprintCallable)
+	int32 TileToIndex(FTile Tile) const;
 
 	UFUNCTION(BlueprintCallable)
 	void AddItemAt(class UItemObject* ItemObject, int32 TopLeftIndex);
 
 	UFUNCTION(BlueprintCallable)
-	bool IsRoomAvailable(class UItemObject* ItemObject, int32 TopLeftIndex);
+	bool IsRoomAvailable(class UItemObject* ItemObject, int32 TopLeftIndex) const;
 
 	UFUNCTION(BlueprintCallable)
 	void RemoveItem(class UItemObject* ItemObject);
 
 	
-	TTuple<bool,class UItemObject*> GetItematIndex(int32 Index);
+	TTuple<bool,class UItemObject*> GetItematIndex(int32 Index) const;
 	
 	UFUNCTION(BlueprintCallable)
-	bool IsTileValid(FTile tile);
+	bool IsTileValid(FTile tile) const;
 	
 
 

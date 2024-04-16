@@ -67,7 +67,7 @@ TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems()
 	return AllItems;
 }
 
-inline FTile UPlayerEquipmentComponent::IndexToTile(int32 Index)
+inline FTile UPlayerEquipmentComponent::IndexToTile(int32 Index) const
 {
 	FTile Result;
 	Result.X = Index % Columns;
@@ -75,7 +75,7 @@ inline FTile UPlayerEquipmentComponent::IndexToTile(int32 Index)
 	return Result;
 }
 
-int32 UPlayerEquipmentComponent::TileToIndex(FTile Tile)
+int32 UPlayerEquipmentComponent::TileToIndex(FTile Tile) const
 {
 	int32 value = Tile.X + Tile.Y * Columns;
 	return value;
@@ -100,7 +100,7 @@ void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 TopLeft
 
 }
 
-bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 TopLeftIndex)
+bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 TopLeftIndex) const
 {
 	//ForEachIndex
 	FTile refTile = IndexToTile(TopLeftIndex);
@@ -150,7 +150,7 @@ void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject)
 	}
 }
 
-inline TTuple<bool,UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index)
+inline TTuple<bool,UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index) const
 {
 	TTuple<bool, UItemObject*> returnTuple;
 	if (IsValid(itemArray[Index]))
@@ -160,7 +160,7 @@ inline TTuple<bool,UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32
 	return MakeTuple(false,nullptr);
 }
 
-inline bool UPlayerEquipmentComponent::IsTileValid(FTile tile)
+inline bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
 {
 	if (tile.X >= 0 && tile.Y >= 0 && tile.X < Columns && tile.Y < Columns)
 	{
