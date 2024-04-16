@@ -19,19 +19,20 @@ UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 
 
 
-
+//2 . 컴포넌트 공간 생성
 void UPlayerEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	itemArray.SetNum(Columns * Rows);
 }
 
+//필요시 업데이트
 void UPlayerEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	if (isDirty)
 	{
 		isDirty = false;
-		onInventoryChangedDel.Execute();
+		onInventoryChangedDel.Broadcast();
 		
 	}
 }
@@ -51,7 +52,7 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 	return false;
 }
 
-TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems()
+TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems() const
 {
 	TMap<UItemObject*, FTile> AllItems;
 	UItemObject* CurrentItemObject;

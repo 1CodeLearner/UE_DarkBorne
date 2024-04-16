@@ -18,6 +18,4 @@ class DARKBORNE_API UInventoryGridWidget : public UUserWidget
 	GENERATED_BODY()
 	
 protected:
-	UFUNCTION(BlueprintImplementableEvent)
-	void Init(UPlayerEquipmentComponent* PlayerEquipComp, float TileSize);
 };

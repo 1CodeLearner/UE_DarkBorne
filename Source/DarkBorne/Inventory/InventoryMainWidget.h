@@ -20,6 +20,6 @@ protected:
 	UPROPERTY(meta=(BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryGrid_Widget;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn))
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
 };

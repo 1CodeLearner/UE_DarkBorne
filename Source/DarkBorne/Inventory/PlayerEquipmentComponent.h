@@ -7,8 +7,8 @@
 #include "PlayerEquipmentComponent.generated.h"
 
 
-
-DECLARE_DELEGATE(FOnInventoryChangedDel)
+//for blueprint use
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryChangedDel);
 
 
 USTRUCT(BlueprintType)
@@ -51,7 +51,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool TryAddItem(class UItemObject* ItemObject);
 
-	TMap<class UItemObject*, FTile> GetAllItems();
+	UFUNCTION(BlueprintCallable)
+	TMap<class UItemObject*, FTile> GetAllItems() const;
 
 
 	UFUNCTION(BlueprintCallable)
@@ -91,5 +92,6 @@ private:
 	
 	
 public:
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnInventoryChangedDel onInventoryChangedDel;
 };
