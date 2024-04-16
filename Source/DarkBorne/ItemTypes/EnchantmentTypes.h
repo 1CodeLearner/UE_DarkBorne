@@ -30,10 +30,10 @@ struct FRange
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
-	float min;
+	float min = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0"))
-	float max;
+	float max = 0.f;
 };
 
 
@@ -54,7 +54,7 @@ struct FRarity
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	ERarityType RarityType;
+	ERarityType RarityType = ERarityType::NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FRange Range;
@@ -78,7 +78,8 @@ enum class EAttributeType : uint8
 {
 	STRENGTH UMETA(DisplayName = "Strength"),
 	DEXTERITY UMETA(DisplayName = "Dexterity"),
-	KNOWLEDGE UMETA(DisplayName = "Knowledge")
+	KNOWLEDGE UMETA(DisplayName = "Knowledge"),
+	MAX UMETA(DisplayName = "Max")
 };
 
 
@@ -111,7 +112,7 @@ struct FAttribute
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	EAttributeType AttributeType;
+	EAttributeType AttributeType = EAttributeType::MAX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FRange Range;
@@ -132,7 +133,8 @@ struct FAttributeHolder : public FTableRowBase
 UENUM(BlueprintType)
 enum class EPhysicalDamageType : uint8
 {
-	PHYSICALDAMAGEBONUS UMETA(DisplayName = "PhysicalDamageBonus")
+	PHYSICALDAMAGEBONUS UMETA(DisplayName = "PhysicalDamageBonus"),
+	MAX UMETA(DisplayName = "Max")
 };
 
 /// <summary>
@@ -163,7 +165,7 @@ struct FPhysicalDamage
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	EPhysicalDamageType PhysicalDamageType;
+	EPhysicalDamageType PhysicalDamageType = EPhysicalDamageType::MAX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FRange Range;
@@ -197,7 +199,7 @@ struct FCharacterBaseStat : public FTableRowBase
 	TArray<FAttribute> Attributes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float health;
+	float health = 0.f;
 };
 
 UENUM()
@@ -250,7 +252,7 @@ struct FFinalStat
 {
 	GENERATED_USTRUCT_BODY()
 
-	float health;
+	float health = 0.f;
 
 	FFinalStat()
 	{

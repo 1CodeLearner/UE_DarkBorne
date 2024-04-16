@@ -16,9 +16,9 @@ struct FTile
 {
 	GENERATED_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
-	int32 X;
+	int32 X = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
-	int32 Y;
+	int32 Y = 0;
 };
 
 USTRUCT(BlueprintType)
@@ -27,9 +27,9 @@ struct FLine
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
-	FVector2D Start;
+	FVector2D Start = FVector2D::Zero();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
-	FVector2D End;
+	FVector2D End = FVector2D::Zero();
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

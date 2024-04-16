@@ -51,7 +51,7 @@ public:
 	{}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	EItemType ItemType;
+	EItemType ItemType = EItemType::NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0"), meta = (ClampMax = "1"))
 	float Probability = 0.f;
@@ -79,7 +79,7 @@ public:
 	TArray<FDroppedItem> Items;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int Amount;
+	int Amount = 0;
 };
 
 /// <summary>
