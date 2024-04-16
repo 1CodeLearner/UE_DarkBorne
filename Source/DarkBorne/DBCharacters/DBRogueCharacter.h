@@ -32,8 +32,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* camera;
 
-	// 로그 무기 장착 Scene Comp
 	UPROPERTY(EditAnywhere)
+	class USpringArmComponent* springArm;
+
+	// 로그 무기 장착 Scene Comp
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UDBRogueWeaponComponent* RogueWeaponComp;
 
 	// 로그 스킬 Comp
@@ -48,7 +51,9 @@ public:
 	TArray<class UMaterialInterface*> MatArr;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxHP = 100;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CurrHP;
 
 };

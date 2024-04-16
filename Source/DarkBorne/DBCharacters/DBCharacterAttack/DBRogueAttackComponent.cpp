@@ -55,7 +55,7 @@ void UDBRogueAttackComponent::RogueAttack()
 		player->RogueWeaponComp->Dagger->PlayMontage(player, FName("Attack1"));
 
 	}
-
-
+	
+	//UKismetSystemLibrary::SphereTraceSingleForObjects()
 }
 
