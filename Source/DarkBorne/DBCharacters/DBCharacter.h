@@ -47,9 +47,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TSubclassOf<UInventoryMainWidget> InvMainWidgetClass;
-	UPROPERTY(VisibleAnywhere, Category = "Settings")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Settings")
 	UInventoryMainWidget* InvMainWidget;
 
 

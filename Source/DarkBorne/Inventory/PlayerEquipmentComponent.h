@@ -32,7 +32,7 @@ struct FLine
 	FVector2D End = FVector2D::Zero();
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
 class DARKBORNE_API UPlayerEquipmentComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -54,10 +54,10 @@ public:
 	TMap<class UItemObject*, FTile> GetAllItems();
 
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	FTile IndexToTile(int32 Index);
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure)
 	int32 TileToIndex(FTile Tile);
 
 	UFUNCTION(BlueprintCallable)

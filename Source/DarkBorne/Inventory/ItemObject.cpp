@@ -16,7 +16,7 @@ UMaterial* UItemObject::GetIcon()
 	return Icon;
 }
 
-AActor* UItemObject::GetItemClass()
+TSubclassOf<AActor> UItemObject::GetItemClass()
 {
 	return ItemClass;
 }

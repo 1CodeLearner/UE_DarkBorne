@@ -18,13 +18,15 @@ public:
 	UFUNCTION(BlueprintPure)
 	class UMaterial* GetIcon();
 	UFUNCTION(BlueprintPure)
-	class AActor* GetItemClass();
+	TSubclassOf<AActor> GetItemClass();
 
 protected:
 	UFUNCTION()
 	virtual UWorld* GetWorld() const override;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Settings")
+	TSubclassOf<AActor> ItemClass;
 private:
 	FIntPoint _dimentions;  // Ã¶ÀÚ ¼öÁ¤
 	class UMaterial* Icon;
-	class AActor* ItemClass;
 };

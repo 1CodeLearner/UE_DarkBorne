@@ -56,12 +56,6 @@ void ADBCharacter::BeginPlay()
 				FinalStat.Attributes[i] += CharacterBaseStat.Attributes[i];
 		}
 	}
-
-	if (!HasAuthority() && IsLocallyControlled())
-	{
-		InvMainWidget = CreateWidget<UInventoryMainWidget>(GetController<APlayerController>(), InvMainWidgetClass);
-
-	}	
 }
 
 // Called every frame

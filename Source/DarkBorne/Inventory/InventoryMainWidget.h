@@ -7,11 +7,19 @@
 #include "InventoryMainWidget.generated.h"
 
 /**
- * 
+ *
  */
+ class UPlayerEquipmentComponent; 
+ class UInventoryGridWidget; 
+
 UCLASS()
 class DARKBORNE_API UInventoryMainWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+protected:
+	UPROPERTY(meta=(BindWidget), BlueprintReadOnly)
+	UInventoryGridWidget* InventoryGrid_Widget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPlayerEquipmentComponent* PlayerEquipmentComp;
 };
