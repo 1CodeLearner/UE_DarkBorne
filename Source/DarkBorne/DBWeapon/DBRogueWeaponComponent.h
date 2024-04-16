@@ -37,6 +37,13 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ADBWeapon> DaggerFactory;
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<class UMaterialInterface*> DaggerSMMat;
+
+public:
+	bool hasWeapon;
 public:
 	void AttachWeapon();
 };

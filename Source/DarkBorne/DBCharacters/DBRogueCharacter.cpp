@@ -40,6 +40,7 @@ void ADBRogueCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	//get materials
+
 	MatArr = GetMesh()->GetMaterials();
 	
 
