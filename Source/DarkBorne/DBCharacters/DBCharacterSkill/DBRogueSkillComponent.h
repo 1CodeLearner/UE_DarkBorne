@@ -37,9 +37,11 @@ public:
 
 	
 public:
-	bool isVanish;
-	
+	bool isVanish = false;
+	float MaxVanishTime = 5;
+	float CurrVanishTime = 0;
 public:
-	void RogueQSkill();
-
+	void UpdateRogueQSkill(float DeltaTime);
+	void ActiveRogueQSkill();
+	void DeactiveRogueQSkill();
 };
