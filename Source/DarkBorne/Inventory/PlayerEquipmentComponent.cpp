@@ -22,7 +22,7 @@ UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 
 void UPlayerEquipmentComponent::BeginPlay()
 {
-	
+	Super::BeginPlay();
 	itemArray.SetNum(Columns * Rows);
 }
 

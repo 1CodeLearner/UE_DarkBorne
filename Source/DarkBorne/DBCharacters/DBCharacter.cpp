@@ -6,13 +6,15 @@
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h>
 #include "DBCharacterSkill/DBCharacterSkillComponent.h"
 #include "DBCharacterAttack/DBCharacterAttackComponent.h"
-
+#include "../Inventory/PlayerEquipmentComponent.h"
+#include "../Inventory/InventoryMainWidget.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	PlayerEquipmentComp = CreateDefaultSubobject<UPlayerEquipmentComponent>("PlayerEquipmentComp");
 
 }
 
@@ -37,8 +39,29 @@ void ADBCharacter::BeginPlay()
 			subSystem->AddMappingContext(imc_DBMapping, 0);
 		}
 	}
-	
-	
+
+
+	if (HasAuthority())
+	{
+		if (ensureAlways(DT_CharacterStats))
+			CharacterBaseStat = *DT_CharacterStats->FindRow<FCharacterBaseStat>
+			(
+				RowName,
+				FString::Printf(TEXT("Getting CharacterBaseStat"))
+			);
+
+		if (ensure(CharacterBaseStat.Attributes.Num() == FinalStat.Attributes.Num()))
+		{
+			for (int32 i = 0; i < CharacterBaseStat.Attributes.Num(); ++i)
+				FinalStat.Attributes[i] += CharacterBaseStat.Attributes[i];
+		}
+	}
+
+	if (!HasAuthority() && IsLocallyControlled())
+	{
+		InvMainWidget = CreateWidget<UInventoryMainWidget>(GetController<APlayerController>(), InvMainWidgetClass);
+
+	}	
 }
 
 // Called every frame
@@ -89,4 +112,10 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 	AddControllerYawInput(dir.X);
 	AddControllerPitchInput(dir.Y);
 }
+
+const FFinalStat& ADBCharacter::GetFinalStat() const
+{
+	return FinalStat;
+}
+
 

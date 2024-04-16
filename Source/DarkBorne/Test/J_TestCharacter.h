@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../DBCharacters/DBRogueCharacter.h"
+#include "../DBCharacters/DBCharacter.h"
 #include "../ItemTypes/ItemType.h"
 #include "J_TestCharacter.generated.h"
 
@@ -16,7 +16,7 @@ class UPlayerEquipmentComponent;
 class UInventoryMainWidget;
 
 UCLASS()
-class DARKBORNE_API AJ_TestCharacter : public ADBRogueCharacter
+class DARKBORNE_API AJ_TestCharacter : public ACharacter
 {
 	GENERATED_BODY()
 public:
