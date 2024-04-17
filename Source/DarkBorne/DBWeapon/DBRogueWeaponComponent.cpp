@@ -3,8 +3,9 @@
 
 #include "DBRogueWeaponComponent.h"
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
-#include "../Items/Weapons/DBWeapon.h"
+
 #include "../DBCharacters/DBRogueCharacter.h"
+#include "../Items/Weapons/DBWeapon_CloseRange.h"
 
 // Sets default values for this component's properties
 UDBRogueWeaponComponent::UDBRogueWeaponComponent()
@@ -51,7 +52,7 @@ void UDBRogueWeaponComponent::AttachWeapon()
 	{
 
 		UE_LOG(LogTemp, Warning, TEXT("Attach Weapon"));
-		Dagger = GetWorld()->SpawnActor<ADBWeapon>(DaggerFactory, GetComponentLocation(), GetComponentRotation());
+		Dagger = GetWorld()->SpawnActor<ADBWeapon_CloseRange>(DaggerFactory, GetComponentLocation(), GetComponentRotation());
 		if (Dagger)
 		{
 			//ADBRogueCharacter* player = Cast<ADBRogueCharacter>(GetOwner());

@@ -5,7 +5,7 @@
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include "../DBRogueCharacter.h"
 #include "../../DBWeapon/DBRogueWeaponComponent.h"
-#include "../../Items/Weapons/DBWeapon.h"
+#include "../../Items/Weapons/DBWeapon_CloseRange.h"
 
 
 // Sets default values for this component's properties
@@ -25,7 +25,7 @@ void UDBRogueAttackComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+	comboCnt = 0;
 }
 
 
@@ -34,7 +34,7 @@ void UDBRogueAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	UpdateComboCount(DeltaTime);
 }
 
 void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent* enhancedInputComponent)
@@ -45,19 +45,74 @@ void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 
 void UDBRogueAttackComponent::RogueAttack()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Rogue Attack"));
-	
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 
 	// 단검을 들고 있으면 
 	if (RoguePlayer->RogueWeaponComp->Dagger != nullptr)
-	{
-		// 단검 아이템에 있는 애님몽타주 실행
-		RoguePlayer->RogueWeaponComp->Dagger->PlayMontage(RoguePlayer, FName("Attack4"));
+	{	
+		if (comboCnt == 0)
+		{	
+			comboCnt++;
+			comboCurrTime = 0;
+			
+			// 단검 아이템에 있는 애님몽타주 실행
+			RoguePlayer->RogueWeaponComp->Dagger->PlayMontage(RoguePlayer, FName("Attack1"));
+		}
+		else if (comboCnt == 1)
+		{	
+			// 콤보최소시간 <= 현재시간 이고 현재시간 <= 최대시간
+			if (comboMinTime <= comboCurrTime && comboCurrTime <= comboMaxTime)
+			{
+				comboCnt++;
+				comboCurrTime = 0;
 
-		
+				// 단검 아이템에 있는 애님몽타주 실행
+				RoguePlayer->RogueWeaponComp->Dagger->PlayMontage(RoguePlayer, FName("Attack2"));
+			}
+		}
+		else if (comboCnt == 2)
+		{
+			// 콤보최소시간 <= 현재시간 이고 현재시간 <= 최대시간
+			if (comboMinTime <= comboCurrTime && comboCurrTime <= comboMaxTime)
+			{
+				comboCnt++;
+				comboCurrTime = 0;
+
+				// 단검 아이템에 있는 애님몽타주 실행
+				RoguePlayer->RogueWeaponComp->Dagger->PlayMontage(RoguePlayer, FName("Attack3"));
+			}
+		}
+		else if (comboCnt == 3)
+		{
+			// 콤보최소시간 <= 현재시간 이고 현재시간 <= 최대시간
+			if (comboMinTime <= comboCurrTime && comboCurrTime <= comboMaxTime)
+			{
+				comboCnt++;
+				comboCurrTime = 0;
+
+				// 단검 아이템에 있는 애님몽타주 실행
+				RoguePlayer->RogueWeaponComp->Dagger->PlayMontage(RoguePlayer, FName("Attack4"));
+			}
+		}
 	}
 	
 	
+}
+
+void UDBRogueAttackComponent::UpdateComboCount(float DeltaTime)
+{
+	// 콤보 카운트가 0보다 크면 (콤보 시작)
+	if (comboCnt > 0)
+	{
+		//콤보 현재시간 = 콤보 현재시간 + 델타타임 -> 콤보 현재시간을 증가시켜라
+		comboCurrTime += DeltaTime;
+		//콤보 현재 시간이 최대시간보다 커졌을 때
+		if (comboCurrTime > comboMaxTime)
+		{
+			// 콤보 카운트를 초기화 시켜라 -> 콤보 처음부터 시작하기 위해서
+			comboCnt = 0;
+
+		}
+	}
 }
 
