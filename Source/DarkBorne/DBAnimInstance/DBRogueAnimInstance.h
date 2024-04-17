@@ -30,7 +30,10 @@ public:
 	float dirV;
 
 	UPROPERTY()
-	class ADBRogueCharacter* player;
+	class ADBRogueCharacter* RoguePlayer;
+
+	UPROPERTY()
+	class ADBWeapon_CloseRange* WeaponDagger;
 
 	UPROPERTY(BlueprintReadOnly)
 	float pitchAngle;
@@ -47,7 +50,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool HasWeapon;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool isAttacking;
+
+
 public:
 	UFUNCTION()
-	void AnimNotify_Damage();
+	void AnimNotify_Start_Damage();
+	
+	UFUNCTION()
+	void AnimNotify_End_Damage();
 };

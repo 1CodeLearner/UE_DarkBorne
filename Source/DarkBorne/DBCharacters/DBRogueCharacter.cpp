@@ -44,6 +44,7 @@ ADBRogueCharacter::ADBRogueCharacter()
 	//(Pitch = -20.000000, Yaw = 0.000000, Roll = 0.000000)
 	RogueWeaponComp = CreateDefaultSubobject<UDBRogueWeaponComponent>(TEXT("WeaponComp"));
 	RogueWeaponComp->SetupAttachment(GetMesh(), FName(TEXT("RightHandWeapon")));
+	RogueWeaponComp->SetRelativeLocation(FVector(-10, 3, 0));
 
 	RogueSkillComponent = CreateDefaultSubobject<UDBRogueSkillComponent>(TEXT("RogueSkillComp"));
 	RogueAttackComponent = CreateDefaultSubobject<UDBRogueAttackComponent>(TEXT("RogueAttackComp"));

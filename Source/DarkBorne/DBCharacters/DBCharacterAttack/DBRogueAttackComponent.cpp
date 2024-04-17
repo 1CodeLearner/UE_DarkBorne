@@ -7,6 +7,7 @@
 #include "../../DBWeapon/DBRogueWeaponComponent.h"
 #include "../../Items/Weapons/DBWeapon.h"
 
+
 // Sets default values for this component's properties
 UDBRogueAttackComponent::UDBRogueAttackComponent()
 {
@@ -46,16 +47,17 @@ void UDBRogueAttackComponent::RogueAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Rogue Attack"));
 	
-	ADBRogueCharacter* player = Cast<ADBRogueCharacter>(GetOwner());
+	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 
 	// 단검을 들고 있으면 
-	if (player->RogueWeaponComp->Dagger != nullptr)
+	if (RoguePlayer->RogueWeaponComp->Dagger != nullptr)
 	{
 		// 단검 아이템에 있는 애님몽타주 실행
-		player->RogueWeaponComp->Dagger->PlayMontage(player, FName("Attack1"));
+		RoguePlayer->RogueWeaponComp->Dagger->PlayMontage(RoguePlayer, FName("Attack4"));
 
+		
 	}
 	
-	//UKismetSystemLibrary::SphereTraceSingleForObjects()
+	
 }
 
