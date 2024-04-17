@@ -19,9 +19,9 @@ struct FDimension
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float X;
+	float X = 0.f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float Y;
+	float Y = 0.f;
 };
 
 UCLASS()

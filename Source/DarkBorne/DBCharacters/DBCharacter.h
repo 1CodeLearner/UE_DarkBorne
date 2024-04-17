@@ -4,8 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "../ItemTypes/ItemType.h"
 #include "DBCharacter.generated.h"
 
+class UDataTable;
+class UPlayerEquipmentComponent;
+class UInventoryMainWidget;
 
 UCLASS()
 class DARKBORNE_API ADBCharacter : public ACharacter
@@ -20,13 +24,35 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
+public:
+	UFUNCTION(BlueprintCallable)
+	const FFinalStat& GetFinalStat() const;
+
+	UPROPERTY(EditAnywhere, Category = "Settings")
+	UDataTable* DT_CharacterStats;
+	UPROPERTY(EditAnywhere, Category = "Settings")
+	FName RowName;
+	UPROPERTY(BlueprintReadOnly)
+	FCharacterBaseStat CharacterBaseStat;
+	UPROPERTY(VisibleAnywhere, Category = "Settings")
+	FFinalStat FinalStat;
+
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	UPlayerEquipmentComponent* PlayerEquipmentComp;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TSubclassOf<UInventoryMainWidget> InvMainWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Settings")
+	UInventoryMainWidget* InvMainWidget;
+
+
 public:
 	//player Mapping Context
 	UPROPERTY(EditAnywhere)
@@ -39,7 +65,7 @@ public:
 	class UInputAction* ia_DB_Look;
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_DB_Jump;
-	
+
 public:
 	//Default 이동 관련 함수들
 	void EnhancedMove(const struct FInputActionValue& value);

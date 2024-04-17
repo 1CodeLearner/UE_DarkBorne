@@ -3,7 +3,9 @@
 
 #include "DBRogueWeaponComponent.h"
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
-#include "../Items/Weapons/DBWeapon.h"
+
+#include "../DBCharacters/DBRogueCharacter.h"
+#include "../Items/Weapons/DBWeapon_CloseRange.h"
 
 // Sets default values for this component's properties
 UDBRogueWeaponComponent::UDBRogueWeaponComponent()
@@ -42,19 +44,22 @@ void UDBRogueWeaponComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 
 void UDBRogueWeaponComponent::AttachWeapon()
 {
-	// hasWeapon이 true 면 취소
+	// 무기 있으면 재실행 x
 	if(hasWeapon) return;
 
 	hasWeapon = true;
-	// 만약 hasweapon이 true라면
 	if (hasWeapon)
 	{
 
 		UE_LOG(LogTemp, Warning, TEXT("Attach Weapon"));
-		Dagger = GetWorld()->SpawnActor<ADBWeapon>(DaggerFactory, GetComponentLocation(), GetComponentRotation());
+		Dagger = GetWorld()->SpawnActor<ADBWeapon_CloseRange>(DaggerFactory, GetComponentLocation(), GetComponentRotation());
 		if (Dagger)
 		{
-		
+			//ADBRogueCharacter* player = Cast<ADBRogueCharacter>(GetOwner());
+			//Dagger->SetOwner(player);
+			//이 무기의 오너를 셋팅 
+			Dagger->SetOwner(GetOwner());
+
 			// 단검을 붙이자
 			Dagger->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 		

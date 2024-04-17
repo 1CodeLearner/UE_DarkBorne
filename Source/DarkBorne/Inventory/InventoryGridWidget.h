@@ -9,9 +9,13 @@
 /**
  * 
  */
+
+ class UPlayerEquipmentComponent;
+
 UCLASS()
 class DARKBORNE_API UInventoryGridWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
+protected:
 };

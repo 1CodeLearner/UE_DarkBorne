@@ -3,37 +3,38 @@
 
 #include "DBRogueAnimInstance.h"
 #include "../DBCharacters/DBRogueCharacter.h"
+#include "../Items/Weapons/DBWeapon_CloseRange.h"
+#include "../DBWeapon/DBRogueWeaponComponent.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
 
 void UDBRogueAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
 	// Player 가져오자
-	player = Cast<ADBRogueCharacter>(TryGetPawnOwner());
-	
-	
+	RoguePlayer = Cast<ADBRogueCharacter>(TryGetPawnOwner());
 }
 
 void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	if (player)
+	if (RoguePlayer)
 	{
 		// 앞 뒤 (dirV)
-		dirV = FVector::DotProduct(player->GetActorForwardVector(), player->GetVelocity());
+		dirV = FVector::DotProduct(RoguePlayer->GetActorForwardVector(), RoguePlayer->GetVelocity());
 
 		// 좌 우 (dirH)
-		dirH = FVector::DotProduct(player->GetActorRightVector(), player->GetVelocity());
+		dirH = FVector::DotProduct(RoguePlayer->GetActorRightVector(), RoguePlayer->GetVelocity());
 
 		//0 ~ 360 --> -180 ~ 180
-		pitchAngle = -player->GetBaseAimRotation().Pitch;
+		pitchAngle = -RoguePlayer->GetBaseAimRotation().Pitch;
 		
 
-		pitchAngle = -player->GetBaseAimRotation().GetNormalized().Pitch;
+		pitchAngle = -RoguePlayer->GetBaseAimRotation().GetNormalized().Pitch;
 
 		// GetVelocity의 크기가 0보다 크면 무브 true 로
-		if (player->GetVelocity().Length() > 0)
+		if (RoguePlayer->GetVelocity().Length() > 0)
 		{
 			ShouldMove = true;
 		}
@@ -45,7 +46,20 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
-void UDBRogueAnimInstance::AnimNotify_Damage()
+void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 {
+	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	
+	// 공격중
+	isAttacking = true;
+	WeaponComp->Dagger->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	
+}
+
+void UDBRogueAnimInstance::AnimNotify_End_Damage()
+{
+	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	// 공격중이 아님
+	isAttacking = false;
+	WeaponComp->Dagger->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

@@ -8,6 +8,7 @@
 #include "DBCharacterSkill/DBRogueSkillComponent.h"
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include "DBCharacterAttack/DBRogueAttackComponent.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/SpringArmComponent.h>
 
 
 
@@ -19,15 +20,31 @@ ADBRogueCharacter::ADBRogueCharacter()
 	// 메쉬 위치 셋팅
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -88));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+	//GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Ca);
 
+	//SpringArm 컴포넌트 생성
+	springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("springArm"));
+	//springArm 을 RootComponent 의 자식 (루프 컴포넌트는 디폴트 기본 자식임)
+	springArm->SetupAttachment(RootComponent);
+	//springArm 위치를 바꾸자
+	springArm->SetRelativeLocation(FVector(0, 0, 0));
+	//springArm 각도 변경
+	springArm->SetRelativeRotation(FRotator(0, 0, 0));
+	springArm->TargetArmLength = 200;
+	springArm->ProbeChannel = ECollisionChannel::ECC_Visibility;
+	
 	// camera setting
 	camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	camera->SetupAttachment(GetMesh(), FName(TEXT("headSocket")));
-	camera->SetRelativeLocation(FVector(9.8f, 13.2f, 0));
-	camera->SetRelativeRotation(FRotator(0, 80, 270));
-
+	//camera 를 springArm 의 자식으로 셋팅
+	camera->SetupAttachment(springArm);
+	//camera->SetupAttachment(GetMesh(), FName(TEXT("headSocket")));
+	camera->SetRelativeLocation(FVector(0, 0, 0));
+	camera->SetRelativeRotation(FRotator(-20, 0, 0));
+	//(X = -10.260604, Y = 50.000000, Z = 61.809221)
+	//(Pitch = -20.000000, Yaw = 0.000000, Roll = 0.000000)
 	RogueWeaponComp = CreateDefaultSubobject<UDBRogueWeaponComponent>(TEXT("WeaponComp"));
 	RogueWeaponComp->SetupAttachment(GetMesh(), FName(TEXT("RightHandWeapon")));
+	RogueWeaponComp->SetRelativeLocation(FVector(-10, 3, 0));
 
 	RogueSkillComponent = CreateDefaultSubobject<UDBRogueSkillComponent>(TEXT("RogueSkillComp"));
 	RogueAttackComponent = CreateDefaultSubobject<UDBRogueAttackComponent>(TEXT("RogueAttackComp"));
