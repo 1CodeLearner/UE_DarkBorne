@@ -8,6 +8,19 @@
 
 
 //공통 Enemy Locomotion 상태 정의
+UENUM(BlueprintType)
+enum class EEnemyState : uint8
+{
+	IDLE,
+	MOVE,
+	PATROL,
+	ATTACK,
+	ATTACK_DELAY,
+	DAMAGE,
+	DIE
+};
+
+
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -26,6 +39,25 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	//AIController
+	UPROPERTY(EditAnywhere)
+	class AAIController* ai;
+	
+
+
+
+	EEnemyState currState = EEnemyState::IDLE;
+
+	UPROPERTY(EditInstanceOnly,BlueprintReadOnly)
+	class ADBCharacter* target;
+
+	UPROPERTY(EditInstanceOnly,BlueprintReadOnly)
+	class AEnemyBase* myActor;
+
+
+	
+
 
 		
 };

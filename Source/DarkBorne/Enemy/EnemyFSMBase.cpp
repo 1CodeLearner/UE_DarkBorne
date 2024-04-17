@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "EnemyFSMBase.h"
+#include "../Enemy/EnemyFSMBase.h"
+//#include <../../../../../../../Source/Runtime/AIModule/Classes/AIController.h>
 
 // FSM공통 부분 추가 발생시 추가할 스크립트
 //당장은 쓰이지 않음

@@ -2,10 +2,25 @@
 
 
 #include "../Enemy/MorigeshEnemy.h"
+#include "MorigeshEnemyFSM.h"
 
 AMorigeshEnemy::AMorigeshEnemy()
 {	
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> characterMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/ParagonMorigesh/Characters/Heroes/Morigesh/Meshes/Morigesh.Morigesh'"));
+	if(characterMesh.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(characterMesh.Object);
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0,0,-88), FRotator(0,-90,0));
+		
+	}	
+
+	baseFSM = CreateDefaultSubobject<UMorigeshEnemyFSM>(TEXT("FSM"));
+
+
 	
+
+	
+
 
 }
 
