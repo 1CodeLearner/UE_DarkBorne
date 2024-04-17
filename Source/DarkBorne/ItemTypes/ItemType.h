@@ -93,10 +93,10 @@ struct FItem : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	TArray<FRarity> Rarities;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	FDarkBorneStats Enchantments;
 };
 

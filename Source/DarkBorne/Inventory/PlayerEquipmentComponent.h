@@ -15,9 +15,9 @@ USTRUCT(BlueprintType)
 struct FTile
 {
 	GENERATED_BODY()
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	int32 X = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	int32 Y = 0;
 };
 
@@ -26,18 +26,18 @@ struct FLine
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FVector2D Start = FVector2D::Zero();
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FVector2D End = FVector2D::Zero();
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent), Blueprintable)
 class DARKBORNE_API UPlayerEquipmentComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UPlayerEquipmentComponent();
 
@@ -45,12 +45,13 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
 	bool TryAddItem(class UItemObject* ItemObject);
 
+public:
 	UFUNCTION(BlueprintCallable)
 	TMap<class UItemObject*, FTile> GetAllItems() const;
 
@@ -70,27 +71,27 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RemoveItem(class UItemObject* ItemObject);
 
-	
-	TTuple<bool,class UItemObject*> GetItematIndex(int32 Index) const;
-	
+
+	TTuple<bool, class UItemObject*> GetItematIndex(int32 Index) const;
+
 	UFUNCTION(BlueprintCallable)
 	bool IsTileValid(FTile tile) const;
-	
+
 
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Columns = -1;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Rows = -1;
 
 private:
 	TArray<class UItemObject*> itemArray;
 
 	bool isDirty = false;
-	
-	
+
+
 public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnInventoryChangedDel onInventoryChangedDel;

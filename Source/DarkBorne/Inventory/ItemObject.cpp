@@ -9,7 +9,7 @@
 
 void UItemObject::Initialize(FItem item)
 {
-	this->Item = Item;
+	this->Item = item;
 }
 
 FIntPoint UItemObject::GetDimentions()
