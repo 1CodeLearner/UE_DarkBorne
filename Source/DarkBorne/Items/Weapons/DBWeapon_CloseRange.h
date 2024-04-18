@@ -30,7 +30,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UCapsuleComponent* CapsuleComp;
 
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* BloodVFX;
 	//서버 어택 함수
-
+	
 	//멀티캐스트 함수
 };

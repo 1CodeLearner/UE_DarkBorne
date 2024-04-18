@@ -5,6 +5,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
 #include "../../DBAnimInstance/DBRogueAnimInstance.h"
 #include "../../DBCharacters/DBRogueCharacter.h"
+#include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h>
 
 ADBWeapon_CloseRange::ADBWeapon_CloseRange()
 {
@@ -23,31 +24,51 @@ void ADBWeapon_CloseRange::BeginPlay()
 }
 
 void ADBWeapon_CloseRange::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
+{	
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
-
-	UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
-
+	//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
+	UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
+	
 	// 캐릭터의 GetOnwer로 인스턴스를 가져와 나의 플레이어 애님 인스턴스로 가져온다
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(Cast<ACharacter>(GetOwner())->GetMesh()->GetAnimInstance());
-
+	
+	ADBRogueCharacter* OtherPlayerHit = Cast<ADBRogueCharacter>(SweepResult.GetActor());
+	
+	
 	// 만약 내 자신이 부딫혔다면
 	if (OtherActor == GetOwner())
 	{
-		
+		return;
 	}
 	// 만약 내 자신이 아닌 액터가 부딫혔다면
 	else if (OtherActor != GetOwner())
 	{
+		
+		if (bFromSweep) 
+		{
+			UE_LOG(LogTemp, Warning, TEXT("TESTING HERE"));
+		}
+		else
+			UE_LOG(LogTemp, Warning, TEXT("fail"));
+
+
 		// 공격중이면
 		if (MyCharacterAnim->isAttacking)
 		{	
+			
 			//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
 			OtherPlayer->CurrHP = OtherPlayer->CurrHP - WeaponDamage;
 			UE_LOG(LogTemp, Warning, TEXT("%.f"), OtherPlayer->CurrHP);
+
+			//맞았을 때의 애니메이션 on
+			OtherPlayerAnim->isHitting = true;
+			//blood VFX
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),BloodVFX, OtherPlayerHit->GetActorLocation(), FRotator::ZeroRotator );
 			CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		}
+		
+		
 	}
 }
