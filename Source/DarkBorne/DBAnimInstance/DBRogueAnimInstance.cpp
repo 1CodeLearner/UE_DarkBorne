@@ -4,6 +4,8 @@
 #include "DBRogueAnimInstance.h"
 #include "../DBCharacters/DBRogueCharacter.h"
 #include "../Items/Weapons/DBWeapon_CloseRange.h"
+#include "../DBWeapon/DBRogueWeaponComponent.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
 
 void UDBRogueAnimInstance::NativeInitializeAnimation()
 {
@@ -46,12 +48,18 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 {
+	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	
 	// 공격중
 	isAttacking = true;
+	WeaponComp->Dagger->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	
 }
 
 void UDBRogueAnimInstance::AnimNotify_End_Damage()
 {
+	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	// 공격중이 아님
 	isAttacking = false;
+	WeaponComp->Dagger->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

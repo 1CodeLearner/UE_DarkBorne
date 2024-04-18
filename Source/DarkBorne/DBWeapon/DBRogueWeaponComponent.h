@@ -33,10 +33,10 @@ public:
 	class UInputAction* ia_WeaponSlot;
 
 	UPROPERTY(EditAnywhere)
-	class ADBWeapon* Dagger;
+	class ADBWeapon_CloseRange* Dagger;
 	
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<ADBWeapon> DaggerFactory;
+	TSubclassOf<ADBWeapon_CloseRange> DaggerFactory;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

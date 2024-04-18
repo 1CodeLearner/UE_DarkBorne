@@ -32,7 +32,14 @@ public:
 	class UInputAction* ia_DB_Attack;
 
 public:
-	void RogueAttack();
+	int32 comboCnt = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float comboMinTime = 1.0f;
+	float comboMaxTime = 1.4f;
+	float comboCurrTime = 0;
+public:
+	void RogueAttack();
+	void UpdateComboCount(float DeltaTime);
 	
 };
