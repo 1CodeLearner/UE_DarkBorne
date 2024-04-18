@@ -5,8 +5,8 @@
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include "../DBRogueCharacter.h"
 #include "../../DBWeapon/DBRogueWeaponComponent.h"
-#include "../../Items/Weapons/DBWeapon.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
+#include "../../Items/Weapons/DBWeapon_CloseRange.h"
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -54,7 +54,6 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 		// 현재 은신시간이 최대시간보다 작다면
 		if (CurrVanishTime < MaxVanishTime)
 		{
-		
 			// 현재 은신 시간에 델타타임 더하기
 			CurrVanishTime += DeltaTime;
 			UE_LOG(LogTemp, Warning, TEXT("Vanish Curr Time : %.f"), CurrVanishTime);
@@ -116,7 +115,7 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 	// 최대 지속시간에 도달했다면
 	if (!isVanish)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("off vanish"));
+		//UE_LOG(LogTemp, Warning, TEXT("off vanish"));
 		//화면 원래대로
 		RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = false;
 		//로그 캐릭터 머티리얼 가져와서

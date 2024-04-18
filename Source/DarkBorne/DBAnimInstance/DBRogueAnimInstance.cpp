@@ -63,3 +63,13 @@ void UDBRogueAnimInstance::AnimNotify_End_Damage()
 	isAttacking = false;
 	WeaponComp->Dagger->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
+
+void UDBRogueAnimInstance::AnimNotify_Start_Hit()
+{
+	isHitting = true;
+}
+
+void UDBRogueAnimInstance::AnimNotify_End_Hit()
+{
+	isHitting = false;
+}
