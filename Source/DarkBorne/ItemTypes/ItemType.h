@@ -99,18 +99,7 @@ struct FItem : public FTableRowBase
 	UPROPERTY(BlueprintReadOnly)
 	FDarkBorneStats Enchantments;
 
-	UFUNCTION(BlueprintCallable)
-	int32 GetSlotIndex() const 
-	{
-		ESlotType Slot = ItemSlot->SlotType;
-
-		if (Slot < ESlotType::_ENCHANTMENTMARK_) {
-			return int32(Slot);
-		}
-		else{
-			return int32(Slot) - 1;
-		}
-	}
+	int32 GetSlotIndex() const;
 };
 
 
