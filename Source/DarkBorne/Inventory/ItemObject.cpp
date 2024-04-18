@@ -30,6 +30,11 @@ TSubclassOf<AActor> UItemObject::GetItemClass()
 	return Item.ItemSlot->ItemClass;
 }
 
+int32 UItemObject::GetSlotIndex() const
+{
+	return Item.GetSlotIndex();
+}
+
 UWorld* UItemObject::GetWorld() const
 {
 	// Outer is set when creating action via NewObject<T>

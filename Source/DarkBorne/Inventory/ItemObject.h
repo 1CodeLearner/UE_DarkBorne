@@ -22,6 +22,11 @@ public:
 	class UMaterialInterface* GetIcon();
 	UFUNCTION(BlueprintPure)
 	TSubclassOf<AActor> GetItemClass();
+	UFUNCTION(BlueprintCallable)
+	int32 GetSlotIndex() const;
+
+
+
 
 protected:
 	UFUNCTION()
