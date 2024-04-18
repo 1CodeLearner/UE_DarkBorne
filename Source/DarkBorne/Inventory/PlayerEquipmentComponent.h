@@ -51,6 +51,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool TryAddItem(class UItemObject* ItemObject);
 
+	//Holds ItemObject until mouse button is released
+	/*UPROPERTY(BlueprintReadOnly)
+	UItemObject* ItemObjectHolder;*/
+
 public:
 	UFUNCTION(BlueprintCallable)
 	TMap<class UItemObject*, FTile> GetAllItems() const;
@@ -90,8 +94,6 @@ private:
 	TArray<class UItemObject*> itemArray;
 
 	bool isDirty = false;
-
-
 public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnInventoryChangedDel onInventoryChangedDel;

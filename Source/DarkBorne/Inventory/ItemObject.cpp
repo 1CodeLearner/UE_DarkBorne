@@ -30,9 +30,14 @@ TSubclassOf<AActor> UItemObject::GetItemClass()
 	return Item.ItemSlot->ItemClass;
 }
 
-int32 UItemObject::GetSlotIndex() const
+ESlotType UItemObject::GetSlotType() const
 {
-	return Item.GetSlotIndex();
+	return Item.ItemSlot->SlotType;
+}
+
+const FItem& UItemObject::GetItem() const
+{
+	return Item;
 }
 
 UWorld* UItemObject::GetWorld() const
