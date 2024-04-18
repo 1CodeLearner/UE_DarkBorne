@@ -23,9 +23,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	TSubclassOf<AActor> GetItemClass();
 	UFUNCTION(BlueprintCallable)
-	int32 GetSlotIndex() const;
-
-
+	ESlotType GetSlotType() const;
 
 
 protected:

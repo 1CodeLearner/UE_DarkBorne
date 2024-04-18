@@ -8,7 +8,7 @@
 
 class UPDA_ItemSlot;
 
-UENUM()
+UENUM(Blueprintable)
 enum class ESlotType : uint8
 {
 	WEAPON UMETA(DisplayName = "Weapon"),
@@ -23,6 +23,7 @@ enum class ESlotType : uint8
 
 	UTILITY UMETA(DisplayName = "Utility"),
 	CONSUMABLE UMETA(DisplayName = "Consumable"),
+	NONE UMETA(DisplayName = "None"),
 	MAX UMETA(DisplayName = "Max")
 };
 
