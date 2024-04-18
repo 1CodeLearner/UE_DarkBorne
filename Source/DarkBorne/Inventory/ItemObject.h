@@ -25,12 +25,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ESlotType GetSlotType() const;
 
+	const FItem& GetItem() const;
 
 protected:
 	UFUNCTION()
 	virtual UWorld* GetWorld() const override;
-	
-	UPROPERTY(EditDefaultsOnly, Category="Settings")
+
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TSubclassOf<AActor> ItemClass;
 private:
 	FItem Item = FItem();

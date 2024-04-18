@@ -35,6 +35,11 @@ ESlotType UItemObject::GetSlotType() const
 	return Item.ItemSlot->SlotType;
 }
 
+const FItem& UItemObject::GetItem() const
+{
+	return Item;
+}
+
 UWorld* UItemObject::GetWorld() const
 {
 	// Outer is set when creating action via NewObject<T>

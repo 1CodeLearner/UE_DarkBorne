@@ -11,7 +11,7 @@ class UPDA_ItemSlot;
 UENUM(Blueprintable)
 enum class ESlotType : uint8
 {
-	WEAPON UMETA(DisplayName = "Weapon"),
+	WEAPON = 0 UMETA(DisplayName = "Weapon"),
 	HEAD UMETA(DisplayName = "Head"),
 	UPPERWEAR UMETA(DisplayName = "UpperWear"),
 	BOTTOMWEAR UMETA(DisplayName = "BottomWear"),
