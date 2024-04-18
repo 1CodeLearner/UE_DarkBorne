@@ -37,7 +37,7 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere)
-	int32 maxHP = -1;
+	int32 maxHP = 100;
 
 	UPROPERTY(EditAnywhere)
 	int32 currHP = 0;

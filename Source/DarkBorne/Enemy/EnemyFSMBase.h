@@ -50,7 +50,7 @@ public:
 	EEnemyState currState = EEnemyState::IDLE;
 
 	UPROPERTY(EditInstanceOnly,BlueprintReadOnly)
-	class ADBCharacter* target;
+	class AActor* nowTarget;
 
 	UPROPERTY(EditInstanceOnly,BlueprintReadOnly)
 	class AEnemyBase* myActor;

@@ -59,6 +59,7 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 /// <returns>죽었는가 리턴 받아서 FSM에서 애니메이션 처리</returns>
 bool AEnemyBase::DamageProcess(int32 damage)
 {
+
 	currHP -= damage;
 	if (currHP >= 0)
 	{

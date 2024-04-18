@@ -34,8 +34,10 @@ public:
 	TArray<AActor*> enemyTarget;
 
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	class UAnimMorigeshEnemy* anim;
+
+
 	
 
 	UPROPERTY(EditAnywhere)
@@ -51,11 +53,14 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	float attackDelayTime = 2;
+	
+	UPROPERTY(EditAnywhere)
+	float damageDelayTime = 2;
 
 	UPROPERTY(EditAnywhere)
 	float idleDelayTime = 2;
 
-	float viewAngle = 100;
+	float viewAngle = 180;
 
 	FVector originPos;
 	FVector patrolPos;
