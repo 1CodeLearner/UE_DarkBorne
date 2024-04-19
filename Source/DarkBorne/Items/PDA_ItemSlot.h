@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "../ItemTypes/ItemType.h"
+#include "../ItemTypes/EnchantmentTypes.h"
 #include "Materials/MaterialInterface.h"
 #include "PDA_ItemSlot.generated.h"
 
@@ -13,17 +13,6 @@
  */
 
  class ADBItem;
-
-USTRUCT(Blueprintable)
-struct FDimension
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float X = 0.f;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float Y = 0.f;
-};
 
 UCLASS()
 class DARKBORNE_API UPDA_ItemSlot : public UPrimaryDataAsset

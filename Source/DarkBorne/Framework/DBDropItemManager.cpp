@@ -2,17 +2,15 @@
 
 
 #include "DBDropItemManager.h"
-#include "../Items/PDA_ItemSlot.h"
 #include "Interfaces/ItemInterface.h"
 #include "../Items/DBItem.h"
 #include "../Framework/BFL/ItemLibrary.h"
-//#include "../DBCharacters/DBCharacter.h"
 #include "../Test/J_TestCharacter.h"
+#include "../Items/PDA_ItemSlot.h"
 
 ADBDropItemManager::ADBDropItemManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 void ADBDropItemManager::BeginPlay()
@@ -71,6 +69,7 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 				int rand = FMath::RandRange(0, RowNames.Num() - 1);
 				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
 
+				AssignSlotHolder(item);
 				AssignRarity(item);
 				AssignEnchantment(item);
 				ItemsToGenerate.Add(item);
@@ -86,7 +85,7 @@ ADBItem* ADBDropItemManager::SpawnItem(AActor* Instigated, FItem _ItemToSpawn)
 {
 	ADBItem* Item = GetWorld()->SpawnActorDeferred<ADBItem>
 		(
-			_ItemToSpawn.ItemSlot->ItemClass,
+			_ItemToSpawn.SlotHolder.ItemClass,
 			Instigated->GetTransform(),
 			Instigated
 		);
@@ -164,12 +163,17 @@ bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
 	return true;
 }
 
+void ADBDropItemManager::AssignSlotHolder(FItem& Item)
+{
+	Item.Initialize();
+}
+
 void ADBDropItemManager::AssignRarity(FItem& Item)
 {
-	int max = Item.ItemSlot->Rarities.Num() - 1;
+	int max = Item.SlotHolder.Rarities.Num() - 1;
 	int rand = FMath::RandRange(0, max);
 
-	FRarity Rarity = Item.ItemSlot->Rarities[rand];
+	FRarity Rarity = Item.SlotHolder.Rarities[rand];
 
 	GenerateStatFromRange(Rarity.Range);
 
@@ -185,7 +189,7 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 	if (!ensureAlways(!Enchantments.IsEmpty()))
 		return;
 
-	if ((int)Item.ItemSlot->SlotType >= (int)ESlotType::_ENCHANTMENTMARK_)
+	if ((int)Item.SlotHolder.SlotType >= (int)ESlotType::_ENCHANTMENTMARK_)
 		return;
 
 	ERarityType rarityType = Item.Rarities[0].RarityType;
@@ -203,7 +207,7 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 	while (counter < EnchantmentNum - 1)
 	{
 		int DataTableIndex = FMath::RandRange(0, Enchantments.Num() - 1);
-		FName SlotTypeName = FName(UEnum::GetValueAsString<ESlotType>(Item.ItemSlot->SlotType));
+		FName SlotTypeName = FName(UEnum::GetValueAsString<ESlotType>(Item.SlotHolder.SlotType));
 
 		UDataTable* Enchantment = Enchantments[DataTableIndex];
 

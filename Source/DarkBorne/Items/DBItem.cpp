@@ -4,7 +4,6 @@
 #include "DBItem.h"
 #include "Components/StaticMeshComponent.h"
 #include "../DBAnimInstance/DBRogueAnimInstance.h"
-#include "PDA_ItemSlot.h"
 #include "GameFramework/Character.h"
 
 ADBItem::ADBItem()

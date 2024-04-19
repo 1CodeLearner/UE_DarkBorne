@@ -91,6 +91,7 @@ public:
 	int32 Rows = -1;
 
 private:
+	
 	TArray<class UItemObject*> itemArray;
 
 	bool isDirty = false;
