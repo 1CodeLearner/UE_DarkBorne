@@ -160,7 +160,6 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 		// 3. 1, 2 의 값을 이용해서 랜덤한 위치를 뽑자
 		patrolPos = myActor->GetActorLocation() + randDir * randDist;
 
-		myActor->AddMovementInput(patrolPos.GetSafeNormal());
 
 		// 그 위치로 이동!
 		//ai->MoveToLocation(patrolPos);
@@ -261,7 +260,22 @@ void UMorigeshEnemyFSM::UpdateMove()
 
 void UMorigeshEnemyFSM::UpdatePatrol()
 {
-	ChangeState(EEnemyState::IDLE);
+
+
+	
+	FVector tempvector = patrolPos - myActor->GetActorLocation();
+
+	tempvector.Normalize();
+	if (tempvector.Size() < 0.001f)
+	{
+		ChangeState(EEnemyState::IDLE);
+	}
+	else
+	{
+		myActor->AddMovementInput(patrolPos.GetSafeNormal());
+	}
+
+	
 
 	////동적 네브메쉬 나중에 연구
 	//// 내 위치와 랜덤하게 뽑힌 위치의 거리를 구한다.
