@@ -69,9 +69,9 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 				int rand = FMath::RandRange(0, RowNames.Num() - 1);
 				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
 
-				AssignSlotHolder(item);
 				AssignRarity(item);
 				AssignEnchantment(item);
+				AssignSlotHolder(item);
 				ItemsToGenerate.Add(item);
 			}
 			else return TArray<FItem>();
@@ -170,10 +170,11 @@ void ADBDropItemManager::AssignSlotHolder(FItem& Item)
 
 void ADBDropItemManager::AssignRarity(FItem& Item)
 {
-	int max = Item.SlotHolder.Rarities.Num() - 1;
+	if(!ensureAlways(Item.ItemSlot)) return;
+	int max = Item.ItemSlot->Rarities.Num() - 1;
 	int rand = FMath::RandRange(0, max);
 
-	FRarity Rarity = Item.SlotHolder.Rarities[rand];
+	FRarity Rarity = Item.ItemSlot->Rarities[rand];
 
 	GenerateStatFromRange(Rarity.Range);
 
@@ -183,13 +184,15 @@ void ADBDropItemManager::AssignRarity(FItem& Item)
 
 void ADBDropItemManager::AssignEnchantment(FItem& Item)
 {
+	if (!ensureAlways(Item.ItemSlot)) return;
+
 	if (!ensureAlwaysMsgf(Item.Rarities.Num() > 0, TEXT("Ensure AssignEffect() is called before AssignEnhancement()")))
 		return;
 
 	if (!ensureAlways(!Enchantments.IsEmpty()))
 		return;
 
-	if ((int)Item.SlotHolder.SlotType >= (int)ESlotType::_ENCHANTMENTMARK_)
+	if ((int)Item.ItemSlot->SlotType >= (int)ESlotType::_ENCHANTMENTMARK_)
 		return;
 
 	ERarityType rarityType = Item.Rarities[0].RarityType;
