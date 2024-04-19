@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "../Enemy/MorigeshEnemyFSM.h"
@@ -13,124 +13,117 @@
 
 UMorigeshEnemyFSM::UMorigeshEnemyFSM()
 {
-	
+
 }
 
 void UMorigeshEnemyFSM::BeginPlay()
 {
 	Super::BeginPlay();
 	//!
-	//ÇÃ·¹ÀÌ¾î ¸®½ºÆ®
-	//³ªÁß¿¡ GameInstance¿¡¼­ °ü¸® ÇÏ¿©¾ß ÇÔ
+	//í”Œë ˆì´ì–´ ë¦¬ìŠ¤íŠ¸
+	//ë‚˜ì¤‘ì— GameInstanceì—ì„œ ê´€ë¦¬ í•˜ì—¬ì•¼ í•¨
 	TArray<AActor*> FoundActors;
-	//Áß°£¿¡ ³­ÀÔÇÏÁö ¾Ê´Â ÀÌ»ó ¹«°üÇÒµí
+	//ì¤‘ê°„ì— ë‚œì…í•˜ì§€ ì•ŠëŠ” ì´ìƒ ë¬´ê´€í• ë“¯
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADBCharacter::StaticClass(), FoundActors);
-	
+
 	enemyTarget = FoundActors;
 	myActor = Cast<AMorigeshEnemy>(GetOwner());
 
 	USkeletalMeshComponent* mesh = myActor->GetMesh();
 	UAnimInstance* animInstance = mesh->GetAnimInstance();
-	//MorigeshÇüÅÂ
+	//Morigeshí˜•íƒœ
 
 	anim = Cast<UAnimMorigeshEnemy>(animInstance);
 	// !
-	// ÀÏ´Ü °¡Áö°í¸¸ ÀÖ°í ³ªÁß¿¡ µ¿Àû ³×ºê ¸Ş½¬ ±ò¾ÆÁà¾ßÇÔ
-	//331ÂÊ
+	// ì¼ë‹¨ ê°€ì§€ê³ ë§Œ ìˆê³  ë‚˜ì¤‘ì— ë™ì  ë„¤ë¸Œ ë©”ì‰¬ ê¹”ì•„ì¤˜ì•¼í•¨
+	//331ìª½
 	ai = Cast<AAIController>(myActor->GetController());
 
-	//´Ù½Ã º¼°Í
-	float radianViewAngle = FMath::DegreesToRadians(viewAngle* 0.5f);
+	//ë‹¤ì‹œ ë³¼ê²ƒ
+	float radianViewAngle = FMath::DegreesToRadians(viewAngle * 0.5f);
 	viewAngle = FMath::Cos(radianViewAngle);
 
 	originPos = myActor->GetActorLocation();
 
 
-
-	/*UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEnemyState"), true);
-	if (enumPtr != nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Start State %s"), 
-		*enumPtr->GetNameStringByIndex((int32)currState));
-	}*/
-	
-
 }
 
 void UMorigeshEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	
-	Super::TickComponent(DeltaTime,  TickType, ThisTickFunction);
+
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEnemyState"), true);
 	if (enumPtr != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Now State %s"),
-		*enumPtr->GetNameStringByIndex((int32)currState));
+			*enumPtr->GetNameStringByIndex((int32)currState));
 	}
 
-	if(nowTarget == nullptr)
-	{
-		//target ¼±ÅÃ
-		AActor* selectTarget = nullptr;
-		FVector direction;
-		float distance = -1;
-		for (AActor* tempTarget : enemyTarget)
-		{
-			FVector tempTargetLocation = tempTarget->GetActorLocation();
-			FVector tempMyLocation = myActor->GetActorLocation();
-			FVector tempdirection = tempTargetLocation - tempMyLocation;
-			float tempdistance = tempdirection.Size();
-			if (tempdistance > traceRange && tempdistance > distance) continue;
+	
+	//target ì„ íƒ
+	AActor* selectTarget = nullptr;
+	FVector direction;
+	float distance = -1;
 
-			selectTarget = tempTarget;
-			distance = tempdistance;
-			direction = tempdirection;
-		}
-		if (selectTarget == nullptr)
-		{
-			nowTarget = nullptr;
-			return;
-		}
-		else
-		{
-			nowTarget = selectTarget;
-		}
+	for (AActor* tempTarget : enemyTarget)
+	{
+		FVector tempTargetLocation = tempTarget->GetActorLocation();
+		FVector tempMyLocation = myActor->GetActorLocation();
+		FVector tempdirection = tempTargetLocation - tempMyLocation;
+		float tempdistance = tempdirection.Size();
+		if (tempdistance > traceRange && tempdistance > distance) continue;
+
+		selectTarget = tempTarget;
+		distance = tempdistance;
+		direction = tempdirection;
+	}
+
+	if (selectTarget == nullptr)
+	{
+		nowTarget = nullptr;
+	}
+	else
+	{
+		nowTarget = selectTarget;
 	}
 	
+
+	//ì˜ˆì œì— nowtarget == nullptrë•Œ ë¦¬í„´í•œê±´ ì´ë¯¸ ì •í•´ì ¸ ìˆì–´ì„œ ì˜ë¯¸ ì—†ã…‡ë¯€
+
 	switch (currState)
-	{	
-		//Áß¸³±â¾î
-		case EEnemyState::IDLE:
-			UpdateIdle();
-			break;
-		case EEnemyState::MOVE:
-			UpdateMove();
-			break;
-		case EEnemyState::PATROL:
-			UpdatePatrol();
-			break;
-		case EEnemyState::ATTACK:
-			UpdateAttack();
-			break;
-		case EEnemyState::ATTACK_DELAY:
-			UpdateAttackDelay();
-			break;
-		case EEnemyState::DAMAGE:
-			UpdateDamaged(DeltaTime);
-			break;
-		case EEnemyState::DIE:
-			UpdateDie();
-			break;
-		default:
-			break;
+	{
+		//ì¤‘ë¦½ê¸°ì–´
+	case EEnemyState::IDLE:
+		UpdateIdle();
+		break;
+	case EEnemyState::MOVE:
+		UpdateMove();
+		break;
+	case EEnemyState::PATROL:
+		UpdatePatrol();
+		break;
+	case EEnemyState::ATTACK:
+		UpdateAttack();
+		break;
+	case EEnemyState::ATTACK_DELAY:
+		UpdateAttackDelay();
+		break;
+	case EEnemyState::DAMAGE:
+		UpdateDamaged(DeltaTime);
+		break;
+	case EEnemyState::DIE:
+		UpdateDie();
+		break;
+	default:
+		break;
 	}
 }
 
-//Æ®·£Áö¼Ç °úÁ¤ + º¯È¯
+//íŠ¸ëœì§€ì…˜ ê³¼ì • + ë³€í™˜
 void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 {
-	//»óÅÂ º¯°æ¿¡ ´ëÇÑ µğ¹ö±× Ãâ·Â
+	//ìƒíƒœ ë³€ê²½ì— ëŒ€í•œ ë””ë²„ê·¸ ì¶œë ¥
 	UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEnemyState"), true);
 	if (enumPtr != nullptr)
 	{
@@ -139,7 +132,11 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 			*enumPtr->GetNameStringByIndex((int32)s));
 	}
 
-	ai->StopMovement();
+	//!
+	//! 
+	//! 
+	//! 
+	//ai->StopMovement();
 
 	currState = s;
 	anim->state = currState;
@@ -147,64 +144,67 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 
 	switch (currState)
 	{
-		case EEnemyState::IDLE:
-			break;
-		case EEnemyState::MOVE:
-			break;
-		case EEnemyState::PATROL:
-		{
-			// originPos ±âÁØÀ¸·Î ¹İ°æ 500 cm ¾ÈÀÇ ·£´ıÇÑ À§Ä¡¸¦ »Ì¾Æ¼­ ±× À§Ä¡·Î ÀÌµ¿ÇÏ°ÔÇÑ´Ù.
-		// 1. ·£´ıÇÑ ¹æÇâÀ» »ÌÀÚ
-			int32 randAngle = FMath::RandRange(0, 359);
-			FRotator rot = FRotator(0, randAngle, 0);
-			FVector randDir = UKismetMathLibrary::GetForwardVector(rot);
-			// 2. ±× ¹æÇâÀ¸·Î ·£´ıÇÑ °Å¸®¸¦ »ÌÀÚ
-			float randDist = FMath::RandRange(100.0f, 500.0f);
-			// 3. 1, 2 ÀÇ °ªÀ» ÀÌ¿ëÇØ¼­ ·£´ıÇÑ À§Ä¡¸¦ »ÌÀÚ
-			patrolPos = originPos + randDir * randDist;
-			// ±× À§Ä¡·Î ÀÌµ¿!
-			//ai->MoveToLocation(patrolPos);
-		}
-			break;
-		case EEnemyState::ATTACK:
-		{
-			//// Å±, ÆİÄ¡ °ø°İÇÒÁö ¼³Á¤
-			//int32 rand = FMath::RandRange(0, 1);
-			//anim->attackType = (EAttackType)rand;
-			anim->attackType = (EMorigeshAttackType)0;
-		}
-			break;
-		case EEnemyState::DAMAGE:
-		{
-			//!/
-			// ¿ø·¡ Montage½á¼­ ³ëÆ¼ÆÄÀÌ ¶§¸¶´Ù °ø°İ ¹æ½Ä ÀüÈ¯ÇÏ´Âµ¥
-			// ¿ì¸®´Â Áö±İÀº ´çÀå ±»ÀÌ ÇÊ¿ä¾øÀ½
-			// ¾ËÆÄ¶§ Ãß°¡ÇÒ °Í
-			// 
-			//	// 1. ·£´ıÇÑ °ªÀ» »Ì´Â´Ù. (1, 2)
-			//	int32 rand = FMath::RandRange(1, 2);
-			//	// 2. Damage01, Damage02 ¶õ ¹®ÀÚ¿­À» ¸¸µç´Ù.
-			//	FString sectionName = FString::Printf(TEXT("Damage0%d"), rand);
-			//	// 3. Montage ÇÃ·¹ÀÌ
-			//	myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName));
-			//}
-		}
-			break;
-		case EEnemyState::DIE:
-		{
-			//»ó±â µ¿ÀÏ·Î ÀÏ´Ü Á¦¿Ü
-			/*
-			// Á×´Â ¾Ö´Ï¸ŞÀÌ¼Ç ÇÃ·¹ÀÌ
-			myActor->PlayAnimMontage(montage, 1.0f, TEXT("Die"));
-			// Ãæµ¹ Ã³¸® µÇÁö ¾Ê°Ô ÇÏÀÚ		
-			myActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			// myActor->Destroy();
-			break;
-			*/
-		}
-			break;
-		default:
-			break;
+	case EEnemyState::IDLE:
+		break;
+	case EEnemyState::MOVE:
+		break;
+	case EEnemyState::PATROL:
+	{
+		// originPos ê¸°ì¤€ìœ¼ë¡œ ë°˜ê²½ 500 cm ì•ˆì˜ ëœë¤í•œ ìœ„ì¹˜ë¥¼ ë½‘ì•„ì„œ ê·¸ ìœ„ì¹˜ë¡œ ì´ë™í•˜ê²Œí•œë‹¤.
+	// 1. ëœë¤í•œ ë°©í–¥ì„ ë½‘ì
+		int32 randAngle = FMath::RandRange(0, 359);
+		FRotator rot = FRotator(0, randAngle, 0);
+		FVector randDir = UKismetMathLibrary::GetForwardVector(rot);
+		// 2. ê·¸ ë°©í–¥ìœ¼ë¡œ ëœë¤í•œ ê±°ë¦¬ë¥¼ ë½‘ì
+		float randDist = FMath::RandRange(100.0f, 500.0f);
+		// 3. 1, 2 ì˜ ê°’ì„ ì´ìš©í•´ì„œ ëœë¤í•œ ìœ„ì¹˜ë¥¼ ë½‘ì
+		patrolPos = myActor->GetActorLocation() + randDir * randDist;
+
+		myActor->AddMovementInput(patrolPos.GetSafeNormal());
+
+		// ê·¸ ìœ„ì¹˜ë¡œ ì´ë™!
+		//ai->MoveToLocation(patrolPos);
+	}
+	break;
+	case EEnemyState::ATTACK:
+	{
+		//// í‚¥, í€ì¹˜ ê³µê²©í• ì§€ ì„¤ì •
+		//int32 rand = FMath::RandRange(0, 1);
+		//anim->attackType = (EAttackType)rand;
+		anim->attackType = (EMorigeshAttackType)0;
+	}
+	break;
+	case EEnemyState::DAMAGE:
+	{
+		//!/
+		// ì›ë˜ Montageì¨ì„œ ë…¸í‹°íŒŒì´ ë•Œë§ˆë‹¤ ê³µê²© ë°©ì‹ ì „í™˜í•˜ëŠ”ë°
+		// ìš°ë¦¬ëŠ” ì§€ê¸ˆì€ ë‹¹ì¥ êµ³ì´ í•„ìš”ì—†ìŒ
+		// ì•ŒíŒŒë•Œ ì¶”ê°€í•  ê²ƒ
+		// 
+		//	// 1. ëœë¤í•œ ê°’ì„ ë½‘ëŠ”ë‹¤. (1, 2)
+		//	int32 rand = FMath::RandRange(1, 2);
+		//	// 2. Damage01, Damage02 ë€ ë¬¸ìì—´ì„ ë§Œë“ ë‹¤.
+		//	FString sectionName = FString::Printf(TEXT("Damage0%d"), rand);
+		//	// 3. Montage í”Œë ˆì´
+		//	myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName));
+		//}
+	}
+	break;
+	case EEnemyState::DIE:
+	{
+		//ìƒê¸° ë™ì¼ë¡œ ì¼ë‹¨ ì œì™¸
+		/*
+		// ì£½ëŠ” ì• ë‹ˆë©”ì´ì…˜ í”Œë ˆì´
+		myActor->PlayAnimMontage(montage, 1.0f, TEXT("Die"));
+		// ì¶©ëŒ ì²˜ë¦¬ ë˜ì§€ ì•Šê²Œ í•˜ì
+		myActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		// myActor->Destroy();
+		break;
+		*/
+	}
+	break;
+	default:
+		break;
 
 	}
 
@@ -213,45 +213,46 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 
 void UMorigeshEnemyFSM::UpdateIdle()
 {
-	// ¸¸¾à¿¡ ÇÃ·¹ÀÌ¾î¸¦ ÂÑ¾Æ°¥ ¼ö ÀÖ´Ù¸é
+	// ë§Œì•½ì— í”Œë ˆì´ì–´ë¥¼ ì«“ì•„ê°ˆ ìˆ˜ ìˆë‹¤ë©´
 	if (CanTrace())
 	{
-		// »óÅÂ¸¦ Move ·Î ¹Ù²ã¶ó
+		// ìƒíƒœë¥¼ Move ë¡œ ë°”ê¿”ë¼
 		ChangeState(EEnemyState::MOVE);
 	}
-	// ±×·¸Áö ¾Ê°í idleDelayTime À» Áö³µ´Ù¸é
+	// ê·¸ë ‡ì§€ ì•Šê³  idleDelayTime ì„ ì§€ë‚¬ë‹¤ë©´
 	else if (IsWaitComplete(idleDelayTime))
 	{
-		// »óÅÂ¸¦ PATROL ·Î ¹Ù²ã¶ó
+		// ìƒíƒœë¥¼ PATROL ë¡œ ë°”ê¿”ë¼
 		ChangeState(EEnemyState::PATROL);
 	}
 }
 
 void UMorigeshEnemyFSM::UpdateMove()
 {
-	// 1. ÇÃ·¹ÀÌ¾î¸¦ ÇâÇÏ´Â ¹æÇâÀ» ±¸ÇÏÀÚ
+	// 1. í”Œë ˆì´ì–´ë¥¼ í–¥í•˜ëŠ” ë°©í–¥ì„ êµ¬í•˜ì
 	FVector dir = nowTarget->GetActorLocation() - myActor->GetActorLocation();
 
-	// Ã³À½ À§Ä¡¿Í ³ªÀÇ À§Ä¡ÀÇ °Å¸®
+	// ì²˜ìŒ ìœ„ì¹˜ì™€ ë‚˜ì˜ ìœ„ì¹˜ì˜ ê±°ë¦¬
 	float distance = FVector::Distance(nowTarget->GetActorLocation(), myActor->GetActorLocation());
-	// ¸¸¾à¿¡ distance °¡ moveRange º¸´Ù Ä¿Áö¸é 
+	// ë§Œì•½ì— distance ê°€ moveRange ë³´ë‹¤ ì»¤ì§€ë©´ 
 	if (distance > moveRange)
 	{
-		// Return »óÅÂ·Î ÀüÈ¯
+		// Return ìƒíƒœë¡œ ì „í™˜
 		ChangeState(EEnemyState::IDLE);
 	}
 	else
 	{
-		// 2. target À§Ä¡·Î ¿òÁ÷ÀÌÀÚ (Navigation  ±â´ÉÀ» ÅëÇØ¼­)
+
+		// 2. target ìœ„ì¹˜ë¡œ ì›€ì§ì´ì (Navigation  ê¸°ëŠ¥ì„ í†µí•´ì„œ)
 		//ai->MoveToLocation(nowTarget->GetActorLocation());
-		//// 2. ±× ¹æÇâÀ¸·Î ¿òÁ÷ÀÌÀÚ. 
+		//// 2. ê·¸ ë°©í–¥ìœ¼ë¡œ ì›€ì§ì´ì. 
 		myActor->AddMovementInput(dir.GetSafeNormal());
 
-		// 3. ÇÃ·¹ÀÌ¾î¿ÍÀÇ °Å¸®°¡ °ø°İ ¹üÀ§º¸´Ù ÀÛÀ¸¸é
+		// 3. í”Œë ˆì´ì–´ì™€ì˜ ê±°ë¦¬ê°€ ê³µê²© ë²”ìœ„ë³´ë‹¤ ì‘ìœ¼ë©´
 		float dist = dir.Length();
 		if (dist < attackRange)
 		{
-			// 4. ÇöÀç »óÅÂ¸¦ ATTACK ·Î ¹Ù²ÙÀÚ
+			// 4. í˜„ì¬ ìƒíƒœë¥¼ ATTACK ë¡œ ë°”ê¾¸ì
 			ChangeState(EEnemyState::ATTACK);
 		}
 	}
@@ -260,26 +261,19 @@ void UMorigeshEnemyFSM::UpdateMove()
 
 void UMorigeshEnemyFSM::UpdatePatrol()
 {
-	//µ¿Àû ³×ºê¸Ş½¬ ³ªÁß¿¡ ¿¬±¸
+	ChangeState(EEnemyState::IDLE);
 
-	// ³» À§Ä¡¿Í ·£´ıÇÏ°Ô »ÌÈù À§Ä¡ÀÇ °Å¸®¸¦ ±¸ÇÑ´Ù.
-	float dist = FVector::Distance(patrolPos, myActor->GetActorLocation());
+	////ë™ì  ë„¤ë¸Œë©”ì‰¬ ë‚˜ì¤‘ì— ì—°êµ¬
+	//// ë‚´ ìœ„ì¹˜ì™€ ëœë¤í•˜ê²Œ ë½‘íŒ ìœ„ì¹˜ì˜ ê±°ë¦¬ë¥¼ êµ¬í•œë‹¤.
+	//float dist = FVector::Distance(nowTarget->GetActorLocation(), myActor->GetActorLocation());
 
-	// ±× °Å¸®°¡ 0ÀÌ¸é
-	if (dist < 50)
-	{
-		// IDLE »óÅÂ·Î ÀüÈ¯
-		ChangeState(EEnemyState::IDLE);
-	}
-	/*UE_LOG(LogTemp, Warning, TEXT("ttt"));
-	if (enemyTarget.Num() > 0)
-	{
+	//// ê·¸ ê±°ë¦¬ê°€ 0ì´ë©´
+	//if (dist < 50)
+	//{
+	//	// IDLE ìƒíƒœë¡œ ì „í™˜
+	//	ChangeState(EEnemyState::IDLE);
+	//}
 
-		FVector destination = enemyTarget[0]->GetActorLocation();
-		FVector dir = destination - myActor->GetActorLocation();
-		ai->MoveToLocation(destination);
-	}*/
-	
 }
 
 void UMorigeshEnemyFSM::UpdateAttack()
@@ -290,18 +284,18 @@ void UMorigeshEnemyFSM::UpdateAttack()
 void UMorigeshEnemyFSM::UpdateAttackDelay()
 {
 	float dist = FVector::Distance(nowTarget->GetActorLocation(), myActor->GetActorLocation());
-	// ±× °Å¸®°¡ °ø°İ¹üÀ§- > ÁøÂ¥ °ø°İ
+	// ê·¸ ê±°ë¦¬ê°€ ê³µê²©ë²”ìœ„- > ì§„ì§œ ê³µê²©
 	if (dist < attackRange)
 	{
-		// 3. °ø°İ »óÅÂ·Î °¡¶ó
+		// 3. ê³µê²© ìƒíƒœë¡œ ê°€ë¼
 		ChangeState(EEnemyState::ATTACK);
 	}
-	// ÀÎÁö¹üÀ§ -> ÀÌµ¿ 
+	// ì¸ì§€ë²”ìœ„ -> ì´ë™ 
 	else if (CanTrace())
 	{
 		ChangeState(EEnemyState::MOVE);
 	}
-	// ±× ¿Ü´Â -> ´ë±â
+	// ê·¸ ì™¸ëŠ” -> ëŒ€ê¸°
 	else
 	{
 		ChangeState(EEnemyState::IDLE);
@@ -313,7 +307,7 @@ void UMorigeshEnemyFSM::UpdateDamaged(float deltaTime)
 {
 	if (IsWaitComplete(damageDelayTime))
 	{
-		// IDLE »óÅÂ·Î ÀüÈ¯
+		// IDLE ìƒíƒœë¡œ ì „í™˜
 		ChangeState(EEnemyState::IDLE);
 	}
 
@@ -339,46 +333,28 @@ bool UMorigeshEnemyFSM::IsWaitComplete(float delay)
 }
 
 bool UMorigeshEnemyFSM::CanTrace()
-{
-	//target ¼±ÅÃ
-	AActor* selectTarget = nullptr;
-	FVector direction;
-	float distance = -1;
-	for (AActor* tempTarget : enemyTarget)
-	{
-		FVector tempTargetLocation = tempTarget->GetActorLocation();
-		FVector tempMyLocation = myActor->GetActorLocation();
-		FVector tempdirection = tempTargetLocation - tempMyLocation;
-		float tempdistance = tempdirection.Size();
-		if(tempdistance > traceRange && tempdistance > distance) continue;
-		
-		selectTarget = tempTarget;
-		distance = tempdistance;
-		direction = tempdirection;
-	}
-	if (selectTarget == nullptr)
-	{
-		nowTarget = nullptr;
-		return false;
-	}
-	else
-	{
-		nowTarget = selectTarget;
-	}
-	float dotProduct = FVector::DotProduct(direction.GetSafeNormal(), myActor->GetActorForwardVector());
+{	
+	//nowTargetì€ ê³„ì† ì´ˆë°˜ì— ì¶”ì ì¤‘
+	if(nowTarget == nullptr) return false;
+	
+	FVector tempVector = nowTarget->GetActorLocation() - myActor->GetActorLocation();
+
+	float dotProduct = FVector::DotProduct(tempVector.GetSafeNormal(), myActor->GetActorForwardVector());
 	FVector start = myActor->GetActorLocation();
-	FVector end = selectTarget->GetActorLocation();
+	FVector end = nowTarget->GetActorLocation();
 	FHitResult hitInfo;
 	FCollisionQueryParams param;
 	param.AddIgnoredActor(myActor);
+	DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 0.1f, 0, 1.0f);
 	
-	bool hit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECC_Visibility, param);
-	if(hit)
+	bool hit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECC_PhysicsBody, param);
+	if (hit)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("2"));
 		ADBCharacter* hittarget = Cast<ADBCharacter>(hitInfo.GetActor());
-		if(hittarget != nullptr) return true;
+		if (hittarget != nullptr) return true;
 	}
 	return false;
-	
+
 
 }
