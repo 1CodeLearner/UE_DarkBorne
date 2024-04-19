@@ -11,8 +11,6 @@
 /**
  *
  */
- class UItemObject; 
-
 UCLASS()
 class DARKBORNE_API UItemLibrary : public UBlueprintFunctionLibrary
 {
@@ -24,10 +22,5 @@ public:
 
 	UFUNCTION(BlueprintCallable)	
 	static float ApplyDamage(AActor* Received, AActor* Instigated);
-
-	UFUNCTION(BlueprintPure)
-	static int32 GetSlotIndexByObject(UItemObject* Item);
-	UFUNCTION(BlueprintPure)
-	static int32 GetSlotIndexByEnum(ESlotType SlotType);
 
 };

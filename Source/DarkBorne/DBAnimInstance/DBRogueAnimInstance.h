@@ -20,6 +20,9 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	bool hasPistol;
+
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 	float dirH;
 
@@ -50,8 +53,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool isAttacking;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	bool isHitting = false;
 
 public:
 	UFUNCTION()
@@ -59,10 +60,4 @@ public:
 	
 	UFUNCTION()
 	void AnimNotify_End_Damage();
-
-	UFUNCTION()
-	void AnimNotify_Start_Hit();
-
-	UFUNCTION()
-	void AnimNotify_End_Hit();
 };

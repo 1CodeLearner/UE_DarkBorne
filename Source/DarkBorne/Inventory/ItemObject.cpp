@@ -3,41 +3,22 @@
 
 #include "ItemObject.h"
 #include "UObject/NoExportTypes.h"
-#include "../Items/PDA_ItemSlot.h"
-#include "Materials/MaterialInterface.h"
-#include "../Items/DBItem.h"
 
-void UItemObject::Initialize(FItem item)
-{
-	this->Item = item;
-}
 
 FIntPoint UItemObject::GetDimentions()
 {
 	//FIntPoint TempDimensions(100, 100);  // 예제 값으로 100x100 설정
-	//return _dimentions;
-	FIntPoint Temp(Item.ItemSlot->SlotDimension.X, Item.ItemSlot->SlotDimension.Y);
-	return Temp;
+	return _dimentions;
 }
 
-UMaterialInterface* UItemObject::GetIcon()
+UMaterial* UItemObject::GetIcon()
 {
-	return Item.ItemSlot->DisplayMaterial;
+	return Icon;
 }
 
 TSubclassOf<AActor> UItemObject::GetItemClass()
 {
-	return Item.ItemSlot->ItemClass;
-}
-
-ESlotType UItemObject::GetSlotType() const
-{
-	return Item.ItemSlot->SlotType;
-}
-
-const FItem& UItemObject::GetItem() const
-{
-	return Item;
+	return ItemClass;
 }
 
 UWorld* UItemObject::GetWorld() const

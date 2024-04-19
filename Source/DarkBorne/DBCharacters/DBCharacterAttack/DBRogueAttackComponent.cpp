@@ -6,7 +6,6 @@
 #include "../DBRogueCharacter.h"
 #include "../../DBWeapon/DBRogueWeaponComponent.h"
 #include "../../Items/Weapons/DBWeapon_CloseRange.h"
-#include "../DBCharacterSkill/DBRogueSkillComponent.h"
 
 
 // Sets default values for this component's properties
@@ -16,7 +15,7 @@ UDBRogueAttackComponent::UDBRogueAttackComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	
+	// ...
 }
 
 
@@ -25,6 +24,8 @@ void UDBRogueAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// ...
+	comboCnt = 0;
 }
 
 
@@ -45,13 +46,10 @@ void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 void UDBRogueAttackComponent::RogueAttack()
 {
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
-	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
 	// 단검을 들고 있으면 
 	if (RoguePlayer->RogueWeaponComp->Dagger != nullptr)
 	{	
-		RogueSkillComponent->CurrVanishTime = 0;
-		RogueSkillComponent->DeactiveRogueQSkill();
 		if (comboCnt == 0)
 		{	
 			comboCnt++;

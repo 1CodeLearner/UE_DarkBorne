@@ -8,10 +8,10 @@
 
 class UPDA_ItemSlot;
 
-UENUM(Blueprintable)
+UENUM()
 enum class ESlotType : uint8
 {
-	WEAPON = 0 UMETA(DisplayName = "Weapon"),
+	WEAPON UMETA(DisplayName = "Weapon"),
 	HEAD UMETA(DisplayName = "Head"),
 	UPPERWEAR UMETA(DisplayName = "UpperWear"),
 	BOTTOMWEAR UMETA(DisplayName = "BottomWear"),
@@ -23,7 +23,6 @@ enum class ESlotType : uint8
 
 	UTILITY UMETA(DisplayName = "Utility"),
 	CONSUMABLE UMETA(DisplayName = "Consumable"),
-	NONE UMETA(DisplayName = "None"),
 	MAX UMETA(DisplayName = "Max")
 };
 
@@ -94,13 +93,11 @@ struct FItem : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<FRarity> Rarities;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FDarkBorneStats Enchantments;
-
-	int32 GetSlotIndex() const;
 };
 
 

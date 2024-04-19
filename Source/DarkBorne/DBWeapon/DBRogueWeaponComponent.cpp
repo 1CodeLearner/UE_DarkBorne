@@ -65,7 +65,7 @@ void UDBRogueWeaponComponent::AttachWeapon()
 		
 			// 단검 메쉬의 머터리얼을 가져오자
 			DaggerSMMat = Dagger->SMComp->GetMaterials();
-			//UE_LOG(LogTemp, Warning, TEXT("WeaponComp Index : %d"), DaggerSMMat.Num());
+			UE_LOG(LogTemp, Warning, TEXT("WeaponComp Index : %d"), DaggerSMMat.Num());
 		}
 		
 	}
