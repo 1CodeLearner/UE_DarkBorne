@@ -57,8 +57,6 @@ USTRUCT(Blueprintable)
 struct FSlotHolder
 {
 	GENERATED_BODY()
-	FSlotHolder() = default;
-	FSlotHolder(UPDA_ItemSlot* DataAsset);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FName Id;
@@ -108,6 +106,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
 public:
+	void Initialize();
+		
 	UPROPERTY(BlueprintReadOnly)
 	FSlotHolder SlotHolder;
 

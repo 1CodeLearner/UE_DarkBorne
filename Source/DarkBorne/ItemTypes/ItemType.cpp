@@ -4,14 +4,14 @@
 #include "ItemType.h"
 #include "../Items/PDA_ItemSlot.h"
 
-FSlotHolder::FSlotHolder(UPDA_ItemSlot* DataAsset)
+void FItem::Initialize()
 {
-	if (ensureAlways(DataAsset))
+	if (ItemSlot)
 	{
-		DisplayMaterial = DataAsset->DisplayMaterial;
-		DisplayName = DataAsset->DisplayName;
-		SlotType = DataAsset->SlotType;
-		ItemClass = DataAsset->ItemClass;
+		SlotHolder.DisplayMaterial = ItemSlot->DisplayMaterial;
+		SlotHolder.DisplayName = ItemSlot->DisplayName;
+		SlotHolder.SlotType = ItemSlot->SlotType;
+		SlotHolder.ItemClass = ItemSlot->ItemClass;
+		ItemSlot = nullptr;
 	}
-
 }

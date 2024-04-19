@@ -165,7 +165,7 @@ bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
 
 void ADBDropItemManager::AssignSlotHolder(FItem& Item)
 {
-
+	Item.Initialize();
 }
 
 void ADBDropItemManager::AssignRarity(FItem& Item)
