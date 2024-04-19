@@ -5,7 +5,6 @@
 #include "Engine/World.h"
 #include "../../Items/DBItem.h"
 #include "../../Inventory/ItemObject.h"
-#include "../../Items/PDA_ItemSlot.h"
 
 
 float UItemLibrary::CalculateDamage(AActor* Instigated, const TArray<FItem>& Items)
@@ -23,7 +22,7 @@ float UItemLibrary::ApplyDamage(AActor* Received, AActor* Instigated)
 
 int32 UItemLibrary::GetSlotIndexByObject(UItemObject* ItemObj)
 {
-	ESlotType Slot = ItemObj->GetItem().ItemSlot->SlotType;
+	ESlotType Slot = ItemObj->GetItem().SlotHolder.SlotType;
 	return GetSlotIndexByEnum(Slot);
 }
 

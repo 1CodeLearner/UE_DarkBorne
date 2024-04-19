@@ -7,37 +7,7 @@
 #include "ItemType.generated.h"
 
 class UPDA_ItemSlot;
-
-UENUM(Blueprintable)
-enum class ESlotType : uint8
-{
-	WEAPON = 0 UMETA(DisplayName = "Weapon"),
-	HEAD UMETA(DisplayName = "Head"),
-	UPPERWEAR UMETA(DisplayName = "UpperWear"),
-	BOTTOMWEAR UMETA(DisplayName = "BottomWear"),
-	GLOVES UMETA(DisplayName = "Gloves"),
-	BOOTS UMETA(DisplayName = "Boots"),
-
-	//Any elements beyond _EnchantmentMark_ cannot have enchantments 
-	_ENCHANTMENTMARK_ UMETA(DisplayName = "_EnchantmentMark_"),
-
-	UTILITY UMETA(DisplayName = "Utility"),
-	CONSUMABLE UMETA(DisplayName = "Consumable"),
-	NONE UMETA(DisplayName = "None"),
-	MAX UMETA(DisplayName = "Max")
-};
-
-
-UENUM(BlueprintType)
-enum class EItemType : uint8
-{
-	NONE UMETA(DisplayName = "None"),
-	WEAPON UMETA(DisplayName = "Weapon"),
-	ARMOR UMETA(DisplayName = "Armor"),
-	CONSUMABLE UMETA(DisplayName = "Consumable"),
-	UTILITY UMETA(DisplayName = "Utility"),
-	MAX UMETA(DisplayName = "Max")
-};
+class ADBItem;
 
 USTRUCT(Blueprintable)
 struct FDroppedItem
@@ -83,24 +53,69 @@ public:
 	int Amount = 0;
 };
 
+USTRUCT(Blueprintable)
+struct FSlotHolder
+{
+	GENERATED_BODY()
+	FSlotHolder() = default;
+	FSlotHolder(UPDA_ItemSlot* DataAsset);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	FName Id;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UMaterialInterface* DisplayMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	FText DisplayName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	FText LoreText;
+
+	//인벤토리 안에 아이탬 옮기는 소리
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	USoundBase* InventorySound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	ESlotType SlotType;
+
+	//아이템이 인벤토리 차지하는 사이즈
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	FDimension SlotDimension;
+
+	//아이탬 장착할때 내는 소리
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	USoundBase* EquipSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	EItemType ItemType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	TArray<FRarity> Rarities;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	TSubclassOf<ADBItem> ItemClass;
+};
+
 /// <summary>
-/// Item used in inventory, Do not modify anything in ItemSlot during runtime.
+/// Item used in inventory, Do not modify anything in SlotHolder during runtime.
 /// </summary>
 USTRUCT(Blueprintable)
 struct FItem : public FTableRowBase
 {
 	GENERATED_BODY()
-
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
+public:
+	UPROPERTY(BlueprintReadOnly)
+	FSlotHolder SlotHolder;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FRarity> Rarities;
 
 	UPROPERTY(BlueprintReadOnly)
 	FDarkBorneStats Enchantments;
-
-	int32 GetSlotIndex() const;
 };
 
 

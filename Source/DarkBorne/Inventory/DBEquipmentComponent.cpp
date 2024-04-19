@@ -9,7 +9,6 @@
 #include "../Framework/BFL/ItemLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
-#include "../Items/PDA_ItemSlot.h"
 
 UDBEquipmentComponent::UDBEquipmentComponent()
 {
@@ -67,7 +66,7 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 			if (Test)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
-					*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), *Slots[0]->GetItem().ItemSlot->DisplayName.ToString(), Slots.Num())
+					*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), *Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), Slots.Num())
 				);
 			}
 			else
@@ -77,7 +76,7 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 		}
 		else {
 			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
-				*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), *Slots[0]->GetItem().ItemSlot->DisplayName.ToString(), Slots.Num())
+				*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), *Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), Slots.Num())
 			);
 		}
 
@@ -111,8 +110,8 @@ void UDBEquipmentComponent::OnRep_What(TArray<UItemObject*> OldSlots)
 	if (!OldSlots.IsEmpty() && OldSlots[0])
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Old: s%, new: s%"),
-			*OldSlots[0]->GetItem().ItemSlot->DisplayName.ToString(),
-			*Slots[0]->GetItem().ItemSlot->DisplayName.ToString()
+			*OldSlots[0]->GetItem().SlotHolder.DisplayName.ToString(),
+			*Slots[0]->GetItem().SlotHolder.DisplayName.ToString()
 		);
 	}
 	else if (!Slots.IsEmpty() && Slots[0])
@@ -121,7 +120,7 @@ void UDBEquipmentComponent::OnRep_What(TArray<UItemObject*> OldSlots)
 
 		if (Test) {
 			UE_LOG(LogTemp, Warning, TEXT("Old: empty, new: s%"),
-				*Slots[0]->GetItem().ItemSlot->DisplayName.ToString()
+				*Slots[0]->GetItem().SlotHolder.DisplayName.ToString()
 			);
 		}
 		else

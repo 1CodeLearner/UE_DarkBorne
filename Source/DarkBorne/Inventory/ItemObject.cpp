@@ -17,23 +17,23 @@ FIntPoint UItemObject::GetDimentions()
 {
 	//FIntPoint TempDimensions(100, 100);  // 예제 값으로 100x100 설정
 	//return _dimentions;
-	FIntPoint Temp(Item.ItemSlot->SlotDimension.X, Item.ItemSlot->SlotDimension.Y);
+	FIntPoint Temp(Item.SlotHolder.SlotDimension.X, Item.SlotHolder.SlotDimension.Y);
 	return Temp;
 }
 
 UMaterialInterface* UItemObject::GetIcon()
 {
-	return Item.ItemSlot->DisplayMaterial;
+	return nullptr; //Item.SlotHolder.DisplayMaterial;
 }
 
 TSubclassOf<AActor> UItemObject::GetItemClass()
 {
-	return Item.ItemSlot->ItemClass;
+	return TSubclassOf<AActor>();//Item.SlotHolder.ItemClass;
 }
 
 ESlotType UItemObject::GetSlotType() const
 {
-	return Item.ItemSlot->SlotType;
+	return ESlotType::NONE;//Item.SlotHolder.SlotType;
 }
 
 const FItem& UItemObject::GetItem() const
@@ -65,7 +65,7 @@ void UItemObject::Tick(float DeltaTime)
 		(
 			TEXT("[%s] %s"),
 			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
-			*Item.ItemSlot->DisplayName.ToString()
+			*Item.SlotHolder.DisplayName.ToString()
 		)
 		);
 	else if (GetWorld())

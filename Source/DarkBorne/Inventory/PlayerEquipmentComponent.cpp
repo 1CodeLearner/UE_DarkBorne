@@ -3,7 +3,6 @@
 
 #include "PlayerEquipmentComponent.h"
 #include "../ItemTypes/ItemType.h"
-#include "../Items/PDA_ItemSlot.h"
 #include "../Inventory/ItemObject.h"
 
 

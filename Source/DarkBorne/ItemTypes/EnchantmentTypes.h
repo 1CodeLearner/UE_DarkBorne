@@ -6,6 +6,17 @@
 #include "EnchantmentTypes.generated.h"
 
 USTRUCT(Blueprintable)
+struct FDimension
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float X = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Y = 0.f;
+};
+
+USTRUCT(Blueprintable)
 struct FRange
 {
 	GENERATED_USTRUCT_BODY()
@@ -37,6 +48,35 @@ struct FRange
 };
 
 
+UENUM(Blueprintable)
+enum class ESlotType : uint8
+{
+	WEAPON = 0 UMETA(DisplayName = "Weapon"),
+	HEAD UMETA(DisplayName = "Head"),
+	UPPERWEAR UMETA(DisplayName = "UpperWear"),
+	BOTTOMWEAR UMETA(DisplayName = "BottomWear"),
+	GLOVES UMETA(DisplayName = "Gloves"),
+	BOOTS UMETA(DisplayName = "Boots"),
+
+	//Any elements beyond _EnchantmentMark_ cannot have enchantments 
+	_ENCHANTMENTMARK_ UMETA(DisplayName = "_EnchantmentMark_"),
+
+	UTILITY UMETA(DisplayName = "Utility"),
+	CONSUMABLE UMETA(DisplayName = "Consumable"),
+	NONE UMETA(DisplayName = "None"),
+	MAX UMETA(DisplayName = "Max")
+};
+
+UENUM(BlueprintType)
+enum class EItemType : uint8
+{
+	NONE UMETA(DisplayName = "None"),
+	WEAPON UMETA(DisplayName = "Weapon"),
+	ARMOR UMETA(DisplayName = "Armor"),
+	CONSUMABLE UMETA(DisplayName = "Consumable"),
+	UTILITY UMETA(DisplayName = "Utility"),
+	MAX UMETA(DisplayName = "Max")
+};
 
 UENUM(BlueprintType)
 enum class ERarityType : uint8

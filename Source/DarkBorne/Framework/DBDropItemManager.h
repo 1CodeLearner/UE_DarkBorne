@@ -46,6 +46,7 @@ protected:
 
 private:
 	bool FindCumulativeProbability(const FDropRate* DropRate);
+	void AssignSlotHolder(FItem& Item);
 	void AssignRarity(FItem& Item);
 	void AssignEnchantment(FItem& Item);
 
