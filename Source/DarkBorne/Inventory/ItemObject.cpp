@@ -23,17 +23,17 @@ FIntPoint UItemObject::GetDimentions()
 
 UMaterialInterface* UItemObject::GetIcon()
 {
-	return nullptr; //Item.SlotHolder.DisplayMaterial;
+	return Item.SlotHolder.DisplayMaterial;
 }
 
 TSubclassOf<AActor> UItemObject::GetItemClass()
 {
-	return TSubclassOf<AActor>();//Item.SlotHolder.ItemClass;
+	return Item.SlotHolder.ItemClass;
 }
 
 ESlotType UItemObject::GetSlotType() const
 {
-	return ESlotType::NONE;//Item.SlotHolder.SlotType;
+	return Item.SlotHolder.SlotType;
 }
 
 const FItem& UItemObject::GetItem() const
