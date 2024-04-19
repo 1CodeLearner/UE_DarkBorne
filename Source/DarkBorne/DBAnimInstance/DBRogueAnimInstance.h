@@ -20,11 +20,13 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 public:
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float dirH;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float dirV;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float jumpVelocity;
 
 	UPROPERTY()
 	class ADBRogueCharacter* RoguePlayer;
@@ -32,26 +34,32 @@ public:
 	UPROPERTY()
 	class ADBWeapon_CloseRange* WeaponDagger;
 
+	UPROPERTY()
+	class UCharacterMovementComponent* MovementComponent;
+
 	UPROPERTY(BlueprintReadOnly)
 	float pitchAngle;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isDeath = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool ShouldMove = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Speed;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool HasWeapon;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isAttacking;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isHitting = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isFalling = false;
 
 public:
 	UFUNCTION()

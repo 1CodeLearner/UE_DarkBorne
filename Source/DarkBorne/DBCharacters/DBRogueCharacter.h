@@ -56,4 +56,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CurrHP;
 
+public:
+	void DeathProcess();
+	void CurrHPProcess();
 };

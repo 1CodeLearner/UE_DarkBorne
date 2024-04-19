@@ -8,6 +8,8 @@
 #include "DBCharacterAttack/DBCharacterAttackComponent.h"
 #include "../Inventory/PlayerEquipmentComponent.h"
 #include "../Inventory/InventoryMainWidget.h"
+#include "../DBAnimInstance/DBRogueAnimInstance.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/NavMovementComponent.h>
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -74,7 +76,8 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	if (enhancedInputComponent != nullptr)
 	{
 		enhancedInputComponent->BindAction(ia_DB_Move, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedMove);
-		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedJump);
+		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Started, this, &ADBCharacter::EnhancedJump);
+		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		enhancedInputComponent->BindAction(ia_DB_Look, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedLook);
 		
 
@@ -95,8 +98,23 @@ void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 
 void ADBCharacter::EnhancedJump(const struct FInputActionValue& value)
 {
-	Jump();
+	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
+	//UNavMovementComponent* RealIsFalling = Cast<UNavMovementComponent>(MyCharacterAnim->MovementComponent);
+	//RealIsFalling->IsFalling();
 
+	Jump();
+	
+	
+	
+}
+
+void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
+{
+	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
+	StopJumping();
+	UE_LOG(LogTemp, Warning, TEXT("stopjump"));
+	
+	
 }
 
 void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)

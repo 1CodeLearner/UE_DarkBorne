@@ -70,5 +70,6 @@ public:
 	//Default 이동 관련 함수들
 	void EnhancedMove(const struct FInputActionValue& value);
 	void EnhancedJump(const struct FInputActionValue& value);
+	void EnhancedStopJump(const struct FInputActionValue& value);
 	void EnhancedLook(const struct FInputActionValue& value);
 };

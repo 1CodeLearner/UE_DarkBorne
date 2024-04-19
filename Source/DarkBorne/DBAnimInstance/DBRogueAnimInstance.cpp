@@ -6,6 +6,7 @@
 #include "../Items/Weapons/DBWeapon_CloseRange.h"
 #include "../DBWeapon/DBRogueWeaponComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/CharacterMovementComponent.h>
 
 void UDBRogueAnimInstance::NativeInitializeAnimation()
 {
@@ -13,6 +14,7 @@ void UDBRogueAnimInstance::NativeInitializeAnimation()
 
 	// Player 가져오자
 	RoguePlayer = Cast<ADBRogueCharacter>(TryGetPawnOwner());
+	
 }
 
 void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -21,6 +23,9 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (RoguePlayer)
 	{
+		
+
+
 		// 앞 뒤 (dirV)
 		dirV = FVector::DotProduct(RoguePlayer->GetActorForwardVector(), RoguePlayer->GetVelocity());
 
@@ -43,6 +48,17 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			ShouldMove = false;
 		}
 
+		jumpVelocity = RoguePlayer->GetVelocity().Z;
+
+		// 높이가 0보다 크면 falling
+		if (jumpVelocity > 0)
+		{
+			isFalling = true;
+		}
+		else if(jumpVelocity == 0)
+		{
+			isFalling = false;
+		}
 	}
 }
 

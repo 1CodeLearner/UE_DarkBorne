@@ -9,6 +9,9 @@
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include "DBCharacterAttack/DBRogueAttackComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/SpringArmComponent.h>
+#include "../DBAnimInstance/DBRogueAnimInstance.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/CharacterMovementComponent.h>
 
 
 
@@ -60,14 +63,14 @@ void ADBRogueCharacter::BeginPlay()
 
 	MatArr = GetMesh()->GetMaterials();
 	
-
+	
 	CurrHP = MaxHP;
 }
 
 void ADBRogueCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	DeathProcess();
 }
 
 void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -83,5 +86,22 @@ void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	}
 }
 
+void ADBRogueCharacter::DeathProcess()
+{
+	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
 
+	if (CurrHP <= 0)
+	{
+		MyCharacterAnim->isDeath = true;
+		
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetCharacterMovement()->DisableMovement();
+	}
+}
+
+void ADBRogueCharacter::CurrHPProcess()
+{
+	
+}
 
