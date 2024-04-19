@@ -31,6 +31,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	static void AdjustFinalStat(AActor* Instigated, const FItem& item, bool bIsAdd);
 
+	
 
 protected:
 	virtual void BeginPlay() override;
