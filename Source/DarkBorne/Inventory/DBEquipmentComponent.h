@@ -25,6 +25,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
 
+	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 	UPROPERTY(ReplicatedUsing = OnRep_What, VisibleAnywhere, BlueprintReadWrite, Category = "Settings")
 	TArray<UItemObject*> Slots;

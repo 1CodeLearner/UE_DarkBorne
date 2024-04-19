@@ -6,6 +6,7 @@
 #include "../Items/PDA_ItemSlot.h"
 #include "Materials/MaterialInterface.h"
 #include "../Items/DBItem.h"
+#include "Net/UnrealNetwork.h"
 
 void UItemObject::Initialize(FItem item)
 {
@@ -50,4 +51,28 @@ UWorld* UItemObject::GetWorld() const
 	}
 
 	return nullptr;
+}
+
+TStatId UItemObject::GetStatId() const
+{
+	return TStatId();
+}
+
+void UItemObject::Tick(float DeltaTime)
+{
+	if (Item.ItemSlot)
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf
+		(
+			TEXT("[%s] %s"),
+			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
+			*Item.ItemSlot->DisplayName.ToString()
+		)
+		);
+	else if (GetWorld())
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf
+		(
+			TEXT("[%s] UPDA_ItemSlot null"),
+			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"))
+		)
+		);
 }

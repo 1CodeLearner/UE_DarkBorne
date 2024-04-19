@@ -3,10 +3,13 @@
 
 #include "DBEquipmentComponent.h"
 #include "../ItemTypes/ItemType.h"
+
 #include "PlayerEquipmentComponent.h"
 #include "ItemObject.h"
 #include "../Framework/BFL/ItemLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "Engine/ActorChannel.h"
+#include "../Items/PDA_ItemSlot.h"
 
 UDBEquipmentComponent::UDBEquipmentComponent()
 {
@@ -56,9 +59,44 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("%s [%s]: %s, Num:%d"), 
-	*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), *GetNameSafe(Slots[0]), Slots.Num())
-	);
+	if (Slots[0])
+	{
+		if (!GetOwner()->HasAuthority())
+		{
+			UPDA_ItemSlot* Test = Slots[0]->GetItem().ItemSlot;
+			if (Test)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
+					*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), *Slots[0]->GetItem().ItemSlot->DisplayName.ToString(), Slots.Num())
+				);
+			}
+			else
+				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
+					*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), TEXT("Invalid UPDA_ItemSlot"), Slots.Num())
+				);
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
+				*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), *Slots[0]->GetItem().ItemSlot->DisplayName.ToString(), Slots.Num())
+			);
+		}
+
+	}
+
+}
+
+bool UDBEquipmentComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+	for (UItemObject* ItemObject : Slots)
+	{
+		if (ItemObject)
+		{
+			WroteSomething |= Channel->ReplicateSubobject(ItemObject, *Bunch, *RepFlags);
+		}
+	}
+
+	return WroteSomething;
 }
 
 void UDBEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -70,7 +108,29 @@ void UDBEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 void UDBEquipmentComponent::OnRep_What(TArray<UItemObject*> OldSlots)
 {
-	if (!OldSlots.IsEmpty())
-		UE_LOG(LogTemp, Warning, TEXT("Old: s%, new: s%"), *GetNameSafe(OldSlots[0]), *GetNameSafe(Slots[0]));
+	if (!OldSlots.IsEmpty() && OldSlots[0])
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Old: s%, new: s%"),
+			*OldSlots[0]->GetItem().ItemSlot->DisplayName.ToString(),
+			*Slots[0]->GetItem().ItemSlot->DisplayName.ToString()
+		);
+	}
+	else if (!Slots.IsEmpty() && Slots[0])
+	{
+		UPDA_ItemSlot* Test = Slots[0]->GetItem().ItemSlot;
+
+		if (Test) {
+			UE_LOG(LogTemp, Warning, TEXT("Old: empty, new: s%"),
+				*Slots[0]->GetItem().ItemSlot->DisplayName.ToString()
+			);
+		}
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Error"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Initializing"));
+	}
+
 }
 
