@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "../ItemTypes/ItemType.h"
-#include "Materials/MaterialInterface.h"
 #include "PDA_ItemSlot.generated.h"
 
 /**
@@ -42,7 +41,7 @@ public:
 	FName Id;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
-	UMaterialInterface* DisplayMaterial;
+	UTexture2D* DisplayImage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FText DisplayName;

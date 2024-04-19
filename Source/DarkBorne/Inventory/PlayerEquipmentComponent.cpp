@@ -40,7 +40,7 @@ void UPlayerEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 {
 	if (!IsValid(ItemObject)) return false;
-	for(int i = 0; i < itemArray.Num(); i++)
+	for(int i = 0; i <= itemArray.Num(); i++)
 	{
 		if (IsRoomAvailable(ItemObject, i))
 		{
@@ -88,9 +88,9 @@ void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 TopLeft
 	FTile refTile = IndexToTile(TopLeftIndex);
 	FIntPoint dimentions = ItemObject->GetDimentions();
 	FTile newTile;
-	for (int32 i = refTile.X; i < refTile.X + (dimentions.X); i++)
+	for (int32 i = refTile.X; i < refTile.X + (dimentions.X - 1); i++)
 	{
-		for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y); j++)
+		for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y - 1); i++)
 		{
 			newTile.X = i;
 			newTile.Y = j;
@@ -107,9 +107,9 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 	FTile refTile = IndexToTile(TopLeftIndex);
 	FIntPoint dimentions = ItemObject->GetDimentions();
 	FTile newTile;
-	for (int32 i = refTile.X; i < refTile.X + (dimentions.X); i++)
+	for (int32 i = refTile.X; i < refTile.X + (dimentions.X - 1); i++)
 	{
-		for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y); j++)
+		for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y - 1); i++)
 		{
 			newTile.X = i;
 			newTile.Y = j;
@@ -128,9 +128,10 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 						return false;
 					}
 				}
-				//else return false;
+				else return false;
 			}
 			else return false;
+
 		}
 	}
 	return true;
@@ -152,15 +153,12 @@ void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject)
 
 inline TTuple<bool,UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index) const
 {
-
-	return MakeTuple(IsValid(itemArray[Index]), itemArray[Index]);
-
-	/*TTuple<bool, UItemObject*> returnTuple;
+	TTuple<bool, UItemObject*> returnTuple;
 	if (IsValid(itemArray[Index]))
 	{
 		return MakeTuple(true,itemArray[Index]);
 	}
-	return MakeTuple(false,nullptr);*/
+	return MakeTuple(false,nullptr);
 }
 
 inline bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
