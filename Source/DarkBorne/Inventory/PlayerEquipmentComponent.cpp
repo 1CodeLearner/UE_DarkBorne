@@ -32,22 +32,25 @@ void UPlayerEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	{
 		isDirty = false;
 		onInventoryChangedDel.Broadcast();
-		
+
 	}
 }
 
 bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 {
 	if (!IsValid(ItemObject)) return false;
-	for(int i = 0; i < itemArray.Num(); i++)
+	UE_LOG(LogTemp, Warning, TEXT("1111"));
+	for (int i = 0; i < itemArray.Num(); i++)
 	{
 		if (IsRoomAvailable(ItemObject, i))
 		{
-			AddItemAt(ItemObject,i);
+			AddItemAt(ItemObject, i);
+			UE_LOG(LogTemp, Warning, TEXT("2222"));
 			return true;
 		}
 		else continue;
 	}
+	UE_LOG(LogTemp,Warning,TEXT("333"));
 	return false;
 }
 
@@ -112,14 +115,14 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 		{
 			newTile.X = i;
 			newTile.Y = j;
-			
+
 			//isTileValid
 			if (IsTileValid(newTile))
 			{
 				int32 num = TileToIndex(newTile);
-				TTuple<bool,UItemObject*> output = GetItematIndex(num);
+				TTuple<bool, UItemObject*> output = GetItematIndex(num);
 				bool valid = output.Get<0>();
-				UItemObject* outItemObject= output.Get<1>();
+				UItemObject* outItemObject = output.Get<1>();
 				if (valid)
 				{
 					if (IsValid(outItemObject))
@@ -133,7 +136,7 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 		}
 	}
 	return true;
-	
+
 }
 
 void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject)
@@ -143,13 +146,13 @@ void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject)
 	{
 		if (itemArray[i] == ItemObject)
 		{
-			itemArray[i] = nullptr; 
-			isDirty = true; 
+			itemArray[i] = nullptr;
+			isDirty = true;
 		}
 	}
 }
 
-inline TTuple<bool,UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index) const
+inline TTuple<bool, UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index) const
 {
 
 	return MakeTuple(IsValid(itemArray[Index]), itemArray[Index]);
@@ -168,7 +171,7 @@ inline bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
 	{
 		return true;
 	}
-	
-		return false;
-	
+
+	return false;
+
 }

@@ -14,6 +14,7 @@ UDBEquipmentComponent::UDBEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	SetIsReplicatedByDefault(true);
+	bIsDirty = false;
 }
 
 void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObject)
@@ -22,9 +23,9 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 		return;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	TArray<UItemObject*> Obj = Slots;
+	TArray<UItemObject*> old = Slots;
 	Slots[index] = ItemObject;
-	//OnRep_What(Obj);
+	OnRep_What(old);
 }
 
 void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
@@ -33,9 +34,9 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 		return;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	TArray<UItemObject*> Obj = Slots;
+	TArray<UItemObject*> old = Slots;
 	Slots[index] = nullptr;
-	//OnRep_What(Obj);
+	OnRep_What(old);
 }
 
 
@@ -66,17 +67,22 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 			if (Test)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
-					*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), *Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), Slots.Num())
+					*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), 
+					*Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), Slots.Num())
 				);
 			}
 			else
 				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
-					*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), TEXT("Invalid UPDA_ItemSlot"), Slots.Num())
+					*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), 
+					TEXT("Invalid UPDA_ItemSlot"), 
+					Slots.Num())
 				);
 		}
 		else {
 			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
-				*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), *Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), Slots.Num())
+				*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), 
+				*Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), 
+				Slots.Num())
 			);
 		}
 
@@ -107,29 +113,24 @@ void UDBEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 void UDBEquipmentComponent::OnRep_What(TArray<UItemObject*> OldSlots)
 {
-	if (!OldSlots.IsEmpty() && OldSlots[0])
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Old: s%, new: s%"),
-			*OldSlots[0]->GetItem().SlotHolder.DisplayName.ToString(),
-			*Slots[0]->GetItem().SlotHolder.DisplayName.ToString()
-		);
-	}
-	else if (!Slots.IsEmpty() && Slots[0])
-	{
-		UPDA_ItemSlot* Test = Slots[0]->GetItem().ItemSlot;
-
-		if (Test) {
-			UE_LOG(LogTemp, Warning, TEXT("Old: empty, new: s%"),
-				*Slots[0]->GetItem().SlotHolder.DisplayName.ToString()
-			);
-		}
-		else
-			UE_LOG(LogTemp, Warning, TEXT("Error"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Initializing"));
-	}
+	bIsDirty = true;
+	//if (!OldSlots.IsEmpty() && OldSlots[0])
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("OnRep_What Old: s%, new: s%"),
+	//		*OldSlots[0]->GetItem().SlotHolder.DisplayName.ToString(),
+	//		*Slots[0]->GetItem().SlotHolder.DisplayName.ToString()
+	//	);
+	//}
+	//else if (!Slots.IsEmpty() && Slots[0])
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("OnRep_What Old: empty, new: s%"),
+	//		*Slots[0]->GetItem().SlotHolder.DisplayName.ToString()
+	//	);
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("OnRep_What Initializing"));
+	//}
 
 }
 

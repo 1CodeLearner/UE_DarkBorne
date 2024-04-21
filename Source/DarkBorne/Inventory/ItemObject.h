@@ -34,6 +34,8 @@ protected:
 	virtual TStatId GetStatId() const override;
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TSubclassOf<AActor> ItemClass;
 
@@ -43,6 +45,7 @@ protected:
 	}
 
 private:
+	UPROPERTY(Replicated)
 	FItem Item = FItem();
 
 	FIntPoint _dimentions;  // Ã¶ÀÚ ¼öÁ¤

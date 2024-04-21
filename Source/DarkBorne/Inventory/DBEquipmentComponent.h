@@ -36,4 +36,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Settings")
 	TObjectPtr<UPlayerEquipmentComponent> PlayerEquipComp;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsDirty;
 };

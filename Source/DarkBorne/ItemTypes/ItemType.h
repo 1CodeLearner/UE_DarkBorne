@@ -58,40 +58,37 @@ struct FSlotHolder
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UPROPERTY(BlueprintReadOnly)
 	FName Id;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UPROPERTY(BlueprintReadOnly)
 	UMaterialInterface* DisplayMaterial;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UPROPERTY(BlueprintReadOnly)
 	FText DisplayName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UPROPERTY(BlueprintReadOnly)
 	FText LoreText;
 
 	//인벤토리 안에 아이탬 옮기는 소리
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UPROPERTY(BlueprintReadOnly)
 	USoundBase* InventorySound;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UPROPERTY(BlueprintReadOnly)
 	ESlotType SlotType;
 
 	//아이템이 인벤토리 차지하는 사이즈
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UPROPERTY(BlueprintReadOnly)
 	FDimension SlotDimension;
 
 	//아이탬 장착할때 내는 소리
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UPROPERTY(BlueprintReadOnly)
 	USoundBase* EquipSound;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UPROPERTY(BlueprintReadOnly)
 	EItemType ItemType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
-	TArray<FRarity> Rarities;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UPROPERTY(BlueprintReadOnly)
 	TSubclassOf<ADBItem> ItemClass;
 };
 

@@ -63,16 +63,23 @@ void UItemObject::Tick(float DeltaTime)
 	if (Item.ItemSlot)
 		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf
 		(
-			TEXT("[%s] %s"),
-			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
-			*Item.SlotHolder.DisplayName.ToString()
+			TEXT("[%s] ItemSlot is not nullptr"),
+			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"))
 		)
 		);
 	else if (GetWorld())
 		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf
 		(
-			TEXT("[%s] UPDA_ItemSlot null"),
-			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"))
+			TEXT("[%s] %s"),
+			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
+			*Item.SlotHolder.DisplayName.ToString()
 		)
 		);
+}
+
+void UItemObject::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UItemObject, Item);
 }
