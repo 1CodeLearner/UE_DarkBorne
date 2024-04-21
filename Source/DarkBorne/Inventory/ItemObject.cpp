@@ -6,6 +6,7 @@
 #include "../Items/PDA_ItemSlot.h"
 #include "Materials/MaterialInterface.h"
 #include "../Items/DBItem.h"
+#include "Net/UnrealNetwork.h"
 
 void UItemObject::Initialize(FItem item)
 {
@@ -16,23 +17,23 @@ FIntPoint UItemObject::GetDimentions()
 {
 	//FIntPoint TempDimensions(100, 100);  // 예제 값으로 100x100 설정
 	//return _dimentions;
-	FIntPoint Temp(Item.ItemSlot->SlotDimension.X, Item.ItemSlot->SlotDimension.Y);
+	FIntPoint Temp(Item.SlotHolder.SlotDimension.X, Item.SlotHolder.SlotDimension.Y);
 	return Temp;
 }
 
 UMaterialInterface* UItemObject::GetIcon()
 {
-	return Item.ItemSlot->DisplayMaterial;
+	return Item.SlotHolder.DisplayMaterial;
 }
 
 TSubclassOf<AActor> UItemObject::GetItemClass()
 {
-	return Item.ItemSlot->ItemClass;
+	return Item.SlotHolder.ItemClass;
 }
 
 ESlotType UItemObject::GetSlotType() const
 {
-	return Item.ItemSlot->SlotType;
+	return Item.SlotHolder.SlotType;
 }
 
 const FItem& UItemObject::GetItem() const
@@ -50,4 +51,28 @@ UWorld* UItemObject::GetWorld() const
 	}
 
 	return nullptr;
+}
+
+TStatId UItemObject::GetStatId() const
+{
+	return TStatId();
+}
+
+void UItemObject::Tick(float DeltaTime)
+{
+	if (Item.ItemSlot)
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf
+		(
+			TEXT("[%s] %s"),
+			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
+			*Item.SlotHolder.DisplayName.ToString()
+		)
+		);
+	else if (GetWorld())
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf
+		(
+			TEXT("[%s] UPDA_ItemSlot null"),
+			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"))
+		)
+		);
 }

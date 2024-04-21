@@ -31,6 +31,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	static void AdjustFinalStat(AActor* Instigated, const FItem& item, bool bIsAdd);
 
+	
 
 protected:
 	virtual void BeginPlay() override;
@@ -45,6 +46,7 @@ protected:
 
 private:
 	bool FindCumulativeProbability(const FDropRate* DropRate);
+	void AssignSlotHolder(FItem& Item);
 	void AssignRarity(FItem& Item);
 	void AssignEnchantment(FItem& Item);
 

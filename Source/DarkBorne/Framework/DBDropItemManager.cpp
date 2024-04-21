@@ -2,17 +2,15 @@
 
 
 #include "DBDropItemManager.h"
-#include "../Items/PDA_ItemSlot.h"
 #include "Interfaces/ItemInterface.h"
 #include "../Items/DBItem.h"
 #include "../Framework/BFL/ItemLibrary.h"
-//#include "../DBCharacters/DBCharacter.h"
 #include "../Test/J_TestCharacter.h"
+#include "../Items/PDA_ItemSlot.h"
 
 ADBDropItemManager::ADBDropItemManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 void ADBDropItemManager::BeginPlay()
@@ -73,6 +71,7 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 
 				AssignRarity(item);
 				AssignEnchantment(item);
+				AssignSlotHolder(item);
 				ItemsToGenerate.Add(item);
 			}
 			else return TArray<FItem>();
@@ -86,7 +85,7 @@ ADBItem* ADBDropItemManager::SpawnItem(AActor* Instigated, FItem _ItemToSpawn)
 {
 	ADBItem* Item = GetWorld()->SpawnActorDeferred<ADBItem>
 		(
-			_ItemToSpawn.ItemSlot->ItemClass,
+			_ItemToSpawn.SlotHolder.ItemClass,
 			Instigated->GetTransform(),
 			Instigated
 		);
@@ -164,8 +163,14 @@ bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
 	return true;
 }
 
+void ADBDropItemManager::AssignSlotHolder(FItem& Item)
+{
+	Item.Initialize();
+}
+
 void ADBDropItemManager::AssignRarity(FItem& Item)
 {
+	if(!ensureAlways(Item.ItemSlot)) return;
 	int max = Item.ItemSlot->Rarities.Num() - 1;
 	int rand = FMath::RandRange(0, max);
 
@@ -179,6 +184,8 @@ void ADBDropItemManager::AssignRarity(FItem& Item)
 
 void ADBDropItemManager::AssignEnchantment(FItem& Item)
 {
+	if (!ensureAlways(Item.ItemSlot)) return;
+
 	if (!ensureAlwaysMsgf(Item.Rarities.Num() > 0, TEXT("Ensure AssignEffect() is called before AssignEnhancement()")))
 		return;
 
@@ -203,7 +210,7 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 	while (counter < EnchantmentNum - 1)
 	{
 		int DataTableIndex = FMath::RandRange(0, Enchantments.Num() - 1);
-		FName SlotTypeName = FName(UEnum::GetValueAsString<ESlotType>(Item.ItemSlot->SlotType));
+		FName SlotTypeName = FName(UEnum::GetValueAsString<ESlotType>(Item.SlotHolder.SlotType));
 
 		UDataTable* Enchantment = Enchantments[DataTableIndex];
 

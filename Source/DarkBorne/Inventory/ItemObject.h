@@ -8,7 +8,7 @@
 #include "ItemObject.generated.h"
 
 UCLASS(BlueprintAble)
-class DARKBORNE_API UItemObject : public UObject
+class DARKBORNE_API UItemObject : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
 
@@ -26,13 +26,22 @@ public:
 	ESlotType GetSlotType() const;
 
 	const FItem& GetItem() const;
-
 protected:
 	UFUNCTION()
 	virtual UWorld* GetWorld() const override;
 
+	/** return the stat id to use for this tickable **/
+	virtual TStatId GetStatId() const override;
+	virtual void Tick(float DeltaTime) override;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TSubclassOf<AActor> ItemClass;
+
+	virtual bool IsSupportedForNetworking() const override
+	{
+		return true;
+	}
+
 private:
 	FItem Item = FItem();
 
