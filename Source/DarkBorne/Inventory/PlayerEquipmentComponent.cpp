@@ -4,54 +4,103 @@
 #include "PlayerEquipmentComponent.h"
 #include "../ItemTypes/ItemType.h"
 #include "../Inventory/ItemObject.h"
+#include "Net/UnrealNetwork.h"
+#include "Net/Core/PushModel/PushModel.h"
+#include "Engine/ActorChannel.h"
 
-
-// Sets default values for this component's properties
 UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	SetIsReplicatedByDefault(true);
+	isDirty = false;
 }
 
-
-
-//2 . 컴포넌트 공간 생성
 void UPlayerEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	itemArray.SetNum(Columns * Rows);
 }
 
-//필요시 업데이트
+void UPlayerEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	FDoRepLifetimeParams Params; 
+	Params.bIsPushBased = true;
+	DOREPLIFETIME_WITH_PARAMS_FAST(UPlayerEquipmentComponent, itemArray, Params);
+	
+	
+
+}
+
+bool UPlayerEquipmentComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+	for(UItemObject* ItemObject: itemArray)
+	{
+		WroteSomething |= Channel->ReplicateSubobject(ItemObject, *Bunch, *RepFlags);
+	}
+	return WroteSomething;
+}
+
 void UPlayerEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	if (isDirty)
 	{
 		isDirty = false;
 		onInventoryChangedDel.Broadcast();
-
 	}
 }
 
 bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 {
 	if (!IsValid(ItemObject)) return false;
-	UE_LOG(LogTemp, Warning, TEXT("1111"));
 	for (int i = 0; i < itemArray.Num(); i++)
 	{
 		if (IsRoomAvailable(ItemObject, i))
 		{
-			AddItemAt(ItemObject, i);
-			UE_LOG(LogTemp, Warning, TEXT("2222"));
+			Server_AddItemAt(ItemObject, i);
 			return true;
 		}
 		else continue;
 	}
-	UE_LOG(LogTemp,Warning,TEXT("333"));
 	return false;
+}
+
+void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* ItemObject, int32 TopLeftIndex)
+{
+	////ForEachIndex
+	FTile refTile = IndexToTile(TopLeftIndex);
+	FIntPoint dimentions = ItemObject->GetDimentions();
+	FTile newTile;
+	TArray<UItemObject*> old = itemArray;
+	for (int32 i = refTile.X; i < refTile.X + (dimentions.X); i++)
+	{
+		for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y); j++)
+		{
+			newTile.X = i;
+			newTile.Y = j;
+			itemArray[TileToIndex(newTile)] = ItemObject;
+			MARK_PROPERTY_DIRTY_FROM_NAME(UPlayerEquipmentComponent, itemArray, this);
+		}
+	}
+	OnRep_itemArray(old);
+}
+
+void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
+{
+	if (!IsValid(ItemObject)) return;
+	TArray<UItemObject*> old = itemArray;
+	for (int32 i = 0; i < itemArray.Num(); i++)
+	{
+		if (itemArray[i] == ItemObject)
+		{
+			itemArray[i] = nullptr;
+			MARK_PROPERTY_DIRTY_FROM_NAME(UPlayerEquipmentComponent, itemArray, this);
+		}
+	}
+	OnRep_itemArray(old);
 }
 
 TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems() const
@@ -82,25 +131,6 @@ int32 UPlayerEquipmentComponent::TileToIndex(FTile Tile) const
 {
 	int32 value = Tile.X + Tile.Y * Columns;
 	return value;
-}
-
-void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex)
-{
-	////ForEachIndex
-	FTile refTile = IndexToTile(TopLeftIndex);
-	FIntPoint dimentions = ItemObject->GetDimentions();
-	FTile newTile;
-	for (int32 i = refTile.X; i < refTile.X + (dimentions.X); i++)
-	{
-		for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y); j++)
-		{
-			newTile.X = i;
-			newTile.Y = j;
-			itemArray[TileToIndex(newTile)] = ItemObject;
-		}
-	}
-	isDirty = true;
-
 }
 
 bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 TopLeftIndex) const
@@ -139,30 +169,9 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 
 }
 
-void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject)
-{
-	if (!IsValid(ItemObject)) return;
-	for (int32 i = 0; i < itemArray.Num(); i++)
-	{
-		if (itemArray[i] == ItemObject)
-		{
-			itemArray[i] = nullptr;
-			isDirty = true;
-		}
-	}
-}
-
 inline TTuple<bool, UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index) const
 {
-
 	return MakeTuple(IsValid(itemArray[Index]), itemArray[Index]);
-
-	/*TTuple<bool, UItemObject*> returnTuple;
-	if (IsValid(itemArray[Index]))
-	{
-		return MakeTuple(true,itemArray[Index]);
-	}
-	return MakeTuple(false,nullptr);*/
 }
 
 inline bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
@@ -174,4 +183,13 @@ inline bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
 
 	return false;
 
+}
+
+void UPlayerEquipmentComponent::OnRep_itemArray(TArray<UItemObject*> OldItemArray)
+{
+
+	UE_LOG(LogTemp, Warning, TEXT("[%s]"),
+		GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Clienat") : TEXT("Servear")
+	);
+	isDirty = true;
 }

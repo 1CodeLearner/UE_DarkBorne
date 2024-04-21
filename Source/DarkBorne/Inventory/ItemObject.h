@@ -13,6 +13,7 @@ class DARKBORNE_API UItemObject : public UObject, public FTickableGameObject
 	GENERATED_BODY()
 
 public:
+
 	UFUNCTION(BlueprintCallable)
 	void Initialize(FItem item);
 

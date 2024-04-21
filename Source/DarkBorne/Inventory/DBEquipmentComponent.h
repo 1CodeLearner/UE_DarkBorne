@@ -27,7 +27,7 @@ protected:
 
 	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	UPROPERTY(ReplicatedUsing = OnRep_What, VisibleAnywhere, BlueprintReadWrite, Category = "Settings")
 	TArray<UItemObject*> Slots;
 

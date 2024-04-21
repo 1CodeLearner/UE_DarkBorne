@@ -44,12 +44,20 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	//Sends Server RPC when item can be added
 	UFUNCTION(BlueprintCallable)
 	bool TryAddItem(class UItemObject* ItemObject);
+	
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_AddItemAt(class UItemObject* ItemObject, int32 TopLeftIndex);
+	
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_RemoveItem(class UItemObject* ItemObject);
 
 	//Holds ItemObject until mouse button is released
 	/*UPROPERTY(BlueprintReadOnly)
@@ -59,7 +67,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TMap<class UItemObject*, FTile> GetAllItems() const;
 
-
 	UFUNCTION(BlueprintCallable)
 	FTile IndexToTile(int32 Index) const;
 
@@ -67,35 +74,31 @@ public:
 	int32 TileToIndex(FTile Tile) const;
 
 	UFUNCTION(BlueprintCallable)
-	void AddItemAt(class UItemObject* ItemObject, int32 TopLeftIndex);
-
-	UFUNCTION(BlueprintCallable)
 	bool IsRoomAvailable(class UItemObject* ItemObject, int32 TopLeftIndex) const;
-
-	UFUNCTION(BlueprintCallable)
-	void RemoveItem(class UItemObject* ItemObject);
-
 
 	TTuple<bool, class UItemObject*> GetItematIndex(int32 Index) const;
 
 	UFUNCTION(BlueprintCallable)
 	bool IsTileValid(FTile tile) const;
 
-
-
-public:
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Columns = -1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Rows = -1;
 
-private:
-	
+protected:
+	UPROPERTY(ReplicatedUsing = OnRep_itemArray)
 	TArray<class UItemObject*> itemArray;
+	
+	UFUNCTION()
+	void OnRep_itemArray(TArray<UItemObject*> OldItemArray);
 
-	bool isDirty = false;
-public:
+	UPROPERTY(EditAnywhere)
+	bool isDirty;
+
+protected:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnInventoryChangedDel onInventoryChangedDel;
 };
