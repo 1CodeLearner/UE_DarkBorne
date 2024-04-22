@@ -90,6 +90,7 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void ADBCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 
