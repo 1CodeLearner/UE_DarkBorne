@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
+#include "../Inventory/ItemObject.h"
 #include "DBRogueWeaponComponent.generated.h"
 
 
@@ -46,4 +47,7 @@ public:
 	bool hasWeapon;
 public:
 	void AttachWeapon();
+
+public:
+	void PassItem(UItemObject* Item);
 };
