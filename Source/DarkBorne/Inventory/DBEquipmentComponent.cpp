@@ -9,6 +9,7 @@
 #include "../Framework/BFL/ItemLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
+#include "../DBWeapon/DBRogueWeaponComponent.h"
 
 UDBEquipmentComponent::UDBEquipmentComponent()
 {
@@ -25,6 +26,11 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
 	TArray<UItemObject*> old = Slots;
 	Slots[index] = ItemObject;
+	auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	if (WeaponComp)
+	{
+		WeaponComp->PassItem(ItemObject);
+	}
 	OnRep_What(old);
 }
 
