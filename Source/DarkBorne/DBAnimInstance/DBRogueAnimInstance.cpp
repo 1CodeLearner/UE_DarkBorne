@@ -65,19 +65,29 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 {
 	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-	
+	ADBWeapon_CloseRange* WeaponComponentDagger = Cast<ADBWeapon_CloseRange>(WeaponComp->Dagger);
+
 	// 공격중
+	if (WeaponComponentDagger)
+	{
 	isAttacking = true;
-	WeaponComp->Dagger->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	WeaponComponentDagger->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	}
 	
 }
 
 void UDBRogueAnimInstance::AnimNotify_End_Damage()
 {
 	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	ADBWeapon_CloseRange* Dagger = Cast<ADBWeapon_CloseRange>(WeaponComp);
 	// 공격중이 아님
+	if (Dagger)
+	{
+
 	isAttacking = false;
-	WeaponComp->Dagger->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Dagger->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void UDBRogueAnimInstance::AnimNotify_Start_Hit()

@@ -47,8 +47,9 @@ void UDBRogueAttackComponent::RogueAttack()
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
+	if(RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
 	// 단검을 들고 있으면 
-	if (RoguePlayer->RogueWeaponComp->Dagger != nullptr)
+	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0] != nullptr)
 	{	
 		RogueSkillComponent->CurrVanishTime = 0;
 		RogueSkillComponent->DeactiveRogueQSkill();
@@ -58,7 +59,7 @@ void UDBRogueAttackComponent::RogueAttack()
 			comboCurrTime = 0;
 			
 			// 단검 아이템에 있는 애님몽타주 실행
-			RoguePlayer->RogueWeaponComp->Dagger->PlayMontage(RoguePlayer, FName("Attack1"));
+			RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack1"));
 		}
 		else if (comboCnt == 1)
 		{	
@@ -69,7 +70,7 @@ void UDBRogueAttackComponent::RogueAttack()
 				comboCurrTime = 0;
 
 				// 단검 아이템에 있는 애님몽타주 실행
-				RoguePlayer->RogueWeaponComp->Dagger->PlayMontage(RoguePlayer, FName("Attack2"));
+				RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack2"));
 			}
 		}
 		else if (comboCnt == 2)
@@ -81,7 +82,7 @@ void UDBRogueAttackComponent::RogueAttack()
 				comboCurrTime = 0;
 
 				// 단검 아이템에 있는 애님몽타주 실행
-				RoguePlayer->RogueWeaponComp->Dagger->PlayMontage(RoguePlayer, FName("Attack3"));
+				RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack3"));
 			}
 		}
 		else if (comboCnt == 3)
@@ -93,7 +94,7 @@ void UDBRogueAttackComponent::RogueAttack()
 				comboCurrTime = 0;
 
 				// 단검 아이템에 있는 애님몽타주 실행
-				RoguePlayer->RogueWeaponComp->Dagger->PlayMontage(RoguePlayer, FName("Attack4"));
+				RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack4"));
 			}
 		}
 	}

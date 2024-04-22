@@ -36,16 +36,20 @@ public:
 	UPROPERTY(EditAnywhere)
 	class ADBWeapon_CloseRange* Dagger;
 	
-	//UPROPERTY(EditAnywhere)
-	//class ADBItem* Item;
+	UPROPERTY(EditAnywhere)
+	class ADBItem* RogueItems;
+
+	UPROPERTY(EditAnywhere)
+	TArray<UItemObject*> EquipSlotArray;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ADBWeapon_CloseRange> DaggerFactory;
 
 	
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<class UMaterialInterface*> DaggerSMMat;
+	TArray<class UMaterialInterface*> RogueItemSMMat;
 
 public:
 	bool hasWeapon;

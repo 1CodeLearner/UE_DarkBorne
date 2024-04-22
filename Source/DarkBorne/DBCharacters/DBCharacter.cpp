@@ -44,7 +44,7 @@ void ADBCharacter::BeginPlay()
 			subSystem->AddMappingContext(imc_DBMapping, 0);
 		}
 	}
-
+	
 
 	if (HasAuthority())
 	{

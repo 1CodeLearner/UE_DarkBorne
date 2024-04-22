@@ -58,42 +58,48 @@ void UDBRogueWeaponComponent::MultiRPC_AttachWeapon_Implementation()
 	// 무기 있으면 재실행 x
 	if (hasWeapon) return;
 
-	//UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
-	// 장착 슬롯 배열 가져오기
-	//TArray<UItemObject*> EquipSlotArray = EquipComponent->GetSlots();
-
-	// 무기슬롯에 무기데이터가 있으면
-	//if (EquipSlotArray[0])
-	//{
-	//	
-	//	ADBItem* items = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), //GetComponentRotation());
-	//
-	//	items->SetOwner(GetOwner());
-	//	items->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	//	items->SMComp->GetMaterials();
-	//}
-
 	hasWeapon = true;
 	if (hasWeapon)
 	{
 
-		UE_LOG(LogTemp, Warning, TEXT("Attach Weapon"));
-		Dagger = GetWorld()->SpawnActor<ADBWeapon_CloseRange>(DaggerFactory, GetComponentLocation(), GetComponentRotation());
-		if (Dagger)
+	UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
+	//장착 슬롯 배열 가져오기
+	EquipSlotArray = EquipComponent->GetSlots();
+
+		// 무기슬롯에 무기데이터가 있으면
+		if (EquipSlotArray[0])
 		{
+			// 무기 월드에 스폰
+			RogueItems = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
 
 			//이 무기의 오너를 셋팅 
-			Dagger->SetOwner(GetOwner());
-
-			// 단검을 붙이자
-			Dagger->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-
-			// 단검 메쉬의 머터리얼을 가져오자
-			DaggerSMMat = Dagger->SMComp->GetMaterials();
-			//UE_LOG(LogTemp, Warning, TEXT("WeaponComp Index : %d"), DaggerSMMat.Num());
+			RogueItems->SetOwner(GetOwner());
+			RogueItems->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
+			
 		}
-
 	}
+
+	//if (hasWeapon)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Attach Weapon"));
+	//	Dagger = GetWorld()->SpawnActor<ADBWeapon_CloseRange>(DaggerFactory, GetComponentLocation(), GetComponentRotation());
+	//	if (Dagger)
+	//	{
+	//
+	//		//이 무기의 오너를 셋팅 
+	//		Dagger->SetOwner(GetOwner());
+	//
+	//		// 단검을 붙이자
+	//		Dagger->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	//
+	//		// 단검 메쉬의 머터리얼을 가져오자
+	//		DaggerSMMat = Dagger->SMComp->GetMaterials();
+	//		//UE_LOG(LogTemp, Warning, TEXT("WeaponComp Index : %d"), DaggerSMMat.Num());
+	//	}
+	//	
+	//
+	//}
 
 }
 

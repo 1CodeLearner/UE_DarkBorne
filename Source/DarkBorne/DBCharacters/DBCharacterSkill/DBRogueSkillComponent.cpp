@@ -51,6 +51,7 @@ void UDBRogueSkillComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	
 
 }
 
@@ -114,11 +115,11 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 		if (weaponComponent != nullptr)
 		{
 			// 무기 머티리얼 인덱스 가져와서
-			for (int32 i = 0; i < weaponComponent->DaggerSMMat.Num(); i++)
+			for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
 			{
 				// 무기를 은신 머티리얼로 설정
-
-				weaponComponent->Dagger->SMComp->SetMaterial(i, VanishMat);
+				// dagger를 아이템으로 변경
+				weaponComponent->RogueItems->SMComp->SetMaterial(i, VanishMat);
 			}
 		}
 
@@ -149,10 +150,10 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 		if (weaponComponent != nullptr)
 		{
 
-			for (int32 i = 0; i < weaponComponent->DaggerSMMat.Num(); i++)
+			for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
 			{
 				// 무기도 은신 머티리얼로 설정
-				weaponComponent->Dagger->SMComp->SetMaterial(i, weaponComponent->DaggerSMMat[i]);
+				weaponComponent->RogueItems->SMComp->SetMaterial(i, weaponComponent->RogueItemSMMat[i]);
 			}
 		}
 
