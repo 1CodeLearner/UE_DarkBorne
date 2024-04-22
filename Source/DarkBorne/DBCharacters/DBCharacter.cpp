@@ -88,6 +88,10 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	}
 }
 
+void ADBCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+}
+
 
 
 void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
