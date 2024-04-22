@@ -29,7 +29,7 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	bool DamageProcess(int32 damage);
+	void DamageProcess(int32 damage);
 public:
 	UPROPERTY(EditAnywhere)
 	class UEnemyFSMBase* baseFSM;

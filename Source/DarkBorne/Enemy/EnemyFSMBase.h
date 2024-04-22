@@ -44,7 +44,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	class AAIController* ai;
 	
-
+	
+	virtual void ChangeState(EEnemyState e);
 
 
 	EEnemyState currState = EEnemyState::IDLE;
@@ -54,6 +55,7 @@ public:
 
 	UPROPERTY(EditInstanceOnly,BlueprintReadOnly)
 	class AEnemyBase* myActor;
+
 
 
 	

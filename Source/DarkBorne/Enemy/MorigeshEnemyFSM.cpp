@@ -10,6 +10,7 @@
 #include <../../../../../../../Source/Runtime/AIModule/Classes/AIController.h>
 #include "../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "../DBCharacters/DBCharacter.h"
+#include "../../../../../../../Source/Runtime/Engine/Classes/GameFramework/CharacterMovementComponent.h"
 
 UMorigeshEnemyFSM::UMorigeshEnemyFSM()
 {
@@ -26,12 +27,15 @@ void UMorigeshEnemyFSM::BeginPlay()
 	//중간에 난입하지 않는 이상 무관할듯
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADBCharacter::StaticClass(), FoundActors);
 
+	//타겟 지정
 	enemyTarget = FoundActors;
+	//나 지정
 	myActor = Cast<AMorigeshEnemy>(GetOwner());
 
 	USkeletalMeshComponent* mesh = myActor->GetMesh();
 	UAnimInstance* animInstance = mesh->GetAnimInstance();
 	//Morigesh형태
+
 
 	anim = Cast<UAnimMorigeshEnemy>(animInstance);
 	// !
@@ -39,12 +43,18 @@ void UMorigeshEnemyFSM::BeginPlay()
 	//331쪽
 	ai = Cast<AAIController>(myActor->GetController());
 
+
 	//다시 볼것
 	float radianViewAngle = FMath::DegreesToRadians(viewAngle * 0.5f);
 	viewAngle = FMath::Cos(radianViewAngle);
 
 	originPos = myActor->GetActorLocation();
 
+	anim->attackAnimation->RateScale = 0.3f;
+
+	/*UCharacterMovementComponent* myMovementComponent;
+	myMovementComponent = myActor->GetCharacterMovement();
+	myMovementComponent->MaxCustomMovementSpeed = 1024;*/
 
 }
 
@@ -60,6 +70,7 @@ void UMorigeshEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 			*enumPtr->GetNameStringByIndex((int32)currState));
 	}
 
+	
 	
 	//target 선택
 	AActor* selectTarget = nullptr;
@@ -81,11 +92,14 @@ void UMorigeshEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	if (selectTarget == nullptr)
 	{
+		
 		nowTarget = nullptr;
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("1111")));
 	}
 	else
 	{
 		nowTarget = selectTarget;
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("2222")));
 	}
 	
 
@@ -123,25 +137,17 @@ void UMorigeshEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 //트랜지션 과정 + 변환
 void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 {
-	//상태 변경에 대한 디버그 출력
-	UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEnemyState"), true);
-	if (enumPtr != nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s -------> %s"),
-			*enumPtr->GetNameStringByIndex((int32)currState),
-			*enumPtr->GetNameStringByIndex((int32)s));
-	}
+	
 
-	//!
-	//! 
+	
 	//! 
 	//! 
 	//ai->StopMovement();
-
 	currState = s;
 	anim->state = currState;
 	currTime = 0;
 
+	//사전 세팅
 	switch (currState)
 	{
 	case EEnemyState::IDLE:
@@ -152,13 +158,18 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 	{
 		// originPos 기준으로 반경 500 cm 안의 랜덤한 위치를 뽑아서 그 위치로 이동하게한다.
 	// 1. 랜덤한 방향을 뽑자
+
+		
 		int32 randAngle = FMath::RandRange(0, 359);
 		FRotator rot = FRotator(0, randAngle, 0);
 		FVector randDir = UKismetMathLibrary::GetForwardVector(rot);
 		// 2. 그 방향으로 랜덤한 거리를 뽑자
-		float randDist = FMath::RandRange(100.0f, 500.0f);
+		float randDist = FMath::RandRange(300.0f, 500.0f);
 		// 3. 1, 2 의 값을 이용해서 랜덤한 위치를 뽑자
 		patrolPos = myActor->GetActorLocation() + randDir * randDist;
+
+		//UE_LOG(LogTemp, Warning, TEXT("My patrolPos: %f, %f, %f"), patrolPos.X, patrolPos.Y, patrolPos.Z);
+
 
 
 		// 그 위치로 이동!
@@ -170,36 +181,35 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 		//// 킥, 펀치 공격할지 설정
 		//int32 rand = FMath::RandRange(0, 1);
 		//anim->attackType = (EAttackType)rand;
-		anim->attackType = (EMorigeshAttackType)0;
+		
+		//콜라이더 켜기
 	}
 	break;
 	case EEnemyState::DAMAGE:
 	{
-		//!/
-		// 원래 Montage써서 노티파이 때마다 공격 방식 전환하는데
-		// 우리는 지금은 당장 굳이 필요없음
-		// 알파때 추가할 것
-		// 
-		//	// 1. 랜덤한 값을 뽑는다. (1, 2)
-		//	int32 rand = FMath::RandRange(1, 2);
-		//	// 2. Damage01, Damage02 란 문자열을 만든다.
-		//	FString sectionName = FString::Printf(TEXT("Damage0%d"), rand);
-		//	// 3. Montage 플레이
-		//	myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName));
-		//}
+		//1. 랜덤한 값을 뽑는다. (1, 2)
+		int32 rand = FMath::RandRange(1, 4);
+		//2. Damage01, Damage02 란 문자열을 만든다.
+		FString sectionName2 = FString::Printf(TEXT("Damage0%d"), rand);
+		//3. Montage 플레이
+		myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName2));
+		
 	}
 	break;
 	case EEnemyState::DIE:
 	{
+		myActor->PlayAnimMontage(montage, 1.0f, TEXT("Death01"));
 		//상기 동일로 일단 제외
 		/*
 		// 죽는 애니메이션 플레이
-		myActor->PlayAnimMontage(montage, 1.0f, TEXT("Die"));
+		
 		// 충돌 처리 되지 않게 하자
 		myActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		// myActor->Destroy();
 		break;
 		*/
+		
+		SetComponentTickEnabled(false);
 	}
 	break;
 	default:
@@ -228,6 +238,11 @@ void UMorigeshEnemyFSM::UpdateIdle()
 
 void UMorigeshEnemyFSM::UpdateMove()
 {
+	if(nowTarget == nullptr)
+	{
+		ChangeState(EEnemyState::IDLE);
+		return;
+	}
 	// 1. 플레이어를 향하는 방향을 구하자
 	FVector dir = nowTarget->GetActorLocation() - myActor->GetActorLocation();
 
@@ -241,18 +256,17 @@ void UMorigeshEnemyFSM::UpdateMove()
 	}
 	else
 	{
-
-		// 2. target 위치로 움직이자 (Navigation  기능을 통해서)
-		//ai->MoveToLocation(nowTarget->GetActorLocation());
-		//// 2. 그 방향으로 움직이자. 
-		myActor->AddMovementInput(dir.GetSafeNormal());
-
-		// 3. 플레이어와의 거리가 공격 범위보다 작으면
 		float dist = dir.Length();
 		if (dist < attackRange)
 		{
-			// 4. 현재 상태를 ATTACK 로 바꾸자
-			ChangeState(EEnemyState::ATTACK);
+			if (IsWaitComplete(preAttackDelayTime))
+			{
+				ChangeState(EEnemyState::ATTACK);
+			}
+		}
+		else
+		{
+			myActor->AddMovementInput(dir.GetSafeNormal());
 		}
 	}
 
@@ -265,14 +279,15 @@ void UMorigeshEnemyFSM::UpdatePatrol()
 	
 	FVector tempvector = patrolPos - myActor->GetActorLocation();
 
-	tempvector.Normalize();
-	if (tempvector.Size() < 0.001f)
+	//tempvector.Normalize();
+	
+	if (tempvector.Size() < 1 )
 	{
 		ChangeState(EEnemyState::IDLE);
 	}
 	else
 	{
-		myActor->AddMovementInput(patrolPos.GetSafeNormal());
+		myActor->AddMovementInput(tempvector.GetSafeNormal());
 	}
 
 	
@@ -292,29 +307,54 @@ void UMorigeshEnemyFSM::UpdatePatrol()
 
 void UMorigeshEnemyFSM::UpdateAttack()
 {
-	ChangeState(EEnemyState::ATTACK_DELAY);
+	anim->attackType = (EMorigeshAttackType)0;
+	float time = anim->attackAnimation->GetPlayLength()* anim->attackAnimation->RateScale;
+	UE_LOG(LogTemp, Warning,TEXT("time %f"),time);
+	if (IsWaitComplete(time))
+	{
+		
+		ChangeState(EEnemyState::ATTACK_DELAY);
+	}
+		
 }
+
+
 
 void UMorigeshEnemyFSM::UpdateAttackDelay()
 {
-	float dist = FVector::Distance(nowTarget->GetActorLocation(), myActor->GetActorLocation());
+	
+	
 	// 그 거리가 공격범위- > 진짜 공격
-	if (dist < attackRange)
+	if (IsWaitComplete(attackDelayTime))
 	{
-		// 3. 공격 상태로 가라
-		ChangeState(EEnemyState::ATTACK);
+		currTime = 0;
+		if (nowTarget == nullptr)
+		{
+			if (CanTrace())
+			{
+				ChangeState(EEnemyState::MOVE);
+			}
+			// 그 외는 -> 대기
+			else
+			{
+				ChangeState(EEnemyState::IDLE);
+			}
+		}
+		else
+		{
+			float dist = FVector::Distance(nowTarget->GetActorLocation(), myActor->GetActorLocation());
+			if (dist > attackRange)
+			{
+				// 3. 공격 상태로 가라
+				ChangeState(EEnemyState::MOVE);
+			}
+			else
+			{
+				ChangeState(EEnemyState::ATTACK);
+			}
+		}
+		
 	}
-	// 인지범위 -> 이동 
-	else if (CanTrace())
-	{
-		ChangeState(EEnemyState::MOVE);
-	}
-	// 그 외는 -> 대기
-	else
-	{
-		ChangeState(EEnemyState::IDLE);
-	}
-	currTime = 0;
 }
 
 void UMorigeshEnemyFSM::UpdateDamaged(float deltaTime)
@@ -329,20 +369,22 @@ void UMorigeshEnemyFSM::UpdateDamaged(float deltaTime)
 
 void UMorigeshEnemyFSM::UpdateDie()
 {
-	if (IsWaitComplete(3))
+	
+	/*if (IsWaitComplete(3))
 	{
 		myActor->Destroy();
-	}
+	}*/
 }
 
 bool UMorigeshEnemyFSM::IsWaitComplete(float delay)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("nowcurrTime %f"), currTime));
 	currTime += GetWorld()->DeltaTimeSeconds;
 	if (currTime >= delay)
 	{
 		return true;
-	}
 
+	}
 	return false;
 }
 
