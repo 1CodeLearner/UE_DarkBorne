@@ -6,6 +6,7 @@
 
 #include "../DBCharacters/DBRogueCharacter.h"
 #include "../Items/Weapons/DBWeapon_CloseRange.h"
+#include "../Inventory/DBEquipmentComponent.h"
 
 // Sets default values for this component's properties
 UDBRogueWeaponComponent::UDBRogueWeaponComponent()
@@ -44,13 +45,34 @@ void UDBRogueWeaponComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 
 void UDBRogueWeaponComponent::AttachWeapon()
 {
+	ServerRPC_AttachWeapon();
+}
+
+void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
+{
+	MultiRPC_AttachWeapon();
+}
+
+void UDBRogueWeaponComponent::MultiRPC_AttachWeapon_Implementation()
+{
 	// 무기 있으면 재실행 x
-	if(hasWeapon) return;
+	if (hasWeapon) return;
 
+	//UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
+	// 장착 슬롯 배열 가져오기
+	//TArray<UItemObject*> EquipSlotArray = EquipComponent->GetSlots();
 
-	//TArray<UItemObject*> Slots;
-	//get slot[0]
-	
+	// 무기슬롯에 무기데이터가 있으면
+	//if (EquipSlotArray[0])
+	//{
+	//	
+	//	ADBItem* items = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), //GetComponentRotation());
+	//
+	//	items->SetOwner(GetOwner());
+	//	items->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	//	items->SMComp->GetMaterials();
+	//}
+
 	hasWeapon = true;
 	if (hasWeapon)
 	{
@@ -59,21 +81,20 @@ void UDBRogueWeaponComponent::AttachWeapon()
 		Dagger = GetWorld()->SpawnActor<ADBWeapon_CloseRange>(DaggerFactory, GetComponentLocation(), GetComponentRotation());
 		if (Dagger)
 		{
-			//ADBRogueCharacter* player = Cast<ADBRogueCharacter>(GetOwner());
-			//Dagger->SetOwner(player);
+
 			//이 무기의 오너를 셋팅 
 			Dagger->SetOwner(GetOwner());
 
 			// 단검을 붙이자
 			Dagger->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		
+
 			// 단검 메쉬의 머터리얼을 가져오자
 			DaggerSMMat = Dagger->SMComp->GetMaterials();
 			//UE_LOG(LogTemp, Warning, TEXT("WeaponComp Index : %d"), DaggerSMMat.Num());
 		}
-		
+
 	}
-	
+
 }
 
 void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
@@ -89,6 +110,15 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 		break;
 		case ESlotType::HEAD:
 		break;
+		case ESlotType::UPPERWEAR:
+		break;
+		case ESlotType::BOTTOMWEAR:
+		break;
+		case ESlotType::GLOVES:
+		break;
+		case ESlotType::BOOTS:
+		break;
+
 	}
 }
 

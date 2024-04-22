@@ -26,6 +26,7 @@ public:
 
 	void SetupPlayerInputComponent(class UEnhancedInputComponent* enhancedInputComponent);
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_Q_Skill;
@@ -37,11 +38,22 @@ public:
 
 	
 public:
+	UPROPERTY(Replicated, EditAnywhere)
 	bool isVanish = false;
+	UPROPERTY(Replicated, EditAnywhere)
 	float MaxVanishTime = 5;
+	UPROPERTY(Replicated, EditAnywhere)
 	float CurrVanishTime = 0;
 public:
 	void UpdateRogueQSkill(float DeltaTime);
+
 	void ActiveRogueQSkill();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ActiveRogueQSkill();
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_ActiveRogueQSkill();
+
+
 	void DeactiveRogueQSkill();
+
 };

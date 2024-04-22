@@ -31,6 +31,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 public:
 	UFUNCTION(BlueprintCallable)
 	const FFinalStat& GetFinalStat() const;
@@ -66,6 +67,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_DB_Jump;
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxHP;
+	UPROPERTY(Replicated, EditAnywhere)
+	float CurrHP = MaxHP;
+
+	
 public:
 	//Default 이동 관련 함수들
 	void EnhancedMove(const struct FInputActionValue& value);

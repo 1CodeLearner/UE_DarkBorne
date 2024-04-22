@@ -36,9 +36,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	class ADBWeapon_CloseRange* Dagger;
 	
+	//UPROPERTY(EditAnywhere)
+	//class ADBItem* Item;
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ADBWeapon_CloseRange> DaggerFactory;
 
+	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<class UMaterialInterface*> DaggerSMMat;
@@ -47,6 +51,10 @@ public:
 	bool hasWeapon;
 public:
 	void AttachWeapon();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_AttachWeapon();
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_AttachWeapon();
 
 public:
 	void PassItem(UItemObject* Item);

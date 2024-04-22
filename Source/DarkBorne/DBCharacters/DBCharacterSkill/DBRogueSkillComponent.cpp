@@ -15,7 +15,7 @@ UDBRogueSkillComponent::UDBRogueSkillComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-
+	
 	// ...
 }
 
@@ -47,6 +47,13 @@ void UDBRogueSkillComponent::SetupPlayerInputComponent(class UEnhancedInputCompo
 
 
 
+void UDBRogueSkillComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+}
+
 void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 {	
 	if (isVanish)
@@ -71,6 +78,18 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 }
 
 void UDBRogueSkillComponent::ActiveRogueQSkill()
+{
+	//서버 함수 실행
+	ServerRPC_ActiveRogueQSkill();
+}
+
+void UDBRogueSkillComponent::ServerRPC_ActiveRogueQSkill_Implementation()
+{
+	// 서버에서 클라이언트들에게 뿌리기
+	MultiRPC_ActiveRogueQSkill();
+}
+
+void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Rogue Q Skill"));
 	//로그 캐릭터 가져오기 
@@ -98,12 +117,12 @@ void UDBRogueSkillComponent::ActiveRogueQSkill()
 			for (int32 i = 0; i < weaponComponent->DaggerSMMat.Num(); i++)
 			{
 				// 무기를 은신 머티리얼로 설정
+
 				weaponComponent->Dagger->SMComp->SetMaterial(i, VanishMat);
 			}
 		}
 
 	}
-	
 }
 
 void UDBRogueSkillComponent::DeactiveRogueQSkill()

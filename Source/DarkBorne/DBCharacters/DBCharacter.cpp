@@ -87,6 +87,14 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 
 
+
+
+void ADBCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+}
+
 void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 {
 	FVector2D dir = value.Get<FVector2D>();
@@ -98,23 +106,12 @@ void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 
 void ADBCharacter::EnhancedJump(const struct FInputActionValue& value)
 {
-	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
-	//UNavMovementComponent* RealIsFalling = Cast<UNavMovementComponent>(MyCharacterAnim->MovementComponent);
-	//RealIsFalling->IsFalling();
-
 	Jump();
-	
-	
-	
 }
 
 void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
 {
-	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
 	StopJumping();
-	UE_LOG(LogTemp, Warning, TEXT("stopjump"));
-	
-	
 }
 
 void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)

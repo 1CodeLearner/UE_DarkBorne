@@ -50,11 +50,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<class UMaterialInterface*> MatArr;
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxHP = 100;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float CurrHP;
+
 
 public:
 	void DeathProcess();
