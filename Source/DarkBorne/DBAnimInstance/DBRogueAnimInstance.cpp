@@ -23,9 +23,6 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (RoguePlayer)
 	{
-		
-
-
 		// 앞 뒤 (dirV)
 		dirV = FVector::DotProduct(RoguePlayer->GetActorForwardVector(), RoguePlayer->GetVelocity());
 
@@ -35,7 +32,6 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		//0 ~ 360 --> -180 ~ 180
 		pitchAngle = -RoguePlayer->GetBaseAimRotation().Pitch;
 		
-
 		pitchAngle = -RoguePlayer->GetBaseAimRotation().GetNormalized().Pitch;
 
 		// GetVelocity의 크기가 0보다 크면 무브 true 로
@@ -65,13 +61,16 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 {
 	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-	ADBWeapon_CloseRange* WeaponComponentDagger = Cast<ADBWeapon_CloseRange>(WeaponComp->Dagger);
-
+	// weaponComponent의 Dagger를 가져와라
+	
+	//ADBWeapon_CloseRange* WeaponComponentDagger = Cast<ADBWeapon_CloseRange>(WeaponComp->Dagger);
 	// 공격중
-	if (WeaponComponentDagger)
+	// 무기슬롯에 아이템이 있다면 
+	if (WeaponComp->EquipSlotArray[0])
 	{
-	isAttacking = true;
-	WeaponComponentDagger->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		isAttacking = true;
+		//무기의 콜리전 켜주기
+		WeaponComp->RogueItems->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	}
 	
@@ -80,13 +79,13 @@ void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 void UDBRogueAnimInstance::AnimNotify_End_Damage()
 {
 	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-	ADBWeapon_CloseRange* Dagger = Cast<ADBWeapon_CloseRange>(WeaponComp);
+	ADBWeapon_CloseRange* WeaponComponentDagger = Cast<ADBWeapon_CloseRange>(WeaponComp->Dagger);
 	// 공격중이 아님
-	if (Dagger)
+	if (WeaponComp->EquipSlotArray[0])
 	{
 
 	isAttacking = false;
-	Dagger->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	WeaponComp->RogueItems->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
 

@@ -29,14 +29,15 @@ public:
 	// Called to bind functionality to input
 	void SetupPlayerInputComponent(class UEnhancedInputComponent* enhancedInputComponent);
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_WeaponSlot;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated)
 	class ADBWeapon_CloseRange* Dagger;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	class ADBItem* RogueItems;
 
 	UPROPERTY(EditAnywhere)

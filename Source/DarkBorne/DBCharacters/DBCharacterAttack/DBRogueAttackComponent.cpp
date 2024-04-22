@@ -44,25 +44,35 @@ void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 
 void UDBRogueAttackComponent::RogueAttack()
 {
+	ServerRPC_RogueAttack();
+}
+
+void UDBRogueAttackComponent::ServerRPC_RogueAttack_Implementation()
+{
+	MultiRPC_RogueAttack();
+}
+
+void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
+{
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
-	if(RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
+	if (RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
 	// 단검을 들고 있으면 
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0] != nullptr)
-	{	
+	{
 		RogueSkillComponent->CurrVanishTime = 0;
 		RogueSkillComponent->DeactiveRogueQSkill();
 		if (comboCnt == 0)
-		{	
+		{
 			comboCnt++;
 			comboCurrTime = 0;
-			
+
 			// 단검 아이템에 있는 애님몽타주 실행
 			RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack1"));
 		}
 		else if (comboCnt == 1)
-		{	
+		{
 			// 콤보최소시간 <= 현재시간 이고 현재시간 <= 최대시간
 			if (comboMinTime <= comboCurrTime && comboCurrTime <= comboMaxTime)
 			{
@@ -98,8 +108,6 @@ void UDBRogueAttackComponent::RogueAttack()
 			}
 		}
 	}
-	
-	
 }
 
 void UDBRogueAttackComponent::UpdateComboCount(float DeltaTime)

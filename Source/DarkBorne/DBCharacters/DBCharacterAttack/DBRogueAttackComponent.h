@@ -40,6 +40,11 @@ public:
 	float comboCurrTime = 0;
 public:
 	void RogueAttack();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_RogueAttack();
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_RogueAttack();
+
 	void UpdateComboCount(float DeltaTime);
 	
 };

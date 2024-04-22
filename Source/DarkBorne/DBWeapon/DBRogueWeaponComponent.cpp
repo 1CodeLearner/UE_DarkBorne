@@ -43,6 +43,11 @@ void UDBRogueWeaponComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 		
 }
 
+void UDBRogueWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
 void UDBRogueWeaponComponent::AttachWeapon()
 {
 	ServerRPC_AttachWeapon();
@@ -71,7 +76,7 @@ void UDBRogueWeaponComponent::MultiRPC_AttachWeapon_Implementation()
 		{
 			// 무기 월드에 스폰
 			RogueItems = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
-
+			
 			//이 무기의 오너를 셋팅 
 			RogueItems->SetOwner(GetOwner());
 			RogueItems->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);

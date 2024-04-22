@@ -28,6 +28,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TObjectPtr<UStaticMeshComponent> SMComp;
+	//ÄÝ¸®Àü Ä¸½¶ ÄÄÆ÷³ÍÆ®
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* CapsuleComp;
 
 protected:
 	virtual void BeginPlay() override;
