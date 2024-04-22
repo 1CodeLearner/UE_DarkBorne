@@ -47,6 +47,10 @@ void UDBRogueWeaponComponent::AttachWeapon()
 	// 무기 있으면 재실행 x
 	if(hasWeapon) return;
 
+
+	//TArray<UItemObject*> Slots;
+	//get slot[0]
+	
 	hasWeapon = true;
 	if (hasWeapon)
 	{
@@ -70,5 +74,21 @@ void UDBRogueWeaponComponent::AttachWeapon()
 		
 	}
 	
+}
+
+void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
+{
+	if (Item->GetSlotType() == ESlotType::WEAPON)
+	{
+		AttachWeapon();
+	}
+
+	switch (Item->GetSlotType()) 
+	{
+		case ESlotType::WEAPON:
+		break;
+		case ESlotType::HEAD:
+		break;
+	}
 }
 
