@@ -20,6 +20,8 @@ public:
 	void Server_AddItem(UItemObject* ItemObject);
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_RemoveItem(UItemObject* ItemObject);
+	UFUNCTION(BlueprintCallable)
+	const TArray<UItemObject*> GetSlots() const;
 
 protected:
 	virtual void BeginPlay() override;

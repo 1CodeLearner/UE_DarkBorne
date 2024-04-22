@@ -40,6 +40,11 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 }
 
 
+const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const
+{
+	return Slots;
+}
+
 void UDBEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();
