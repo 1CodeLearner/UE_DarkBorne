@@ -12,6 +12,8 @@
 #include "../DBAnimInstance/DBRogueAnimInstance.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/CharacterMovementComponent.h>
+#include "../Inventory/DBEquipmentComponent.h"
+#include "../Inventory/PlayerEquipmentComponent.h"
 
 
 
@@ -51,8 +53,6 @@ ADBRogueCharacter::ADBRogueCharacter()
 
 	RogueSkillComponent = CreateDefaultSubobject<UDBRogueSkillComponent>(TEXT("RogueSkillComp"));
 	RogueAttackComponent = CreateDefaultSubobject<UDBRogueAttackComponent>(TEXT("RogueAttackComp"));
-
-	
 }
 
 void ADBRogueCharacter::BeginPlay()

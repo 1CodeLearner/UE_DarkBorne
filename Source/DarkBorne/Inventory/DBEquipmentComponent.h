@@ -6,14 +6,17 @@
 #include "Components/ActorComponent.h"
 #include "DBEquipmentComponent.generated.h"
 
-class UItemObject; 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEquipmentChangedDelegate);
+
+class UItemObject;
 class UPlayerEquipmentComponent;
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
+
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent), Blueprintable)
 class DARKBORNE_API UDBEquipmentComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	UDBEquipmentComponent();
 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
@@ -22,6 +25,12 @@ public:
 	void Server_RemoveItem(UItemObject* ItemObject);
 	UFUNCTION(BlueprintCallable)
 	const TArray<UItemObject*> GetSlots() const;
+
+	UFUNCTION(BlueprintCallable)
+	const UItemObject* GetSlotItem(ESlotType SlotType) const;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	FOnEquipmentChangedDelegate OnEquipmentChanged;
 
 protected:
 	virtual void BeginPlay() override;
@@ -36,9 +45,17 @@ protected:
 	UFUNCTION()
 	void OnRep_What(TArray<UItemObject*> OldSlots);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Settings")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Settings")
 	TObjectPtr<UPlayerEquipmentComponent> PlayerEquipComp;
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsDirty;
+	UPROPERTY(BlueprintReadWrite)
+	bool bInvalidSlot;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Settings")
+	int Columns;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	int Rows;
+
+
 };

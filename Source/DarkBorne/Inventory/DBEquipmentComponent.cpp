@@ -13,9 +13,12 @@
 
 UDBEquipmentComponent::UDBEquipmentComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 	bIsDirty = false;
+	bInvalidSlot = false;
+	Columns = 2; 
+	Rows = 2;
 }
 
 void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObject)
@@ -25,12 +28,13 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
 	TArray<UItemObject*> old = Slots;
+	if(Slots.IsEmpty()) return;
 	Slots[index] = ItemObject;
-	auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-	if (WeaponComp)
-	{
-		WeaponComp->PassItem(ItemObject);
-	}
+	//auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	//if (WeaponComp)
+	//{	
+	//	WeaponComp->PassItem(ItemObject);
+	//}
 	OnRep_What(old);
 }
 
@@ -51,24 +55,43 @@ const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const
 	return Slots;
 }
 
+const UItemObject* UDBEquipmentComponent::GetSlotItem(ESlotType SlotType) const
+{
+	int32 index = UItemLibrary::GetSlotIndexByEnum(SlotType);
+	if(Slots.IsEmpty()) return nullptr;
+	return Slots[index];
+}
+
 void UDBEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ESlotType slotNum = ESlotType::NONE;
-	int32 size = (int32)slotNum - 1;
-	Slots.SetNum(size, false);
 	if (GetOwner())
 	{
 		auto PEC = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
 		if (ensureAlways(PEC))
 			PlayerEquipComp = PEC;
+
+		if (GetOwner()->HasAuthority())
+		{
+			ESlotType slotNum = ESlotType::NONE;
+			int32 size = (int32)slotNum - 1;
+			Slots.SetNum(size, false);
+
+			int val = 10;
+		}
 	}
 }
 
 void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (bIsDirty) 
+	{
+		bIsDirty = false;
+		OnEquipmentChanged.Broadcast();
+	}
 
 	if (Slots[0])
 	{
