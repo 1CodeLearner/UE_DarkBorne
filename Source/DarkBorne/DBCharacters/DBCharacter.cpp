@@ -6,16 +6,19 @@
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h>
 #include "DBCharacterSkill/DBCharacterSkillComponent.h"
 #include "DBCharacterAttack/DBCharacterAttackComponent.h"
-#include "../Inventory/PlayerEquipmentComponent.h"
 #include "../Inventory/InventoryMainWidget.h"
 #include "../DBAnimInstance/DBRogueAnimInstance.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/NavMovementComponent.h>
 
+#include "../Inventory/PlayerEquipmentComponent.h"
+#include "../Inventory/DBEquipmentComponent.h"
+
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	EquipmentComponent = CreateDefaultSubobject<UDBEquipmentComponent>("EquipmentComp");
 	PlayerEquipmentComp = CreateDefaultSubobject<UPlayerEquipmentComponent>("PlayerEquipmentComp");
 
 }
@@ -25,13 +28,13 @@ void ADBCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	AActor* actor = GetOwner();
-	
+
 	if (IsLocallyControlled())
 	{
 		//get APlayerController
 		APlayerController* playerContoller = Cast<APlayerController>(GetController());
 
-		if(playerContoller == nullptr) return;
+		if (playerContoller == nullptr) return;
 		//get subSystem
 		UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerContoller->GetLocalPlayer());
 
@@ -79,9 +82,9 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Started, this, &ADBCharacter::EnhancedJump);
 		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		enhancedInputComponent->BindAction(ia_DB_Look, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedLook);
-		
 
-		
+
+
 	}
 }
 
@@ -103,9 +106,9 @@ void ADBCharacter::EnhancedJump(const struct FInputActionValue& value)
 	//RealIsFalling->IsFalling();
 
 	Jump();
-	
-	
-	
+
+
+
 }
 
 void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
@@ -113,8 +116,8 @@ void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
 	StopJumping();
 	UE_LOG(LogTemp, Warning, TEXT("stopjump"));
-	
-	
+
+
 }
 
 void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)

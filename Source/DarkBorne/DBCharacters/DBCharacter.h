@@ -8,8 +8,10 @@
 #include "DBCharacter.generated.h"
 
 class UDataTable;
-class UPlayerEquipmentComponent;
+
 class UInventoryMainWidget;
+class UDBEquipmentComponent;
+class UPlayerEquipmentComponent;
 
 UCLASS()
 class DARKBORNE_API ADBCharacter : public ACharacter
@@ -44,7 +46,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Settings")
 	FFinalStat FinalStat;
 
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	UDBEquipmentComponent* EquipmentComponent;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
