@@ -5,7 +5,6 @@
 #include "../ItemTypes/ItemType.h"
 #include "../Inventory/ItemObject.h"
 #include "Net/UnrealNetwork.h"
-#include "Net/Core/PushModel/PushModel.h"
 #include "Engine/ActorChannel.h"
 
 UPlayerEquipmentComponent::UPlayerEquipmentComponent()
@@ -82,7 +81,6 @@ void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* Ite
 			newTile.X = i;
 			newTile.Y = j;
 			itemArray[TileToIndex(newTile)] = ItemObject;
-			MARK_PROPERTY_DIRTY_FROM_NAME(UPlayerEquipmentComponent, itemArray, this);
 		}
 	}
 	OnRep_itemArray(old);
@@ -97,7 +95,6 @@ void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* It
 		if (itemArray[i] == ItemObject)
 		{
 			itemArray[i] = nullptr;
-			MARK_PROPERTY_DIRTY_FROM_NAME(UPlayerEquipmentComponent, itemArray, this);
 		}
 	}
 	OnRep_itemArray(old);
