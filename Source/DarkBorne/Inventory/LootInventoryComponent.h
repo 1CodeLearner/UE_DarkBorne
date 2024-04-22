@@ -3,26 +3,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "PlayerEquipmentComponent.h"
 #include "LootInventoryComponent.generated.h"
 
+enum class EEntityType : uint8;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class DARKBORNE_API ULootInventoryComponent : public UActorComponent
+class DARKBORNE_API ULootInventoryComponent : public UPlayerEquipmentComponent
 {
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	ULootInventoryComponent();
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+protected:
+	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable)
+	void CopyItems(UPlayerEquipmentComponent* Inventory, EEntityType EntityType);
+
+protected:	
+	
 		
 };

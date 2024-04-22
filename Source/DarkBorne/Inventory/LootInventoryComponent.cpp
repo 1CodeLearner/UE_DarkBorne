@@ -2,33 +2,37 @@
 
 
 #include "LootInventoryComponent.h"
+#include "../Framework/EntityTypes.h"
 
-// Sets default values for this component's properties
 ULootInventoryComponent::ULootInventoryComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
-// Called when the game starts
 void ULootInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
-	// ...
-	
+void ULootInventoryComponent::CopyItems(UPlayerEquipmentComponent* OtherInventory, EEntityType EntityType)
+{
+	AActor* Owner = OtherInventory->GetOwner();
+
+	switch (EntityType)
+	{
+	case EEntityType::PLAYER:
+		break;
+	case EEntityType::ENEMY:
+		break;
+	default: 
+		return;
+	}
 }
 
 
-// Called every frame
 void ULootInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 

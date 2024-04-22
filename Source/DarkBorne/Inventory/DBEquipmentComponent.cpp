@@ -17,7 +17,7 @@ UDBEquipmentComponent::UDBEquipmentComponent()
 	SetIsReplicatedByDefault(true);
 	bIsDirty = false;
 	bInvalidSlot = false;
-	Columns = 2; 
+	Columns = 2;
 	Rows = 2;
 }
 
@@ -28,7 +28,7 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
 	TArray<UItemObject*> old = Slots;
-	if(Slots.IsEmpty()) return;
+	if (Slots.IsEmpty()) return;
 	Slots[index] = ItemObject;
 	//auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	//if (WeaponComp)
@@ -58,7 +58,7 @@ const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const
 const UItemObject* UDBEquipmentComponent::GetSlotItem(ESlotType SlotType) const
 {
 	int32 index = UItemLibrary::GetSlotIndexByEnum(SlotType);
-	if(Slots.IsEmpty()) return nullptr;
+	if (Slots.IsEmpty()) return nullptr;
 	return Slots[index];
 }
 
@@ -87,7 +87,7 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (bIsDirty) 
+	if (bIsDirty)
 	{
 		bIsDirty = false;
 		OnEquipmentChanged.Broadcast();
@@ -95,31 +95,20 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	if (Slots[0])
 	{
-		if (!GetOwner()->HasAuthority())
+		UPDA_ItemSlot* Test = Slots[0]->GetItem().ItemSlot;
+		if (Test)
 		{
-			UPDA_ItemSlot* Test = Slots[0]->GetItem().ItemSlot;
-			if (Test)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
-					*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), 
-					*Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), Slots.Num())
-				);
-			}
-			else
-				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
-					*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), 
-					TEXT("Invalid UPDA_ItemSlot"), 
-					Slots.Num())
-				);
-		}
-		else {
 			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
-				*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")), 
-				*Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), 
-				Slots.Num())
+				*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
+				*Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), Slots.Num())
 			);
 		}
-
+		else
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
+				*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
+				TEXT("Invalid UPDA_ItemSlot"),
+				Slots.Num())
+			);
 	}
 
 }

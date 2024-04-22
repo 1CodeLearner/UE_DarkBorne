@@ -36,6 +36,7 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent), Blueprintabl
 class DARKBORNE_API UPlayerEquipmentComponent : public UActorComponent
 {
 	GENERATED_BODY()
+	friend class ULootInventoryComponent;
 
 public:
 	// Sets default values for this component's properties
