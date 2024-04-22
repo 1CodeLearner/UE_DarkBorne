@@ -4,6 +4,7 @@
 #include "../Enemy/EnemyBase.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Components/CapsuleComponent.h>
+#include "../Enemy/EnemyFSMBase.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
@@ -57,15 +58,20 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 /// </summary>
 /// <param name="damage">데미지 처리 입력</param>
 /// <returns>죽었는가 리턴 받아서 FSM에서 애니메이션 처리</returns>
-bool AEnemyBase::DamageProcess(int32 damage)
+void  AEnemyBase::DamageProcess(int32 damage)
 {
 
 	currHP -= damage;
-	if (currHP >= 0)
+
+	if (currHP <= 0)
 	{
 		currHP = 0;
-		return true;
+		
+		baseFSM->ChangeState(EEnemyState::DIE);
 	}
-	else return false;
+	else
+	{
+		baseFSM->ChangeState(EEnemyState::DAMAGE);
+	}
 }
 

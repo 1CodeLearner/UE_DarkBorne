@@ -38,19 +38,25 @@ public:
 	class UAnimMorigeshEnemy* anim;
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UAnimMontage* montage;
+
 	
 
 	UPROPERTY(EditAnywhere)
 	float traceRange = 500;
 	
 	UPROPERTY(EditAnywhere)
-	float attackRange = 200;
+	float attackRange = 100;
 
 	UPROPERTY(EditAnywhere)
 	float moveRange = 1000;
 
 	float currTime = 0;
 	
+	UPROPERTY(EditAnywhere)
+	float preAttackDelayTime = 1;
+
 	UPROPERTY(EditAnywhere)
 	float attackDelayTime = 2;
 	
@@ -72,7 +78,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void ChangeState(EEnemyState s);
+	virtual void ChangeState(EEnemyState s) override;
 	
 	void UpdateIdle();
 	

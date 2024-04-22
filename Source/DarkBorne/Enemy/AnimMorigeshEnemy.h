@@ -19,6 +19,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EMorigeshAttackType attackType;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAnimSequence* attackAnimation;
+
 	
 	
 };

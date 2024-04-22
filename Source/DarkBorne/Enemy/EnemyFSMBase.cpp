@@ -36,3 +36,8 @@ void UEnemyFSMBase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	// ...
 }
 
+void UEnemyFSMBase::ChangeState(EEnemyState e)
+{
+	currState = e;
+}
+
