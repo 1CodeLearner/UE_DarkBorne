@@ -3,6 +3,8 @@
 
 #include "LootInventoryComponent.h"
 #include "../Framework/EntityTypes.h"
+#include "../DBCharacters/DBCharacter.h"
+#include "InventoryMainWidget.h"
 ULootInventoryComponent::ULootInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -12,10 +14,26 @@ ULootInventoryComponent::ULootInventoryComponent()
 void ULootInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	Character = GetOwner<ADBCharacter>();
 } 
 
 void ULootInventoryComponent::DisplayLoot(AActor* OtherActor, EEntityType EntityType)
 {
+	switch (EntityType)
+	{
+	case EEntityType::PLAYER:
+		if (ensureAlways(Character)) 
+		{
+			
+			Character->InvMainWidget->StartInit(EntityType);
+		}
+		break;
+	case EEntityType::ENEMY:
+		break;
+	default:
+		return;
+	}
+	
 	Server_CopyItems(OtherActor, EntityType);
 }
 

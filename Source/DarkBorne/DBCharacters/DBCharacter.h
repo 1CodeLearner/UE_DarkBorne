@@ -15,6 +15,7 @@ class ULootDisplayWidget;
 class UDBEquipmentComponent;
 class UPlayerEquipmentComponent;
 class ULootInventoryComponent;
+class ULootEquipmentComponent;
 
 UCLASS()
 class DARKBORNE_API ADBCharacter : public ACharacter
@@ -56,7 +57,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
-	ULootInventoryComponent* LootComponent;
+	ULootInventoryComponent* LootInventoryComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	ULootEquipmentComponent* LootEquipmentComponent;
 
 	//Inventory UI
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")

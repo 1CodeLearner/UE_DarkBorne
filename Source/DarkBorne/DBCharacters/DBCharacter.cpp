@@ -13,6 +13,7 @@
 #include "../Inventory/PlayerEquipmentComponent.h"
 #include "../Inventory/DBEquipmentComponent.h"
 #include "../Inventory/LootInventoryComponent.h"
+#include "../Inventory/LootEquipmentComponent.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -21,7 +22,8 @@ ADBCharacter::ADBCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	EquipmentComponent = CreateDefaultSubobject<UDBEquipmentComponent>("EquipmentComp");
 	PlayerEquipmentComp = CreateDefaultSubobject<UPlayerEquipmentComponent>("PlayerEquipmentComp");
-	LootComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
+	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
+	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
 }
 
 // Called when the game starts or when spawned
