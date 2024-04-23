@@ -3,7 +3,6 @@
 
 #include "LootInventoryComponent.h"
 #include "../Framework/EntityTypes.h"
-
 ULootInventoryComponent::ULootInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -13,23 +12,26 @@ ULootInventoryComponent::ULootInventoryComponent()
 void ULootInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
+} 
+
+void ULootInventoryComponent::DisplayLoot(AActor* OtherActor, EEntityType EntityType)
+{
+	if (!ensureAlways(LootDisplayWidget)) return;
+	Server_CopyItems(OtherActor, EntityType);
 }
 
-void ULootInventoryComponent::CopyItems(UPlayerEquipmentComponent* OtherInventory, EEntityType EntityType)
+void ULootInventoryComponent::Server_CopyItems_Implementation(AActor* OtherActor, EEntityType EntityType)
 {
-	AActor* Owner = OtherInventory->GetOwner();
-
 	switch (EntityType)
 	{
 	case EEntityType::PLAYER:
 		break;
 	case EEntityType::ENEMY:
 		break;
-	default: 
+	default:
 		return;
 	}
 }
-
 
 void ULootInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
