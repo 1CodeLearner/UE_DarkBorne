@@ -8,6 +8,7 @@
 #include "../Items/Weapons/DBWeapon_CloseRange.h"
 #include "../Inventory/DBEquipmentComponent.h"
 #include "Net/UnrealNetwork.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
 
 // Sets default values for this component's properties
 UDBRogueWeaponComponent::UDBRogueWeaponComponent()
@@ -15,7 +16,7 @@ UDBRogueWeaponComponent::UDBRogueWeaponComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
+	SetIsReplicatedByDefault(true);
 	// ...
 }
 
@@ -25,7 +26,11 @@ void UDBRogueWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
+	//장착 슬롯 배열 가져오기
+	EquipSlotArray = EquipComponent->GetSlots();
 	// ...
+
 	hasWeapon = false;
 }
 
@@ -50,6 +55,7 @@ void UDBRogueWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	
 	DOREPLIFETIME(UDBRogueWeaponComponent, RogueItems);
 	DOREPLIFETIME(UDBRogueWeaponComponent, EquipSlotArray);
+	DOREPLIFETIME(UDBRogueWeaponComponent, RogueItemSMMat);
 }
 
 	
@@ -61,30 +67,40 @@ void UDBRogueWeaponComponent::AttachWeapon()
 void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 {
 	// 무기 있으면 재실행 x
-	if (hasWeapon) return;
-
-	hasWeapon = true;
-	if (hasWeapon)
-	{
-
+	//if (hasWeapon) return;
+	
+	//hasWeapon = true;
+	//if (hasWeapon)
+	//{
+		if(EquipSlotArray[0]) return;
 		UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
 		//장착 슬롯 배열 가져오기
 		EquipSlotArray = EquipComponent->GetSlots();
-
+		
+	
+	
 		// 무기슬롯에 무기데이터가 있으면
 		if (EquipSlotArray[0])
 		{
-			// 무기 월드에 스폰
-			RogueItems = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
+			// 무기 월드에 스폰 delay
+			// SpawnActorDeferred : BeginPlay가 실행되기 전에 셋팅
+			RogueItems = GetWorld()->SpawnActorDeferred<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentTransform(), GetOwner());
+
+			//RogueItems->SetOwner(GetOwner());
+
+			//스폰 시작
+			UGameplayStatics::FinishSpawningActor(RogueItems, GetComponentTransform());
+
+			//RogueItems = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
 
 			//이 무기의 오너를 셋팅 
-			RogueItems->SetOwner(GetOwner());
 			RogueItems->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
 
 		}
-	}
-	MultiRPC_AttachWeapon();
+	
+	//}
+	//MultiRPC_AttachWeapon();
 
 }
 

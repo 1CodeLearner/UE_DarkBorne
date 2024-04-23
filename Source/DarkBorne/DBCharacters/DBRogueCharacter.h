@@ -58,7 +58,8 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_DeathProcess();
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_DeathProcess();
 
 
-	void CurrHPProcess();
 };

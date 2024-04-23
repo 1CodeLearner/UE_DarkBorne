@@ -108,23 +108,12 @@ void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 
 void ADBCharacter::EnhancedJump(const struct FInputActionValue& value)
 {
-	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
-	//UNavMovementComponent* RealIsFalling = Cast<UNavMovementComponent>(MyCharacterAnim->MovementComponent);
-	//RealIsFalling->IsFalling();
-
 	Jump();
-
-
-
 }
 
 void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
 {
-	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
 	StopJumping();
-	UE_LOG(LogTemp, Warning, TEXT("stopjump"));
-
-
 }
 
 void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)

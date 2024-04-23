@@ -64,7 +64,7 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 		{
 			// 현재 은신 시간에 델타타임 더하기
 			CurrVanishTime += DeltaTime;
-			UE_LOG(LogTemp, Warning, TEXT("Vanish Curr Time : %.f"), CurrVanishTime);
+			//UE_LOG(LogTemp, Warning, TEXT("Vanish Curr Time : %.f"), CurrVanishTime);
 		
 			//현재 은신시간이 최대 은신시간과 같아졌다면
 			if (CurrVanishTime >= MaxVanishTime)
@@ -99,7 +99,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 
 	isVanish = true;
 	// 은신을 사용 했다면
-	if (isVanish == true)
+	if (isVanish)
 	{
 		// 화면 회색 처리
 		RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = true;
@@ -107,18 +107,17 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 		// 로그 캐릭터 머티리얼 인덱스 0 부터 last까지 가져와서
 		for (int32 i = 0; i < RoguePlayer->MatArr.Num(); i++)
 		{
-
+			//UE_LOG(LogTemp, Warning, TEXT("PlayerMat"));
 			// 기존 캐릭터 메쉬 머티리얼을 투명한 머티리얼로 바꾸자
 			RoguePlayer->GetMesh()->SetMaterial(i, VanishMat);
 		}
 		// 무기 가지고 있으면
-		if (weaponComponent != nullptr)
+		if (weaponComponent->EquipSlotArray[0])
 		{
 			// 무기 머티리얼 인덱스 가져와서
 			for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
 			{
 				// 무기를 은신 머티리얼로 설정
-				// dagger를 아이템으로 변경
 				weaponComponent->RogueItems->SMComp->SetMaterial(i, VanishMat);
 			}
 		}
@@ -135,13 +134,13 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 	// 최대 지속시간에 도달했다면
 	if (!isVanish)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("off vanish"));
 		//화면 원래대로
 		RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = false;
 		//로그 캐릭터 머티리얼 가져와서
 		// 머티리얼 인덱스 0 부터 last까지 가져와서
 		for (int32 i = 0; i < RoguePlayer->MatArr.Num(); i++)
 		{
+			
 			// 기존 캐릭터 메쉬 머티리얼을 투명한 머티리얼로 바꾸자
 			RoguePlayer->GetMesh()->SetMaterial(i, RoguePlayer->MatArr[i]);
 
