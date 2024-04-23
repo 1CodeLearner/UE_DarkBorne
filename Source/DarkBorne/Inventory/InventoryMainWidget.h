@@ -9,17 +9,20 @@
 /**
  *
  */
- class UPlayerEquipmentComponent; 
- class UInventoryGridWidget; 
-
+class UPlayerEquipmentComponent;
+class UInventoryGridWidget;
+class ULootInventoryComponent;
 UCLASS()
 class DARKBORNE_API UInventoryMainWidget : public UUserWidget
 {
 	GENERATED_BODY()
 protected:
-	UPROPERTY(meta=(BindWidget), BlueprintReadOnly)
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryGrid_Widget;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
+	ULootInventoryComponent* LootInventoryComp;
 };

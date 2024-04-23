@@ -7,9 +7,8 @@
 #include "LootInventoryComponent.generated.h"
 
 enum class EEntityType : uint8;
-class ULootDisplayWidget;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
 class DARKBORNE_API ULootInventoryComponent : public UPlayerEquipmentComponent
 {
 	GENERATED_BODY()
@@ -26,12 +25,6 @@ protected:
 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_CopyItems(AActor* OtherActor, EEntityType EntityType);
-
-	UPROPERTY(EditDefaultsOnly, Category="Settings")
-	TSubclassOf<ULootDisplayWidget> LootDisplayWidgetClass;
-	
-	UPROPERTY(EditDefaultsOnly, Category="Settings")
-	TObjectPtr<ULootDisplayWidget> LootDisplayWidget;
 
 protected:
 	

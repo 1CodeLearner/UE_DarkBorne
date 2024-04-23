@@ -16,7 +16,6 @@ void ULootInventoryComponent::BeginPlay()
 
 void ULootInventoryComponent::DisplayLoot(AActor* OtherActor, EEntityType EntityType)
 {
-	if (!ensureAlways(LootDisplayWidget)) return;
 	Server_CopyItems(OtherActor, EntityType);
 }
 

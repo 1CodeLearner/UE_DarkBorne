@@ -10,8 +10,11 @@
 class UDataTable;
 
 class UInventoryMainWidget;
+class ULootDisplayWidget;
+
 class UDBEquipmentComponent;
 class UPlayerEquipmentComponent;
+class ULootInventoryComponent;
 
 UCLASS()
 class DARKBORNE_API ADBCharacter : public ACharacter
@@ -47,15 +50,19 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Settings")
 	FFinalStat FinalStat;
 
+	//Inventory Components
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	UDBEquipmentComponent* EquipmentComponent;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	ULootInventoryComponent* LootComponent;
+
+	//Inventory UI
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TSubclassOf<UInventoryMainWidget> InvMainWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Settings")
 	UInventoryMainWidget* InvMainWidget;
-
 
 public:
 	//player Mapping Context
