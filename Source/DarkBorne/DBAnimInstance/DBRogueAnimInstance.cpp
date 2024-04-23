@@ -7,7 +7,7 @@
 #include "../DBWeapon/DBRogueWeaponComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/CharacterMovementComponent.h>
-
+#include "Net/UnrealNetwork.h"
 void UDBRogueAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
@@ -56,6 +56,13 @@ void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 			isFalling = false;
 		}
 	}
+}
+
+void UDBRogueAnimInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UDBRogueAnimInstance, isDeath);
 }
 
 void UDBRogueAnimInstance::AnimNotify_Start_Damage()

@@ -9,6 +9,7 @@
 ADBItem::ADBItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 	SMComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SMComp"));
 	RootComponent = SMComp;
 }

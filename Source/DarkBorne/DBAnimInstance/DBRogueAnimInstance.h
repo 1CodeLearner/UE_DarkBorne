@@ -18,7 +18,7 @@ public:
 
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float dirH;
@@ -40,7 +40,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float pitchAngle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Replicated ,EditAnywhere, BlueprintReadWrite)
 	bool isDeath = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

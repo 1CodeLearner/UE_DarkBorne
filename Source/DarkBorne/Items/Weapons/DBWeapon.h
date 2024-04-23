@@ -15,6 +15,8 @@ class DARKBORNE_API ADBWeapon : public ADBItem
 	GENERATED_BODY()
 
 public:
+	
+
 	//Delete this later
 	UPROPERTY(EditAnywhere)
 	int WeaponDamage = 10;

@@ -71,7 +71,7 @@ public:
 	class UInputAction* ia_DB_Jump;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Replicated ,EditAnywhere, BlueprintReadWrite)
 	float MaxHP;
 	UPROPERTY(Replicated, EditAnywhere)
 	float CurrHP = MaxHP;

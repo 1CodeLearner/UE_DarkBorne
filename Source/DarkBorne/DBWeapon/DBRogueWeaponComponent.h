@@ -37,10 +37,10 @@ public:
 	UPROPERTY(Replicated)
 	class ADBWeapon_CloseRange* Dagger;
 	
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	class ADBItem* RogueItems;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated, EditAnywhere)
 	TArray<UItemObject*> EquipSlotArray;
 
 	UPROPERTY(EditAnywhere)
@@ -53,6 +53,7 @@ public:
 	TArray<class UMaterialInterface*> RogueItemSMMat;
 
 public:
+	UPROPERTY(Replicated)
 	bool hasWeapon;
 public:
 	void AttachWeapon();

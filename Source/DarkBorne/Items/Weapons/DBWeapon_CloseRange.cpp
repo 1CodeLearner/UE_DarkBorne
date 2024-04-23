@@ -14,26 +14,18 @@ ADBWeapon_CloseRange::ADBWeapon_CloseRange()
 	CapsuleComp->SetRelativeLocation(FVector(0, 0, 25));
 	CapsuleComp->SetCapsuleHalfHeight(16);
 	CapsuleComp->SetCapsuleRadius(3);
-
-	CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ADBWeapon_CloseRange::OnOverlapBegin);
 }
 
 void ADBWeapon_CloseRange::BeginPlay()
 {
-	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//클라의 것이고 
+	if (!HasAuthority() && GetOwner<ACharacter>()->IsLocallyControlled()) {
+		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ADBWeapon_CloseRange::OnOverlapBegin);
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void ADBWeapon_CloseRange::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{	
-	ServerRPC_OnOverlapBegin_Implementation(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-}
-
-void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	MultiRPC_OnOverlapBegin_Implementation(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
-}
-
-void ADBWeapon_CloseRange::MultiRPC_OnOverlapBegin_Implementation(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
@@ -52,15 +44,11 @@ void ADBWeapon_CloseRange::MultiRPC_OnOverlapBegin_Implementation(class UPrimiti
 	// 만약 내 자신이 아닌 액터가 부딫혔다면
 	else if (OtherActor != GetOwner())
 	{
-		
+
 		// 공격중이면
 		if (MyCharacterAnim->isAttacking)
 		{
-
-			//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
-			OtherPlayer->CurrHP = OtherPlayer->CurrHP - WeaponDamage;
-			UE_LOG(LogTemp, Warning, TEXT("%.f"), OtherPlayer->CurrHP);
-
+			ServerRPC_OnOverlapBegin(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 			//맞았을 때의 애니메이션 on
 			OtherPlayerAnim->isHitting = true;
 			//blood VFX
@@ -68,7 +56,27 @@ void ADBWeapon_CloseRange::MultiRPC_OnOverlapBegin_Implementation(class UPrimiti
 			CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 		}
-
-
 	}
 }
+
+void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
+	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
+	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
+	//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
+	OtherPlayer->CurrHP = OtherPlayer->CurrHP - WeaponDamage;
+
+	
+	UE_LOG(LogTemp, Warning,TEXT("%s : %.f"),
+	GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"),
+		OtherPlayer->CurrHP
+	);
+
+	//MultiRPC_OnOverlapBegin_Implementation(OverlappedComp, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+}
+
+//void ADBWeapon_CloseRange::MultiRPC_OnOverlapBegin_Implementation(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+//{
+//
+//}

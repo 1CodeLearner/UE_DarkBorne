@@ -12,7 +12,7 @@
 
 #include "../Inventory/PlayerEquipmentComponent.h"
 #include "../Inventory/DBEquipmentComponent.h"
-
+#include "Net/UnrealNetwork.h"
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
@@ -91,6 +91,8 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void ADBCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ADBCharacter, MaxHP);
+	DOREPLIFETIME(ADBCharacter, CurrHP);
 }
 
 

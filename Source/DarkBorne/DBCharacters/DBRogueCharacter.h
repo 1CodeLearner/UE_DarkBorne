@@ -53,6 +53,12 @@ public:
 
 
 public:
+	UFUNCTION()
 	void DeathProcess();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_DeathProcess();
+
+
 	void CurrHPProcess();
 };

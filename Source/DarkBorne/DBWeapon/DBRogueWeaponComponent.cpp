@@ -7,6 +7,7 @@
 #include "../DBCharacters/DBRogueCharacter.h"
 #include "../Items/Weapons/DBWeapon_CloseRange.h"
 #include "../Inventory/DBEquipmentComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UDBRogueWeaponComponent::UDBRogueWeaponComponent()
@@ -46,19 +47,18 @@ void UDBRogueWeaponComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 void UDBRogueWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(UDBRogueWeaponComponent, RogueItems);
+	DOREPLIFETIME(UDBRogueWeaponComponent, EquipSlotArray);
 }
 
+	
 void UDBRogueWeaponComponent::AttachWeapon()
 {
 	ServerRPC_AttachWeapon();
 }
 
 void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
-{
-	MultiRPC_AttachWeapon();
-}
-
-void UDBRogueWeaponComponent::MultiRPC_AttachWeapon_Implementation()
 {
 	// 무기 있으면 재실행 x
 	if (hasWeapon) return;
@@ -67,23 +67,29 @@ void UDBRogueWeaponComponent::MultiRPC_AttachWeapon_Implementation()
 	if (hasWeapon)
 	{
 
-	UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
-	//장착 슬롯 배열 가져오기
-	EquipSlotArray = EquipComponent->GetSlots();
+		UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
+		//장착 슬롯 배열 가져오기
+		EquipSlotArray = EquipComponent->GetSlots();
 
 		// 무기슬롯에 무기데이터가 있으면
 		if (EquipSlotArray[0])
 		{
 			// 무기 월드에 스폰
 			RogueItems = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
-			
+
 			//이 무기의 오너를 셋팅 
 			RogueItems->SetOwner(GetOwner());
 			RogueItems->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
-			
+
 		}
 	}
+	MultiRPC_AttachWeapon();
+
+}
+
+void UDBRogueWeaponComponent::MultiRPC_AttachWeapon_Implementation()
+{
 
 	//if (hasWeapon)
 	//{

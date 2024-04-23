@@ -21,6 +21,7 @@ ADBRogueCharacter::ADBRogueCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 
 	// 메쉬 위치 셋팅
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -88));
@@ -37,7 +38,7 @@ ADBRogueCharacter::ADBRogueCharacter()
 	springArm->SetRelativeRotation(FRotator(0, 0, 0));
 	springArm->TargetArmLength = 200;
 	springArm->ProbeChannel = ECollisionChannel::ECC_Visibility;
-	
+
 	// camera setting
 	camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	//camera 를 springArm 의 자식으로 셋팅
@@ -58,10 +59,10 @@ ADBRogueCharacter::ADBRogueCharacter()
 void ADBRogueCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	//get materials
 	MatArr = GetMesh()->GetMaterials();
-	
+
 	MaxHP = 100;
 	CurrHP = MaxHP;
 }
@@ -69,7 +70,8 @@ void ADBRogueCharacter::BeginPlay()
 void ADBRogueCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	DeathProcess();
+	if (HasAuthority())
+		DeathProcess();
 }
 
 void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -87,20 +89,37 @@ void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 void ADBRogueCharacter::DeathProcess()
 {
+	
+	ServerRPC_DeathProcess();
+}
+
+void ADBRogueCharacter::ServerRPC_DeathProcess_Implementation()
+{
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
 
-	if (CurrHP <= 0)
+	if (CurrHP <= 0 && !MyCharacterAnim->isDeath)
 	{
 		MyCharacterAnim->isDeath = true;
-		
+
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetCharacterMovement()->DisableMovement();
 	}
+
+	//UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
+	//
+	//if (CurrHP <= 0)
+	//{
+	//	MyCharacterAnim->isDeath = true;
+	//
+	//	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//	GetCharacterMovement()->DisableMovement();
+	//}
 }
 
 void ADBRogueCharacter::CurrHPProcess()
 {
-	
+
 }
 
