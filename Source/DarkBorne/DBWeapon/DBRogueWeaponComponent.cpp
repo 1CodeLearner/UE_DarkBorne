@@ -86,7 +86,6 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 			// SpawnActorDeferred : BeginPlay가 실행되기 전에 셋팅
 			RogueItems = GetWorld()->SpawnActorDeferred<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentTransform(), GetOwner());
 
-			//RogueItems->SetOwner(GetOwner());
 
 			//스폰 시작
 			UGameplayStatics::FinishSpawningActor(RogueItems, GetComponentTransform());
@@ -96,6 +95,7 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 			//이 무기의 오너를 셋팅 
 			RogueItems->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
+			RogueItems->SetOwner(GetOwner());
 
 		}
 	

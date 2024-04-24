@@ -46,11 +46,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UDBRogueAttackComponent* RogueAttackComponent;
 
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<class UMaterialInterface*> MatArr;
-
-
 
 public:
 	UFUNCTION()

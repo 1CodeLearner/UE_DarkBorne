@@ -67,7 +67,8 @@ void ADBRogueCharacter::BeginPlay()
 
 	MaxHP = 100;
 	CurrHP = MaxHP;
-
+	// 시작 시 현재 hp 
+	OnRep_CurrHP();
 	
 }
 

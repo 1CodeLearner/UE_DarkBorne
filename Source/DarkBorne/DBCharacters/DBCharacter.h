@@ -34,6 +34,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void PossessedBy(AController* NewController) override;
 public:
 	UFUNCTION(BlueprintCallable)
 	const FFinalStat& GetFinalStat() const;
@@ -56,6 +58,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Settings")
 	UInventoryMainWidget* InvMainWidget;
 
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	class UDBPlayerWidget* PlayerWidget;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<UDBPlayerWidget> PlayerWidgetClass;
 
 public:
 	//player Mapping Context
@@ -73,7 +81,8 @@ public:
 public:
 	UPROPERTY(Replicated ,EditAnywhere, BlueprintReadWrite)
 	float MaxHP;
-	UPROPERTY(Replicated, EditAnywhere)
+	// 현재 체력을 계속 업뎃시키는 함수를 replicate 이거는 클라에서만 호출됨
+	UPROPERTY(ReplicatedUsing = OnRep_CurrHP, EditAnywhere)
 	float CurrHP = MaxHP;
 
 	
@@ -83,4 +92,10 @@ public:
 	void EnhancedJump(const struct FInputActionValue& value);
 	void EnhancedStopJump(const struct FInputActionValue& value);
 	void EnhancedLook(const struct FInputActionValue& value);
+
+public:
+	void CreatePlayerWidget();
+
+	UFUNCTION()
+	void OnRep_CurrHP();
 };
