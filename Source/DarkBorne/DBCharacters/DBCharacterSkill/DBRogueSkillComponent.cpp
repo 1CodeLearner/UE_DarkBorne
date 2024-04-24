@@ -146,7 +146,7 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 
 		}
 		// 무기 가지고 있으면
-		if (weaponComponent != nullptr)
+		if (weaponComponent->EquipSlotArray[0])
 		{
 
 			for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
