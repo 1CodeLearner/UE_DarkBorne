@@ -31,7 +31,7 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<AActor*> enemyTarget;
+	TArray<AActor*> enemyTargetList;
 
 	
 	UPROPERTY(EditAnywhere)
@@ -68,7 +68,6 @@ public:
 
 	float viewAngle = 180;
 
-	FVector originPos;
 	FVector patrolPos;
 
 
@@ -97,5 +96,7 @@ public:
 	bool IsWaitComplete(float delay);
 
 	bool CanTrace();
+
+	void TargetCheck();
 
 };

@@ -56,6 +56,9 @@ public:
 	UPROPERTY(EditInstanceOnly,BlueprintReadOnly)
 	class AEnemyBase* myActor;
 
+	//디버그용
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isFSMDebugMode = false;
 
 
 	
