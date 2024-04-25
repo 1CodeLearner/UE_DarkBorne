@@ -4,7 +4,6 @@
 #include "DBRogueCharacter.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
 #include "../DBWeapon/DBRogueWeaponComponent.h"
-#include "DBCharacterSkill/DBCharacterSkillComponent.h"
 #include "DBCharacterSkill/DBRogueSkillComponent.h"
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include "DBCharacterAttack/DBRogueAttackComponent.h"
@@ -26,7 +25,7 @@ ADBRogueCharacter::ADBRogueCharacter()
 	// 메쉬 위치 셋팅
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -88));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
-	//GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Ca);
+
 
 	//SpringArm 컴포넌트 생성
 	springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("springArm"));
@@ -38,7 +37,9 @@ ADBRogueCharacter::ADBRogueCharacter()
 	springArm->SetRelativeRotation(FRotator(0, 0, 0));
 	springArm->TargetArmLength = 200;
 	springArm->ProbeChannel = ECollisionChannel::ECC_Visibility;
-
+	springArm->bUsePawnControlRotation = true;
+	springArm->SocketOffset = FVector(0, 0, 150);
+		
 	// camera setting
 	camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	//camera 를 springArm 의 자식으로 셋팅
@@ -65,13 +66,20 @@ void ADBRogueCharacter::BeginPlay()
 
 	MaxHP = 100;
 	CurrHP = MaxHP;
+	// 시작 시 현재 hp 
+	OnRep_CurrHP();
+	
 }
 
 void ADBRogueCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	//서버면
 	if (HasAuthority())
+	{
 		DeathProcess();
+	}
 }
 
 void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -89,37 +97,40 @@ void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 void ADBRogueCharacter::DeathProcess()
 {
-	
 	ServerRPC_DeathProcess();
 }
 
 void ADBRogueCharacter::ServerRPC_DeathProcess_Implementation()
 {
-	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
+	MultiRPC_DeathProcess();
+}
 
+void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
+{
+	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
 	if (CurrHP <= 0 && !MyCharacterAnim->isDeath)
 	{
 		MyCharacterAnim->isDeath = true;
-
+		UE_LOG(LogTemp, Warning, TEXT("%s"), GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"));
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetCharacterMovement()->DisableMovement();
+
+		if (IsLocallyControlled())
+		{
+
+			APlayerController* pc = GetWorld()->GetFirstPlayerController();
+			pc->SetShowMouseCursor(true);
+			AddControllerPitchInput(0);
+			AddControllerYawInput(0);
+			//pc->SetInputMode(FInputModeGameOnly());
+		}
+		
+		//springArm->bUsePawnControlRotation = false;
+		//pc->AddYawInput(NULL);
+		//AddControllerPitchInput(NULL);
+		
 	}
-
-	//UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
-	//
-	//if (CurrHP <= 0)
-	//{
-	//	MyCharacterAnim->isDeath = true;
-	//
-	//	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//	GetCharacterMovement()->DisableMovement();
-	//}
 }
 
-void ADBRogueCharacter::CurrHPProcess()
-{
-
-}
 

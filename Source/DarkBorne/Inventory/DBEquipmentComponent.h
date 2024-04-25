@@ -15,7 +15,7 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent), Blueprintabl
 class DARKBORNE_API UDBEquipmentComponent : public UActorComponent
 {
 	GENERATED_BODY()
-
+	friend class ULootInventoryComponent;
 public:
 	UDBEquipmentComponent();
 

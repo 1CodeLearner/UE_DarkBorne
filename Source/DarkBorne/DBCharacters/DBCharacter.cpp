@@ -4,8 +4,7 @@
 #include "DBCharacter.h"
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h>
-#include "DBCharacterSkill/DBCharacterSkillComponent.h"
-#include "DBCharacterAttack/DBCharacterAttackComponent.h"
+
 #include "../Inventory/InventoryMainWidget.h"
 #include "../DBAnimInstance/DBRogueAnimInstance.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/NavMovementComponent.h>
@@ -13,6 +12,10 @@
 #include "../Inventory/PlayerEquipmentComponent.h"
 #include "../Inventory/DBEquipmentComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "../DBPlayerWidget/DBPlayerWidget.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
+#include "../Inventory/LootInventoryComponent.h"
+#include "../Inventory/LootEquipmentComponent.h"
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
@@ -21,6 +24,14 @@ ADBCharacter::ADBCharacter()
 	EquipmentComponent = CreateDefaultSubobject<UDBEquipmentComponent>("EquipmentComp");
 	PlayerEquipmentComp = CreateDefaultSubobject<UPlayerEquipmentComponent>("PlayerEquipmentComp");
 
+	GetMesh()->SetCollisionProfileName(TEXT("PlayerMeshColl"));
+	GetMesh()->SetGenerateOverlapEvents(true);
+
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerColl"));
+	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
+
+	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
+	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
 }
 
 // Called when the game starts or when spawned
@@ -28,7 +39,7 @@ void ADBCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	AActor* actor = GetOwner();
-
+	// 내 것이라면 
 	if (IsLocallyControlled())
 	{
 		//get APlayerController
@@ -37,17 +48,24 @@ void ADBCharacter::BeginPlay()
 		if (playerContoller == nullptr) return;
 		//get subSystem
 		UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerContoller->GetLocalPlayer());
-
+		
+		
 		//서브시스템을 가져왔다면
 		if (subSystem)
 		{
 			subSystem->AddMappingContext(imc_DBMapping, 0);
 		}
+		//클라들은 여기서 모두 위젯을 생성한다
+		if (!HasAuthority())
+		{
+			CreatePlayerWidget();
+		}
 	}
 	
-
+	// 서버라면
 	if (HasAuthority())
 	{
+		//CreatePlayerWidget();
 		if (ensureAlways(DT_CharacterStats))
 			CharacterBaseStat = *DT_CharacterStats->FindRow<FCharacterBaseStat>
 			(
@@ -97,6 +115,14 @@ void ADBCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 
 
+void ADBCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	//서버 플레이어의 위젯 생성
+	CreatePlayerWidget();
+}
+
 void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 {
 	FVector2D dir = value.Get<FVector2D>();
@@ -108,23 +134,12 @@ void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 
 void ADBCharacter::EnhancedJump(const struct FInputActionValue& value)
 {
-	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
-	//UNavMovementComponent* RealIsFalling = Cast<UNavMovementComponent>(MyCharacterAnim->MovementComponent);
-	//RealIsFalling->IsFalling();
-
 	Jump();
-
-
-
 }
 
 void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
 {
-	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
 	StopJumping();
-	UE_LOG(LogTemp, Warning, TEXT("stopjump"));
-
-
 }
 
 void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
@@ -133,6 +148,23 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 
 	AddControllerYawInput(dir.X);
 	AddControllerPitchInput(dir.Y);
+}
+
+void ADBCharacter::CreatePlayerWidget()
+{
+	// 내것이 아니거나 플레이어 위젯이 없다면 리턴
+	if(!IsLocallyControlled() || PlayerWidget != nullptr) return;
+
+	// 위젯 클래스 담고 생성
+	PlayerWidget = Cast<UDBPlayerWidget>(CreateWidget(GetWorld(), PlayerWidgetClass));
+	PlayerWidget->AddToViewport();
+}
+
+void ADBCharacter::OnRep_CurrHP()
+{
+	// 플레이어 위젯이 없으면 리턴
+	if(PlayerWidget == nullptr) return;
+	PlayerWidget->UpdateHeathBar(CurrHP, MaxHP);
 }
 
 const FFinalStat& ADBCharacter::GetFinalStat() const

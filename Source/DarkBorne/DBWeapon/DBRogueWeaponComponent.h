@@ -49,7 +49,7 @@ public:
 	
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	TArray<class UMaterialInterface*> RogueItemSMMat;
 
 public:

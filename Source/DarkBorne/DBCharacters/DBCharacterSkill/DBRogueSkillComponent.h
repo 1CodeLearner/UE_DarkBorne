@@ -36,7 +36,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UMaterialInterface* VanishMat;
 
-	
+	//UPROPERTY(EditAnywhere)
+	//class UStaticMeshComponent* SMThrowKnife;
+
 public:
 	UPROPERTY(Replicated, EditAnywhere)
 	bool isVanish = false;

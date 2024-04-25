@@ -72,7 +72,7 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 				AssignRarity(item);
 				AssignEnchantment(item);
 				AssignSlotHolder(item);
-				ItemsToGenerate.Add(item);\
+				ItemsToGenerate.Add(item);
 			}
 			else return TArray<FItem>();
 		}
