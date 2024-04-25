@@ -20,9 +20,9 @@ void UDBGameInstance::Init()
 		sessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UDBGameInstance::OnFindSessionComplete);
 		sessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UDBGameInstance::OnJoinSessionComplete);
 	}
-	FGuid guid; 
+	FGuid guid;
 	roomName = guid.NewGuid().ToString();
-	maxPlayer = 3;
+	maxPlayer = 1;
 }
 
 void UDBGameInstance::CreateMySession()
@@ -61,9 +61,9 @@ void UDBGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete Success -- %s"), *SessionName.ToString());
 		// Battle Map 으로 이동하자
-		FString Option = FString::Printf(TEXT("/Game/DBMaps/Level_Lobby?listen?PlayerCount=%d"), maxPlayer);
+		FString Option = FString::Printf(TEXT("/Game/DBMaps/Level_Lobby?listen?MaxPlayers=%d"), maxPlayer);
 		GetWorld()->ServerTravel(Option);
-	} 
+	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete Fail"));
@@ -90,38 +90,31 @@ void UDBGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 		auto results = sessionSearch->SearchResults;
 		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionComplete Success - count : %d"), results.Num());
 		onSearchComplete.ExecuteIfBound(results.Num());
+		
+		int roomIndex = -1;
 
-		if (results.Num() > 0) 
+		for (int32 i = 0; i < results.Num(); i++)
 		{
-			JoinOtherSession(0);
+			FOnlineSessionSearchResult si = results[i];
+			si.Session.SessionSettings.Get(FName("ROOM_NAME"), roomName);
+
+			// 세션 정보 ---> String 으로 
+			int32 max = si.Session.SessionSettings.NumPublicConnections;
+
+			int32 currPlayer = max - si.Session.NumOpenPublicConnections;
+			//room is full
+			if (currPlayer >= max)
+				continue;
+
+			//
+			roomIndex = i;
+			break;
 		}
-		else 
-		{
+
+		if (roomIndex == -1)
 			CreateMySession();
-		}
-		//for (int32 i = 0; i < results.Num(); i++)
-		//{
-		//	FOnlineSessionSearchResult si = results[i];
-		//	FString roomName;
-		//	si.Session.SessionSettings.Get(FName("ROOM_NAME"), roomName);
-
-		//	// 세션 정보 ---> String 으로 
-		//	// 세션의 최대 인원
-		//	int32 maxPlayer = si.Session.SessionSettings.NumPublicConnections;
-		//	// 세션의 참여 인원 (최대 인원 - 남은 인원)
-
-		//	int32 currPlayer = maxPlayer - si.Session.NumOpenPublicConnections;
-		//	// 방이름 ( 5 / 10 )
-		//	FString sessionInfo = FString::Printf(
-		//		TEXT("%s ( %d / %d )"),
-		//		*roomName, currPlayer, maxPlayer);
-
-		//}
-		/*for (auto si : results)
-		{
-			FString roomName;
-			si.Session.SessionSettings.Get(FName(TEXT("ROOM_NAME")), roomName);
-		}*/
+		else
+			JoinOtherSession(roomIndex);
 	}
 	else
 	{

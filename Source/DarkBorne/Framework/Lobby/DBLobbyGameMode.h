@@ -22,4 +22,11 @@ protected:
 	
 private:
 	TArray<APlayerController*> ActivePlayers;
+	int32 MaxPlayers;
+	void BroadcastMessage(FString msg);
+
+	FTimerHandle TravelHandle;
+
+	UFUNCTION()
+	void StartTravel();
 };
