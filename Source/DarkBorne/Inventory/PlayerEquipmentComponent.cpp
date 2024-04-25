@@ -184,9 +184,5 @@ inline bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
 
 void UPlayerEquipmentComponent::OnRep_itemArray(TArray<UItemObject*> OldItemArray)
 {
-
-	UE_LOG(LogTemp, Warning, TEXT("[%s]"),
-		GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Clienat") : TEXT("Servear")
-	);
 	isDirty = true;
 }

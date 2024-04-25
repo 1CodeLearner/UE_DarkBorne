@@ -15,6 +15,8 @@
 #include "Net/UnrealNetwork.h"
 #include "../DBPlayerWidget/DBPlayerWidget.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
+#include "../Inventory/LootInventoryComponent.h"
+#include "../Inventory/LootEquipmentComponent.h"
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
@@ -25,6 +27,9 @@ ADBCharacter::ADBCharacter()
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerColl"));
 	GetMesh()->SetCollisionProfileName(TEXT("PlayerMeshColl"));
+
+	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
+	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
 }
 
 // Called when the game starts or when spawned
