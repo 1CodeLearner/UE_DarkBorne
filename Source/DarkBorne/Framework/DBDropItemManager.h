@@ -23,7 +23,7 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable)
-	TArray<FItem> GenerateItems(FName RowName);
+	TArray<FItem> GenerateItems(FName MonsterName);
 
 	UFUNCTION(BlueprintCallable)
 	FItem GenerateItemByName(FName ItemName, EItemType Type);
@@ -48,7 +48,7 @@ protected:
 	TArray<UDataTable*> Enchantments;
 
 private:
-	FItem InitializeItem(UDataTable* Table, FName RowName);
+	FItem CreateItem(UDataTable* Table, FName RowName);
 
 	bool FindCumulativeProbability(const FDropRate* DropRate);
 	void AssignSlotHolder(FItem& Item);

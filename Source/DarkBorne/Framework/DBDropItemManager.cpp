@@ -28,14 +28,14 @@ void ADBDropItemManager::BeginPlay()
 /// <returns>
 /// Returns instances of generated items. Returns empty if an error occured.
 /// </returns>
-TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
+TArray<FItem> ADBDropItemManager::GenerateItems(FName MonsterName)
 {
 	TArray<FItem> ItemsToGenerate;
 	ItemsToGenerate.Empty();
 
-	if (ensureAlways(DT_DropRate && !RowName.IsNone()))
+	if (ensureAlways(DT_DropRate && !MonsterName.IsNone()))
 	{
-		FDropRate* dropRate = DT_DropRate->FindRow<FDropRate>(RowName, FString::Printf(TEXT("Context")));
+		FDropRate* dropRate = DT_DropRate->FindRow<FDropRate>(MonsterName, FString::Printf(TEXT("Context")));
 
 		if (!ensureAlwaysMsgf(dropRate, TEXT("Could not find RowName")))
 			return TArray<FItem>();
@@ -72,11 +72,11 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 				//AssignRarity(item);
 				//AssignEnchantment(item);
 				//AssignSlotHolder(item);
-				FItem tempItem = InitializeItem(ItemTable, RowNames[rand]);
+				FItem tempItem = CreateItem(ItemTable, RowNames[rand]);
 				if (tempItem.IsValid())
 					ItemsToGenerate.Add(tempItem);
 				else
-					UE_LOG(LogTemp,Warning,TEXT("Invalid Item generated. Item will be ignored"));
+					UE_LOG(LogTemp, Warning, TEXT("Invalid Item generated. Item will be ignored"));
 			}
 			else return TArray<FItem>();
 		}
@@ -87,13 +87,12 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 
 FItem ADBDropItemManager::GenerateItemByName(FName ItemName, EItemType Type)
 {
-	//switch(Type)
-	//{
-	//case EItemType::WEAPON:
-	//	UDataTable* DT = *ItemTableMap.Find(Type);
-	//	DT->FindRow<>()
-	//}
-	return FItem();
+	UDataTable* DT = *ItemTableMap.Find(Type);
+
+	if(DT && DT->FindRow<FItem>(ItemName,FString::Printf(TEXT("Context"))))
+		return CreateItem(DT, ItemName);
+	else 
+		return FItem();
 }
 
 ADBItem* ADBDropItemManager::SpawnItem(AActor* Instigated, FItem _ItemToSpawn)
@@ -160,7 +159,7 @@ void ADBDropItemManager::AdjustFinalStat(AActor* Instigated, const FItem& item, 
 }
 
 
-FItem ADBDropItemManager::InitializeItem(UDataTable* Table, FName RowName)
+FItem ADBDropItemManager::CreateItem(UDataTable* Table, FName RowName)
 {
 	FItem* item = Table->FindRow<FItem>(RowName, FString::Printf(TEXT("Context")));
 	if (!item)
