@@ -4,8 +4,7 @@
 #include "DBCharacter.h"
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h>
-#include "DBCharacterSkill/DBCharacterSkillComponent.h"
-#include "DBCharacterAttack/DBCharacterAttackComponent.h"
+
 #include "../Inventory/InventoryMainWidget.h"
 #include "../DBAnimInstance/DBRogueAnimInstance.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/NavMovementComponent.h>
