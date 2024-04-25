@@ -19,6 +19,9 @@ public:
 	void Client_DisplayMessage(const FString& msg);
 
 protected:
+	virtual void BeginPlay() override;
+
+protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TSubclassOf<ULobbyWidget> LobbyWidgetClass;
 	TObjectPtr<ULobbyWidget> LobbyWidget;
