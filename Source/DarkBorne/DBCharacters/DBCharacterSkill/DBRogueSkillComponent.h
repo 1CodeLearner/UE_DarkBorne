@@ -31,13 +31,16 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_Q_Skill;
 
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_E_Skill;
+
 public:
 	//은신 머티리얼
 	UPROPERTY(EditAnywhere)
 	class UMaterialInterface* VanishMat;
 
-	//UPROPERTY(EditAnywhere)
-	//class UStaticMeshComponent* SMThrowKnife;
+public:
+	
 
 public:
 	UPROPERTY(Replicated, EditAnywhere)
@@ -55,7 +58,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_ActiveRogueQSkill();
 
-
 	void DeactiveRogueQSkill();
+	
+public:
+	void UpdateRogueESkill(float DeltaTime);
 
+	void ActiveRogueESkill();
 };

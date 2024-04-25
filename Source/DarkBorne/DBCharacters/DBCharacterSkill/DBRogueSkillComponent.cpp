@@ -8,6 +8,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
 #include "../../Items/Weapons/DBWeapon_CloseRange.h"
 #include "Net/UnrealNetwork.h"
+#include "../../Items/Weapons/RogueThrowingKnife.h"
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -43,6 +44,7 @@ void UDBRogueSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void UDBRogueSkillComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* enhancedInputComponent)
 {
 	enhancedInputComponent->BindAction(ia_Q_Skill, ETriggerEvent::Triggered, this, &UDBRogueSkillComponent::ActiveRogueQSkill);
+	enhancedInputComponent->BindAction(ia_E_Skill, ETriggerEvent::Triggered, this, &UDBRogueSkillComponent::ActiveRogueESkill);
 
 }
 
@@ -161,5 +163,17 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 		}
 
 	}
+}
+
+void UDBRogueSkillComponent::UpdateRogueESkill(float DeltaTime)
+{
+
+}
+
+void UDBRogueSkillComponent::ActiveRogueESkill()
+{
+	ARogueThrowingKnife* ThrowingKnife = Cast<ARogueThrowingKnife>(GetClass());
+
+	ThrowingKnife->SetOwner(GetOwner());
 }
 
