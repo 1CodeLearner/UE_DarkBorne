@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../../Items/Weapons/RogueThrowingKnife.h"
 #include "DBRogueSkillComponent.generated.h"
 
 
@@ -40,8 +41,14 @@ public:
 	class UMaterialInterface* VanishMat;
 
 public:
-	
+	UPROPERTY(EditAnywhere)
+	TArray<ARogueThrowingKnife*> ThrowKnifeArray;
 
+	UPROPERTY(EditAnywhere)
+	class ARogueThrowingKnife* ThrowingKnife;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ARogueThrowingKnife> ThrowKnifeFactory;
 public:
 	UPROPERTY(Replicated, EditAnywhere)
 	bool isVanish = false;
