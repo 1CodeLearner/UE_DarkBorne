@@ -24,6 +24,7 @@ void ADBWeapon_CloseRange::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("Owner in CloseWeapon: %s"), *GetNameSafe(GetOwner()));
 	//서버에서 충돌판정을 하고싶다면 여기서부터 손보자
 	if (GetOwner<ACharacter>()->IsLocallyControlled()) {
+		UE_LOG(LogTemp, Warning, TEXT("inside"));
 		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ADBWeapon_CloseRange::OnOverlapBegin);
 		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}

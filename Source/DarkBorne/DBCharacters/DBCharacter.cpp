@@ -24,8 +24,11 @@ ADBCharacter::ADBCharacter()
 	EquipmentComponent = CreateDefaultSubobject<UDBEquipmentComponent>("EquipmentComp");
 	PlayerEquipmentComp = CreateDefaultSubobject<UPlayerEquipmentComponent>("PlayerEquipmentComp");
 
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerColl"));
 	GetMesh()->SetCollisionProfileName(TEXT("PlayerMeshColl"));
+	GetMesh()->SetGenerateOverlapEvents(true);
+
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerColl"));
+	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 
 	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");

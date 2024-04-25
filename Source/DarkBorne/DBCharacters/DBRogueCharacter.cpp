@@ -4,7 +4,6 @@
 #include "DBRogueCharacter.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
 #include "../DBWeapon/DBRogueWeaponComponent.h"
-#include "DBCharacterSkill/DBCharacterSkillComponent.h"
 #include "DBCharacterSkill/DBRogueSkillComponent.h"
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include "DBCharacterAttack/DBRogueAttackComponent.h"
@@ -26,7 +25,7 @@ ADBRogueCharacter::ADBRogueCharacter()
 	// 메쉬 위치 셋팅
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -88));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
-	//GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_Ca);
+
 
 	//SpringArm 컴포넌트 생성
 	springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("springArm"));
