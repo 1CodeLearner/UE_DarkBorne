@@ -200,11 +200,11 @@ void ADBDropItemManager::AssignSlotHolder(FItem& Item)
 
 void ADBDropItemManager::AssignRarity(FItem& Item)
 {
-	if (!ensureAlways(Item.ItemSlot)) return;
-	int max = Item.ItemSlot->Rarities.Num() - 1;
+	if (!ensureAlways(Item.IsValid() == false)) return;
+	int max = Item.GetRarities().Num() - 1;
 	int rand = FMath::RandRange(0, max);
 
-	FRarity Rarity = Item.ItemSlot->Rarities[rand];
+	FRarity Rarity = Item.GetRarities()[rand];
 
 	GenerateStatFromRange(Rarity.Range);
 
@@ -214,7 +214,7 @@ void ADBDropItemManager::AssignRarity(FItem& Item)
 
 void ADBDropItemManager::AssignEnchantment(FItem& Item)
 {
-	if (!ensureAlways(Item.ItemSlot)) return;
+	if (!ensureAlways(!Item.IsValid())) return;
 
 	if (!ensureAlwaysMsgf(Item.Rarities.Num() > 0, TEXT("Ensure AssignEffect() is called before AssignEnhancement()")))
 		return;
@@ -222,10 +222,10 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 	if (!ensureAlways(!Enchantments.IsEmpty()))
 		return;
 
-	if ((int)Item.ItemSlot->SlotType >= (int)ESlotType::_ENCHANTMENTMARK_)
+	if ((int)Item.GetSlotType() >= (int)ESlotType::_ENCHANTMENTMARK_)
 		return;
 
-	ERarityType rarityType = Item.Rarities[0].RarityType;
+	ERarityType rarityType = Item.GetRarities()[0].RarityType;
 	int EnchantmentNum = int(rarityType);
 
 	std::vector<bool> attributeCheck;
@@ -240,7 +240,7 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 	while (counter < EnchantmentNum - 1)
 	{
 		int DataTableIndex = FMath::RandRange(0, Enchantments.Num() - 1);
-		FName SlotTypeName = FName(UEnum::GetValueAsString<ESlotType>(Item.ItemSlot->SlotType));
+		FName SlotTypeName = FName(UEnum::GetValueAsString<ESlotType>(Item.GetSlotType()));
 
 		UDataTable* Enchantment = Enchantments[DataTableIndex];
 

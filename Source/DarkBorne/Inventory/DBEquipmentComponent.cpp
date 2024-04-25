@@ -95,20 +95,10 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	if (Slots[0])
 	{
-		UPDA_ItemSlot* Test = Slots[0]->GetItem().ItemSlot;
-		if (Test)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
-				*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
-				*Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), Slots.Num())
-			);
-		}
-		else
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
-				*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
-				TEXT("Invalid UPDA_ItemSlot"),
-				Slots.Num())
-			);
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
+			*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
+			*Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), Slots.Num())
+		);
 	}
 
 }

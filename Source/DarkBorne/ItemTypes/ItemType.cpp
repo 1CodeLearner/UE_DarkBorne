@@ -31,8 +31,16 @@ void FItem::Initialize()
 
 const TArray<FRarity>& FItem::GetRarities() const
 {
-	if(!bIsValid)
+	if (!bIsValid)
 		return ItemSlot->Rarities;
-	else 
+	else
 		return Rarities;
+}
+
+const ESlotType FItem::GetSlotType() const
+{
+	if (!bIsValid)
+		return ItemSlot->SlotType;
+	else
+		return SlotHolder.SlotType;
 }
