@@ -67,18 +67,33 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName RowName)
 				TArray<FName> RowNames = ItemTable->GetRowNames();
 
 				int rand = FMath::RandRange(0, RowNames.Num() - 1);
-				FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
+				//FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
 
-				AssignRarity(item);
-				AssignEnchantment(item);
-				AssignSlotHolder(item);
-				ItemsToGenerate.Add(item);
+				//AssignRarity(item);
+				//AssignEnchantment(item);
+				//AssignSlotHolder(item);
+				FItem tempItem = InitializeItem(ItemTable, RowNames[rand]);
+				if (tempItem.IsValid())
+					ItemsToGenerate.Add(tempItem);
+				else
+					UE_LOG(LogTemp,Warning,TEXT("Invalid Item generated. Item will be ignored"));
 			}
 			else return TArray<FItem>();
 		}
 	}
 	else return TArray<FItem>();
 	return ItemsToGenerate;
+}
+
+FItem ADBDropItemManager::GenerateItemByName(FName ItemName, EItemType Type)
+{
+	//switch(Type)
+	//{
+	//case EItemType::WEAPON:
+	//	UDataTable* DT = *ItemTableMap.Find(Type);
+	//	DT->FindRow<>()
+	//}
+	return FItem();
 }
 
 ADBItem* ADBDropItemManager::SpawnItem(AActor* Instigated, FItem _ItemToSpawn)
@@ -145,6 +160,21 @@ void ADBDropItemManager::AdjustFinalStat(AActor* Instigated, const FItem& item, 
 }
 
 
+FItem ADBDropItemManager::InitializeItem(UDataTable* Table, FName RowName)
+{
+	FItem* item = Table->FindRow<FItem>(RowName, FString::Printf(TEXT("Context")));
+	if (!item)
+		return FItem();
+
+	FItem tempItem = *item;
+
+	AssignRarity(tempItem);
+	AssignEnchantment(tempItem);
+	AssignSlotHolder(tempItem);
+
+	return tempItem;
+}
+
 bool ADBDropItemManager::FindCumulativeProbability(const FDropRate* DropRate)
 {
 	CumulativeProbability.Empty();
@@ -170,7 +200,7 @@ void ADBDropItemManager::AssignSlotHolder(FItem& Item)
 
 void ADBDropItemManager::AssignRarity(FItem& Item)
 {
-	if(!ensureAlways(Item.ItemSlot)) return;
+	if (!ensureAlways(Item.ItemSlot)) return;
 	int max = Item.ItemSlot->Rarities.Num() - 1;
 	int rand = FMath::RandRange(0, max);
 

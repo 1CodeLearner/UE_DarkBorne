@@ -4,6 +4,11 @@
 #include "ItemType.h"
 #include "../Items/PDA_ItemSlot.h"
 
+bool FItem::IsValid() const
+{
+	return bIsValid;
+}
+
 void FItem::Initialize()
 {
 	if (ItemSlot)
@@ -18,6 +23,16 @@ void FItem::Initialize()
 		SlotHolder.EquipSound = ItemSlot->EquipSound;
 		SlotHolder.ItemType = ItemSlot->ItemType;
 		SlotHolder.ItemClass = ItemSlot->ItemClass;
+
+		ItemSlot = nullptr;
+		bIsValid = true;
 	}
-	ItemSlot = nullptr;
+}
+
+const TArray<FRarity>& FItem::GetRarities() const
+{
+	if(!bIsValid)
+		return ItemSlot->Rarities;
+	else 
+		return Rarities;
 }

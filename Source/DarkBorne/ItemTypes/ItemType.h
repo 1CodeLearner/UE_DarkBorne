@@ -102,8 +102,11 @@ struct FItem : public FTableRowBase
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
+	bool bIsValid = false;
 public:
+	bool IsValid() const;
 	void Initialize();
+	const TArray<FRarity>& GetRarities() const;
 		
 	UPROPERTY(BlueprintReadOnly)
 	FSlotHolder SlotHolder;
