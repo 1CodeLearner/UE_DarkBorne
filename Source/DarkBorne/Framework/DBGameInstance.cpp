@@ -6,9 +6,13 @@
 #include "OnlineSessionSettings.h"
 #include "Online/OnlineSessionNames.h"
 #include "Misc/Guid.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/PlayerController.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/PlayerState.h>
 void UDBGameInstance::Init()
 {
 	Super::Init();
+
 
 	// 온라인 서브 시스템 가져오자
 	IOnlineSubsystem* subsys = IOnlineSubsystem::Get();
@@ -22,7 +26,7 @@ void UDBGameInstance::Init()
 	}
 	FGuid guid;
 	roomName = guid.NewGuid().ToString();
-	maxPlayer = 1;
+	maxPlayer = 2;
 }
 
 void UDBGameInstance::CreateMySession()
@@ -61,7 +65,7 @@ void UDBGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete Success -- %s"), *SessionName.ToString());
 		// Battle Map 으로 이동하자
-		FString Option = FString::Printf(TEXT("/Game/DBMaps/Level_Lobby?listen?MaxPlayers=%d"), maxPlayer);
+		FString Option = FString::Printf(TEXT("/Game/ThirdPerson/Maps/ThirdPersonMap?listen?MaxPlayers=%d"), maxPlayer);
 		GetWorld()->ServerTravel(Option);
 	}
 	else
@@ -75,8 +79,11 @@ void UDBGameInstance::FindOtherSession()
 	sessionSearch = MakeShared<FOnlineSessionSearch>();
 
 	sessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
-
+	
 	sessionSearch->MaxSearchResults = 10;
+
+	auto PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	UE_LOG(LogTemp, Warning, TEXT("NetId:%s"), *PC->PlayerState->GetUniqueId().ToString());
 
 	// 세션 검색 요청
 	sessionInterface->FindSessions(0, sessionSearch.ToSharedRef());
