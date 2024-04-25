@@ -29,8 +29,13 @@ void UMainMenuWidget::OnSearchComplete(int32 TotalSessions)
 	{
 		Text_StartGame->SetText(FText::FromString(FString::Printf(TEXT("Joining Session..."))));
 	}
-	else 
+	else if ( TotalSessions == -1 )
 	{	
+		Text_StartGame->SetText(FText::FromString(FString::Printf(TEXT("Search Session Failed"))));
+		Button_StartGame->SetIsEnabled(true);
+	}
+	else 
+	{
 		Text_StartGame->SetText(FText::FromString(FString::Printf(TEXT("Creating Session..."))));
 	}
 }

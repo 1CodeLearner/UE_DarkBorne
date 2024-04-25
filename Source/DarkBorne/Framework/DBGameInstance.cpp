@@ -33,7 +33,7 @@ void UDBGameInstance::CreateMySession()
 	sessionSettings.bShouldAdvertise = true;
 
 	// steam 사용하면 해당 옵션이 true 세션을 만들 수 있다.
-	sessionSettings.bUseLobbiesIfAvailable = false;
+	sessionSettings.bUseLobbiesIfAvailable = true;
 
 	// 내가 게임중인 아닌지를 보여줄건지
 	sessionSettings.bUsesPresence = true;
@@ -61,7 +61,8 @@ void UDBGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete Success -- %s"), *SessionName.ToString());
 		// Battle Map 으로 이동하자
-		GetWorld()->ServerTravel(TEXT("/Game/DBMaps/Level_Lobby?listen"));
+		FString Option = FString::Printf(TEXT("/Game/DBMaps/Level_Lobby?listen?PlayerCount=%d"), maxPlayer);
+		GetWorld()->ServerTravel(Option);
 	} 
 	else
 	{
@@ -89,24 +90,33 @@ void UDBGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 		auto results = sessionSearch->SearchResults;
 		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionComplete Success - count : %d"), results.Num());
 		onSearchComplete.ExecuteIfBound(results.Num());
-		for (int32 i = 0; i < results.Num(); i++)
+
+		if (results.Num() > 0) 
 		{
-			FOnlineSessionSearchResult si = results[i];
-			FString roomName;
-			si.Session.SessionSettings.Get(FName("ROOM_NAME"), roomName);
-
-			// 세션 정보 ---> String 으로 
-			// 세션의 최대 인원
-			int32 maxPlayer = si.Session.SessionSettings.NumPublicConnections;
-			// 세션의 참여 인원 (최대 인원 - 남은 인원)
-
-			int32 currPlayer = maxPlayer - si.Session.NumOpenPublicConnections;
-			// 방이름 ( 5 / 10 )
-			FString sessionInfo = FString::Printf(
-				TEXT("%s ( %d / %d )"),
-				*roomName, currPlayer, maxPlayer);
-
+			JoinOtherSession(0);
 		}
+		else 
+		{
+			CreateMySession();
+		}
+		//for (int32 i = 0; i < results.Num(); i++)
+		//{
+		//	FOnlineSessionSearchResult si = results[i];
+		//	FString roomName;
+		//	si.Session.SessionSettings.Get(FName("ROOM_NAME"), roomName);
+
+		//	// 세션 정보 ---> String 으로 
+		//	// 세션의 최대 인원
+		//	int32 maxPlayer = si.Session.SessionSettings.NumPublicConnections;
+		//	// 세션의 참여 인원 (최대 인원 - 남은 인원)
+
+		//	int32 currPlayer = maxPlayer - si.Session.NumOpenPublicConnections;
+		//	// 방이름 ( 5 / 10 )
+		//	FString sessionInfo = FString::Printf(
+		//		TEXT("%s ( %d / %d )"),
+		//		*roomName, currPlayer, maxPlayer);
+
+		//}
 		/*for (auto si : results)
 		{
 			FString roomName;
@@ -115,6 +125,7 @@ void UDBGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 	}
 	else
 	{
+		onSearchComplete.ExecuteIfBound(-1);
 		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionComplete Fail"));
 	}
 }
@@ -130,7 +141,6 @@ void UDBGameInstance::JoinOtherSession(int32 idx)
 	if (results.Num() <= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("results Zero"));
-
 	}
 	UE_LOG(LogTemp, Warning, TEXT("results count : %d, idx : %d"), results.Num(), idx);
 	sessionInterface->JoinSession(0, FName(mySessionName), results[idx]);
