@@ -11,6 +11,7 @@ ADBItem::ADBItem()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	SMComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SMComp"));
+	SMComp->SetCollisionProfileName(TEXT("WeaponSMColl"));
 	RootComponent = SMComp;
 }
 
