@@ -56,6 +56,8 @@ void UDBRogueWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(UDBRogueWeaponComponent, RogueItems);
 	DOREPLIFETIME(UDBRogueWeaponComponent, EquipSlotArray);
 	DOREPLIFETIME(UDBRogueWeaponComponent, RogueItemSMMat);
+	DOREPLIFETIME(UDBRogueWeaponComponent, Dagger);
+	DOREPLIFETIME(UDBRogueWeaponComponent, hasWeapon);
 }
 
 	

@@ -7,6 +7,7 @@
 #include "../../DBWeapon/DBRogueWeaponComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
 #include "../../Items/Weapons/DBWeapon_CloseRange.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -51,7 +52,10 @@ void UDBRogueSkillComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	
+	DOREPLIFETIME(UDBRogueSkillComponent, isVanish);
+	DOREPLIFETIME(UDBRogueSkillComponent, MaxVanishTime);
+	DOREPLIFETIME(UDBRogueSkillComponent, CurrVanishTime);
+
 
 }
 
