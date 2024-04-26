@@ -15,8 +15,6 @@ public:
 	AZoneNode();
 
 public:
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Settings")
-	TObjectPtr<AZoneNode> Next;
 
 protected:
 	virtual void BeginPlay() override;

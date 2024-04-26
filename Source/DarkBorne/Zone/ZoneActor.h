@@ -26,23 +26,28 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditInstanceOnly, Category = "Settings")
-	TObjectPtr<AZoneNode> Next;
+	UPROPERTY(VisibleAnywhere, Category = "Settings")
+	TArray<AZoneNode*> Nodes;
 
 private:
 
+	int index;
 	bool CanMove() const;
 	void StartMove();
 
 	FVector prevLoc;
 	FVector nextLoc;
 
-	float totalMoveTime;
+	FVector currScale;
+	FVector nextScale;
+	FVector diffScale;
+
+	float currMoveTime;
 	float maxMoveTime;
 	
 	bool bMove;
 
-	float totalWaitTime;
+	float currWaitTime;
 	float maxWaitTime;
 
 };
