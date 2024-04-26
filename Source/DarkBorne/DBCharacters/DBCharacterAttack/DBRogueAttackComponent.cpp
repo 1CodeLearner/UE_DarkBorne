@@ -39,12 +39,25 @@ void UDBRogueAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType
 void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent* enhancedInputComponent)
 {
 	enhancedInputComponent->BindAction(ia_DB_Attack, ETriggerEvent::Triggered, this, &UDBRogueAttackComponent::RogueAttack);
+	//enhancedInputComponent->BindAction(ia_DB_Attack, ETriggerEvent::Triggered, this, &UDBRogueAttackComponent::RogueAttack);
 
 }
 
 void UDBRogueAttackComponent::RogueAttack()
 {
-	ServerRPC_RogueAttack();
+	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+
+	if (RogueSkillComponent->isSpawnKnife)
+	{
+		if(RogueSkillComponent->ThrowKnifeArray.IsEmpty()) return;
+		RogueThrowKnifeAttack();
+	}
+	else if (!RogueSkillComponent->isSpawnKnife)
+	{
+
+		ServerRPC_RogueAttack();
+	}
+	
 }
 
 void UDBRogueAttackComponent::ServerRPC_RogueAttack_Implementation()
@@ -56,7 +69,7 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 {
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-
+	
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
 	// 단검을 들고 있으면 
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0] != nullptr)
@@ -125,5 +138,10 @@ void UDBRogueAttackComponent::UpdateComboCount(float DeltaTime)
 
 		}
 	}
+}
+
+void UDBRogueAttackComponent::RogueThrowKnifeAttack()
+{
+	UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
 }
 

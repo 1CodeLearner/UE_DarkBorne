@@ -10,7 +10,7 @@
 ADBWeapon_CloseRange::ADBWeapon_CloseRange()
 {
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
-	CapsuleComp->SetupAttachment(RootComponent);
+	CapsuleComp->SetupAttachment(SMComp);
 	CapsuleComp->SetRelativeLocation(FVector(0, 0, 25));
 	CapsuleComp->SetCapsuleHalfHeight(16);
 	CapsuleComp->SetCapsuleRadius(3);

@@ -38,6 +38,7 @@ ADBCharacter::ADBCharacter()
 void ADBCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
 	AActor* actor = GetOwner();
 	// 내 것이라면 
 	if (IsLocallyControlled())

@@ -10,6 +10,7 @@
 #include "Net/UnrealNetwork.h"
 #include "../../Items/Weapons/RogueThrowingKnife.h"
 #include "../../DBAnimInstance/DBRogueAnimInstance.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -18,7 +19,7 @@ UDBRogueSkillComponent::UDBRogueSkillComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	
+
 	// ...
 }
 
@@ -36,7 +37,7 @@ void UDBRogueSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	UpdateRogueQSkill(DeltaTime);
+	
 }
 
 void UDBRogueSkillComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* enhancedInputComponent)
@@ -60,7 +61,7 @@ void UDBRogueSkillComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 }
 
 void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
-{	
+{
 	if (isVanish)
 	{
 		// 현재 은신시간이 최대시간보다 작다면
@@ -69,7 +70,7 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 			// 현재 은신 시간에 델타타임 더하기
 			CurrVanishTime += DeltaTime;
 			//UE_LOG(LogTemp, Warning, TEXT("Vanish Curr Time : %.f"), CurrVanishTime);
-		
+
 			//현재 은신시간이 최대 은신시간과 같아졌다면
 			if (CurrVanishTime >= MaxVanishTime)
 			{
@@ -144,7 +145,7 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 		// 머티리얼 인덱스 0 부터 last까지 가져와서
 		for (int32 i = 0; i < RoguePlayer->MatArr.Num(); i++)
 		{
-			
+
 			// 기존 캐릭터 메쉬 머티리얼을 투명한 머티리얼로 바꾸자
 			RoguePlayer->GetMesh()->SetMaterial(i, RoguePlayer->MatArr[i]);
 
@@ -163,34 +164,56 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 	}
 }
 
-void UDBRogueSkillComponent::UpdateRogueESkill(float DeltaTime)
-{
-
-}
 
 void UDBRogueSkillComponent::ActiveRogueESkill()
 {
+	if(isSpawnKnife) return;
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
+	
+	isSpawnKnife = true;
+	if (isSpawnKnife)
+	{
+		ThrowKnifeArray.Init(ThrowingKnife, 4);
 
+		// (수리검 갯수 -1)* 간격 을 2로 나누어 나열된 수리검들의 중앙 값을 구한다
+		float halfValue = ((ThrowKnifeArray.Num() - 1) * 50) / 2.0f;
+		// 이 for문에서 한번 해당 위치에 스폰을 시킨다
+		for (int32 i = 0; i < ThrowKnifeArray.Num(); i++)
+		{
+			/*// 수리검 위치는 플레이어 위치 + 플레이어 앞 벡터 * 50 / 간격을 i 마다 50만큼 추가시키기
+			//FVector TKPosition = RoguePlayer->GetActorLocation() + RoguePlayer->GetActorForwardVector() * 50 + RoguePlayer->GetActorRightVector() * i * 50;
+
+			// 옆 벡터 * 수리검의 중앙 위치값 구하는 식을 빼준다
+			//TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
+		
+			//FRotator TKRotation = RoguePlayer->GetActorRotation();*/
+		
+			// 칼을 스폰
+			ThrowingKnife = GetWorld()->SpawnActorDeferred<ARogueThrowingKnife>(ThrowingKnifeClass, RoguePlayer->GetActorTransform());
+			//ThrowingKnife = GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowingKnifeFactory, RoguePlayer->GetActorLocation(), RoguePlayer->GetActorRotation());
+
+			//스폰 시작
+			UGameplayStatics::FinishSpawningActor(ThrowingKnife, RoguePlayer->GetActorTransform());
+
+			//수리검의 오너 셋팅
+			ThrowingKnife->SetOwner(GetOwner());
+
+			// 수리검의 인덱스를 수리검 갯수로 넘겨
+			ThrowingKnife->KnifeNumber = i;
+			// 중앙배치 식을 수리검에 넘기기 
+			ThrowingKnife->halfValue = halfValue;
+
+			//UE_LOG(LogTemp, Warning, TEXT("My Owner is : %s"), *ThrowingKnife->GetOwner()->GetFName().ToString());
+		}
 	
-	GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowKnifeFactory, RoguePlayer->GetActorLocation(), RoguePlayer->GetActorRotation());
-	//수리검의 오너 셋팅
-	ThrowingKnife->SetOwner(GetOwner());
-	
-	//수리검 배열의 수리검 4개 셋팅
-	//ThrowKnifeArray.Init(ThrowingKnife, 4);
-	
-	//for (int32 i = 0; i < ThrowKnifeArray.Num(); i++)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("shook"));
-	//}
+	}
 
 	//if (ThrowingKnife != nullptr)
 	//{
 	//	ThrowingKnife->PlayMontage(RoguePlayer, FName("ESkill_Start"));
 	//}
 
-	
+
 }
 

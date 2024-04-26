@@ -96,7 +96,8 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_CurrHP, EditAnywhere)
 	float CurrHP = MaxHP;
 
-	
+public:
+	//FVector newVec;
 public:
 	//Default 이동 관련 함수들
 	void EnhancedMove(const struct FInputActionValue& value);

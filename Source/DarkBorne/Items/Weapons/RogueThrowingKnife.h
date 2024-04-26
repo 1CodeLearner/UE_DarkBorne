@@ -18,7 +18,7 @@ public:
 
 public:
 	virtual void BeginPlay() override;
-
+	virtual void Tick(float DeltaTime) override;
 public:
 	//콜리전 함수
 	UFUNCTION()
@@ -32,4 +32,13 @@ public:
 public:
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* BloodVFX;
+public:
+	int32 KnifeNumber = 0;
+	float halfValue;
+public:
+	UPROPERTY(EditAnywhere)
+	class UProjectileMovementComponent* projectileComponent;
+
+public:
+	void UpdateKnifeLocation(float DeltaTime);
 };

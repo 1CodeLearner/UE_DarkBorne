@@ -10,9 +10,16 @@ ADBItem::ADBItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
+	
+	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
+	RootComponent = SceneComp;
+	
 	SMComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SMComp"));
 	SMComp->SetCollisionProfileName(TEXT("WeaponSMColl"));
-	RootComponent = SMComp;
+	SMComp->SetupAttachment(RootComponent);
+	
+	
+	//RootComponent = SMComp;
 }
 
 bool ADBItem::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)

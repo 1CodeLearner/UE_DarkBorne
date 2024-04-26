@@ -48,7 +48,7 @@ public:
 	class ARogueThrowingKnife* ThrowingKnife;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<ARogueThrowingKnife> ThrowKnifeFactory;
+	TSubclassOf<ARogueThrowingKnife> ThrowingKnifeClass;
 public:
 	UPROPERTY(Replicated, EditAnywhere)
 	bool isVanish = false;
@@ -56,6 +56,11 @@ public:
 	float MaxVanishTime = 5;
 	UPROPERTY(Replicated, EditAnywhere)
 	float CurrVanishTime = 0;
+
+public:
+	UPROPERTY(EditAnywhere)
+	bool isSpawnKnife = false;
+	
 public:
 	void UpdateRogueQSkill(float DeltaTime);
 
@@ -68,7 +73,7 @@ public:
 	void DeactiveRogueQSkill();
 	
 public:
-	void UpdateRogueESkill(float DeltaTime);
-
 	void ActiveRogueESkill();
+
+	
 };
