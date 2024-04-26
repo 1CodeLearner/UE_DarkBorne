@@ -93,17 +93,22 @@ struct FSlotHolder
 };
 
 /// <summary>
-/// Item used in inventory, Do not modify anything in SlotHolder during runtime.
+/// Item used in inventory, Do not modify anything in SlotHolder during runtime. 
+/// Must call Initialize function for FItem to be valid.
 /// </summary>
 USTRUCT(Blueprintable)
 struct FItem : public FTableRowBase
 {
 	GENERATED_BODY()
-public:
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
+	bool bIsValid = false;
 public:
+	bool IsValid() const;
 	void Initialize();
+	const TArray<FRarity>& GetRarities() const;
+	const ESlotType GetSlotType() const;
 		
 	UPROPERTY(BlueprintReadOnly)
 	FSlotHolder SlotHolder;

@@ -18,7 +18,7 @@ ADBWeapon_CloseRange::ADBWeapon_CloseRange()
 }
 
 void ADBWeapon_CloseRange::BeginPlay()
-{	
+{
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Warning, TEXT("Owner in CloseWeapon: %s"), *GetNameSafe(GetOwner()));
@@ -28,11 +28,11 @@ void ADBWeapon_CloseRange::BeginPlay()
 		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ADBWeapon_CloseRange::OnOverlapBegin);
 		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-	
+
 }
 
 void ADBWeapon_CloseRange::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{	
+{
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
 	//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
@@ -41,7 +41,7 @@ void ADBWeapon_CloseRange::OnOverlapBegin(class UPrimitiveComponent* OverlappedC
 	// 캐릭터의 GetOnwer로 인스턴스를 가져와 나의 플레이어 애님 인스턴스로 가져온다
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(Cast<ACharacter>(GetOwner())->GetMesh()->GetAnimInstance());
 
-	UE_LOG(LogTemp , Warning, TEXT("%s %s"), *OtherActor->GetActorNameOrLabel(),*OtherComp->GetFName().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *OtherActor->GetActorNameOrLabel(), *OtherComp->GetFName().ToString());
 
 	// 만약 내 자신이 부딫혔다면
 	if (OtherActor == GetOwner())
@@ -65,16 +65,19 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
 
-	//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
-	OtherPlayer->CurrHP = OtherPlayer->CurrHP - WeaponDamage;
-	//onRep 함수는 클라에서만 호출되어서 서버에서도 한번 호출해줘야한다
-	OtherPlayer->OnRep_CurrHP();
-
-	UE_LOG(LogTemp, Warning,TEXT("%s : %.f"),
-	GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"),OtherPlayer->CurrHP);
+	FString Level = GetWorld()->GetMapName();
+	Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+	if (Level != TEXT("Level_Lobby"))
+	{
+		//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
+		OtherPlayer->CurrHP = OtherPlayer->CurrHP - WeaponDamage;
+		//onRep 함수는 클라에서만 호출되어서 서버에서도 한번 호출해줘야한다
+		OtherPlayer->OnRep_CurrHP();
+		UE_LOG(LogTemp, Warning, TEXT("%s : %.f"),
+			GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"), OtherPlayer->CurrHP);
+	}
 
 	MultiRPC_OnOverlapBegin(OtherActor);
-
 }
 
 // 클라에서 충돌처리...
