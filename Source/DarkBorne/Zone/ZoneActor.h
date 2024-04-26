@@ -7,7 +7,20 @@
 #include "ZoneActor.generated.h"
 
 
+USTRUCT()
+struct FTransformZone 
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FVector Loc;
+	UPROPERTY()
+	FVector Scale;
+};
+
 class AZoneNode;
+class UCapsuleComponent;
+class ADBPlayerController;
 
 UCLASS()
 class DARKBORNE_API AZoneActor : public AActor
@@ -16,12 +29,17 @@ class DARKBORNE_API AZoneActor : public AActor
 
 public:
 	AZoneActor();
-
+	
 protected:
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TObjectPtr<UStaticMeshComponent> SMComp;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UCapsuleComponent> CapsuleComp;
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -34,6 +52,7 @@ private:
 	int index;
 	bool CanMove() const;
 	void StartMove();
+	void UpdateMovement(float DeltaTime);
 
 	FVector prevLoc;
 	FVector nextLoc;
@@ -41,6 +60,12 @@ private:
 	FVector currScale;
 	FVector nextScale;
 	FVector diffScale;
+
+	UPROPERTY(ReplicatedUsing = "OnRep_TransformZone")
+	FTransformZone TransformZone;
+	UFUNCTION()
+	void OnRep_TransformZone();
+
 
 	float currMoveTime;
 	float maxMoveTime;
@@ -50,4 +75,14 @@ private:
 	float currWaitTime;
 	float maxWaitTime;
 
+	UPROPERTY()
+	TMap<ADBPlayerController*,bool> playerOverlapped;
+
+	void HandlePlayersOverlapped();
+
+	UFUNCTION()
+	void OnPlayerUpdate(ADBPlayerController* Player, bool bExit);
+
+	UFUNCTION()
+	void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

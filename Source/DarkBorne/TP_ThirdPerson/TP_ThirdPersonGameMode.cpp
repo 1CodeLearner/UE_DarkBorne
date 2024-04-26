@@ -49,6 +49,11 @@ void ATP_ThirdPersonGameMode::OnPlayerDead(APlayerController* PlayerController)
 	}
 }
 
+TArray<ADBPlayerController*> ATP_ThirdPersonGameMode::GetConnectedPlayers() const
+{
+	return ConnectedPlayers;
+}
+
 void ATP_ThirdPersonGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
@@ -60,7 +65,12 @@ void ATP_ThirdPersonGameMode::InitGame(const FString& MapName, const FString& Op
 
 void ATP_ThirdPersonGameMode::Tick(float DeltaSeconds)
 {
-	Super::Tick(DeltaSeconds);
+	Super::Tick(DeltaSeconds);	
+
+	for (ADBPlayerController* What : ConnectedPlayers)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("PC: %s"), *GetNameSafe(What)));
+	}
 }
 
 void ATP_ThirdPersonGameMode::BeginPlay()
@@ -74,7 +84,9 @@ void ATP_ThirdPersonGameMode::PostLogin(APlayerController* NewPlayer)
 
 	auto PC = Cast<ADBPlayerController>(NewPlayer);
 
-	ActivePlayers.Add(PC, true);	
+	ActivePlayers.Add(PC, true);
+	ConnectedPlayers.Add(PC);
+	OnPlayerUpdate.Broadcast(PC, false);
 }
 
 void ATP_ThirdPersonGameMode::Logout(AController* Exiting)
@@ -85,6 +97,9 @@ void ATP_ThirdPersonGameMode::Logout(AController* Exiting)
 	if (PC) 
 	{
 		ActivePlayers.Remove(PC);
+		ConnectedPlayers.Add(PC);
+		OnPlayerUpdate.Broadcast(PC, true);
+
 		WonPlayer = CheckIfPlayerWon();
 		if (WonPlayer)
 			EndMatch();
