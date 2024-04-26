@@ -3,6 +3,7 @@
 
 #include "ZoneActor.h"
 #include "ZoneNode.h"
+#include "ZoneDamage.h"
 #include "EngineUtils.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"

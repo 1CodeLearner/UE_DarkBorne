@@ -21,6 +21,7 @@ struct FTransformZone
 class AZoneNode;
 class UCapsuleComponent;
 class ADBPlayerController;
+class UZoneDamage;
 
 UCLASS()
 class DARKBORNE_API AZoneActor : public AActor
@@ -77,6 +78,8 @@ private:
 
 	UPROPERTY()
 	TMap<ADBPlayerController*,bool> playerOverlapped;
+	UPROPERTY()
+	TMap<ADBPlayerController*,UZoneDamage*> playerDamaged;
 
 	void HandlePlayersOverlapped();
 
