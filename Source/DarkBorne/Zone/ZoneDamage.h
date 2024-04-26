@@ -12,15 +12,17 @@ class ADBCharacter;
 /**
  *
  */
-UCLASS()
+UCLASS(Blueprintable)
 class DARKBORNE_API UZoneDamage : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
 
 public:
 	UZoneDamage();
-	void Initialize(ADBPlayerController* PC);
+	UFUNCTION(BlueprintCallable)
+	void Initialize(ADBPlayerController* PC, float TotalTime, float DamageAmount);
 	void UpdateTotalTime(float newTotalTime);
+	UFUNCTION(BlueprintCallable)
 	void StartTick();
 	void StopTick();
 protected:
@@ -32,8 +34,15 @@ private:
 	float totalTime;
 	float currTime;
 
+	float damageAmt;
+
 	ADBPlayerController* PlayerController;
 	ADBCharacter* Character;
+
+	virtual bool IsSupportedForNetworking() const override
+	{
+		return true;
+	}
 
 	virtual UWorld* GetWorld() const override;
 };

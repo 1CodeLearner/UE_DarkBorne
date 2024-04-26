@@ -4,25 +4,32 @@
 #include "ZoneDamage.h"
 #include "../Framework/DBPlayerController.h"
 #include "../DBCharacters/DBCharacter.h"
+#include "../Framework/BFL/DarkBorneLibrary.h"
 
 UZoneDamage::UZoneDamage()
 {
 	PlayerController = nullptr;
 	Character = nullptr;
-
+	
 	totalTime = 0.f;
 	currTime = 0.f;
 	bIsTicking = false;
+
+	damageAmt = 0.f;
 }
 
-void UZoneDamage::Initialize(ADBPlayerController* PC)
+void UZoneDamage::Initialize(ADBPlayerController* PC, float TotalTime, float DamageAmount)
 {
 	if (ensureAlways(PC)) {
 		PlayerController = PC;
 		auto temp = Cast<ADBCharacter>(PC->GetPawn());
-		if (temp) {
+		if (ensureAlways(temp)) {
 			Character = temp;
 		}
+		else return;
+		this->totalTime = TotalTime;
+
+		damageAmt = DamageAmount;
 	}
 }
 
@@ -44,7 +51,17 @@ void UZoneDamage::StopTick()
 
 void UZoneDamage::Tick(float DeltaTime)
 {
-	
+	if (bIsTicking)
+	{
+		currTime += DeltaTime;
+		if (currTime >= totalTime)
+		{
+			if (Character && Character->CurrHP > 0.f)
+				UDarkBorneLibrary::ApplyDamageAmount(Character, damageAmt);
+			currTime = 0.f;
+		}
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Time: %f"), currTime));
 }
 
 TStatId UZoneDamage::GetStatId() const
@@ -56,7 +73,7 @@ UWorld* UZoneDamage::GetWorld() const
 {
 	Super::GetWorld();
 
-	AActor* Actor =Cast<AActor>(GetOuter());
+	AActor* Actor = Cast<AActor>(GetOuter());
 	if (Actor)
 	{
 		return Actor->GetWorld();

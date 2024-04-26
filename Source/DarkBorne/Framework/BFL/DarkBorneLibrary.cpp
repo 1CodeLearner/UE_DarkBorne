@@ -2,6 +2,7 @@
 
 
 #include "DarkBorneLibrary.h"
+#include "../../DBCharacters/DBCharacter.h"
 
 float UDarkBorneLibrary::CalculateDamage(AActor* Instigated, const TArray<FItem>& Items)
 {
@@ -15,5 +16,12 @@ bool UDarkBorneLibrary::ApplyDamage(AActor* Received, AActor* Instigated)
 
 bool UDarkBorneLibrary::ApplyDamageAmount(AActor* Received, float DamageAmount)
 {
-	 return false;
+	auto Character = Cast<ADBCharacter>(Received);
+	if (Character && Character->CurrHP > 0.f)
+	{
+		Character->CurrHP -= DamageAmount;
+		Character->OnRep_CurrHP();
+		return true;
+	}
+	return false;
 }

@@ -21,6 +21,7 @@ ADBCharacter::ADBCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 	EquipmentComponent = CreateDefaultSubobject<UDBEquipmentComponent>("EquipmentComp");
 	PlayerEquipmentComp = CreateDefaultSubobject<UPlayerEquipmentComponent>("PlayerEquipmentComp");
 
@@ -165,6 +166,7 @@ void ADBCharacter::OnRep_CurrHP()
 	// 플레이어 위젯이 없으면 리턴
 	if(PlayerWidget == nullptr) return;
 	PlayerWidget->UpdateHeathBar(CurrHP, MaxHP);
+	UE_LOG(LogTemp,Warning,TEXT("Testing:%f"),CurrHP);
 }
 
 const FFinalStat& ADBCharacter::GetFinalStat() const
