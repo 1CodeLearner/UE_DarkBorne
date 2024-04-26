@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../../Items/Weapons/RogueThrowingKnife.h"
 #include "DBRogueSkillComponent.generated.h"
 
 
@@ -31,14 +32,23 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_Q_Skill;
 
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_E_Skill;
+
 public:
 	//은신 머티리얼
 	UPROPERTY(EditAnywhere)
 	class UMaterialInterface* VanishMat;
 
-	//UPROPERTY(EditAnywhere)
-	//class UStaticMeshComponent* SMThrowKnife;
+public:
+	UPROPERTY(EditAnywhere)
+	TArray<ARogueThrowingKnife*> ThrowKnifeArray;
 
+	UPROPERTY(EditAnywhere)
+	class ARogueThrowingKnife* ThrowingKnife;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ARogueThrowingKnife> ThrowKnifeFactory;
 public:
 	UPROPERTY(Replicated, EditAnywhere)
 	bool isVanish = false;
@@ -55,7 +65,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_ActiveRogueQSkill();
 
-
 	void DeactiveRogueQSkill();
+	
+public:
+	void UpdateRogueESkill(float DeltaTime);
 
+	void ActiveRogueESkill();
 };

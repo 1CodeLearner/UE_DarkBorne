@@ -21,12 +21,12 @@ void ARogueThrowingKnife::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("Owner in CloseWeapon: %s"), *GetNameSafe(GetOwner()));
+	//UE_LOG(LogTemp, Warning, TEXT("Owner in CloseWeapon: %s"), *GetNameSafe(GetOwner()));
 	//서버에서 충돌판정을 하고싶다면 여기서부터 손보자
-	if (GetOwner<ACharacter>()->IsLocallyControlled()) {
-		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ARogueThrowingKnife::OnOverlapBegin);
-		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
+	//if (GetOwner<ACharacter>()->IsLocallyControlled()) {
+		//CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ARogueThrowingKnife::OnOverlapBegin);
+		//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//}
 }
 
 void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

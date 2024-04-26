@@ -8,6 +8,8 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
 #include "../../Items/Weapons/DBWeapon_CloseRange.h"
 #include "Net/UnrealNetwork.h"
+#include "../../Items/Weapons/RogueThrowingKnife.h"
+#include "../../DBAnimInstance/DBRogueAnimInstance.h"
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -26,9 +28,6 @@ void UDBRogueSkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	// ...
-	
 }
 
 
@@ -43,6 +42,7 @@ void UDBRogueSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void UDBRogueSkillComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* enhancedInputComponent)
 {
 	enhancedInputComponent->BindAction(ia_Q_Skill, ETriggerEvent::Triggered, this, &UDBRogueSkillComponent::ActiveRogueQSkill);
+	enhancedInputComponent->BindAction(ia_E_Skill, ETriggerEvent::Triggered, this, &UDBRogueSkillComponent::ActiveRogueESkill);
 
 }
 
@@ -161,5 +161,36 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 		}
 
 	}
+}
+
+void UDBRogueSkillComponent::UpdateRogueESkill(float DeltaTime)
+{
+
+}
+
+void UDBRogueSkillComponent::ActiveRogueESkill()
+{
+	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
+
+	
+	GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowKnifeFactory, RoguePlayer->GetActorLocation(), RoguePlayer->GetActorRotation());
+	//수리검의 오너 셋팅
+	ThrowingKnife->SetOwner(GetOwner());
+	
+	//수리검 배열의 수리검 4개 셋팅
+	//ThrowKnifeArray.Init(ThrowingKnife, 4);
+	
+	//for (int32 i = 0; i < ThrowKnifeArray.Num(); i++)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("shook"));
+	//}
+
+	//if (ThrowingKnife != nullptr)
+	//{
+	//	ThrowingKnife->PlayMontage(RoguePlayer, FName("ESkill_Start"));
+	//}
+
+	
 }
 
