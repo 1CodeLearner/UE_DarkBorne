@@ -10,6 +10,7 @@
 #include "../TP_ThirdPerson/TP_ThirdPersonGameMode.h"
 #include "../Framework/DBPlayerController.h"
 #include "Net/UnrealNetwork.h"
+#include "../DBCharacters/DBCharacter.h"
 
 
 static TAutoConsoleVariable<bool> cVarStopZoneMovement(TEXT("su.StopZoneMovement"), false, TEXT("Stops Zone from Moving at start"), ECVF_Cheat);
@@ -25,7 +26,7 @@ AZoneActor::AZoneActor()
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>("CapsuleComp");
 	CapsuleComp->SetupAttachment(RootComponent);
 	CapsuleComp->SetRelativeScale3D(FVector((2.27, 2.27, 2.27)));
-	CapsuleComp->SetRelativeLocation(FVector(0.,0.,50.));
+	CapsuleComp->SetRelativeLocation(FVector(0., 0., 50.));
 
 	currMoveTime = 0.f;
 	maxMoveTime = 5.f;
@@ -49,7 +50,7 @@ void AZoneActor::BeginPlay()
 
 		currScale = GetActorScale3D();
 		UE_LOG(LogTemp, Warning, TEXT("scale: %s"), *currScale.ToString());
-		
+
 		diffScale = currScale / Nodes.Num();
 		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &AZoneActor::OnActorOverlap);
 
@@ -62,6 +63,15 @@ void AZoneActor::BeginPlay()
 
 			for (auto PC : ConnectedPlayers) {
 				playerOverlapped.Add(PC, false);
+
+				auto ZoneDamage = NewObject<UZoneDamage>(this);
+				ZoneDamage->Initialize(PC, 5, 10);
+				playerDamaged.Add(PC, ZoneDamage);
+
+
+				ADBCharacter* Character = PC->GetPawn<ADBCharacter>();
+				if (ensureAlways(Character))
+					ActiveCharacters.Add(Character);
 			}
 		}
 	}
@@ -99,12 +109,18 @@ void AZoneActor::Tick(float DeltaTime)
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("ZoneActor: %s"), *What.Key->GetName()));
 	}
-	if (HasAuthority()) 
+	for (auto What : playerDamaged)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("ZoneActor: %s"), *What.Key->GetName()));
+	}
+
+	if (HasAuthority())
 	{
 		UpdateMovement(DeltaTime);
-		HandlePlayersOverlapped();
+		UpdatePlayerDamaged();
+		UpdatePlayerOverlapped();
 	}
-	
+
 }
 
 bool AZoneActor::CanMove() const
@@ -130,6 +146,9 @@ void AZoneActor::UpdateMovement(float DeltaTime)
 		float delta = currMoveTime / maxMoveTime;
 		float X = FMath::Lerp<float, float>(prevLoc.X, nextLoc.X, delta);
 		float Y = FMath::Lerp<float, float>(prevLoc.Y, nextLoc.Y, delta);
+
+		//used to check if a given player is within the overlap boundary
+		currLoc = FVector{ X, Y, 0 };
 		SetActorLocation(FVector{ X, Y, GetActorLocation().Z });
 
 		float scaleX = FMath::Lerp<float, float>(currScale.X, nextScale.X, delta);
@@ -150,7 +169,7 @@ void AZoneActor::UpdateMovement(float DeltaTime)
 			currMoveTime = 0.f;
 		}
 
-		//Tranform Replicated to clients
+		//TranformZone is replicated to clients
 		TransformZone = FTransformZone{ GetActorLocation(), GetActorRelativeScale3D() };
 	}
 	else
@@ -169,12 +188,45 @@ void AZoneActor::UpdateMovement(float DeltaTime)
 }
 
 
-void AZoneActor::HandlePlayersOverlapped()
+void AZoneActor::UpdatePlayerOverlapped()
+{
+	for (auto Character : ActiveCharacters) {
+
+		FVector CharLoc = Character->GetActorLocation();
+		CharLoc.Z = 0.f;
+		FVector diff = CharLoc - currLoc;
+		//float distSqrd = diff.X * diff.X + diff.Y * diff.Y + diff.Z * diff.Z;
+		float distSqrd = FVector::Distance(CharLoc, currLoc);
+
+		float radiusSqrd = CapsuleComp->GetScaledCapsuleRadius();
+		//radiusSqrd *= radiusSqrd;
+
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Emerald, FString::Printf(TEXT("distS:%f, radius:%f"), distSqrd, radiusSqrd));
+
+		if (distSqrd > radiusSqrd) {
+
+		}
+	}
+}
+
+void AZoneActor::UpdatePlayerDamaged()
 {
 	for (auto pair : playerOverlapped) {
 		//if player is overlapping
 		if (pair.Value == true) {
-			
+			//Find player's zone damage
+			UZoneDamage* ZoneDamage = *playerDamaged.Find(pair.Key);
+			//Start damaging player
+			if (ensureAlways(ZoneDamage) && !ZoneDamage->IsTicking()) {
+				ZoneDamage->StartTick();
+			}
+		}
+		else {
+			UZoneDamage* ZoneDamage = *playerDamaged.Find(pair.Key);
+			//Stop damaging player
+			if (ensureAlways(ZoneDamage) && ZoneDamage->IsTicking()) {
+				ZoneDamage->StopTick();
+			}
 		}
 	}
 }
@@ -184,9 +236,28 @@ void AZoneActor::OnPlayerUpdate(ADBPlayerController* Player, bool bExit)
 	if (bExit)
 	{
 		playerOverlapped.Remove(Player);
+
+		UZoneDamage* ZoneDamage = *playerDamaged.Find(Player);
+		if (ensureAlways(ZoneDamage))
+		{
+			ZoneDamage->StopTick();
+		}
+		playerDamaged.Remove(Player);
+
+		ADBCharacter* Character = Player->GetPawn<ADBCharacter>();
+		if (ensureAlways(Character))
+			ActiveCharacters.Remove(Character);
 	}
 	else {
 		playerOverlapped.Add(Player, false);
+
+		auto ZoneDamage = NewObject<UZoneDamage>(this);
+		ZoneDamage->Initialize(Player, 5, 10);
+		playerDamaged.Add(Player, ZoneDamage);
+
+		ADBCharacter* Character = Player->GetPawn<ADBCharacter>();
+		if (ensureAlways(Character))
+			ActiveCharacters.Add(Character);
 	}
 }
 

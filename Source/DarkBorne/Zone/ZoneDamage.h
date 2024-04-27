@@ -25,6 +25,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StartTick();
 	void StopTick();
+	bool IsTicking() const;
+
 protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual TStatId GetStatId() const override;

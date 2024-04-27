@@ -49,6 +49,11 @@ void UZoneDamage::StopTick()
 	currTime = 0.f;
 }
 
+bool UZoneDamage::IsTicking() const
+{
+	return bIsTicking;
+}
+
 void UZoneDamage::Tick(float DeltaTime)
 {
 	if (bIsTicking)
@@ -56,7 +61,7 @@ void UZoneDamage::Tick(float DeltaTime)
 		currTime += DeltaTime;
 		if (currTime >= totalTime)
 		{
-			if (Character && Character->CurrHP > 0.f)
+			if (IsValid(Character) && Character->CurrHP > 0.f)
 				UDarkBorneLibrary::ApplyDamageAmount(Character, damageAmt);
 			currTime = 0.f;
 		}

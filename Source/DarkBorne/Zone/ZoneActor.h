@@ -8,7 +8,7 @@
 
 
 USTRUCT()
-struct FTransformZone 
+struct FTransformZone
 {
 	GENERATED_BODY()
 
@@ -22,6 +22,7 @@ class AZoneNode;
 class UCapsuleComponent;
 class ADBPlayerController;
 class UZoneDamage;
+class ADBCharacter;
 
 UCLASS()
 class DARKBORNE_API AZoneActor : public AActor
@@ -30,7 +31,7 @@ class DARKBORNE_API AZoneActor : public AActor
 
 public:
 	AZoneActor();
-	
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
@@ -48,6 +49,15 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Settings")
 	TArray<AZoneNode*> Nodes;
 
+protected:
+	
+	UPROPERTY(VisibleAnywhere, Category = "Settings")
+	TArray<ADBCharacter*> ActiveCharacters;
+	UPROPERTY(VisibleAnywhere, Category = "Settings")
+	TMap<ADBPlayerController*,bool> playerOverlapped;
+	UPROPERTY(VisibleAnywhere, Category = "Settings")
+	TMap<ADBPlayerController*,UZoneDamage*> playerDamaged;
+
 private:
 
 	int index;
@@ -58,6 +68,9 @@ private:
 	FVector prevLoc;
 	FVector nextLoc;
 
+	//used to check if a given player is within the overlap boundary
+	FVector currLoc;
+
 	FVector currScale;
 	FVector nextScale;
 	FVector diffScale;
@@ -67,21 +80,17 @@ private:
 	UFUNCTION()
 	void OnRep_TransformZone();
 
+	void UpdatePlayerOverlapped();
+	void UpdatePlayerDamaged();
 
 	float currMoveTime;
 	float maxMoveTime;
-	
+
 	bool bMove;
 
 	float currWaitTime;
 	float maxWaitTime;
 
-	UPROPERTY()
-	TMap<ADBPlayerController*,bool> playerOverlapped;
-	UPROPERTY()
-	TMap<ADBPlayerController*,UZoneDamage*> playerDamaged;
-
-	void HandlePlayersOverlapped();
 
 	UFUNCTION()
 	void OnPlayerUpdate(ADBPlayerController* Player, bool bExit);
