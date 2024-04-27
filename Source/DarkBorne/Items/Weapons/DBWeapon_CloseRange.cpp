@@ -6,6 +6,8 @@
 #include "../../DBAnimInstance/DBRogueAnimInstance.h"
 #include "../../DBCharacters/DBRogueCharacter.h"
 #include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h>
+#include <DarkBorne/Framework/DBDropItemManager.h>
+#include "DarkBorne/TP_ThirdPerson/TP_ThirdPersonGameMode.h"
 
 ADBWeapon_CloseRange::ADBWeapon_CloseRange()
 {
@@ -23,7 +25,7 @@ void ADBWeapon_CloseRange::BeginPlay()
 
 	UE_LOG(LogTemp, Warning, TEXT("Owner in CloseWeapon: %s"), *GetNameSafe(GetOwner()));
 	//서버에서 충돌판정을 하고싶다면 여기서부터 손보자
-	if (GetOwner<ACharacter>()->IsLocallyControlled()) 
+	if (GetOwner<ACharacter>()->IsLocallyControlled())
 	{
 		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ADBWeapon_CloseRange::OnOverlapBegin);
 		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -75,6 +77,16 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 		OtherPlayer->OnRep_CurrHP();
 		UE_LOG(LogTemp, Warning, TEXT("%s : %.f"),
 			GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"), OtherPlayer->CurrHP);
+
+		auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
+		if (ensure(GM) && OtherPlayer->CurrHP <= 0.f)
+		{
+			auto PC = OtherPlayer->GetOwner<APlayerController>();
+			if (PC)
+			{
+				GM->OnPlayerDead(PC);
+			}
+		}
 	}
 
 	MultiRPC_OnOverlapBegin(OtherActor);
