@@ -16,6 +16,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
 #include "../Inventory/LootInventoryComponent.h"
 #include "../Inventory/LootEquipmentComponent.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
@@ -32,13 +33,16 @@ ADBCharacter::ADBCharacter()
 
 	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
+
+	ThrowKnifePos = CreateDefaultSubobject<UArrowComponent>(TEXT("ProjectileSpawnPos"));
+	ThrowKnifePos->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
 void ADBCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	//ProjectileSpawnPos->GetComponentLocation()
 	AActor* actor = GetOwner();
 	// 내 것이라면 
 	if (IsLocallyControlled())

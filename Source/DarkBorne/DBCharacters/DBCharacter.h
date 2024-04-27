@@ -75,7 +75,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<UDBPlayerWidget> PlayerWidgetClass;
-
+public:
+	UPROPERTY(EditAnywhere)
+	class UArrowComponent* ThrowKnifePos;
 public:
 	//player Mapping Context
 	UPROPERTY(EditAnywhere)

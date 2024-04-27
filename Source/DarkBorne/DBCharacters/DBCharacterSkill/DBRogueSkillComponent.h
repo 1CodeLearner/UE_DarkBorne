@@ -41,14 +41,17 @@ public:
 	class UMaterialInterface* VanishMat;
 
 public:
-	UPROPERTY(EditAnywhere)
-	TArray<ARogueThrowingKnife*> ThrowKnifeArray;
 
 	UPROPERTY(EditAnywhere)
 	class ARogueThrowingKnife* ThrowingKnife;
 
+	// 수리검 클래스
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ARogueThrowingKnife> ThrowingKnifeClass;
+
+	// 수리검 클래스를 담은 배열
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<ARogueThrowingKnife>> ThrowKnifeArray;
 public:
 	UPROPERTY(Replicated, EditAnywhere)
 	bool isVanish = false;

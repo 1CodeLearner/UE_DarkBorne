@@ -47,11 +47,13 @@ void UDBRogueAttackComponent::RogueAttack()
 {
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
+	// 수리검 스킬 수리검 남아있으면 
 	if (RogueSkillComponent->isSpawnKnife)
 	{
 		if(RogueSkillComponent->ThrowKnifeArray.IsEmpty()) return;
 		RogueThrowKnifeAttack();
 	}
+	// 다시 기본공격으로
 	else if (!RogueSkillComponent->isSpawnKnife)
 	{
 
@@ -143,5 +145,6 @@ void UDBRogueAttackComponent::UpdateComboCount(float DeltaTime)
 void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 {
 	UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
+	
 }
 

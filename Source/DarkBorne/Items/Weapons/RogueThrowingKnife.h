@@ -35,10 +35,15 @@ public:
 public:
 	int32 KnifeNumber = 0;
 	float halfValue;
+
+	
 public:
 	UPROPERTY(EditAnywhere)
 	class UProjectileMovementComponent* projectileComponent;
 
+	//UPROPERTY(EditAnywhere)
+	//class UArrowComponent* 
+	
 public:
-	void UpdateKnifeLocation(float DeltaTime);
+	void UpdateKnifeLocation();
 };
