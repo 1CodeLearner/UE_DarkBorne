@@ -20,7 +20,7 @@ class DARKBORNE_API UZoneDamage : public UObject, public FTickableGameObject
 public:
 	UZoneDamage();
 	UFUNCTION(BlueprintCallable)
-	void Initialize(ADBPlayerController* PC, float TotalTime, float DamageAmount);
+	bool Initialize(ADBPlayerController* PC, float TotalTime, float DamageAmount);
 	void UpdateTotalTime(float newTotalTime);
 	UFUNCTION(BlueprintCallable)
 	void StartTick();

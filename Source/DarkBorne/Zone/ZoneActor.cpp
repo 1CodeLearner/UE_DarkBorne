@@ -29,7 +29,7 @@ AZoneActor::AZoneActor()
 	CapsuleComp->SetRelativeLocation(FVector(0., 0., 50.));
 
 	currMoveTime = 0.f;
-	maxMoveTime = 5.f;
+	maxMoveTime = 12.f;
 	bMove = false;
 	currWaitTime = 0.f;
 	maxWaitTime = 1.f;
@@ -52,11 +52,13 @@ void AZoneActor::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("scale: %s"), *currScale.ToString());
 
 		diffScale = currScale / Nodes.Num();
-		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &AZoneActor::OnActorOverlap);
 
 		auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
 		if (GM)
 		{
+			GM->OnPlayerUpdate.AddUObject(this, &AZoneActor::OnPlayerUpdate);
+			GM->OnGameEnd.AddUObject(this, &AZoneActor::OnGameEnd);
+
 			//if the game is running as a listen server, add server player to map container
 			TArray<ADBPlayerController*> ConnectedPlayers = GM->GetConnectedPlayers();
 			UE_LOG(LogTemp, Warning, TEXT("ConnectedPlayers count: %d"), ConnectedPlayers.Num());
@@ -65,27 +67,16 @@ void AZoneActor::BeginPlay()
 				playerOverlapped.Add(PC, false);
 
 				auto ZoneDamage = NewObject<UZoneDamage>(this);
-				ZoneDamage->Initialize(PC, 5, 10);
+				ZoneDamage->Initialize(PC, 2, 10);
 				playerDamaged.Add(PC, ZoneDamage);
 
 
 				ADBCharacter* Character = PC->GetPawn<ADBCharacter>();
 				if (ensureAlways(Character))
-					ActiveCharacters.Add(Character);
-			}
-		}
-	}
-}
+					ActiveCharacters.Add(PC, Character);
 
-void AZoneActor::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-	if (HasAuthority())
-	{
-		auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
-		if (ensure(GM))
-		{
-			GM->OnPlayerUpdate.AddUObject(this, &AZoneActor::OnPlayerUpdate);
+				PC->OnPossessedPawnChanged.AddDynamic(this, &AZoneActor::OnPossessedPawnChanged);
+			}
 		}
 	}
 }
@@ -107,20 +98,33 @@ void AZoneActor::Tick(float DeltaTime)
 
 	for (auto What : playerOverlapped)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("ZoneActor: %s"), *What.Key->GetName()));
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf(TEXT("playerOverlapped: %s"), *GetNameSafe(What.Key)));
 	}
 	for (auto What : playerDamaged)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("ZoneActor: %s"), *What.Key->GetName()));
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("playerDamaged: %s, ticking: %s"),
+			*GetNameSafe(What.Value),
+			What.Value->IsTicking() ? TEXT("TRUE") : TEXT("FALSE")
+		));
 	}
-
-	if (HasAuthority())
+	for (auto What : ActiveCharacters)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("ActiveCharacters: %s"), *GetNameSafe(What.Value)));
+	}
+	if (HasAuthority() && ensure(CheckMapSizes()))
 	{
 		UpdateMovement(DeltaTime);
-		UpdatePlayerDamaged();
 		UpdatePlayerOverlapped();
+		UpdatePlayerDamaged();
 	}
 
+}
+
+bool AZoneActor::CheckMapSizes() const
+{
+	return ActiveCharacters.Num() == playerOverlapped.Num() &&
+		playerOverlapped.Num() == playerDamaged.Num() &&
+		ActiveCharacters.Num() == playerDamaged.Num();
 }
 
 bool AZoneActor::CanMove() const
@@ -192,7 +196,7 @@ void AZoneActor::UpdatePlayerOverlapped()
 {
 	for (auto Character : ActiveCharacters) {
 
-		FVector CharLoc = Character->GetActorLocation();
+		FVector CharLoc = Character.Value->GetActorLocation();
 		CharLoc.Z = 0.f;
 		FVector diff = CharLoc - currLoc;
 		//float distSqrd = diff.X * diff.X + diff.Y * diff.Y + diff.Z * diff.Z;
@@ -203,8 +207,15 @@ void AZoneActor::UpdatePlayerOverlapped()
 
 		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Emerald, FString::Printf(TEXT("distS:%f, radius:%f"), distSqrd, radiusSqrd));
 
-		if (distSqrd > radiusSqrd) {
-
+		//if player is out of the zone and player was set as within bounds
+		if (distSqrd >= radiusSqrd && *playerOverlapped.Find(Character.Key) == false) {
+			//Set player as out of bounds
+			*playerOverlapped.Find(Character.Key) = true;
+		}
+		//if player is within the zone and player was set as out of bounds
+		else if (distSqrd < radiusSqrd && *playerOverlapped.Find(Character.Key) == true) {
+			//Set player as within bounds
+			*playerOverlapped.Find(Character.Key) = false;
 		}
 	}
 }
@@ -244,26 +255,55 @@ void AZoneActor::OnPlayerUpdate(ADBPlayerController* Player, bool bExit)
 		}
 		playerDamaged.Remove(Player);
 
-		ADBCharacter* Character = Player->GetPawn<ADBCharacter>();
-		if (ensureAlways(Character))
-			ActiveCharacters.Remove(Character);
+		ActiveCharacters.Remove(Player);
+
 	}
 	else {
-		playerOverlapped.Add(Player, false);
 
 		auto ZoneDamage = NewObject<UZoneDamage>(this);
-		ZoneDamage->Initialize(Player, 5, 10);
-		playerDamaged.Add(Player, ZoneDamage);
+		if (ZoneDamage->Initialize(Player, 2, 10))
+		{
+			playerDamaged.Add(Player, ZoneDamage);
 
-		ADBCharacter* Character = Player->GetPawn<ADBCharacter>();
-		if (ensureAlways(Character))
-			ActiveCharacters.Add(Character);
+			playerOverlapped.Add(Player, false);
+
+			ADBCharacter* Character = Player->GetPawn<ADBCharacter>();
+			if (Character)
+				ActiveCharacters.Add(Player, Character);
+		}
 	}
 }
 
-void AZoneActor::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AZoneActor::OnGameEnd(ADBPlayerController* PlayerWon)
 {
-	UE_LOG(LogTemp, Warning, TEXT("What %s"), *GetNameSafe(OtherActor));
+	playerOverlapped.Remove(PlayerWon);
+	
+	auto ZoneDamage = *playerDamaged.Find(PlayerWon);
+	ZoneDamage->StopTick();
+	playerDamaged.Remove(PlayerWon);
+}
+
+void AZoneActor::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
+{
+	UE_LOG(LogTemp, Warning, TEXT("OldPawn:%s, NewPawn:%s"), *GetNameSafe(OldPawn), *GetNameSafe(NewPawn));
+
+	if (NewPawn)
+	{
+		auto PC = Cast<ADBPlayerController>(NewPawn->GetOwner());
+		if (ensureAlways(PC))
+		{
+			playerOverlapped.Remove(PC);
+
+			UZoneDamage* ZoneDamage = *playerDamaged.Find(PC);
+			if (ensureAlways(ZoneDamage))
+			{
+				ZoneDamage->StopTick();
+			}
+			playerDamaged.Remove(PC);
+
+			ActiveCharacters.Remove(PC);
+		}
+	}
 }
 
 void AZoneActor::OnRep_TransformZone()

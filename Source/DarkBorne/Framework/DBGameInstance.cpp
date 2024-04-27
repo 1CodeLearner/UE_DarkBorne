@@ -74,6 +74,23 @@ void UDBGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 	}
 }
 
+void UDBGameInstance::DestroyMySession()
+{
+	sessionInterface->DestroySession(FName(mySessionName));
+}
+
+void UDBGameInstance::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnDestroySessionComplete Success -- %s"), *SessionName.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnDestroySessionComplete Fail"));
+	}
+}
+
 void UDBGameInstance::FindOtherSession()
 {
 	sessionSearch = MakeShared<FOnlineSessionSearch>();
@@ -167,4 +184,11 @@ void UDBGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCom
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnJoinSessionComplete Fail : %d"), result);
 	}
+}
+
+void UDBGameInstance::Shutdown()
+{
+	Super::Shutdown();
+
+	DestroyMySession();
 }

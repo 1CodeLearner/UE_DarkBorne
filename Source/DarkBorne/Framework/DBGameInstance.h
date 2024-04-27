@@ -25,6 +25,9 @@ public:
 	void CreateMySession();
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 
+	void DestroyMySession();
+	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
+	
 	// 세션을 검색 함수
 	UFUNCTION(BlueprintCallable)
 	void FindOtherSession();
@@ -35,7 +38,7 @@ public:
 	void JoinOtherSession(int32 idx);
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type result);
 
-
+	virtual void Shutdown() override;
 public:
 	// 이 변수통해 (세션 만들고, 세션 검색, 세션 참여)
 	TSharedPtr<class IOnlineSession, ESPMode::ThreadSafe> sessionInterface;

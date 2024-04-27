@@ -13,6 +13,8 @@ class ADBPlayerController;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FPlayerUpdateDelegate, ADBPlayerController* /*Player*/, bool /*bExit*/);
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FGameEndDelegate, ADBPlayerController* /*PlayerWon*/);
+
 UCLASS(minimalapi)
 class ATP_ThirdPersonGameMode : public AGameMode
 {
@@ -33,6 +35,8 @@ public:
 	TArray<ADBPlayerController*> GetConnectedPlayers() const;
 
 	FPlayerUpdateDelegate OnPlayerUpdate;
+
+	FGameEndDelegate OnGameEnd;
 
 protected:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;

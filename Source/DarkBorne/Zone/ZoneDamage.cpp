@@ -10,7 +10,7 @@ UZoneDamage::UZoneDamage()
 {
 	PlayerController = nullptr;
 	Character = nullptr;
-	
+
 	totalTime = 0.f;
 	currTime = 0.f;
 	bIsTicking = false;
@@ -18,19 +18,22 @@ UZoneDamage::UZoneDamage()
 	damageAmt = 0.f;
 }
 
-void UZoneDamage::Initialize(ADBPlayerController* PC, float TotalTime, float DamageAmount)
+bool UZoneDamage::Initialize(ADBPlayerController* PC, float TotalTime, float DamageAmount)
 {
 	if (ensureAlways(PC)) {
 		PlayerController = PC;
 		auto temp = Cast<ADBCharacter>(PC->GetPawn());
-		if (ensureAlways(temp)) {
+		if (temp) {
 			Character = temp;
-		}
-		else return;
-		this->totalTime = TotalTime;
 
-		damageAmt = DamageAmount;
+			this->totalTime = TotalTime;
+			damageAmt = DamageAmount;
+		}
+		else return false;
 	}
+	else return false;
+
+	return true;
 }
 
 void UZoneDamage::UpdateTotalTime(float newTotalTime)

@@ -34,7 +34,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void PostInitializeComponents() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
@@ -52,13 +51,15 @@ public:
 protected:
 	
 	UPROPERTY(VisibleAnywhere, Category = "Settings")
-	TArray<ADBCharacter*> ActiveCharacters;
+	TMap<ADBPlayerController*, ADBCharacter*> ActiveCharacters;
 	UPROPERTY(VisibleAnywhere, Category = "Settings")
 	TMap<ADBPlayerController*,bool> playerOverlapped;
 	UPROPERTY(VisibleAnywhere, Category = "Settings")
 	TMap<ADBPlayerController*,UZoneDamage*> playerDamaged;
 
 private:
+
+	bool CheckMapSizes() const; 
 
 	int index;
 	bool CanMove() const;
@@ -94,7 +95,9 @@ private:
 
 	UFUNCTION()
 	void OnPlayerUpdate(ADBPlayerController* Player, bool bExit);
+	UFUNCTION()
+	void OnGameEnd(ADBPlayerController* PlayerWon);
 
 	UFUNCTION()
-	void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
 };
