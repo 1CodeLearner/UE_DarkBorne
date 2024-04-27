@@ -41,14 +41,17 @@ public:
 	class UMaterialInterface* VanishMat;
 
 public:
-	UPROPERTY(EditAnywhere)
-	TArray<ARogueThrowingKnife*> ThrowKnifeArray;
 
 	UPROPERTY(EditAnywhere)
 	class ARogueThrowingKnife* ThrowingKnife;
 
+	// 수리검 클래스
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<ARogueThrowingKnife> ThrowKnifeFactory;
+	TSubclassOf<ARogueThrowingKnife> ThrowingKnifeClass;
+
+	// 수리검 클래스를 담은 배열
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<ARogueThrowingKnife>> ThrowKnifeArray;
 public:
 	UPROPERTY(Replicated, EditAnywhere)
 	bool isVanish = false;
@@ -56,6 +59,11 @@ public:
 	float MaxVanishTime = 5;
 	UPROPERTY(Replicated, EditAnywhere)
 	float CurrVanishTime = 0;
+
+public:
+	UPROPERTY(EditAnywhere)
+	bool isSpawnKnife = false;
+	
 public:
 	void UpdateRogueQSkill(float DeltaTime);
 
@@ -68,7 +76,7 @@ public:
 	void DeactiveRogueQSkill();
 	
 public:
-	void UpdateRogueESkill(float DeltaTime);
-
 	void ActiveRogueESkill();
+
+	
 };

@@ -28,6 +28,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TObjectPtr<UStaticMeshComponent> SMComp;
+
+	UPROPERTY(EditDefaultsOnly, Category="Settings")
+	TObjectPtr<USceneComponent> SceneComp;
+
 	//ÄÝ¸®Àü Ä¸½¶ ÄÄÆ÷³ÍÆ®
 	UPROPERTY(EditAnywhere)
 	class UCapsuleComponent* CapsuleComp;
