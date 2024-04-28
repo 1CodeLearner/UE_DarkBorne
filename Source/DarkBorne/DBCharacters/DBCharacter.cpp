@@ -35,8 +35,7 @@ ADBCharacter::ADBCharacter()
 	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
 
-	ThrowKnifePos = CreateDefaultSubobject<UArrowComponent>(TEXT("ProjectileSpawnPos"));
-	ThrowKnifePos->SetupAttachment(RootComponent);
+
 }
 
 // Called when the game starts or when spawned

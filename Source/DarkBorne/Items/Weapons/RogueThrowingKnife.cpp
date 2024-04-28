@@ -23,11 +23,13 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 	CapsuleComp->SetCollisionProfileName(TEXT("WeaponCapColl"));
 
 	projectileComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
-	projectileComponent->SetUpdatedComponent(SceneComp);
-	projectileComponent->InitialSpeed = 1000;
-	projectileComponent->MaxSpeed = 1000;
+	projectileComponent->UpdatedComponent = SceneComp;
+	projectileComponent->InitialSpeed = 0;
+	projectileComponent->MaxSpeed = 2000;
 	projectileComponent->bShouldBounce = false;
-
+	projectileComponent->bRotationFollowsVelocity = true;
+	projectileComponent->ProjectileGravityScale = 0;
+	
 }
 
 void ARogueThrowingKnife::BeginPlay()
@@ -47,13 +49,14 @@ void ARogueThrowingKnife::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// 만약 좌클릭을 눌렀다면
-	// 수리검을 하나씩 배열에서 빼자
-	// 배열에서 빠진 수리검의 updateKnifeLocation을 비활성화 시키자
-	// 
-	
+	// 수리검의 updateKnifeLocation을 비활성화 시키자
+	// 클릭하면 isThrowing을 true로
+	if (!isThrowing)
+	{
 	//위치 갱신
 	UpdateKnifeLocation();
 	
+	}
 }
 
 void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -123,21 +126,22 @@ void ARogueThrowingKnife::UpdateKnifeLocation()
 	// 수리검의 오너 담기
 	AActor* RoguePlayer = GetOwner();
 	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(RoguePlayer);
-	//RogueCharacter->ThrowKnifePos->GetComponentLocation()
 	
 	// 수리검 위치는 플레이어 위치 + 플레이어 앞 벡터 * 50 / 간격을 i 마다 50만큼 추가시키기
-	FVector TKPosition = RogueCharacter->ThrowKnifePos->GetComponentLocation()
-		+ RoguePlayer->GetActorForwardVector() * 50
-		+ RoguePlayer->GetActorRightVector() * KnifeNumber * 50;
+	FVector TKPosition = RogueCharacter->ThrowKnifePos->GetComponentLocation()+ RoguePlayer->GetActorForwardVector() * 50 + RoguePlayer->GetActorRightVector() * KnifeNumber * 50;
 
 	// 옆 벡터 * 수리검들 중앙값을 빼준다
 	TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
-
-	FRotator TKRotation = RoguePlayer->GetActorRotation();
-	TKRotation += FRotator(-90, -90, 90);
 	
-	FRotator SpringArmRotation = RogueCharacter->camera->GetComponentRotation();
-
+	FRotator SpringArmRotation = RogueCharacter->ThrowKnifePos->GetComponentRotation();
+	APlayerController* playerController = Cast<APlayerController>(RogueCharacter->GetController());
+	//playerController->PlayerCameraManager->GetCameraRotation();
+	FRotator NewRot = RogueCharacter->ThrowKnifePos->GetComponentRotation();
 	// 수리검 위치 갱신 
-	SetActorLocationAndRotation(TKPosition, SpringArmRotation);
+	SetActorLocationAndRotation(TKPosition, NewRot);
+}
+
+void ARogueThrowingKnife::UpdateKnifeSpeed()
+{
+
 }
