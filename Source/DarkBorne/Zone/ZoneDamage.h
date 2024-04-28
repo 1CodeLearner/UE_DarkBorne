@@ -22,6 +22,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool Initialize(ADBPlayerController* PC, float TotalTime, float DamageAmount);
 	void UpdateTotalTime(float newTotalTime);
+	void UpdateDamage(float Damage);
 	UFUNCTION(BlueprintCallable)
 	void StartTick();
 	void StopTick();

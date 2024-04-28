@@ -18,11 +18,43 @@ struct FTransformZone
 	FVector Scale;
 };
 
+USTRUCT()
+struct FZonePhase
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere)
+	float DisplayTime;
+	UPROPERTY(EditAnywhere)
+	float ShrinkTime;
+	UPROPERTY(EditAnywhere)
+	float Damage;
+};
+
+USTRUCT()
+struct FZoneSetting : public FTableRowBase
+{
+	GENERATED_BODY()
+
+public:
+	float GetTotalTime();
+	const TArray<FZonePhase>& GetPhases() const;
+protected:
+	float TotalTime = 0.f;
+
+	UPROPERTY(EditAnywhere)
+	TArray<FZonePhase> Phases;
+
+private:
+	bool bInitialized = false;
+};
+
 class AZoneNode;
 class UCapsuleComponent;
 class ADBPlayerController;
 class UZoneDamage;
 class ADBCharacter;
+
+static TAutoConsoleVariable<bool> cVarDisplayZoneDebugMsg(TEXT("su.DisplayZoneDebugMsg"), false, TEXT("Display Zone Actor Debug info"), ECVF_Cheat);
 
 UCLASS()
 class DARKBORNE_API AZoneActor : public AActor
@@ -45,32 +77,42 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(VisibleAnywhere, Category = "Settings")
-	TArray<AZoneNode*> Nodes;
-
 protected:
-	
-	UPROPERTY(VisibleAnywhere, Category = "Settings")
-	TMap<ADBPlayerController*, ADBCharacter*> ActiveCharacters;
-	UPROPERTY(VisibleAnywhere, Category = "Settings")
-	TMap<ADBPlayerController*,bool> playerOverlapped;
-	UPROPERTY(VisibleAnywhere, Category = "Settings")
-	TMap<ADBPlayerController*,UZoneDamage*> playerDamaged;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+	UDataTable* DT_ZoneSetting;
 
 private:
+	UPROPERTY()
+	TMap<ADBPlayerController*, ADBCharacter*> ActiveCharacters;
+	UPROPERTY()
+	TMap<ADBPlayerController*, bool> playerOverlapped;
+	UPROPERTY()
+	TMap<ADBPlayerController*, UZoneDamage*> playerDamaged;
 
-	bool CheckMapSizes() const; 
 
-	int index;
+	//used to check if a given player is within the zone
+	FVector currLoc;
+	bool IsWithinZone(FVector Other) const;
+	float GetDistanceFromOrigin(FVector OtherLocation) const;
+	float GetZoneRadius() const;
+
+	bool CheckSizes() const;
+	
+	bool bIsFirstStarting;
+	FZoneSetting* ZoneSetting;
+
+	UPROPERTY()
+	AZoneNode* StartingNode;
+	UPROPERTY()
+	TArray<AZoneNode*> Nodes;
+	
+	int PhaseCount;
 	bool CanMove() const;
 	void StartMove();
 	void UpdateMovement(float DeltaTime);
 
 	FVector prevLoc;
 	FVector nextLoc;
-
-	//used to check if a given player is within the overlap boundary
-	FVector currLoc;
 
 	FVector currScale;
 	FVector nextScale;
@@ -97,7 +139,6 @@ private:
 	void OnPlayerUpdate(ADBPlayerController* Player, bool bExit);
 	UFUNCTION()
 	void OnGameEnd(ADBPlayerController* PlayerWon);
-
 	UFUNCTION()
 	void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
 };

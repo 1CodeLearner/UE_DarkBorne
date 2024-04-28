@@ -13,7 +13,6 @@ class DARKBORNE_API AZoneNode : public AActor
 
 public:
 	AZoneNode();
-
 public:
 
 protected:

@@ -6,6 +6,8 @@
 #include "../DBCharacters/DBCharacter.h"
 #include "../Framework/BFL/DarkBorneLibrary.h"
 
+static TAutoConsoleVariable<bool> cVarDisplayZoneDamageDebugMsg(TEXT("su.DisplayZoneDamageDebugMsg"), false, TEXT("Display Zone Damage Debug info"), ECVF_Cheat);
+
 UZoneDamage::UZoneDamage()
 {
 	PlayerController = nullptr;
@@ -41,6 +43,11 @@ void UZoneDamage::UpdateTotalTime(float newTotalTime)
 	totalTime = newTotalTime;
 }
 
+void UZoneDamage::UpdateDamage(float Damage)
+{
+	damageAmt = Damage;
+}
+
 void UZoneDamage::StartTick()
 {
 	bIsTicking = true;
@@ -69,7 +76,10 @@ void UZoneDamage::Tick(float DeltaTime)
 			currTime = 0.f;
 		}
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Time: %f"), currTime));
+
+	if (cVarDisplayZoneDamageDebugMsg.GetValueOnGameThread()) {
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Time: %f"), currTime));
+	}
 }
 
 TStatId UZoneDamage::GetStatId() const
