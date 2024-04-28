@@ -72,7 +72,7 @@ void ADBLobbyGameMode::BroadcastMessage(FString msg)
 
 void ADBLobbyGameMode::StartTravel()
 {
-	FString Option = FString::Printf(TEXT("/Game/J_Test/Zone/J_ZoneTest?listen?"));
+	FString Option = FString::Printf(TEXT("/Game/Assets/MultistoryDungeons/Scenes/Demo_01?listen?"));
 	GetWorld()->ServerTravel(Option);
 }
 
