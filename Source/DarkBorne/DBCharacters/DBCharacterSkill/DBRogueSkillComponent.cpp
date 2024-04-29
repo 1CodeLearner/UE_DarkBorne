@@ -195,18 +195,16 @@ void UDBRogueSkillComponent::ActiveRogueESkill()
 			
 			//FRotator TKRotation = RoguePlayer->GetActorRotation();*/
 			
-			//APlayerController* playerController = Cast<APlayerController>(RoguePlayer->GetController());
-			//FRotator NewRot = playerController->PlayerCameraManager->GetCameraRotation();
 			FVector NewLoc = RoguePlayer->ThrowKnifePos->GetComponentLocation();
-			FRotator NewRot = RoguePlayer->ThrowKnifePos->GetComponentRotation();
-			//FVector NewLoc = playerController->PlayerCameraManager->GetCameraLocation();
+			FRotator NewRot = RoguePlayer->ThrowKnifePos->GetForwardVector().Rotation();
+			
 			// 칼을 스폰
 			//ThrowingKnife = GetWorld()->SpawnActorDeferred<ARogueThrowingKnife>(ThrowKnifeArray[i], RoguePlayer->ThrowKnifePos->GetComponentTransform());
-			
-			ThrowingKnife = GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowKnifeArray[i], NewLoc, NewRot);
 			//스폰 시작
 			//UGameplayStatics::FinishSpawningActor(ThrowingKnife, RoguePlayer->camera->GetComponentTransform());
-			//RoguePlayer->camera->GetComponentTransform()
+			
+			ThrowingKnife = GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowKnifeArray[i], NewLoc, NewRot);
+
 			//수리검의 오너 셋팅
 			ThrowingKnife->SetOwner(GetOwner());
 
