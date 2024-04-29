@@ -60,14 +60,7 @@ TStatId UItemObject::GetStatId() const
 
 void UItemObject::Tick(float DeltaTime)
 {
-	if (Item.ItemSlot)
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf
-		(
-			TEXT("[%s] ItemSlot is not nullptr"),
-			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"))
-		)
-		);
-	else if (GetWorld())
+	if (GetWorld())
 		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf
 		(
 			TEXT("[%s] %s"),

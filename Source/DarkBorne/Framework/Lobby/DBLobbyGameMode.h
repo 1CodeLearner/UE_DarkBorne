@@ -9,17 +9,19 @@
 /**
  *
  */
- class APlayerController;
+class APlayerController;
 UCLASS()
 class DARKBORNE_API ADBLobbyGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
+public:
+	
 protected:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
-	
+
 private:
 	TArray<APlayerController*> ActivePlayers;
 	int32 MaxPlayers;
@@ -27,6 +29,7 @@ private:
 
 	FTimerHandle TravelHandle;
 	float startGameWait;
+	bool bIsGameStarting;
 
 	UFUNCTION()
 	void StartTravel();

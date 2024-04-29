@@ -94,9 +94,11 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 
 			//RogueItems = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
 
-			//이 무기의 오너를 셋팅 
+			// 무기를 이 컴포넌트에 붙인다 
 			RogueItems->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
 			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
+			// 무기 오너 셋팅
 			RogueItems->SetOwner(GetOwner());
 
 		}

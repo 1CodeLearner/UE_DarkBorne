@@ -75,7 +75,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<UDBPlayerWidget> PlayerWidgetClass;
-
+public:
+	UPROPERTY(EditAnywhere)
+	class UArrowComponent* ThrowKnifePos;
 public:
 	//player Mapping Context
 	UPROPERTY(EditAnywhere)
@@ -96,7 +98,8 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_CurrHP, EditAnywhere)
 	float CurrHP = MaxHP;
 
-	
+public:
+	//FVector newVec;
 public:
 	//Default 이동 관련 함수들
 	void EnhancedMove(const struct FInputActionValue& value);

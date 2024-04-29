@@ -6,20 +6,6 @@
 #include "../../Items/DBItem.h"
 #include "../../Inventory/ItemObject.h"
 
-
-float UItemLibrary::CalculateDamage(AActor* Instigated, const TArray<FItem>& Items)
-{
-
-	return 0.0f;
-}
-
-float UItemLibrary::ApplyDamage(AActor* Received, AActor* Instigated)
-{
-
-
-	return 0.0f;
-}
-
 int32 UItemLibrary::GetSlotIndexByObject(UItemObject* ItemObj)
 {
 	ESlotType Slot = ItemObj->GetItem().SlotHolder.SlotType;

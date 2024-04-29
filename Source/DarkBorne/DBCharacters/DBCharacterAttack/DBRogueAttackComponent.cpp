@@ -7,6 +7,7 @@
 #include "../../DBWeapon/DBRogueWeaponComponent.h"
 #include "../../Items/Weapons/DBWeapon_CloseRange.h"
 #include "../DBCharacterSkill/DBRogueSkillComponent.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/ProjectileMovementComponent.h>
 
 
 // Sets default values for this component's properties
@@ -39,12 +40,27 @@ void UDBRogueAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType
 void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent* enhancedInputComponent)
 {
 	enhancedInputComponent->BindAction(ia_DB_Attack, ETriggerEvent::Triggered, this, &UDBRogueAttackComponent::RogueAttack);
+	//enhancedInputComponent->BindAction(ia_DB_Attack, ETriggerEvent::Triggered, this, &UDBRogueAttackComponent::RogueAttack);
 
 }
 
 void UDBRogueAttackComponent::RogueAttack()
 {
-	ServerRPC_RogueAttack();
+	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+
+	// 수리검 스킬 수리검 남아있으면 
+	if (RogueSkillComponent->isSpawnKnife)
+	{
+		if(RogueSkillComponent->ThrowKnifeArray.IsEmpty()) return;
+		RogueThrowKnifeAttack();
+	}
+	// 다시 기본공격으로
+	else if (!RogueSkillComponent->isSpawnKnife)
+	{
+
+		ServerRPC_RogueAttack();
+	}
+	
 }
 
 void UDBRogueAttackComponent::ServerRPC_RogueAttack_Implementation()
@@ -56,7 +72,7 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 {
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-
+	
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
 	// 단검을 들고 있으면 
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0] != nullptr)
@@ -125,5 +141,15 @@ void UDBRogueAttackComponent::UpdateComboCount(float DeltaTime)
 
 		}
 	}
+}
+
+void UDBRogueAttackComponent::RogueThrowKnifeAttack()
+{	
+	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+	
+	UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
+	RogueSkillComponent->ThrowingKnife->isThrowing = true;
+	RogueSkillComponent->ThrowingKnife->projectileComponent->InitialSpeed = 500;
+	RogueSkillComponent->ThrowingKnife->projectileComponent->ProjectileGravityScale = 1.0f;
 }
 

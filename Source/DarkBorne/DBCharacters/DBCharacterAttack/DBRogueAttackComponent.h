@@ -47,4 +47,5 @@ public:
 
 	void UpdateComboCount(float DeltaTime);
 	
+	void RogueThrowKnifeAttack();
 };

@@ -19,12 +19,6 @@ class DARKBORNE_API UItemLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable)
-	static float CalculateDamage(AActor* Instigated, const TArray<FItem>& Items);
-
-	UFUNCTION(BlueprintCallable)	
-	static float ApplyDamage(AActor* Received, AActor* Instigated);
-
 	UFUNCTION(BlueprintPure)
 	static int32 GetSlotIndexByObject(UItemObject* Item);
 	UFUNCTION(BlueprintPure)

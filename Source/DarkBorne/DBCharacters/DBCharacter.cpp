@@ -16,11 +16,13 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
 #include "../Inventory/LootInventoryComponent.h"
 #include "../Inventory/LootEquipmentComponent.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 	EquipmentComponent = CreateDefaultSubobject<UDBEquipmentComponent>("EquipmentComp");
 	PlayerEquipmentComp = CreateDefaultSubobject<UPlayerEquipmentComponent>("PlayerEquipmentComp");
 
@@ -32,12 +34,15 @@ ADBCharacter::ADBCharacter()
 
 	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
+
+
 }
 
 // Called when the game starts or when spawned
 void ADBCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	//ProjectileSpawnPos->GetComponentLocation()
 	AActor* actor = GetOwner();
 	// 내 것이라면 
 	if (IsLocallyControlled())
@@ -165,6 +170,7 @@ void ADBCharacter::OnRep_CurrHP()
 	// 플레이어 위젯이 없으면 리턴
 	if(PlayerWidget == nullptr) return;
 	PlayerWidget->UpdateHeathBar(CurrHP, MaxHP);
+	UE_LOG(LogTemp,Warning,TEXT("Testing:%f"),CurrHP);
 }
 
 const FFinalStat& ADBCharacter::GetFinalStat() const

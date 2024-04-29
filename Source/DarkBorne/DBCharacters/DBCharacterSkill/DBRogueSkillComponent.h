@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "../../Items/Weapons/RogueThrowingKnife.h"
 #include "DBRogueSkillComponent.generated.h"
 
 
@@ -31,21 +32,38 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_Q_Skill;
 
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_E_Skill;
+
 public:
 	//은신 머티리얼
 	UPROPERTY(EditAnywhere)
 	class UMaterialInterface* VanishMat;
 
-	//UPROPERTY(EditAnywhere)
-	//class UStaticMeshComponent* SMThrowKnife;
+public:
+
+	UPROPERTY()
+	class ARogueThrowingKnife* ThrowingKnife;
+
+	// 수리검 클래스
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ARogueThrowingKnife> ThrowingKnifeClass;
+
+	// 수리검 클래스를 담은 배열
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<ARogueThrowingKnife>> ThrowKnifeArray;
+public:
+	UPROPERTY(Replicated, VisibleAnywhere)
+	bool isVanish = false;
+	UPROPERTY(Replicated, VisibleAnywhere)
+	float MaxVanishTime = 5;
+	UPROPERTY(Replicated, VisibleAnywhere)
+	float CurrVanishTime = 0;
 
 public:
-	UPROPERTY(Replicated, EditAnywhere)
-	bool isVanish = false;
-	UPROPERTY(Replicated, EditAnywhere)
-	float MaxVanishTime = 5;
-	UPROPERTY(Replicated, EditAnywhere)
-	float CurrVanishTime = 0;
+	UPROPERTY(EditAnywhere)
+	bool isSpawnKnife = false;
+	
 public:
 	void UpdateRogueQSkill(float DeltaTime);
 
@@ -55,7 +73,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_ActiveRogueQSkill();
 
-
 	void DeactiveRogueQSkill();
+	
+public:
+	void ActiveRogueESkill();
 
+	
 };

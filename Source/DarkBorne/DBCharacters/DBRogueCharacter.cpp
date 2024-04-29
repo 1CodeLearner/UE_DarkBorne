@@ -13,6 +13,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/CharacterMovementComponent.h>
 #include "../Inventory/DBEquipmentComponent.h"
 #include "../Inventory/PlayerEquipmentComponent.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 
 
 
@@ -55,6 +56,9 @@ ADBRogueCharacter::ADBRogueCharacter()
 
 	RogueSkillComponent = CreateDefaultSubobject<UDBRogueSkillComponent>(TEXT("RogueSkillComp"));
 	RogueAttackComponent = CreateDefaultSubobject<UDBRogueAttackComponent>(TEXT("RogueAttackComp"));
+
+	ThrowKnifePos = CreateDefaultSubobject<UArrowComponent>(TEXT("ThrowKnifePos"));
+	ThrowKnifePos->SetupAttachment(springArm);
 }
 
 void ADBRogueCharacter::BeginPlay()

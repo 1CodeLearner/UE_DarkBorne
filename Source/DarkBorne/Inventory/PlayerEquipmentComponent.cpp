@@ -116,7 +116,7 @@ TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems() const
 	return AllItems;
 }
 
-inline FTile UPlayerEquipmentComponent::IndexToTile(int32 Index) const
+FTile UPlayerEquipmentComponent::IndexToTile(int32 Index) const
 {
 	FTile Result;
 	Result.X = Index % Columns;
@@ -171,7 +171,7 @@ inline TTuple<bool, UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int3
 	return MakeTuple(IsValid(itemArray[Index]), itemArray[Index]);
 }
 
-inline bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
+bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
 {
 	if (tile.X >= 0 && tile.Y >= 0 && tile.X < Columns && tile.Y < Columns)
 	{

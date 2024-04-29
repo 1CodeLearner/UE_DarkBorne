@@ -11,6 +11,10 @@ struct FItem;
 class ADBItem;
 class ADBPlayerController;
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(FPlayerUpdateDelegate, ADBPlayerController* /*Player*/, bool /*bExit*/);
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FGameEndDelegate, ADBPlayerController* /*PlayerWon*/);
+
 UCLASS(minimalapi)
 class ATP_ThirdPersonGameMode : public AGameMode
 {
@@ -27,7 +31,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void OnPlayerDead(APlayerController* PlayerController);
+	
+	TArray<ADBPlayerController*> GetConnectedPlayers() const;
 
+	FPlayerUpdateDelegate OnPlayerUpdate;
+
+	FGameEndDelegate OnGameEnd;
 
 protected:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
@@ -49,7 +58,11 @@ protected:
 	TSubclassOf<ADBDropItemManager> DropItemManagerClass;
 	TObjectPtr<ADBDropItemManager> DropItemManager;
 	
+	//false if player died, true if player is still alive
 	TMap<ADBPlayerController*, bool> ActivePlayers;
+	//Connected Players
+	TArray<ADBPlayerController*> ConnectedPlayers;
+
 	TObjectPtr<ADBPlayerController> WonPlayer; 
 	ADBPlayerController* CheckIfPlayerWon();
 };
