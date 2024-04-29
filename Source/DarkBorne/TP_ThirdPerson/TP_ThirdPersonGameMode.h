@@ -38,6 +38,8 @@ public:
 
 	FGameEndDelegate OnGameEnd;
 
+	TObjectPtr<ADBDropItemManager> DropItemManager;
+
 protected:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	virtual void Tick(float DeltaSeconds) override;
@@ -56,7 +58,6 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	TSubclassOf<ADBDropItemManager> DropItemManagerClass;
-	TObjectPtr<ADBDropItemManager> DropItemManager;
 	
 	//false if player died, true if player is still alive
 	TMap<ADBPlayerController*, bool> ActivePlayers;

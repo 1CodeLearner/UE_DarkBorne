@@ -16,7 +16,8 @@ class DARKBORNE_API ADBDropItemManager : public AActor
 	GENERATED_BODY()
 
 	friend class ATP_ThirdPersonGameMode;
-
+	friend class ADBLobbyPlayerController;
+	friend class ADBPlayerController;
 public:
 	ADBDropItemManager();
 

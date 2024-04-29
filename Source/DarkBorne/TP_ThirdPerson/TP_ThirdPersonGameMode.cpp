@@ -135,16 +135,16 @@ void ATP_ThirdPersonGameMode::HandleMatchHasEnded()
 ADBPlayerController* ATP_ThirdPersonGameMode::CheckIfPlayerWon()
 {
 	int count = 0;
-	TPair<ADBPlayerController*, bool> save{nullptr, false};
+	ADBPlayerController* PlayerWon = nullptr;
 	for (const auto& what : ActivePlayers)
 	{
 		if (what.Value)
 		{
 			count++;
-			save = what;
+			PlayerWon = what.Key;
 		}
 	}
-	if (count == 1) return save.Key;
+	if (PlayerWon && count == 1) return PlayerWon;
 	
 	return nullptr;
 }

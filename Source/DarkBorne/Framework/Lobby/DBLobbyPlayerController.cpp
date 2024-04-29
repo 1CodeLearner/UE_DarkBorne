@@ -4,6 +4,13 @@
 #include "DBLobbyPlayerController.h"
 #include "../../UI/LobbyWidget.h"
 #include <../../../../../../../Source/Runtime/UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
+#include "DBLobbyGameMode.h"
+#include "../DBDropItemManager.h"
+#include "../../ItemTypes/EnchantmentTypes.h"
+#include "../../ItemTypes/ItemType.h"
+#include "../../Inventory/ItemObject.h"
+#include "../../DBCharacters/DBCharacter.h"
+#include "../../Inventory/DBEquipmentComponent.h"
 
 void ADBLobbyPlayerController::Client_DisplayMessage_Implementation(const FString& msg)
 {
@@ -31,5 +38,32 @@ void ADBLobbyPlayerController::BeginPlay()
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("NOOE"));
+	}
+}
+
+void ADBLobbyPlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+	if (HasAuthority()) {
+		UItemObject* ItemObject = nullptr;
+
+		auto LobbyGM = GetWorld()->GetAuthGameMode<ADBLobbyGameMode>();
+		if (LobbyGM) {
+			FItem Item = LobbyGM->DropItemManager->GenerateItemByName(FName("Dagger"), EItemType::WEAPON);
+			if (Item.IsValid()) {
+				ItemObject = NewObject<UItemObject>(this);
+				ItemObject->Initialize(Item);
+			}
+		}
+
+		if (!ItemObject) return;
+		
+		auto Charac = Cast<ADBCharacter>(aPawn);
+		if (Charac) {
+			auto EquipComp = Charac->GetComponentByClass<UDBEquipmentComponent>();
+			if (EquipComp) {
+				EquipComp->Server_AddItem(ItemObject);
+			}
+		}
 	}
 }
