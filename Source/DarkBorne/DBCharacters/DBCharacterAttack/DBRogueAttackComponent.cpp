@@ -149,7 +149,8 @@ void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 	
 	UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
 	RogueSkillComponent->ThrowingKnife->isThrowing = true;
-	RogueSkillComponent->ThrowingKnife->projectileComponent->InitialSpeed = 500;
 	RogueSkillComponent->ThrowingKnife->projectileComponent->ProjectileGravityScale = 1.0f;
+	RogueSkillComponent->ThrowingKnife->projectileComponent->SetActive(true, true);
+ 	RogueSkillComponent->ThrowingKnife->projectileComponent->SetVelocityInLocalSpace(FVector(2000, 0, 0));
 }
 

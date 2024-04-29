@@ -29,13 +29,13 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 	projectileComponent->bShouldBounce = false;
 	projectileComponent->bRotationFollowsVelocity = true;
 	projectileComponent->ProjectileGravityScale = 0;
-	
+	projectileComponent->bAutoActivate = false;
 }
 
 void ARogueThrowingKnife::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	//UE_LOG(LogTemp, Warning, TEXT("Owner in thisKnife: %s"), *GetNameSafe(GetOwner()));
 	//서버에서 충돌판정을 하고싶다면 여기서부터 손보자
 	//if (GetOwner<ACharacter>()->IsLocallyControlled()) {
@@ -136,9 +136,14 @@ void ARogueThrowingKnife::UpdateKnifeLocation()
 	//FRotator SpringArmRotation = RogueCharacter->ThrowKnifePos->GetComponentRotation();
 	//APlayerController* playerController = Cast<APlayerController>(RogueCharacter->GetController());
 	//playerController->PlayerCameraManager->GetCameraRotation();
-	FRotator NewRot = RogueCharacter->ThrowKnifePos->GetComponentRotation();
+	
+	FRotator NewRot = RogueCharacter->ThrowKnifePos->GetForwardVector().Rotation();
+	FRotator NewNewRot = RogueCharacter->GetActorForwardVector().Rotation();
 	// 수리검 위치 갱신 
 	SetActorLocationAndRotation(TKPosition, NewRot);
+	//UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), NewRot.Pitch, NewRot.Yaw, NewRot.Roll);
+	
+
 }
 
 void ARogueThrowingKnife::UpdateKnifeSpeed()
