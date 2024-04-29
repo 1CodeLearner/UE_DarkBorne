@@ -16,11 +16,13 @@ class DARKBORNE_API UAnimMorigeshEnemy : public UAnimEnemyBase
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EMorigeshAttackType attackType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UAnimSequence* attackAnimation;
+	EMorigeshState morigeshState;
+	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EMorigashAttackType morigeshAttackType;
 
 	
 	

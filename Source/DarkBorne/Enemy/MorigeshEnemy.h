@@ -29,6 +29,6 @@ public:
 
 
 
-
-	
+public:
+	class USkeletalMeshComponent* myMesh;
 };

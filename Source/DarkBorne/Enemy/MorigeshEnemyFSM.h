@@ -11,9 +11,14 @@
  */
  
  UENUM(BlueprintType)
-enum class EMorigeshAttackType : uint8
+enum class EMorigeshState : uint8
 {
-	ATTACK1,
+	IDLE
+};
+UENUM(BlueprintType)
+enum class EMorigashAttackType : uint8 
+{
+	ATTACK1
 };
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -29,10 +34,10 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<AActor*> enemyTargetList;
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+public:
 	
 	UPROPERTY(EditAnywhere)
 	class UAnimMorigeshEnemy* anim;
@@ -41,62 +46,30 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UAnimMontage* montage;
 
-	
+	//UPROPERTY(EditAnywhere)
+	//TSubclassOf<class AActor> attackProjectileFactory;
 
 	UPROPERTY(EditAnywhere)
-	float traceRange = 500;
-	
-	UPROPERTY(EditAnywhere)
-	float attackRange = 100;
+	TSubclassOf<class AMorigeshWeapon> weaponFactory;
 
-	UPROPERTY(EditAnywhere)
-	float moveRange = 1000;
+	//UPROPERTY(EditAnywhere)
+	//TArray<class AActor*> firedWeaponList;
 
-	float currTime = 0;
-	
-	UPROPERTY(EditAnywhere)
-	float preAttackDelayTime = 1;
-
-	UPROPERTY(EditAnywhere)
-	float attackDelayTime = 2;
-	
-	UPROPERTY(EditAnywhere)
-	float damageDelayTime = 2;
-
-	UPROPERTY(EditAnywhere)
-	float idleDelayTime = 2;
-
-	float viewAngle = 180;
-
-	FVector patrolPos;
-
-
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float spawnBorder = 100;
 
 
 public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
 
 	virtual void ChangeState(EEnemyState s) override;
-	
-	void UpdateIdle();
-	
-	void UpdateMove();
-	
-	void UpdatePatrol();
-	
-	void UpdateAttack();
-	
-	void UpdateAttackDelay();
-	
-	void UpdateDamaged(float deltaTime);
 
-	void UpdateDie();
+	void FireWeapon(FVector targetPos);
+	
 
-	bool IsWaitComplete(float delay);
+	
+	
 
-	bool CanTrace();
-
-	void TargetCheck();
 
 };

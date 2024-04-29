@@ -6,6 +6,15 @@
 #include "GameFramework/Character.h"
 #include "EnemyBase.generated.h"
 
+
+UENUM(BlueprintType)
+enum class EEnemyAttackType : uint8
+{
+	MELEE,
+	RANGED 
+};
+
+
 UCLASS()
 class DARKBORNE_API AEnemyBase : public ACharacter
 {
@@ -29,9 +38,9 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void DamageProcess(int32 damage);
+	void DamageProcess(int32 damage, AActor* attackSource);
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UEnemyFSMBase* baseFSM;
 	
 
@@ -42,6 +51,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	int32 currHP = 0;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EEnemyAttackType enemyAttackType = EEnemyAttackType::MELEE;
 
-
+	
 };

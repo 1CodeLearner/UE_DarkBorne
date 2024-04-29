@@ -11,10 +11,12 @@ AMorigeshEnemy::AMorigeshEnemy()
 	{
 		GetMesh()->SetSkeletalMesh(characterMesh.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0,0,-88), FRotator(0,-90,0));
+		myMesh = GetMesh();
+	
 	}	
 
 	baseFSM = CreateDefaultSubobject<UMorigeshEnemyFSM>(TEXT("FSM"));
-
+	
 
 	
 
@@ -26,6 +28,9 @@ AMorigeshEnemy::AMorigeshEnemy()
 void AMorigeshEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+
 }
 
 void AMorigeshEnemy::Tick(float DeltaTime)
