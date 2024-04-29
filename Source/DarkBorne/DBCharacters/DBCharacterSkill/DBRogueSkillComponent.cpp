@@ -195,7 +195,7 @@ void UDBRogueSkillComponent::ActiveRogueESkill()
 			
 			//FRotator TKRotation = RoguePlayer->GetActorRotation();*/
 			
-			APlayerController* playerController = Cast<APlayerController>(RoguePlayer->GetController());
+			//APlayerController* playerController = Cast<APlayerController>(RoguePlayer->GetController());
 			//FRotator NewRot = playerController->PlayerCameraManager->GetCameraRotation();
 			FVector NewLoc = RoguePlayer->ThrowKnifePos->GetComponentLocation();
 			FRotator NewRot = RoguePlayer->ThrowKnifePos->GetComponentRotation();

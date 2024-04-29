@@ -133,8 +133,8 @@ void ARogueThrowingKnife::UpdateKnifeLocation()
 	// ¿· º¤ÅÍ * ¼ö¸®°Ëµé Áß¾Ó°ªÀ» »©ÁØ´Ù
 	TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
 	
-	FRotator SpringArmRotation = RogueCharacter->ThrowKnifePos->GetComponentRotation();
-	APlayerController* playerController = Cast<APlayerController>(RogueCharacter->GetController());
+	//FRotator SpringArmRotation = RogueCharacter->ThrowKnifePos->GetComponentRotation();
+	//APlayerController* playerController = Cast<APlayerController>(RogueCharacter->GetController());
 	//playerController->PlayerCameraManager->GetCameraRotation();
 	FRotator NewRot = RogueCharacter->ThrowKnifePos->GetComponentRotation();
 	// ¼ö¸®°Ë À§Ä¡ °»½Å 
