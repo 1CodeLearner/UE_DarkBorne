@@ -42,7 +42,7 @@ public:
 
 public:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	class ARogueThrowingKnife* ThrowingKnife;
 
 	// 수리검 클래스
@@ -50,14 +50,14 @@ public:
 	TSubclassOf<ARogueThrowingKnife> ThrowingKnifeClass;
 
 	// 수리검 클래스를 담은 배열
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<TSubclassOf<ARogueThrowingKnife>> ThrowKnifeArray;
 public:
-	UPROPERTY(Replicated, EditAnywhere)
+	UPROPERTY(Replicated, VisibleAnywhere)
 	bool isVanish = false;
-	UPROPERTY(Replicated, EditAnywhere)
+	UPROPERTY(Replicated, VisibleAnywhere)
 	float MaxVanishTime = 5;
-	UPROPERTY(Replicated, EditAnywhere)
+	UPROPERTY(Replicated, VisibleAnywhere)
 	float CurrVanishTime = 0;
 
 public:

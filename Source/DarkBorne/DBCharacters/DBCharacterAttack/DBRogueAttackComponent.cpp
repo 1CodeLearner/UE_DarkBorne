@@ -7,6 +7,7 @@
 #include "../../DBWeapon/DBRogueWeaponComponent.h"
 #include "../../Items/Weapons/DBWeapon_CloseRange.h"
 #include "../DBCharacterSkill/DBRogueSkillComponent.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/ProjectileMovementComponent.h>
 
 
 // Sets default values for this component's properties
@@ -143,8 +144,12 @@ void UDBRogueAttackComponent::UpdateComboCount(float DeltaTime)
 }
 
 void UDBRogueAttackComponent::RogueThrowKnifeAttack()
-{
-	UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
+{	
+	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 	
+	UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
+	RogueSkillComponent->ThrowingKnife->isThrowing = true;
+	RogueSkillComponent->ThrowingKnife->projectileComponent->InitialSpeed = 500;
+	RogueSkillComponent->ThrowingKnife->projectileComponent->ProjectileGravityScale = 1.0f;
 }
 

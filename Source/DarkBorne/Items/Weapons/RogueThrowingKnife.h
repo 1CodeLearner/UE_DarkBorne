@@ -36,7 +36,7 @@ public:
 	int32 KnifeNumber = 0;
 	float halfValue;
 
-	
+	bool isThrowing = false;
 public:
 	UPROPERTY(EditAnywhere)
 	class UProjectileMovementComponent* projectileComponent;
@@ -46,4 +46,5 @@ public:
 	
 public:
 	void UpdateKnifeLocation();
+	void UpdateKnifeSpeed();
 };

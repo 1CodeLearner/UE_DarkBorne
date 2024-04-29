@@ -175,6 +175,7 @@ void UDBRogueSkillComponent::ActiveRogueESkill()
 	isSpawnKnife = true;
 	if (isSpawnKnife)
 	{
+		
 		// 수리검 클래스 배열 생성
 		ThrowKnifeArray.SetNum(4);
 		// (수리검 갯수 -1) * 간격을 2로 나누어 나열된 수리검들의 중앙 값을 구한다
@@ -194,13 +195,18 @@ void UDBRogueSkillComponent::ActiveRogueESkill()
 			
 			//FRotator TKRotation = RoguePlayer->GetActorRotation();*/
 			
+			//APlayerController* playerController = Cast<APlayerController>(RoguePlayer->GetController());
+			//FRotator NewRot = playerController->PlayerCameraManager->GetCameraRotation();
+			FVector NewLoc = RoguePlayer->ThrowKnifePos->GetComponentLocation();
+			FRotator NewRot = RoguePlayer->ThrowKnifePos->GetComponentRotation();
+			//FVector NewLoc = playerController->PlayerCameraManager->GetCameraLocation();
 			// 칼을 스폰
-			ThrowingKnife = GetWorld()->SpawnActorDeferred<ARogueThrowingKnife>(ThrowKnifeArray[i], RoguePlayer->ThrowKnifePos->GetComponentTransform());
+			//ThrowingKnife = GetWorld()->SpawnActorDeferred<ARogueThrowingKnife>(ThrowKnifeArray[i], RoguePlayer->ThrowKnifePos->GetComponentTransform());
 			
-			//ThrowingKnife = GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowingKnifeClass, TKPosition, SpringArmRotation);
+			ThrowingKnife = GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowKnifeArray[i], NewLoc, NewRot);
 			//스폰 시작
-			UGameplayStatics::FinishSpawningActor(ThrowingKnife, RoguePlayer->ThrowKnifePos->GetComponentTransform());
-
+			//UGameplayStatics::FinishSpawningActor(ThrowingKnife, RoguePlayer->camera->GetComponentTransform());
+			//RoguePlayer->camera->GetComponentTransform()
 			//수리검의 오너 셋팅
 			ThrowingKnife->SetOwner(GetOwner());
 
@@ -208,7 +214,7 @@ void UDBRogueSkillComponent::ActiveRogueESkill()
 			ThrowingKnife->KnifeNumber = i;
 			// 중앙배치 식을 수리검에 넘기기 
 			ThrowingKnife->halfValue = halfValue;
-
+			ThrowingKnife->isThrowing = false;
 			
 			//UE_LOG(LogTemp, Warning, TEXT("My Owner is : %s"), *ThrowingKnife->GetOwner()->GetFName().ToString());
 		}
