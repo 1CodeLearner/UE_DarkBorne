@@ -316,10 +316,10 @@ void AZoneActor::OnPlayerUpdate(ADBPlayerController* Player, bool bExit)
 	{
 		playerOverlapped.Remove(Player);
 
-		UZoneDamage* ZoneDamage = *playerDamaged.Find(Player);
-		if (ensureAlways(ZoneDamage))
+		UZoneDamage** ZoneDamage = playerDamaged.Find(Player);
+		if (ZoneDamage)
 		{
-			ZoneDamage->StopTick();
+			(*ZoneDamage)->StopTick();
 		}
 		playerDamaged.Remove(Player);
 
@@ -350,6 +350,7 @@ void AZoneActor::OnGameEnd(ADBPlayerController* PlayerWon)
 	auto ZoneDamage = *playerDamaged.Find(PlayerWon);
 	ZoneDamage->StopTick();
 	playerDamaged.Remove(PlayerWon);
+	ActiveCharacters.Remove(PlayerWon);
 }
 
 void AZoneActor::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)

@@ -17,6 +17,7 @@ class DARKBORNE_API ADBLobbyGameMode : public AGameMode
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<ADBDropItemManager> DropItemManager;
 protected:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;

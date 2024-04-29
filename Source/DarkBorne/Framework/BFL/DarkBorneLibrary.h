@@ -22,7 +22,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static bool ApplyDamage(AActor* Received, AActor* Instigated);
 
-	//returns true if damage was applied
+	//returns true if player is dead
 	UFUNCTION(BlueprintCallable)
 	static bool ApplyDamageAmount(AActor* Received, float DamageAmount);
 };

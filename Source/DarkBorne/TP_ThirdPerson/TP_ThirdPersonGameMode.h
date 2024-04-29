@@ -38,6 +38,7 @@ public:
 
 	FGameEndDelegate OnGameEnd;
 
+	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<ADBDropItemManager> DropItemManager;
 
 protected:

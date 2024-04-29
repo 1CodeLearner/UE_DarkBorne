@@ -21,7 +21,8 @@ bool UDarkBorneLibrary::ApplyDamageAmount(AActor* Received, float DamageAmount)
 	{
 		Character->CurrHP -= DamageAmount;
 		Character->OnRep_CurrHP();
-		return true;
+		if(Character->CurrHP <= 0.f)
+			return true;
 	}
 	return false;
 }

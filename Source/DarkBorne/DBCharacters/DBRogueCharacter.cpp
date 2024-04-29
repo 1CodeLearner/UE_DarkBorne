@@ -40,7 +40,7 @@ ADBRogueCharacter::ADBRogueCharacter()
 	springArm->ProbeChannel = ECollisionChannel::ECC_Visibility;
 	springArm->bUsePawnControlRotation = true;
 	springArm->SocketOffset = FVector(0, 0, 150);
-		
+
 	// camera setting
 	camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	//camera 를 springArm 의 자식으로 셋팅
@@ -72,13 +72,13 @@ void ADBRogueCharacter::BeginPlay()
 	CurrHP = MaxHP;
 	// 시작 시 현재 hp 
 	OnRep_CurrHP();
-	
+
 }
 
 void ADBRogueCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	//서버면
 	if (HasAuthority())
 	{
@@ -119,6 +119,7 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetCharacterMovement()->DisableMovement();
+		bUseControllerRotationYaw = false;
 
 		if (IsLocallyControlled())
 		{
@@ -129,11 +130,11 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 			AddControllerYawInput(0);
 			//pc->SetInputMode(FInputModeGameOnly());
 		}
-		
+
 		//springArm->bUsePawnControlRotation = false;
 		//pc->AddYawInput(NULL);
 		//AddControllerPitchInput(NULL);
-		
+
 	}
 }
 
