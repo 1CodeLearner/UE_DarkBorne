@@ -46,5 +46,5 @@ public:
 	
 public:
 	void UpdateKnifeLocation();
-	void UpdateKnifeSpeed();
+
 };

@@ -45,13 +45,17 @@ public:
 	UPROPERTY()
 	class ARogueThrowingKnife* ThrowingKnife;
 
+	// 수리검 여러개 들고 있는 탄창
+	UPROPERTY(VisibleAnywhere)
+	TArray<class ARogueThrowingKnife*> TKMagazine;
+
 	// 수리검 클래스
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<ARogueThrowingKnife> ThrowingKnifeClass;
+	TSubclassOf<class ARogueThrowingKnife> ThrowingKnifeClass;
 
 	// 수리검 클래스를 담은 배열
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<ARogueThrowingKnife>> ThrowKnifeArray;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//TArray<TSubclassOf<class ARogueThrowingKnife>> ThrowingKnifeClassArray;
 public:
 	UPROPERTY(Replicated, VisibleAnywhere)
 	bool isVanish = false;

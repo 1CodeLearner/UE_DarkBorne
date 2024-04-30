@@ -51,7 +51,7 @@ void UDBRogueAttackComponent::RogueAttack()
 	// 수리검 스킬 수리검 남아있으면 
 	if (RogueSkillComponent->isSpawnKnife)
 	{
-		if(RogueSkillComponent->ThrowKnifeArray.IsEmpty()) return;
+		if(RogueSkillComponent->TKMagazine.IsEmpty()) return;
 		RogueThrowKnifeAttack();
 	}
 	// 다시 기본공격으로
@@ -111,18 +111,18 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 				RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack3"));
 			}
 		}
-		else if (comboCnt == 3)
-		{
-			// 콤보최소시간 <= 현재시간 이고 현재시간 <= 최대시간
-			if (comboMinTime <= comboCurrTime && comboCurrTime <= comboMaxTime)
-			{
-				comboCnt++;
-				comboCurrTime = 0;
-
-				// 단검 아이템에 있는 애님몽타주 실행
-				RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack4"));
-			}
-		}
+		//else if (comboCnt == 3)
+		//{
+		//	// 콤보최소시간 <= 현재시간 이고 현재시간 <= 최대시간
+		//	if (comboMinTime <= comboCurrTime && comboCurrTime <= comboMaxTime)
+		//	{
+		//		comboCnt++;
+		//		comboCurrTime = 0;
+		//
+		//		// 단검 아이템에 있는 애님몽타주 실행
+		//		RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack4"));
+		//	}
+		//}
 	}
 }
 
@@ -146,7 +146,9 @@ void UDBRogueAttackComponent::UpdateComboCount(float DeltaTime)
 void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 {	
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-	
+	//누르면 TKmagazine에 있는 탄창을 0부터 ~ num()까지 RemoveAt
+
+
 	UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
 	RogueSkillComponent->ThrowingKnife->isThrowing = true;
 	RogueSkillComponent->ThrowingKnife->projectileComponent->ProjectileGravityScale = 1.0f;
