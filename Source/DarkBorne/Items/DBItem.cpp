@@ -24,6 +24,10 @@ ADBItem::ADBItem()
 
 bool ADBItem::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
 {
+	if(!PlayerCharacter) return false;
+	if(!PlayerCharacter->GetMesh()) return false;
+	if(!PlayerCharacter->GetMesh()->GetAnimInstance()) return false;
+
 	auto AnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance();
 	if (AnimInstance && ensureAlways(AnimMontage)) {
 		float result = AnimInstance->Montage_Play(AnimMontage);
