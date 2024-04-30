@@ -139,6 +139,7 @@ void ARogueThrowingKnife::UpdateKnifeLocation()
 	
 	FRotator NewRot = RogueCharacter->ThrowKnifePos->GetForwardVector().Rotation();
 	FRotator NewNewRot = RogueCharacter->GetActorForwardVector().Rotation();
+	NewRot.Normalize();
 	// 수리검 위치 갱신 
 	SetActorLocationAndRotation(TKPosition, NewRot);
 	//UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), NewRot.Pitch, NewRot.Yaw, NewRot.Roll);
@@ -146,7 +147,3 @@ void ARogueThrowingKnife::UpdateKnifeLocation()
 
 }
 
-void ARogueThrowingKnife::UpdateKnifeSpeed()
-{
-
-}
