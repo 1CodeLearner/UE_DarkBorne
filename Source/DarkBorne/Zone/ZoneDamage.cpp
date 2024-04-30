@@ -5,6 +5,9 @@
 #include "../Framework/DBPlayerController.h"
 #include "../DBCharacters/DBCharacter.h"
 #include "../Framework/BFL/DarkBorneLibrary.h"
+#include "DarkBorne/TP_ThirdPerson/TP_ThirdPersonGameMode.h"
+
+static TAutoConsoleVariable<bool> cVarDisplayZoneDamageDebugMsg(TEXT("su.DisplayZoneDamageDebugMsg"), false, TEXT("Display Zone Damage Debug info"), ECVF_Cheat);
 
 UZoneDamage::UZoneDamage()
 {
@@ -41,6 +44,11 @@ void UZoneDamage::UpdateTotalTime(float newTotalTime)
 	totalTime = newTotalTime;
 }
 
+void UZoneDamage::UpdateDamage(float Damage)
+{
+	damageAmt = Damage;
+}
+
 void UZoneDamage::StartTick()
 {
 	bIsTicking = true;
@@ -65,11 +73,27 @@ void UZoneDamage::Tick(float DeltaTime)
 		if (currTime >= totalTime)
 		{
 			if (IsValid(Character) && Character->CurrHP > 0.f)
-				UDarkBorneLibrary::ApplyDamageAmount(Character, damageAmt);
+			{
+				if (UDarkBorneLibrary::ApplyDamageAmount(Character, damageAmt))
+				{
+					auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
+					if (ensure(GM) && Character->CurrHP <= 0.f)
+					{
+						auto PC = Character->GetOwner<APlayerController>();
+						if (PC)
+						{
+							GM->OnPlayerDead(PC);
+						}
+					}
+				}
+			}
 			currTime = 0.f;
 		}
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Time: %f"), currTime));
+
+	if (cVarDisplayZoneDamageDebugMsg.GetValueOnGameThread()) {
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Time: %f"), currTime));
+	}
 }
 
 TStatId UZoneDamage::GetStatId() const

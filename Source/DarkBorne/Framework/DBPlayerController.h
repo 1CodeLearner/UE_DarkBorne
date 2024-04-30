@@ -19,6 +19,7 @@ public:
 	void Client_DisplayGameResult(bool bHasWon);
 protected:
 	virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* aPawn) override;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")

@@ -11,6 +11,7 @@
 #include "../Framework/DBPlayerController.h"
 #include "Net/UnrealNetwork.h"
 #include "../DBCharacters/DBCharacter.h"
+#include <DarkBorne/DBCharacters/DBRogueCharacter.h>
 
 
 static TAutoConsoleVariable<bool> cVarStopZoneMovement(TEXT("su.StopZoneMovement"), false, TEXT("Stops Zone from Moving at start"), ECVF_Cheat);
@@ -33,8 +34,10 @@ AZoneActor::AZoneActor()
 	bMove = false;
 	currWaitTime = 0.f;
 	maxWaitTime = 1.f;
-	index = -1;
+	PhaseCount = -1;
 
+	bIsFirstStarting = true;
+	StartingNode = nullptr;
 }
 
 void AZoneActor::BeginPlay()
@@ -48,10 +51,38 @@ void AZoneActor::BeginPlay()
 			Nodes.Add(*it);
 		}
 
-		currScale = GetActorScale3D();
-		UE_LOG(LogTemp, Warning, TEXT("scale: %s"), *currScale.ToString());
+		if (Nodes.Num() > 0)
+		{
+			float distMin = -1.f;
+			distMin = GetDistanceFromOrigin(Nodes[0]->GetActorLocation());
+			AZoneNode* Holder = Nodes[0];
+			for (int i = 1; i < Nodes.Num(); ++i)
+			{
+				float distance = GetDistanceFromOrigin(Nodes[i]->GetActorLocation());
+				if (distance < distMin)
+				{
+					distMin = distance;
+					Holder = Nodes[i];
+				}
+			}
+			StartingNode = Holder;
+			UE_LOG(LogTemp, Warning, TEXT("StartingNode:%s"), *GetNameSafe(StartingNode));
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("AZoneNodes not found"));
+		}
 
-		diffScale = currScale / Nodes.Num();
+		if (ensureAlways(DT_ZoneSetting)) {
+			FZoneSetting* Setting = DT_ZoneSetting->FindRow<FZoneSetting>(FName(TEXT("GoblinCave")), FString::Printf(TEXT("ZoneActor")));
+			if (ensureAlways(Setting)) {
+				ZoneSetting = Setting;
+				UE_LOG(LogTemp, Warning, TEXT("TotalTime:%f"), ZoneSetting->GetTotalTime());
+			}
+		}
+
+		currScale = GetActorScale3D();
+		diffScale = currScale / ZoneSetting->GetPhases().Num();
+		UE_LOG(LogTemp, Warning, TEXT("Diff Scale: %s"), *diffScale.ToString());
 
 		auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
 		if (GM)
@@ -66,8 +97,10 @@ void AZoneActor::BeginPlay()
 			for (auto PC : ConnectedPlayers) {
 				playerOverlapped.Add(PC, false);
 
-				auto ZoneDamage = NewObject<UZoneDamage>(this);
-				ZoneDamage->Initialize(PC, 2, 10);
+				auto ZoneDamage = NewObject<UZoneDamage>(PC);
+
+				float Damage = ZoneSetting->GetPhases()[0].Damage;
+				ZoneDamage->Initialize(PC, 2.5f, Damage);
 				playerDamaged.Add(PC, ZoneDamage);
 
 
@@ -78,6 +111,8 @@ void AZoneActor::BeginPlay()
 				PC->OnPossessedPawnChanged.AddDynamic(this, &AZoneActor::OnPossessedPawnChanged);
 			}
 		}
+
+		maxWaitTime = ZoneSetting->GetPhases()[0].DisplayTime;
 	}
 }
 
@@ -96,22 +131,31 @@ void AZoneActor::Tick(float DeltaTime)
 		return;
 	}
 
-	for (auto What : playerOverlapped)
+	if (HasAuthority() && cVarDisplayZoneDebugMsg.GetValueOnGameThread())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf(TEXT("playerOverlapped: %s"), *GetNameSafe(What.Key)));
+		for (auto What : playerOverlapped)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf(TEXT("playerOverlapped: %s"), *GetNameSafe(What.Key)));
+		}
+		for (auto What : playerDamaged)
+		{
+			if (IsValid(What.Value))
+				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("playerDamaged: %s, ticking: %s"),
+					*GetNameSafe(What.Value),
+					What.Value->IsTicking() ? TEXT("TRUE") : TEXT("FALSE")
+				));
+		}
+		for (auto What : ActiveCharacters)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("ActiveCharacters: %s"), *GetNameSafe(What.Value)));
+		}
+
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Magenta, FString::Printf(TEXT("currWaitTime %f"), currWaitTime));
+
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Magenta, FString::Printf(TEXT("currMoveTime %f"), currMoveTime));
 	}
-	for (auto What : playerDamaged)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("playerDamaged: %s, ticking: %s"),
-			*GetNameSafe(What.Value),
-			What.Value->IsTicking() ? TEXT("TRUE") : TEXT("FALSE")
-		));
-	}
-	for (auto What : ActiveCharacters)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("ActiveCharacters: %s"), *GetNameSafe(What.Value)));
-	}
-	if (HasAuthority() && ensure(CheckMapSizes()))
+
+	if (HasAuthority() && ensure(CheckSizes()))
 	{
 		UpdateMovement(DeltaTime);
 		UpdatePlayerOverlapped();
@@ -120,26 +164,11 @@ void AZoneActor::Tick(float DeltaTime)
 
 }
 
-bool AZoneActor::CheckMapSizes() const
+bool AZoneActor::CheckSizes() const
 {
 	return ActiveCharacters.Num() == playerOverlapped.Num() &&
 		playerOverlapped.Num() == playerDamaged.Num() &&
 		ActiveCharacters.Num() == playerDamaged.Num();
-}
-
-bool AZoneActor::CanMove() const
-{
-	return index + 1 < Nodes.Num();
-}
-
-void AZoneActor::StartMove()
-{
-	index++;
-	nextLoc = Nodes[index]->GetActorLocation();
-	prevLoc = GetActorLocation();
-
-	currScale = GetActorScale3D();
-	nextScale = currScale - diffScale;
 }
 
 void AZoneActor::UpdateMovement(float DeltaTime)
@@ -158,6 +187,7 @@ void AZoneActor::UpdateMovement(float DeltaTime)
 		float scaleX = FMath::Lerp<float, float>(currScale.X, nextScale.X, delta);
 		float scaleY = FMath::Lerp<float, float>(currScale.Y, nextScale.Y, delta);
 		SetActorScale3D(FVector(scaleX, scaleY, GetActorScale3D().Z));
+
 
 		if (currMoveTime >= maxMoveTime)
 		{
@@ -191,29 +221,67 @@ void AZoneActor::UpdateMovement(float DeltaTime)
 	}
 }
 
+bool AZoneActor::CanMove() const
+{
+	return PhaseCount + 1 < ZoneSetting->GetPhases().Num();
+}
+
+void AZoneActor::StartMove()
+{
+	PhaseCount++;
+
+	maxMoveTime = ZoneSetting->GetPhases()[PhaseCount].ShrinkTime;
+
+	for (auto pair : playerDamaged) {
+		pair.Value->UpdateDamage(ZoneSetting->GetPhases()[PhaseCount].Damage);
+	}
+
+	if (bIsFirstStarting) {
+		if (StartingNode) {
+			nextLoc = StartingNode->GetActorLocation();
+		}
+		else {
+			nextLoc = GetActorLocation();
+		}
+
+		bIsFirstStarting = false;
+
+	}
+	else {
+		TArray<AZoneNode*> ValidNodes;
+		for (int i = 0; i < Nodes.Num(); ++i)
+		{
+			if (IsWithinZone(Nodes[i]->GetActorLocation())) {
+				ValidNodes.Add(Nodes[i]);
+			}
+		}
+
+		if (ValidNodes.Num() > 0) {
+			int index = FMath::RandRange(0, ValidNodes.Num() - 1);
+			nextLoc = ValidNodes[index]->GetActorLocation();
+		}
+		//If there are no valid nodes inside the zone, just shrink without moving
+		else nextLoc = GetActorLocation();
+	}
+
+	prevLoc = GetActorLocation();
+
+	currScale = GetActorScale3D();
+	nextScale = currScale - diffScale;
+}
 
 void AZoneActor::UpdatePlayerOverlapped()
 {
 	for (auto Character : ActiveCharacters) {
-
-		FVector CharLoc = Character.Value->GetActorLocation();
-		CharLoc.Z = 0.f;
-		FVector diff = CharLoc - currLoc;
-		//float distSqrd = diff.X * diff.X + diff.Y * diff.Y + diff.Z * diff.Z;
-		float distSqrd = FVector::Distance(CharLoc, currLoc);
-
-		float radiusSqrd = CapsuleComp->GetScaledCapsuleRadius();
-		//radiusSqrd *= radiusSqrd;
-
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Emerald, FString::Printf(TEXT("distS:%f, radius:%f"), distSqrd, radiusSqrd));
+		FVector CharacterLoc = Character.Value->GetActorLocation();
 
 		//if player is out of the zone and player was set as within bounds
-		if (distSqrd >= radiusSqrd && *playerOverlapped.Find(Character.Key) == false) {
+		if (!IsWithinZone(CharacterLoc) && *playerOverlapped.Find(Character.Key) == false) {
 			//Set player as out of bounds
 			*playerOverlapped.Find(Character.Key) = true;
 		}
 		//if player is within the zone and player was set as out of bounds
-		else if (distSqrd < radiusSqrd && *playerOverlapped.Find(Character.Key) == true) {
+		else if (IsWithinZone(CharacterLoc) && *playerOverlapped.Find(Character.Key) == true) {
 			//Set player as within bounds
 			*playerOverlapped.Find(Character.Key) = false;
 		}
@@ -248,10 +316,10 @@ void AZoneActor::OnPlayerUpdate(ADBPlayerController* Player, bool bExit)
 	{
 		playerOverlapped.Remove(Player);
 
-		UZoneDamage* ZoneDamage = *playerDamaged.Find(Player);
-		if (ensureAlways(ZoneDamage))
+		UZoneDamage** ZoneDamage = playerDamaged.Find(Player);
+		if (ZoneDamage)
 		{
-			ZoneDamage->StopTick();
+			(*ZoneDamage)->StopTick();
 		}
 		playerDamaged.Remove(Player);
 
@@ -260,8 +328,9 @@ void AZoneActor::OnPlayerUpdate(ADBPlayerController* Player, bool bExit)
 	}
 	else {
 
-		auto ZoneDamage = NewObject<UZoneDamage>(this);
-		if (ZoneDamage->Initialize(Player, 2, 10))
+		auto ZoneDamage = NewObject<UZoneDamage>(Player);
+		float Damage = ZoneSetting->GetPhases()[std::max(0, PhaseCount)].Damage;
+		if (ZoneDamage->Initialize(Player, 2.5f, Damage))
 		{
 			playerDamaged.Add(Player, ZoneDamage);
 
@@ -277,10 +346,11 @@ void AZoneActor::OnPlayerUpdate(ADBPlayerController* Player, bool bExit)
 void AZoneActor::OnGameEnd(ADBPlayerController* PlayerWon)
 {
 	playerOverlapped.Remove(PlayerWon);
-	
+
 	auto ZoneDamage = *playerDamaged.Find(PlayerWon);
 	ZoneDamage->StopTick();
 	playerDamaged.Remove(PlayerWon);
+	ActiveCharacters.Remove(PlayerWon);
 }
 
 void AZoneActor::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
@@ -312,4 +382,46 @@ void AZoneActor::OnRep_TransformZone()
 	SetActorRelativeScale3D(TransformZone.Scale);
 }
 
+bool AZoneActor::IsWithinZone(FVector Other) const
+{
+	float distSqrd = GetDistanceFromOrigin(Other);
+	float radiusSqrd = GetZoneRadius();
 
+	if (HasAuthority() && cVarDisplayZoneDebugMsg.GetValueOnGameThread())
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Emerald, FString::Printf(TEXT("distS:%f, radius:%f"), distSqrd, radiusSqrd));
+
+	return distSqrd < radiusSqrd;
+}
+
+float AZoneActor::GetDistanceFromOrigin(FVector OtherLocation) const
+{
+	OtherLocation.Z = 0.f;
+	//float distSqrd = diff.X * diff.X + diff.Y * diff.Y + diff.Z * diff.Z;
+	return FVector::Distance(OtherLocation, currLoc);
+}
+
+float AZoneActor::GetZoneRadius() const
+{
+	return CapsuleComp->GetScaledCapsuleRadius();
+	//radiusSqrd *= radiusSqrd;
+}
+
+float FZoneSetting::GetTotalTime()
+{
+	if (!bInitialized)
+	{
+		for (auto What : Phases)
+		{
+			TotalTime += What.DisplayTime;
+			TotalTime += What.ShrinkTime;
+		}
+		bInitialized = true;
+	}
+
+	return TotalTime;
+}
+
+const TArray<FZonePhase>& FZoneSetting::GetPhases() const
+{
+	return Phases;
+}

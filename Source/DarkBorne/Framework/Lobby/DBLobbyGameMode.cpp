@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DBLobbyPlayerController.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/PlayerState.h>
+#include "../DBDropItemManager.h"
 
 void ADBLobbyGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
@@ -14,6 +15,10 @@ void ADBLobbyGameMode::InitGame(const FString& MapName, const FString& Options, 
 	UE_LOG(LogTemp, Warning, TEXT("Testing: %d"), MaxPlayers);
 	startGameWait = 5.f;
 	bIsGameStarting = false;
+
+	auto manager = GetWorld()->SpawnActor<ADBDropItemManager>(DropItemManagerClass);
+	if (manager)
+		DropItemManager = manager;
 }
 
 void ADBLobbyGameMode::PostLogin(APlayerController* NewPlayer)
@@ -72,7 +77,7 @@ void ADBLobbyGameMode::BroadcastMessage(FString msg)
 
 void ADBLobbyGameMode::StartTravel()
 {
-	FString Option = FString::Printf(TEXT("/Game/J_Test/Zone/J_ZoneTest?listen?"));
+	FString Option = FString::Printf(TEXT("/Game/Assets/MultistoryDungeons/Scenes/Demo_01?listen?"));
 	GetWorld()->ServerTravel(Option);
 }
 
