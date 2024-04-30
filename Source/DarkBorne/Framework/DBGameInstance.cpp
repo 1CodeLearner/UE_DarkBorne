@@ -26,7 +26,7 @@ void UDBGameInstance::Init()
 	}
 	FGuid guid;
 	roomName = guid.NewGuid().ToString();
-	maxPlayer = 3;
+	maxPlayer = 8;
 }
 
 void UDBGameInstance::CreateMySession()
