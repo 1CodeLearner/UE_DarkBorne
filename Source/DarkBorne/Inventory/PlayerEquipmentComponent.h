@@ -7,6 +7,10 @@
 #include "PlayerEquipmentComponent.generated.h"
 
 
+class UItemObject;
+class UActorChannel;
+class FOutBunch;
+
 //for blueprint use
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryChangedDel);
 
@@ -46,19 +50,19 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	//Sends Server RPC when item can be added
 	UFUNCTION(BlueprintCallable)
-	bool TryAddItem(class UItemObject* ItemObject);
-	
+	bool TryAddItem(UItemObject* ItemObject);
+
 	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void Server_AddItemAt(class UItemObject* ItemObject, int32 TopLeftIndex);
-	
+	void Server_AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex);
+
 	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void Server_RemoveItem(class UItemObject* ItemObject);
+	void Server_RemoveItem(UItemObject* ItemObject);
 
 	//Holds ItemObject until mouse button is released
 	/*UPROPERTY(BlueprintReadOnly)
@@ -66,7 +70,7 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	TMap<class UItemObject*, FTile> GetAllItems() const;
+	TMap<UItemObject*, FTile> GetAllItems() const;
 
 	UFUNCTION(BlueprintCallable)
 	FTile IndexToTile(int32 Index) const;
@@ -75,9 +79,9 @@ public:
 	int32 TileToIndex(FTile Tile) const;
 
 	UFUNCTION(BlueprintCallable)
-	bool IsRoomAvailable(class UItemObject* ItemObject, int32 TopLeftIndex) const;
+	bool IsRoomAvailable(UItemObject* ItemObject, int32 TopLeftIndex) const;
 
-	TTuple<bool, class UItemObject*> GetItematIndex(int32 Index) const;
+	TTuple<bool, UItemObject*> GetItematIndex(int32 Index) const;
 
 	UFUNCTION(BlueprintCallable)
 	bool IsTileValid(FTile tile) const;
@@ -90,9 +94,9 @@ protected:
 	int32 Rows = -1;
 
 protected:
-	UPROPERTY(ReplicatedUsing = OnRep_itemArray)
-	TArray<class UItemObject*> itemArray;
-	
+	UPROPERTY(ReplicatedUsing = OnRep_itemArray, VisibleAnywhere)
+	TArray<UItemObject*> itemArray;
+
 	UFUNCTION()
 	void OnRep_itemArray(TArray<UItemObject*> OldItemArray);
 

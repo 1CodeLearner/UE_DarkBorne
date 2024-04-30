@@ -24,9 +24,7 @@ void UPlayerEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	FDoRepLifetimeParams Params; 
-	Params.bIsPushBased = true;
-	DOREPLIFETIME_WITH_PARAMS_FAST(UPlayerEquipmentComponent, itemArray, Params);
+	DOREPLIFETIME(UPlayerEquipmentComponent, itemArray);
 	
 	
 
@@ -67,6 +65,20 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 	return false;
 }
 
+void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
+{
+	if (!IsValid(ItemObject)) return;
+	TArray<UItemObject*> old = itemArray;
+	for (int32 i = 0; i < itemArray.Num(); i++)
+	{
+		if (itemArray[i] == ItemObject)
+		{
+			itemArray[i] = nullptr;
+		}
+	}
+	OnRep_itemArray(old);
+}
+
 void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* ItemObject, int32 TopLeftIndex)
 {
 	////ForEachIndex
@@ -81,20 +93,6 @@ void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* Ite
 			newTile.X = i;
 			newTile.Y = j;
 			itemArray[TileToIndex(newTile)] = ItemObject;
-		}
-	}
-	OnRep_itemArray(old);
-}
-
-void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
-{
-	if (!IsValid(ItemObject)) return;
-	TArray<UItemObject*> old = itemArray;
-	for (int32 i = 0; i < itemArray.Num(); i++)
-	{
-		if (itemArray[i] == ItemObject)
-		{
-			itemArray[i] = nullptr;
 		}
 	}
 	OnRep_itemArray(old);
