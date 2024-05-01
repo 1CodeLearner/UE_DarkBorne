@@ -9,6 +9,7 @@
 
 class UStaticMeshComponent;
 class UItemObject;
+class ACharacter;
 
 UCLASS()
 class DARKBORNE_API ADBItem : public AActor, public IInteractionInterface
@@ -18,8 +19,8 @@ class DARKBORNE_API ADBItem : public AActor, public IInteractionInterface
 public:
 	ADBItem();
 
-	void BeginInteract_Implementation(ADBCharacter* Character);
-	void ExecuteInteract_Implementation(ADBCharacter* Character);
+	void BeginInteract_Implementation(ACharacter* Character);
+	void ExecuteInteract_Implementation(ACharacter* Character);
 	void EndInteract_Implementation();
 
 	/*

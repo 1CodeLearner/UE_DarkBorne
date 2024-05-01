@@ -16,19 +16,17 @@ ADBItem::ADBItem()
 	RootComponent = SceneComp;
 
 	SMComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SMComp"));
-	SMComp->SetCollisionProfileName(TEXT("WeaponSMColl"));
 	SMComp->SetupAttachment(RootComponent);
 
-
-	//RootComponent = SMComp;
+	SMComp->SetCollisionProfileName(FName("Item"));
 }
 
-void ADBItem::BeginInteract_Implementation(ADBCharacter* Character)
+void ADBItem::BeginInteract_Implementation(ACharacter* Character)
 {
 	UE_LOG(LogTemp,Warning,TEXT("Begin"));
 }
 
-void ADBItem::ExecuteInteract_Implementation(ADBCharacter* Character)
+void ADBItem::ExecuteInteract_Implementation(ACharacter* Character)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Execute"));
 }
@@ -83,7 +81,8 @@ UItemObject* ADBItem::GetItemObject() const
 void ADBItem::BeginPlay()
 {
 	Super::BeginPlay();
-
+	if(!GetOwner())
+		SMComp->SetSimulatePhysics(true);
 }
 
 void ADBItem::Tick(float DeltaTime)

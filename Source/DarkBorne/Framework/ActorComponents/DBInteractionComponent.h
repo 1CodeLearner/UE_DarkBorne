@@ -27,4 +27,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	float InteractDistance;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+	float InteractRadius;
+
+private:
+	UPROPERTY()
+	TObjectPtr<AActor> OverlappingActor;
 };

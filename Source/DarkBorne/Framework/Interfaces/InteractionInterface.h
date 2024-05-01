@@ -26,10 +26,10 @@ class DARKBORNE_API IInteractionInterface
 public:
 	
 	UFUNCTION(BlueprintNativeEvent)
-	void BeginInteract(ADBCharacter* Character);
+	void BeginInteract(ACharacter* Character);
 
 	UFUNCTION(BlueprintNativeEvent)
-	void ExecuteInteract(ADBCharacter* Character);
+	void ExecuteInteract(ACharacter* Character);
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void EndInteract();

@@ -4,11 +4,15 @@
 #include "DBInteractionComponent.h"
 #include "../../DBCharacters/DBCharacter.h"
 #include "GameFramework/PlayerController.h"
+#include "../Interfaces/InteractionInterface.h"
+
+static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
 
 UDBInteractionComponent::UDBInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	InteractDistance = 2000.f;
+	InteractRadius = 50.f;
 }
 
 
@@ -24,6 +28,8 @@ void UDBInteractionComponent::BeginPlay()
 void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	const bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
 
 	TArray<FHitResult> Hits;
 
@@ -50,32 +56,58 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 
 		FCollisionObjectQueryParams ObjectQueryparams;
-		ObjectQueryparams.AddObjectTypesToQuery(ECC_WorldStatic);
-		//ObjectQueryparams.AddObjectTypesToQuery(ECC_GameTraceChannel2);
-		//ObjectQueryparams.AddObjectTypesToQuery(ECC_GameTraceChannel3);
+		//ObjectQueryparams.AddObjectTypesToQuery(ECC_WorldStatic);
+		ObjectQueryparams.AddObjectTypesToQuery(ECC_GameTraceChannel2);
+		ObjectQueryparams.AddObjectTypesToQuery(ECC_GameTraceChannel3);
 		FCollisionQueryParams QueryParams;
 		FCollisionShape Shape;
-		Shape.Box;
+		Shape.SetSphere(InteractRadius);
 
-		DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.f);
+		if (bDebugDraw)
+		{
+			DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.f);
+		}
+
 		QueryParams.AddIgnoredActor(Character);
 		bool bHit = GetWorld()->SweepMultiByObjectType(Hits, Start, End, FQuat::Identity, ObjectQueryparams, Shape, QueryParams);
 
 		if (bHit)
 		{
-			FHitResult finalHit;
-			for (auto Hit : Hits) {
-				FCollisionQueryParams Params;
-				Params.AddIgnoredActor(Character);
-				FHitResult hit;
-				GetWorld()->LineTraceSingleByChannel(hit, Start, End, ECC_Visibility, Params);
-				if (ensureAlways(hit.bBlockingHit)) {
-					float what = FVector::DistSquared(Hit.ImpactPoint, hit.ImpactPoint);
-					GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("Center:%s, ImpactPoint:%s, Distance: %f"), *hit.ImpactPoint.ToString(), *Hit.ImpactPoint.ToString(), what));
+			for (auto Hit : Hits)
+			{
+				if (bDebugDraw)
+				{
+					DrawDebugSphere(GetWorld(), Hit.ImpactPoint, InteractRadius, 32, FColor::Blue, false, 0.0f);
 				}
 
+				AActor* HitActor = Hit.GetActor();
+				if (HitActor && HitActor->Implements<UInteractionInterface>())
+				{
+					if (!OverlappingActor)
+					{
+						OverlappingActor = HitActor;
 
+						auto Interface = Cast<IInteractionInterface>(OverlappingActor);
+						Interface->Execute_BeginInteract(OverlappingActor, Character);
+					}
+					else if (OverlappingActor != HitActor)
+					{
+						IInteractionInterface* prevActor = Cast<IInteractionInterface>(OverlappingActor);
+						prevActor->Execute_EndInteract(OverlappingActor);
+						
+						OverlappingActor = HitActor;
+
+						IInteractionInterface* currActor = Cast<IInteractionInterface>(OverlappingActor);
+						currActor->Execute_BeginInteract(OverlappingActor, Character);
+					}
+				}
+				break;
 			}
+		}
+		else if (OverlappingActor) {
+			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
+			Interface->Execute_EndInteract(OverlappingActor);
+			OverlappingActor = nullptr;
 		}
 	}
 }
