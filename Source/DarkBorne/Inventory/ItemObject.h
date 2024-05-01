@@ -27,6 +27,10 @@ public:
 	ESlotType GetSlotType() const;
 
 	const FItem& GetItem() const;
+
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_SpawnItem(AActor* Initiator, float forwardOffset = 200.f, bool bSetOwner = false);
+
 protected:
 	UFUNCTION()
 	virtual UWorld* GetWorld() const override;

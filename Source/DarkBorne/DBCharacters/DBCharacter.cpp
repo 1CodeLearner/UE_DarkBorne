@@ -17,6 +17,11 @@
 #include "../Inventory/LootInventoryComponent.h"
 #include "../Inventory/LootEquipmentComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/Controller.h>
+#include <../../../../../../../Source/Runtime/UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
+#include "../Framework/ActorComponents/DBInteractionComponent.h"
+
+
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
@@ -35,7 +40,9 @@ ADBCharacter::ADBCharacter()
 	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
 
+	InteractDistance = 400.f;
 
+	InteractionComp = CreateDefaultSubobject<UDBInteractionComponent>("InteractionComp");
 }
 
 // Called when the game starts or when spawned
@@ -53,8 +60,8 @@ void ADBCharacter::BeginPlay()
 		if (playerContoller == nullptr) return;
 		//get subSystem
 		UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerContoller->GetLocalPlayer());
-		
-		
+
+
 		//서브시스템을 가져왔다면
 		if (subSystem)
 		{
@@ -66,7 +73,7 @@ void ADBCharacter::BeginPlay()
 			CreatePlayerWidget();
 		}
 	}
-	
+
 	// 서버라면
 	if (HasAuthority())
 	{
@@ -90,6 +97,7 @@ void ADBCharacter::BeginPlay()
 void ADBCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 
 }
 
@@ -158,7 +166,7 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 void ADBCharacter::CreatePlayerWidget()
 {
 	// 내것이 아니거나 플레이어 위젯이 없다면 리턴
-	if(!IsLocallyControlled() || PlayerWidget != nullptr) return;
+	if (!IsLocallyControlled() || PlayerWidget != nullptr) return;
 
 	// 위젯 클래스 담고 생성
 	PlayerWidget = Cast<UDBPlayerWidget>(CreateWidget(GetWorld(), PlayerWidgetClass));
@@ -168,9 +176,9 @@ void ADBCharacter::CreatePlayerWidget()
 void ADBCharacter::OnRep_CurrHP()
 {
 	// 플레이어 위젯이 없으면 리턴
-	if(PlayerWidget == nullptr) return;
+	if (PlayerWidget == nullptr) return;
 	PlayerWidget->UpdateHeathBar(CurrHP, MaxHP);
-	UE_LOG(LogTemp,Warning,TEXT("Testing:%f"),CurrHP);
+	UE_LOG(LogTemp, Warning, TEXT("Testing:%f"), CurrHP);
 }
 
 const FFinalStat& ADBCharacter::GetFinalStat() const

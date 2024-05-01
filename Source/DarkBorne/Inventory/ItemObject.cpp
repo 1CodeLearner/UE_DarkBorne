@@ -7,6 +7,7 @@
 #include "Materials/MaterialInterface.h"
 #include "../Items/DBItem.h"
 #include "Net/UnrealNetwork.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
 
 void UItemObject::Initialize(FItem item)
 {
@@ -39,6 +40,29 @@ ESlotType UItemObject::GetSlotType() const
 const FItem& UItemObject::GetItem() const
 {
 	return Item;
+}
+
+void UItemObject::Server_SpawnItem_Implementation(AActor* Initiator, float forwardOffset, bool bSetOwner)
+{
+	if (Initiator && GetWorld()) {
+		FVector SpawnLoc = Initiator->GetActorLocation();
+		SpawnLoc += Initiator->GetActorForwardVector() * forwardOffset;
+		FTransform Trans;
+		Trans.SetLocation(SpawnLoc);
+		Trans.SetRotation(FQuat::Identity);
+		Trans.SetScale3D(FVector::OneVector);
+
+		auto ItemSpawned = GetWorld()->SpawnActorDeferred<ADBItem>(GetItemClass(), Trans, bSetOwner ? Initiator : nullptr);
+
+		ItemSpawned->Initialize(this);
+
+		UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Error, TEXT("Spawn Item Failed in %s"), *GetNameSafe(this));
+		return;
+	}
 }
 
 UWorld* UItemObject::GetWorld() const

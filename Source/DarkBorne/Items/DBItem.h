@@ -4,18 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "../Framework/Interfaces/ItemInterface.h"
+#include "../Framework/Interfaces/InteractionInterface.h"
 #include "DBItem.generated.h"
 
 class UStaticMeshComponent;
+class UItemObject;
 
 UCLASS()
-class DARKBORNE_API ADBItem : public AActor, public IItemInterface
+class DARKBORNE_API ADBItem : public AActor, public IInteractionInterface
 {
 	GENERATED_BODY()
 
 public:
 	ADBItem();
+
+	void BeginInteract_Implementation(ADBCharacter* Character);
+	void ExecuteInteract_Implementation(ADBCharacter* Character);
+	void EndInteract_Implementation();
 
 	/*
 	몬타지 플레이 하고 싶은 케릭터를 매개변수에 넣는다.
@@ -36,6 +41,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UCapsuleComponent* CapsuleComp;
 
+	void Pickup(AActor* InteractingActor);
+
+	//
+	void Initialize(UItemObject* ItemObject);
+
+	UItemObject* GetItemObject() const;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -43,5 +55,8 @@ protected:
 	TObjectPtr<UAnimMontage> AnimMontage;
 
 private:
+	UPROPERTY()
+	TObjectPtr<UItemObject> ItemObj;
 	FName Id;
+	
 };

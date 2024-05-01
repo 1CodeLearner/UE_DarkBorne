@@ -17,6 +17,8 @@ class UPlayerEquipmentComponent;
 class ULootInventoryComponent;
 class ULootEquipmentComponent;
 
+class UDBInteractionComponent;
+
 UCLASS()
 class DARKBORNE_API ADBCharacter : public ACharacter
 {
@@ -69,6 +71,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Settings")
 	UInventoryMainWidget* InvMainWidget;
 
+	//Interaction
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UDBInteractionComponent> InteractionComp;
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UDBPlayerWidget* PlayerWidget;
@@ -92,7 +98,7 @@ public:
 	class UInputAction* ia_DB_Jump;
 
 public:
-	UPROPERTY(Replicated ,EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	float MaxHP;
 	// 현재 체력을 계속 업뎃시키는 함수를 replicate 이거는 클라에서만 호출됨
 	UPROPERTY(ReplicatedUsing = OnRep_CurrHP, EditAnywhere)
@@ -112,4 +118,8 @@ public:
 
 	UFUNCTION()
 	void OnRep_CurrHP();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+	float InteractDistance;
 };
