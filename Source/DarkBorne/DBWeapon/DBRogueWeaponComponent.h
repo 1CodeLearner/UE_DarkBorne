@@ -40,11 +40,9 @@ public:
 	UPROPERTY(Replicated)
 	class ADBItem* RogueItems;
 
-	UPROPERTY(Replicated, EditAnywhere)
+	UPROPERTY(Replicated, VisibleAnywhere)
 	TArray<UItemObject*> EquipSlotArray;
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<ADBWeapon_CloseRange> DaggerFactory;
 
 	
 
@@ -54,13 +52,11 @@ public:
 
 public:
 	UPROPERTY(Replicated)
-	bool hasWeapon;
+	bool hasWeapon = false;
 public:
 	void AttachWeapon();
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_AttachWeapon();
-	UFUNCTION(NetMulticast, Reliable)
-	void MultiRPC_AttachWeapon();
 
 public:
 	void PassItem(UItemObject* Item);

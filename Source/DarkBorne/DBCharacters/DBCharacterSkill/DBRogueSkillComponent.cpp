@@ -20,7 +20,7 @@ UDBRogueSkillComponent::UDBRogueSkillComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-
+	SetIsReplicatedByDefault(true);
 	// ...
 }
 
@@ -194,15 +194,15 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 			//NewRot.Normalize();
 			ThrowingKnife = GetWorld()->SpawnActorDeferred<ARogueThrowingKnife>(ThrowingKnifeClass, RoguePlayer->ThrowKnifePos->GetComponentTransform());
 
+			ThrowingKnife->SetOwner(GetOwner());
+			TKMagazine.Add(ThrowingKnife);
 			//½ºÆù ½ÃÀÛ
 			UGameplayStatics::FinishSpawningActor(ThrowingKnife, RoguePlayer->ThrowKnifePos->GetComponentTransform());
 			//ThrowingKnife = GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowingKnifeClass, NewLoc, NewRot);
-			ThrowingKnife->SetOwner(GetOwner());
 			//// ºó ÃÑ¾Ë Áö¿ì°í
 			//TKMagazine.RemoveAt(i);
 			//// ÅºÃ¢¿¡ ÃÑ¾Ë »ðÀÔ
 			//TKMagazine.Insert(ThrowingKnife, i);
-			TKMagazine.Add(ThrowingKnife);
 
 			// ¼ö¸®°ËÀÇ ÀÎµ¦½º¸¦ ¼ö¸®°Ë °¹¼ö·Î ³Ñ°Ü
 			ThrowingKnife->KnifeNumber = i;
@@ -210,7 +210,7 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 			ThrowingKnife->halfValue = halfValue;
 			ThrowingKnife->isThrowing = false;
 
-
+			
 		}
 
 

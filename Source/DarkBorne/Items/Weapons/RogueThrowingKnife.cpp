@@ -32,7 +32,7 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 	projectileComponent->ProjectileGravityScale = 0;
 	projectileComponent->bAutoActivate = false;
 
-	SetReplicateMovement(true);
+	//SetReplicateMovement(true);
 }
 
 void ARogueThrowingKnife::BeginPlay()
@@ -42,11 +42,11 @@ void ARogueThrowingKnife::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("Owner in thisKnife: %s"), *GetNameSafe(GetOwner()));
 	//서버에서 충돌판정을 하고싶다면 여기서부터 손보자
 	if (!GetOwner()) return;
-
+	
 	if (GetOwner<ACharacter>()->IsLocallyControlled()) 
 	{
 		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ARogueThrowingKnife::OnOverlapBegin);
-		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }
 
@@ -134,6 +134,7 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherPlayer->GetActorRotation() - GetActorRotation());
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 }
 
 void ARogueThrowingKnife::UpdateKnifeLocation()
@@ -185,9 +186,13 @@ void ARogueThrowingKnife::MultiRPC_UpdateKnifeLocation_Implementation(FVector TK
 // 클라에서 각자 로컬 위치 계산
 void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 {
+	AActor* RoguePlayer = GetOwner();
+	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(RoguePlayer);
+
 	isThrowing = true;
 	projectileComponent->ProjectileGravityScale = 0.0f;
 	projectileComponent->SetActive(true, true);
-	projectileComponent->SetVelocityInLocalSpace(FVector(100, 0, 0));
+	projectileComponent->SetVelocityInLocalSpace(FVector(1000, 0, 0));
+	PlayMontage(RogueCharacter, FName("ESkill_Start"));
 }
 

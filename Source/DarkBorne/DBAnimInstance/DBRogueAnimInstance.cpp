@@ -8,6 +8,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/CharacterMovementComponent.h>
 #include "Net/UnrealNetwork.h"
+#include "../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
 void UDBRogueAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
@@ -68,17 +69,26 @@ void UDBRogueAnimInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 {
 	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	UDBRogueSkillComponent* SkillComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+
 	// weaponComponent의 Dagger를 가져와라
 	
 	//ADBWeapon_CloseRange* WeaponComponentDagger = Cast<ADBWeapon_CloseRange>(WeaponComp->Dagger);
 	// 공격중
-	// 무기슬롯에 아이템이 있다면 
-	if (WeaponComp->EquipSlotArray[0])
+	// 무기슬롯에 아이템이 있고 아이템 꺼내고 있다면
+	if (WeaponComp->EquipSlotArray[0] && WeaponComp->hasWeapon)
 	{
 		isAttacking = true;
 		//무기의 콜리전 켜주기
 		WeaponComp->RogueItems->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
+	}
+	else if(!SkillComp->TKMagazine.IsEmpty())
+	{
+		isAttacking = true;
+		
+		//SkillComp->ThrowingKnife->KnifeNumber = i;
+		//SkillComp->TKMagazine[i]->
 	}
 	
 }
@@ -88,7 +98,7 @@ void UDBRogueAnimInstance::AnimNotify_End_Damage()
 	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	ADBWeapon_CloseRange* WeaponComponentDagger = Cast<ADBWeapon_CloseRange>(WeaponComp->Dagger);
 	// 공격중이 아님
-	if (WeaponComp->EquipSlotArray[0])
+	if (WeaponComp->EquipSlotArray[0] && WeaponComp->hasWeapon)
 	{
 
 	isAttacking = false;

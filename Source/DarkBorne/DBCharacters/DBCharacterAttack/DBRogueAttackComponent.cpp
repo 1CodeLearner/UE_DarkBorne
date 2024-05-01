@@ -17,7 +17,7 @@ UDBRogueAttackComponent::UDBRogueAttackComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	
+	SetIsReplicatedByDefault(true);
 }
 
 
@@ -47,7 +47,8 @@ void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 void UDBRogueAttackComponent::RogueAttack()
 {
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-	
+	UDBRogueWeaponComponent* RogueWeaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+
 	// 수리검 스킬 수리검 남아있으면 
 	if (RogueSkillComponent->isSpawnKnife)
 	{
@@ -55,9 +56,10 @@ void UDBRogueAttackComponent::RogueAttack()
 		RogueThrowKnifeAttack();
 	}
 	// 다시 기본공격으로
-	else if (!RogueSkillComponent->isSpawnKnife)
+	// E스킬 쓰고있지않고 && 무기 꺼내고 있지 않으면 
+	else if (!RogueSkillComponent->isSpawnKnife && RogueWeaponComponent->hasWeapon)
 	{
-
+		
 		ServerRPC_RogueAttack();
 	}
 	
@@ -75,8 +77,12 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 	
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
 	// 단검을 들고 있으면 
-	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0] != nullptr)
+
+	//현재 문제점 : 장착 슬롯(EquipSlotArray[0])에 아이템 정보가 들어있고
+	//무기를 꺼내지(장착하지) 않은 상태에서 아래 함수를 실행하여 문제가 생김
+	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0])
 	{
+		
 		RogueSkillComponent->CurrVanishTime = 0;
 		RogueSkillComponent->DeactiveRogueQSkill();
 		if (comboCnt == 0)

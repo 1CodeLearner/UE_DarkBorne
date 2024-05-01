@@ -68,12 +68,12 @@ void UDBRogueWeaponComponent::AttachWeapon()
 
 void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 {
-	// 무기 있으면 재실행 x
-	//if (hasWeapon) return;
+	// 무기 꺼내고 있으면 재실행 x
+	if (hasWeapon) return;
 	
-	//hasWeapon = true;
-	//if (hasWeapon)
-	//{
+	hasWeapon = true;
+	if (hasWeapon)
+	{
 		if(EquipSlotArray[0]) return;
 		UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
 		//장착 슬롯 배열 가져오기
@@ -87,7 +87,6 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 			// 무기 월드에 스폰 delay
 			// SpawnActorDeferred : BeginPlay가 실행되기 전에 셋팅
 			RogueItems = GetWorld()->SpawnActorDeferred<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentTransform(), GetOwner());
-
 
 			//스폰 시작
 			UGameplayStatics::FinishSpawningActor(RogueItems, GetComponentTransform());
@@ -103,36 +102,12 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 
 		}
 	
-	//}
-	//MultiRPC_AttachWeapon();
+	}
+	
 
 }
 
-void UDBRogueWeaponComponent::MultiRPC_AttachWeapon_Implementation()
-{
 
-	//if (hasWeapon)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Attach Weapon"));
-	//	Dagger = GetWorld()->SpawnActor<ADBWeapon_CloseRange>(DaggerFactory, GetComponentLocation(), GetComponentRotation());
-	//	if (Dagger)
-	//	{
-	//
-	//		//이 무기의 오너를 셋팅 
-	//		Dagger->SetOwner(GetOwner());
-	//
-	//		// 단검을 붙이자
-	//		Dagger->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	//
-	//		// 단검 메쉬의 머터리얼을 가져오자
-	//		DaggerSMMat = Dagger->SMComp->GetMaterials();
-	//		//UE_LOG(LogTemp, Warning, TEXT("WeaponComp Index : %d"), DaggerSMMat.Num());
-	//	}
-	//	
-	//
-	//}
-
-}
 
 void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 {
