@@ -53,11 +53,11 @@ public:
 public:
 	void UpdateKnifeLocation();
 
-	UFUNCTION(Server, Reliable)
-	void ServerRPC_UpdateKnifeLocation();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MultiRPC_UpdateKnifeLocation(FVector TKPosition, FRotator NewRot);
+	//UFUNCTION(Server, Reliable)
+	//void ServerRPC_UpdateKnifeLocation();
+	//
+	//UFUNCTION(NetMulticast, Reliable)
+	//void MultiRPC_UpdateKnifeLocation(FVector TKPosition, FRotator NewRot);
 
 
 	UFUNCTION(NetMulticast, Reliable)

@@ -213,57 +213,8 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 			
 		}
 
-
-
-
-		//// 수리검 클래스 배열 생성
-		//ThrowingKnifeClassArray.SetNum(4);
-		//// (수리검 갯수 -1) * 간격을 2로 나누어 나열된 수리검들의 중앙 값을 구한다
-		//float halfValue = ((ThrowingKnifeClassArray.Num() - 1) * 50) / 2.0f;
-		//// 이 for문에서 수리검 스폰 시킨다
-		//for (int32 i = 0; i < ThrowingKnifeClassArray.Num(); i++)
-		//{
-		//	// 빈 배열 지우고
-		//	ThrowingKnifeClassArray.RemoveAt(i);
-		//	// 클래스 넣기
-		//	ThrowingKnifeClassArray.Insert(ThrowingKnifeClass, i);
-		//	/*// 수리검 위치는 플레이어 위치 + 플레이어 앞 벡터 * 50 / 간격을 i 마다 50만큼 추가시키기
-			//FVector TKPosition = RoguePlayer->GetActorLocation() + RoguePlayer->GetActorForwardVector() * 50 + RoguePlayer->GetActorRightVector() * i * 50;
-
-			// 옆 벡터 * 수리검의 중앙 위치값 구하는 식을 빼준다
-			//TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
-
-			//FRotator TKRotation = RoguePlayer->GetActorRotation();*/
-		//	
-		//	FVector NewLoc = RoguePlayer->ThrowKnifePos->GetComponentLocation();
-		//	FRotator NewRot = RoguePlayer->ThrowKnifePos->GetForwardVector().Rotation();
-		//	NewRot.Normalize();
-		//	// 칼을 스폰
-			//ThrowingKnife = GetWorld()->SpawnActorDeferred<ARogueThrowingKnife>(ThrowKnifeArray[i], RoguePlayer->ThrowKnifePos->GetComponentTransform());
-			//스폰 시작
-			//UGameplayStatics::FinishSpawningActor(ThrowingKnife, RoguePlayer->camera->GetComponentTransform());
-		//	
-		//
-		//	ThrowingKnife = GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowingKnifeClassArray[i], NewLoc, NewRot);
-		//
-		//	//수리검의 오너 셋팅
-		//	ThrowingKnife->SetOwner(GetOwner());
-		//
-		//	// 수리검의 인덱스를 수리검 갯수로 넘겨
-		//	ThrowingKnife->KnifeNumber = i;
-		//	// 중앙배치 식을 수리검에 넘기기 
-		//	ThrowingKnife->halfValue = halfValue;
-		//	ThrowingKnife->isThrowing = false;
-		//	
-		//	//UE_LOG(LogTemp, Warning, TEXT("My Owner is : %s"), *ThrowingKnife->GetOwner()->GetFName().ToString());
-		//}
-
 	}
 
-	//if (ThrowingKnife != nullptr)
-	//{
-	//	ThrowingKnife->PlayMontage(RoguePlayer, FName("ESkill_Start"));
-	//}
 }
 
 void UDBRogueSkillComponent::MultiRPC_ActiveRogueESkill_Implementation()
