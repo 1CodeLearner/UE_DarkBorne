@@ -57,6 +57,8 @@ void UDBRogueSkillComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	DOREPLIFETIME(UDBRogueSkillComponent, isVanish);
 	DOREPLIFETIME(UDBRogueSkillComponent, MaxVanishTime);
 	DOREPLIFETIME(UDBRogueSkillComponent, CurrVanishTime);
+	DOREPLIFETIME(UDBRogueSkillComponent, TKMagazine);
+	DOREPLIFETIME(UDBRogueSkillComponent, isSpawnKnife);
 
 
 }
@@ -168,42 +170,49 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 
 void UDBRogueSkillComponent::ActiveRogueESkill()
 {
-	if(isSpawnKnife) return;
+	ServerRPC_ActiveRogueESkill();
+}
+
+// ¼­¹ö¿¡¼­ ¼ö¸®°Ë ½ºÆùÇÑ´Ù
+void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
+{
+	if (isSpawnKnife) return;
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
-	
+
 	isSpawnKnife = true;
 	if (isSpawnKnife)
 	{
-		//ÅºÃ¢ Å©±â »ý¼º
-		TKMagazine.SetNum(4);
-		float halfValue = ((TKMagazine.Num() - 1) * 50) / 2.0f;
+		
+		float halfValue = ((magazineCnt - 1) * 50) / 2.0f;
 
-		for (int32 i = 0; i < TKMagazine.Num(); i++)
+		for (int32 i = 0; i < magazineCnt; i++)
 		{
 
-			FVector NewLoc = RoguePlayer->ThrowKnifePos->GetComponentLocation();
-			FRotator NewRot = RoguePlayer->ThrowKnifePos->GetForwardVector().Rotation();
-			NewRot.Normalize();
+			//FVector NewLoc = RoguePlayer->ThrowKnifePos->GetComponentLocation();
+			//FRotator NewRot = RoguePlayer->ThrowKnifePos->GetForwardVector().Rotation();
+			//NewRot.Normalize();
+			ThrowingKnife = GetWorld()->SpawnActorDeferred<ARogueThrowingKnife>(ThrowingKnifeClass, RoguePlayer->ThrowKnifePos->GetComponentTransform());
 
-			ThrowingKnife = GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowingKnifeClass, NewLoc, NewRot);
-
-			// ºó ÃÑ¾Ë Áö¿ì°í
-			TKMagazine.RemoveAt(i);
-			// ÅºÃ¢¿¡ ÃÑ¾Ë »ðÀÔ
-			TKMagazine.Insert(ThrowingKnife, i);
-
+			//½ºÆù ½ÃÀÛ
+			UGameplayStatics::FinishSpawningActor(ThrowingKnife, RoguePlayer->ThrowKnifePos->GetComponentTransform());
+			//ThrowingKnife = GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowingKnifeClass, NewLoc, NewRot);
 			ThrowingKnife->SetOwner(GetOwner());
+			//// ºó ÃÑ¾Ë Áö¿ì°í
+			//TKMagazine.RemoveAt(i);
+			//// ÅºÃ¢¿¡ ÃÑ¾Ë »ðÀÔ
+			//TKMagazine.Insert(ThrowingKnife, i);
+			TKMagazine.Add(ThrowingKnife);
+
 			// ¼ö¸®°ËÀÇ ÀÎµ¦½º¸¦ ¼ö¸®°Ë °¹¼ö·Î ³Ñ°Ü
 			ThrowingKnife->KnifeNumber = i;
 			// Áß¾Ó¹èÄ¡ ½ÄÀ» ¼ö¸®°Ë¿¡ ³Ñ±â±â 
-
 			ThrowingKnife->halfValue = halfValue;
 			ThrowingKnife->isThrowing = false;
 
-			
+
 		}
-	
+
 
 
 
@@ -223,7 +232,7 @@ void UDBRogueSkillComponent::ActiveRogueESkill()
 
 			// ¿· º¤ÅÍ * ¼ö¸®°ËÀÇ Áß¾Ó À§Ä¡°ª ±¸ÇÏ´Â ½ÄÀ» »©ÁØ´Ù
 			//TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
-			
+
 			//FRotator TKRotation = RoguePlayer->GetActorRotation();*/
 		//	
 		//	FVector NewLoc = RoguePlayer->ThrowKnifePos->GetComponentLocation();
@@ -248,14 +257,17 @@ void UDBRogueSkillComponent::ActiveRogueESkill()
 		//	
 		//	//UE_LOG(LogTemp, Warning, TEXT("My Owner is : %s"), *ThrowingKnife->GetOwner()->GetFName().ToString());
 		//}
-	
+
 	}
 
 	//if (ThrowingKnife != nullptr)
 	//{
 	//	ThrowingKnife->PlayMontage(RoguePlayer, FName("ESkill_Start"));
 	//}
+}
 
+void UDBRogueSkillComponent::MultiRPC_ActiveRogueESkill_Implementation()
+{
 
 }
 

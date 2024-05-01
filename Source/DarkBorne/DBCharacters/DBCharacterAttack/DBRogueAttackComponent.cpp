@@ -47,7 +47,7 @@ void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 void UDBRogueAttackComponent::RogueAttack()
 {
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-
+	
 	// 수리검 스킬 수리검 남아있으면 
 	if (RogueSkillComponent->isSpawnKnife)
 	{
@@ -145,14 +145,30 @@ void UDBRogueAttackComponent::UpdateComboCount(float DeltaTime)
 
 void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 {	
+	ServerRPC_RogueThrowKnifeAttack();
+}
+
+
+void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
+{
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 	//누르면 TKmagazine에 있는 탄창을 0부터 ~ num()까지 RemoveAt
 
-
-	UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
-	RogueSkillComponent->ThrowingKnife->isThrowing = true;
-	RogueSkillComponent->ThrowingKnife->projectileComponent->ProjectileGravityScale = 1.0f;
-	RogueSkillComponent->ThrowingKnife->projectileComponent->SetActive(true, true);
- 	RogueSkillComponent->ThrowingKnife->projectileComponent->SetVelocityInLocalSpace(FVector(2000, 0, 0));
+	//한번에 모두 투척
+	for (int32 i = 0; i < RogueSkillComponent->magazineCnt; i++)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
+		RogueSkillComponent->TKMagazine[i]->MultiRPC_RogueThrowKnifeAttack();
+		/*RogueSkillComponent->TKMagazine[i]->isThrowing = true;
+		RogueSkillComponent->TKMagazine[i]->projectileComponent->ProjectileGravityScale = 0.0f;
+		RogueSkillComponent->TKMagazine[i]->projectileComponent->SetActive(true, true);
+		RogueSkillComponent->TKMagazine[i]->projectileComponent->SetVelocityInLocalSpace(FVector(100, 0, 0));*/
+		//RogueSkillComponent->ThrowingKnife->isThrowing = true;
+		//RogueSkillComponent->ThrowingKnife->projectileComponent->ProjectileGravityScale = 1.0f;
+		//RogueSkillComponent->ThrowingKnife->projectileComponent->SetActive(true, true);
+		//RogueSkillComponent->ThrowingKnife->projectileComponent->SetVelocityInLocalSpace(FVector(2000, 0, 0));
+	}
 }
+
+
 

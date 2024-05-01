@@ -46,7 +46,7 @@ public:
 	class ARogueThrowingKnife* ThrowingKnife;
 
 	// 수리검 여러개 들고 있는 탄창
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(Replicated ,VisibleAnywhere)
 	TArray<class ARogueThrowingKnife*> TKMagazine;
 
 	// 수리검 클래스
@@ -65,8 +65,12 @@ public:
 	float CurrVanishTime = 0;
 
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated, VisibleAnywhere)
 	bool isSpawnKnife = false;
+
+	//수리검 탄창
+	UPROPERTY()
+	int32 magazineCnt = 4;
 	
 public:
 	void UpdateRogueQSkill(float DeltaTime);
@@ -82,5 +86,10 @@ public:
 public:
 	void ActiveRogueESkill();
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ActiveRogueESkill();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_ActiveRogueESkill();
 	
 };
