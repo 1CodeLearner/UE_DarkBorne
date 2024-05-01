@@ -22,6 +22,8 @@ public:
 	void BeginInteract_Implementation(ACharacter* Character);
 	void ExecuteInteract_Implementation(ACharacter* Character);
 	void EndInteract_Implementation();
+	//UItemObject* GetItemObject_Implementation() const;
+	virtual FDisplayInfo GetDisplayInfo() const override;
 
 	/*
 	몬타지 플레이 하고 싶은 케릭터를 매개변수에 넣는다.
@@ -46,8 +48,6 @@ public:
 
 	//
 	void Initialize(UItemObject* ItemObject);
-
-	UItemObject* GetItemObject() const;
 
 protected:
 	virtual void BeginPlay() override;

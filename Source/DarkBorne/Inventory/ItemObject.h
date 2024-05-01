@@ -17,6 +17,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Initialize(FItem item);
 
+	UFUNCTION(BlueprintCallable)
+	FText GetDisplayName() const;
+
 	UFUNCTION(BlueprintPure)
 	FIntPoint GetDimentions();  // Ã¶ÀÚ ¼öÁ¤
 	UFUNCTION(BlueprintPure)

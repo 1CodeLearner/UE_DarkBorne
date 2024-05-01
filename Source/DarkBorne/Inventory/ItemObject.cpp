@@ -14,6 +14,11 @@ void UItemObject::Initialize(FItem item)
 	this->Item = item;
 }
 
+FText UItemObject::GetDisplayName() const
+{
+	return Item.SlotHolder.DisplayName;
+}
+
 FIntPoint UItemObject::GetDimentions()
 {
 	//FIntPoint TempDimensions(100, 100);  // 예제 값으로 100x100 설정

@@ -6,7 +6,24 @@
 #include "UObject/Interface.h"
 #include "InteractionInterface.generated.h"
 
-class ADBCharacter;
+class ACharacter;
+class UItemObject;
+
+USTRUCT()
+struct FDisplayInfo 
+{
+	GENERATED_BODY();
+	FDisplayInfo() = default;
+	FDisplayInfo(FString _Action, FString _Name) 
+	{
+		Action = _Action;
+		Name = _Name;
+	}
+	UPROPERTY()
+	FString Action; 
+	UPROPERTY()
+	FString Name;
+};
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
@@ -33,4 +50,10 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void EndInteract();
+
+	UFUNCTION()
+	virtual FDisplayInfo GetDisplayInfo() const = 0;
+
+	UFUNCTION(BlueprintNativeEvent)
+	UItemObject* GetItemObject() const;
 };

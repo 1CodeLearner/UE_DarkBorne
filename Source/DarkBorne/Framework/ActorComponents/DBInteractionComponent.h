@@ -6,6 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "DBInteractionComponent.generated.h"
 
+
+DECLARE_DELEGATE_OneParam(FInteractActorUpdateDelegate, AActor* /*InteractingCharacter*/);
+
 class ACharacter;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -15,6 +18,8 @@ class DARKBORNE_API UDBInteractionComponent : public UActorComponent
 
 public:
 	UDBInteractionComponent();
+
+	FInteractActorUpdateDelegate OnInteractActorUpdate;
 
 protected:
 	virtual void BeginPlay() override;

@@ -2,9 +2,10 @@
 
 
 #include "DBInteractionComponent.h"
-#include "../../DBCharacters/DBCharacter.h"
 #include "GameFramework/PlayerController.h"
 #include "../Interfaces/InteractionInterface.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
 
 static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
 
@@ -31,8 +32,25 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 	const bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
 
-	TArray<FHitResult> Hits;
+	FVector Vel = Character->GetMovementComponent()->Velocity;
+	float dotForward = FVector::DotProduct(Vel, Character->GetActorLocation());
+	if (bDebugDraw)
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Dot:%f"), dotForward));
 
+	if (abs(dotForward) != 0.f)
+	{
+		if (OverlappingActor)
+		{
+			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
+			Interface->Execute_EndInteract(OverlappingActor);
+			OverlappingActor = nullptr;
+			OnInteractActorUpdate.ExecuteIfBound(nullptr);
+		}
+
+		return;
+	}
+
+	TArray<FHitResult> Hits;
 	if (ensureAlways(Character) && Character->IsLocallyControlled())
 	{
 		FVector Start = Character->GetPawnViewLocation();
@@ -89,16 +107,18 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 						auto Interface = Cast<IInteractionInterface>(OverlappingActor);
 						Interface->Execute_BeginInteract(OverlappingActor, Character);
+						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor);
 					}
 					else if (OverlappingActor != HitActor)
 					{
 						IInteractionInterface* prevActor = Cast<IInteractionInterface>(OverlappingActor);
 						prevActor->Execute_EndInteract(OverlappingActor);
-						
+
 						OverlappingActor = HitActor;
 
 						IInteractionInterface* currActor = Cast<IInteractionInterface>(OverlappingActor);
 						currActor->Execute_BeginInteract(OverlappingActor, Character);
+						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor);
 					}
 				}
 				break;
@@ -108,6 +128,7 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 			Interface->Execute_EndInteract(OverlappingActor);
 			OverlappingActor = nullptr;
+			OnInteractActorUpdate.ExecuteIfBound(OverlappingActor);
 		}
 	}
 }

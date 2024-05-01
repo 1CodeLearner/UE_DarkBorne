@@ -6,6 +6,7 @@
 #include "../DBAnimInstance/DBRogueAnimInstance.h"
 #include "GameFramework/Character.h"
 #include "../Inventory/PlayerEquipmentComponent.h"
+#include "../Inventory/ItemObject.h"
 
 ADBItem::ADBItem()
 {
@@ -34,6 +35,21 @@ void ADBItem::ExecuteInteract_Implementation(ACharacter* Character)
 void ADBItem::EndInteract_Implementation()
 {
 	UE_LOG(LogTemp, Warning, TEXT("End"));
+}
+
+//UItemObject* ADBItem::GetItemObject_Implementation() const
+//{
+//	return ItemObj;
+//}
+
+FDisplayInfo ADBItem::GetDisplayInfo() const
+{
+	if (ItemObj) {
+		FString Name = ItemObj->GetDisplayName().ToString();
+		FString Action = TEXT("Pickup");
+		return FDisplayInfo(Action, Name);
+	}
+	return FDisplayInfo(TEXT("ERROR"), TEXT("Missing ItemObj"));
 }
 
 bool ADBItem::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
@@ -73,10 +89,6 @@ void ADBItem::Initialize(UItemObject* ItemObject)
 		ItemObj = ItemObject;
 }
 
-UItemObject* ADBItem::GetItemObject() const
-{
-	return ItemObj;
-}
 
 void ADBItem::BeginPlay()
 {
