@@ -6,6 +6,8 @@
 #include "../Inventory/ItemObject.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
+#include "../Items/DBItem.h"
+#include "Kismet/GameplayStatics.h"
 
 UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 {
@@ -183,4 +185,30 @@ bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
 void UPlayerEquipmentComponent::OnRep_itemArray(TArray<UItemObject*> OldItemArray)
 {
 	isDirty = true;
+}
+
+void UPlayerEquipmentComponent::Server_SpawnItem_Implementation(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner, float forwardOffset)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Net? %s"),
+		GetWorld()->GetNetMode() == NM_Client ? TEXT("CLIENT") : TEXT("SERVER")
+	);
+	if (Initiator && ItemObject) {
+		FVector SpawnLoc = Initiator->GetActorLocation();
+		SpawnLoc += Initiator->GetActorForwardVector() * forwardOffset;
+		FTransform Trans;
+		Trans.SetLocation(SpawnLoc);
+		Trans.SetRotation(FQuat::Identity);
+		Trans.SetScale3D(FVector::OneVector);
+
+		auto ItemSpawned = GetWorld()->SpawnActorDeferred<ADBItem>(ItemObject->GetItemClass(), Trans, bSetOwner ? Initiator : nullptr);
+
+		ItemSpawned->Initialize(ItemObject);
+
+		UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Spawn Item Failed in %s"), *GetNameSafe(this));
+		return;
+	}
 }

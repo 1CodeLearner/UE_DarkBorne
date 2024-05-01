@@ -18,13 +18,31 @@ class DARKBORNE_API ADBItem : public AActor, public IInteractionInterface
 
 public:
 	ADBItem();
+	virtual void Tick(float DeltaTime) override;
+	void Initialize(UItemObject* ItemObject);
+	
+	//콜리전 캡슐 컴포넌트
+	UPROPERTY(EditAnywhere)
+	class UCapsuleComponent* CapsuleComp;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+	TObjectPtr<UStaticMeshComponent> SMComp;
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+	TObjectPtr<USceneComponent> SceneComp;
 
 	void BeginInteract_Implementation(ACharacter* Character);
 	void ExecuteInteract_Implementation(ACharacter* Character);
 	void EndInteract_Implementation();
-	//UItemObject* GetItemObject_Implementation() const;
+	UItemObject* GetItemObject_Implementation() const;
 	virtual FDisplayInfo GetDisplayInfo() const override;
+	virtual bool CanInteract() const override;
 
+public:
 	/*
 	몬타지 플레이 하고 싶은 케릭터를 매개변수에 넣는다.
 	if montage successfully plays, returns true. Returns false otherwise.
@@ -32,32 +50,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool PlayMontage(ACharacter* PlayerCharacter, FName SectionName);
 
-	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Settings")
-	TObjectPtr<UStaticMeshComponent> SMComp;
-
-	UPROPERTY(EditDefaultsOnly, Category="Settings")
-	TObjectPtr<USceneComponent> SceneComp;
-
-	//콜리전 캡슐 컴포넌트
-	UPROPERTY(EditAnywhere)
-	class UCapsuleComponent* CapsuleComp;
-
 	void Pickup(AActor* InteractingActor);
 
-	//
-	void Initialize(UItemObject* ItemObject);
-
 protected:
-	virtual void BeginPlay() override;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TObjectPtr<UAnimMontage> AnimMontage;
 
 private:
-	UPROPERTY()
-	TObjectPtr<UItemObject> ItemObj;
 	FName Id;
 	
+	UPROPERTY(Replicated)
+	TObjectPtr<UItemObject> ItemObj;
+	UPROPERTY(ReplicatedUsing = "OnRep_bCanInteract")
+	bool bCanInteract;
+
+	UFUNCTION()
+	void OnRep_bCanInteract();
 };

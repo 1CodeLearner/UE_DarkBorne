@@ -32,6 +32,17 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 	const bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
 
+	if (CanInteract(bDebugDraw)) {
+		UpdateOverlappingActor(bDebugDraw);
+	}
+}
+
+bool UDBInteractionComponent::CanInteract(bool bDebugDraw)
+{
+	if (!Character) {
+		return false; 
+	}
+	
 	FVector Vel = Character->GetMovementComponent()->Velocity;
 	float dotForward = FVector::DotProduct(Vel, Character->GetActorLocation());
 	if (bDebugDraw)
@@ -46,10 +57,14 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 			OverlappingActor = nullptr;
 			OnInteractActorUpdate.ExecuteIfBound(nullptr);
 		}
-
-		return;
+		return false;
 	}
 
+	return true;
+}
+
+void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
+{
 	TArray<FHitResult> Hits;
 	if (ensureAlways(Character) && Character->IsLocallyControlled())
 	{
@@ -101,6 +116,8 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 				AActor* HitActor = Hit.GetActor();
 				if (HitActor && HitActor->Implements<UInteractionInterface>())
 				{
+					if (!Cast<IInteractionInterface>(HitActor)->CanInteract()) break;
+
 					if (!OverlappingActor)
 					{
 						OverlappingActor = HitActor;

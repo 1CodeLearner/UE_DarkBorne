@@ -38,4 +38,9 @@ protected:
 private:
 	UPROPERTY()
 	TObjectPtr<AActor> OverlappingActor;
+
+	bool CanInteract(bool bDebugDraw);
+
+	void UpdateOverlappingActor(bool bDebugDraw);
+
 };

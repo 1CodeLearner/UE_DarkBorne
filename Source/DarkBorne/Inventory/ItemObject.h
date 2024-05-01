@@ -13,7 +13,7 @@ class DARKBORNE_API UItemObject : public UObject, public FTickableGameObject
 	GENERATED_BODY()
 
 public:
-
+	
 	UFUNCTION(BlueprintCallable)
 	void Initialize(FItem item);
 
@@ -31,8 +31,8 @@ public:
 
 	const FItem& GetItem() const;
 
-	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void Server_SpawnItem(AActor* Initiator, float forwardOffset = 200.f, bool bSetOwner = false);
+	/*UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_SpawnItem(AActor* Initiator, float forwardOffset = 200.f, bool bSetOwner = false);*/
 
 protected:
 	UFUNCTION()

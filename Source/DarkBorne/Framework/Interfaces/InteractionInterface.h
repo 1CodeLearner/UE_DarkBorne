@@ -54,6 +54,9 @@ public:
 	UFUNCTION()
 	virtual FDisplayInfo GetDisplayInfo() const = 0;
 
+	UFUNCTION()
+	virtual bool CanInteract() const = 0;
+
 	UFUNCTION(BlueprintNativeEvent)
 	UItemObject* GetItemObject() const;
 };

@@ -30,12 +30,7 @@ protected:
 	FItem GenerateItemByName(FName ItemName, EItemType Type);
 
 	UFUNCTION(BlueprintCallable)
-	ADBItem* SpawnItem(AActor* Instigated, FItem _ItemToSpawn);
-
-	UFUNCTION(BlueprintCallable)
 	static void AdjustFinalStat(AActor* Instigated, const FItem& item, bool bIsAdd);
-
-	
 
 protected:
 	virtual void BeginPlay() override;

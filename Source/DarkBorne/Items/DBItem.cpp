@@ -7,12 +7,13 @@
 #include "GameFramework/Character.h"
 #include "../Inventory/PlayerEquipmentComponent.h"
 #include "../Inventory/ItemObject.h"
+#include "Net/UnrealNetwork.h"
 
 ADBItem::ADBItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	bReplicates = true;
-
+	bReplicates = true;		
+	SetReplicateMovement(true);
 	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComp;
 
@@ -20,6 +21,36 @@ ADBItem::ADBItem()
 	SMComp->SetupAttachment(RootComponent);
 
 	SMComp->SetCollisionProfileName(FName("Item"));
+
+	bCanInteract = false;
+}
+
+void ADBItem::BeginPlay()
+{
+	Super::BeginPlay();
+	if (HasAuthority() && !GetOwner()) 
+	{
+		SMComp->SetSimulatePhysics(true);
+		bCanInteract = true;
+	}
+}
+
+void ADBItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ADBItem, bCanInteract);
+	DOREPLIFETIME(ADBItem, ItemObj);
+}
+
+void ADBItem::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void ADBItem::Initialize(UItemObject* ItemObject)
+{
+	if (ensureAlways(ItemObject))
+		ItemObj = ItemObject;
 }
 
 void ADBItem::BeginInteract_Implementation(ACharacter* Character)
@@ -37,10 +68,10 @@ void ADBItem::EndInteract_Implementation()
 	UE_LOG(LogTemp, Warning, TEXT("End"));
 }
 
-//UItemObject* ADBItem::GetItemObject_Implementation() const
-//{
-//	return ItemObj;
-//}
+UItemObject* ADBItem::GetItemObject_Implementation() const
+{
+	return ItemObj;
+}
 
 FDisplayInfo ADBItem::GetDisplayInfo() const
 {
@@ -50,6 +81,11 @@ FDisplayInfo ADBItem::GetDisplayInfo() const
 		return FDisplayInfo(Action, Name);
 	}
 	return FDisplayInfo(TEXT("ERROR"), TEXT("Missing ItemObj"));
+}
+
+bool ADBItem::CanInteract() const
+{
+	return bCanInteract;
 }
 
 bool ADBItem::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
@@ -83,22 +119,12 @@ void ADBItem::Pickup(AActor* InteractingActor)
 	}
 }
 
-void ADBItem::Initialize(UItemObject* ItemObject)
+void ADBItem::OnRep_bCanInteract()
 {
-	if (ensureAlways(ItemObject))
-		ItemObj = ItemObject;
-}
-
-
-void ADBItem::BeginPlay()
-{
-	Super::BeginPlay();
-	if(!GetOwner())
+	if (bCanInteract)
+	{
 		SMComp->SetSimulatePhysics(true);
+	}
 }
 
-void ADBItem::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
 

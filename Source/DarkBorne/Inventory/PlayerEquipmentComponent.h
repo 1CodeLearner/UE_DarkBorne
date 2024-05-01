@@ -106,4 +106,7 @@ protected:
 protected:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnInventoryChangedDel onInventoryChangedDel;
+
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
 };

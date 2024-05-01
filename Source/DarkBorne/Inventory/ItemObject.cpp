@@ -47,28 +47,31 @@ const FItem& UItemObject::GetItem() const
 	return Item;
 }
 
-void UItemObject::Server_SpawnItem_Implementation(AActor* Initiator, float forwardOffset, bool bSetOwner)
-{
-	if (Initiator && GetWorld()) {
-		FVector SpawnLoc = Initiator->GetActorLocation();
-		SpawnLoc += Initiator->GetActorForwardVector() * forwardOffset;
-		FTransform Trans;
-		Trans.SetLocation(SpawnLoc);
-		Trans.SetRotation(FQuat::Identity);
-		Trans.SetScale3D(FVector::OneVector);
-
-		auto ItemSpawned = GetWorld()->SpawnActorDeferred<ADBItem>(GetItemClass(), Trans, bSetOwner ? Initiator : nullptr);
-
-		ItemSpawned->Initialize(this);
-
-		UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
-	}
-	else 
-	{
-		UE_LOG(LogTemp, Error, TEXT("Spawn Item Failed in %s"), *GetNameSafe(this));
-		return;
-	}
-}
+//void UItemObject::Server_SpawnItem_Implementation(AActor* Initiator, float forwardOffset, bool bSetOwner)
+//{
+//	///UE_LOG(LogTemp, Warning, TEXT("Net? %s"),
+//		GetWorld()->GetNetMode() == NM_Client ? TEXT("CLIENT") : TEXT("SERVER")
+//	);
+//	if (Initiator && GetWorld()) {
+//		FVector SpawnLoc = Initiator->GetActorLocation();
+//		SpawnLoc += Initiator->GetActorForwardVector() * forwardOffset;
+//		FTransform Trans;
+//		Trans.SetLocation(SpawnLoc);
+//		Trans.SetRotation(FQuat::Identity);
+//		Trans.SetScale3D(FVector::OneVector);
+//
+//		auto ItemSpawned = GetWorld()->SpawnActorDeferred<ADBItem>(GetItemClass(), Trans, bSetOwner ? Initiator : nullptr);
+//
+//		ItemSpawned->Initialize(this);
+//
+//		UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
+//	}
+//	else
+//	{
+//		UE_LOG(LogTemp, Error, TEXT("Spawn Item Failed in %s"), *GetNameSafe(this));
+//		return;
+//	}
+//}
 
 UWorld* UItemObject::GetWorld() const
 {
