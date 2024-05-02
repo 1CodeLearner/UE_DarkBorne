@@ -55,7 +55,7 @@ void ADBItem::Initialize(UItemObject* ItemObject)
 
 void ADBItem::BeginInteract_Implementation(ACharacter* Character)
 {
-	UE_LOG(LogTemp,Warning,TEXT("Begin"));
+	UE_LOG(LogTemp,Warning,TEXT("Interact"));
 }
 
 void ADBItem::ExecuteInteract_Implementation(ACharacter* Character)
@@ -63,9 +63,19 @@ void ADBItem::ExecuteInteract_Implementation(ACharacter* Character)
 	UE_LOG(LogTemp, Warning, TEXT("Execute"));
 }
 
-void ADBItem::EndInteract_Implementation()
+void ADBItem::InterruptInteract_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("End"));
+	UE_LOG(LogTemp, Warning, TEXT("Interrupt"));
+}
+
+void ADBItem::BeginTrace()
+{
+	UE_LOG(LogTemp, Warning, TEXT("BeginTrace"));
+}
+
+void ADBItem::EndTrace()
+{
+	UE_LOG(LogTemp, Warning, TEXT("EndTrace"));
 }
 
 UItemObject* ADBItem::GetItemObject_Implementation() const

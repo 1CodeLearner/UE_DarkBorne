@@ -24,7 +24,7 @@
 
 // Sets default values
 ADBCharacter::ADBCharacter()
-{
+{	
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
@@ -41,7 +41,6 @@ ADBCharacter::ADBCharacter()
 	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
 
 	InteractDistance = 400.f;
-
 	InteractionComp = CreateDefaultSubobject<UDBInteractionComponent>("InteractionComp");
 }
 
@@ -114,8 +113,8 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		enhancedInputComponent->BindAction(ia_DB_Look, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedLook);
 
-
-
+		enhancedInputComponent->BindAction(ia_Interact, ETriggerEvent::Started, this, &ADBCharacter::EnhancedInteract);
+		enhancedInputComponent->BindAction(ia_Interact, ETriggerEvent::Completed, this, &ADBCharacter::EnhancedInteract);
 	}
 }
 
@@ -161,6 +160,13 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 
 	AddControllerYawInput(dir.X);
 	AddControllerPitchInput(dir.Y);
+}
+
+void ADBCharacter::EnhancedInteract(const FInputActionValue& value)
+{
+	bool inputValue = value.Get<bool>();
+	if (InteractionComp)
+		InteractionComp->OnInteract(inputValue);
 }
 
 void ADBCharacter::CreatePlayerWidget()

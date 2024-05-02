@@ -49,13 +49,14 @@ public:
 	void ExecuteInteract(ACharacter* Character);
 	
 	UFUNCTION(BlueprintNativeEvent)
-	void EndInteract();
+	void InterruptInteract();
 
-	UFUNCTION()
-	virtual FDisplayInfo GetDisplayInfo() const = 0;
-
-	UFUNCTION()
+	virtual void BeginTrace() = 0;
+	virtual void EndTrace() = 0;
+		
 	virtual bool CanInteract() const = 0;
+
+	virtual FDisplayInfo GetDisplayInfo() const = 0;
 
 	UFUNCTION(BlueprintNativeEvent)
 	UItemObject* GetItemObject() const;

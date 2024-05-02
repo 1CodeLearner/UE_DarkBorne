@@ -37,10 +37,14 @@ protected:
 
 	void BeginInteract_Implementation(ACharacter* Character);
 	void ExecuteInteract_Implementation(ACharacter* Character);
-	void EndInteract_Implementation();
+	void InterruptInteract_Implementation();
 	UItemObject* GetItemObject_Implementation() const;
+	
+	virtual void BeginTrace() override;
+	virtual void EndTrace() override;
 	virtual FDisplayInfo GetDisplayInfo() const override;
 	virtual bool CanInteract() const override;
+
 
 public:
 	/*

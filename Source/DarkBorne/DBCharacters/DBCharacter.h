@@ -96,6 +96,8 @@ public:
 	class UInputAction* ia_DB_Look;
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_DB_Jump;
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_Interact;
 
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
@@ -112,7 +114,7 @@ public:
 	void EnhancedJump(const struct FInputActionValue& value);
 	void EnhancedStopJump(const struct FInputActionValue& value);
 	void EnhancedLook(const struct FInputActionValue& value);
-
+	void EnhancedInteract(const struct FInputActionValue& value);
 public:
 	void CreatePlayerWidget();
 

@@ -16,6 +16,13 @@ UDBInteractionComponent::UDBInteractionComponent()
 	InteractRadius = 50.f;
 }
 
+void UDBInteractionComponent::OnInteract(bool bIsInput)
+{
+	if (bIsInput) 
+	{
+		
+	}
+}
 
 void UDBInteractionComponent::BeginPlay()
 {
@@ -40,9 +47,9 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 bool UDBInteractionComponent::CanInteract(bool bDebugDraw)
 {
 	if (!Character) {
-		return false; 
+		return false;
 	}
-	
+
 	FVector Vel = Character->GetMovementComponent()->Velocity;
 	float dotForward = FVector::DotProduct(Vel, Character->GetActorLocation());
 	if (bDebugDraw)
@@ -53,7 +60,7 @@ bool UDBInteractionComponent::CanInteract(bool bDebugDraw)
 		if (OverlappingActor)
 		{
 			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
-			Interface->Execute_EndInteract(OverlappingActor);
+			Interface->EndTrace();
 			OverlappingActor = nullptr;
 			OnInteractActorUpdate.ExecuteIfBound(nullptr);
 		}
@@ -86,7 +93,6 @@ void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
 				End = Start + WorldDir * InteractDistance;
 			}
 		}
-
 
 		FCollisionObjectQueryParams ObjectQueryparams;
 		//ObjectQueryparams.AddObjectTypesToQuery(ECC_WorldStatic);
@@ -123,18 +129,18 @@ void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
 						OverlappingActor = HitActor;
 
 						auto Interface = Cast<IInteractionInterface>(OverlappingActor);
-						Interface->Execute_BeginInteract(OverlappingActor, Character);
+						Interface->BeginTrace();
 						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor);
 					}
 					else if (OverlappingActor != HitActor)
 					{
 						IInteractionInterface* prevActor = Cast<IInteractionInterface>(OverlappingActor);
-						prevActor->Execute_EndInteract(OverlappingActor);
+						prevActor->EndTrace();
 
 						OverlappingActor = HitActor;
 
 						IInteractionInterface* currActor = Cast<IInteractionInterface>(OverlappingActor);
-						currActor->Execute_BeginInteract(OverlappingActor, Character);
+						currActor->BeginTrace();
 						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor);
 					}
 				}
@@ -143,7 +149,7 @@ void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
 		}
 		else if (OverlappingActor) {
 			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
-			Interface->Execute_EndInteract(OverlappingActor);
+			Interface->EndTrace();
 			OverlappingActor = nullptr;
 			OnInteractActorUpdate.ExecuteIfBound(OverlappingActor);
 		}

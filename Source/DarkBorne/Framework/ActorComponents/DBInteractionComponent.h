@@ -21,6 +21,8 @@ public:
 
 	FInteractActorUpdateDelegate OnInteractActorUpdate;
 
+	void OnInteract(bool bIsInput);
+
 protected:
 	virtual void BeginPlay() override;
 
