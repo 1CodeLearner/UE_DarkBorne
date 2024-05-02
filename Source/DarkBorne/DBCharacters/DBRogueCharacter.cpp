@@ -14,6 +14,7 @@
 #include "../Inventory/DBEquipmentComponent.h"
 #include "../Inventory/PlayerEquipmentComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
+#include <../../../../../../../Source/Runtime/Engine/Public/Net/UnrealNetwork.h>
 
 
 
@@ -83,6 +84,19 @@ void ADBRogueCharacter::Tick(float DeltaTime)
 	if (HasAuthority())
 	{
 		DeathProcess();
+
+		knifePos = ThrowKnifePos->GetComponentLocation();
+		knifeRot = ThrowKnifePos->GetComponentRotation();
+
+	}
+	else
+	{
+		if (IsLocallyControlled() == false)
+		{
+			ThrowKnifePos->SetWorldLocation(knifePos);
+			ThrowKnifePos->SetWorldRotation(knifeRot);
+		}
+
 	}
 }
 
@@ -97,6 +111,13 @@ void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		RogueAttackComponent->SetupPlayerInputComponent(enhancedInputComponent);
 		RogueWeaponComp->SetupPlayerInputComponent(enhancedInputComponent);
 	}
+}
+
+void ADBRogueCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ADBRogueCharacter, knifePos);
+	DOREPLIFETIME(ADBRogueCharacter, knifeRot);
 }
 
 void ADBRogueCharacter::DeathProcess()

@@ -17,7 +17,7 @@ UDBRogueAttackComponent::UDBRogueAttackComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	
+	SetIsReplicatedByDefault(true);
 }
 
 
@@ -47,17 +47,19 @@ void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 void UDBRogueAttackComponent::RogueAttack()
 {
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+	UDBRogueWeaponComponent* RogueWeaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 
 	// 수리검 스킬 수리검 남아있으면 
 	if (RogueSkillComponent->isSpawnKnife)
 	{
-		if(RogueSkillComponent->ThrowKnifeArray.IsEmpty()) return;
+		if(RogueSkillComponent->TKMagazine.IsEmpty()) return;
 		RogueThrowKnifeAttack();
 	}
 	// 다시 기본공격으로
-	else if (!RogueSkillComponent->isSpawnKnife)
+	// E스킬 쓰고있지않고 && 무기 꺼내고 있지 않으면 
+	else if (!RogueSkillComponent->isSpawnKnife && RogueWeaponComponent->hasWeapon)
 	{
-
+		
 		ServerRPC_RogueAttack();
 	}
 	
@@ -75,8 +77,12 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 	
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
 	// 단검을 들고 있으면 
-	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0] != nullptr)
+
+	//현재 문제점 : 장착 슬롯(EquipSlotArray[0])에 아이템 정보가 들어있고
+	//무기를 꺼내지(장착하지) 않은 상태에서 아래 함수를 실행하여 문제가 생김
+	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0])
 	{
+		
 		RogueSkillComponent->CurrVanishTime = 0;
 		RogueSkillComponent->DeactiveRogueQSkill();
 		if (comboCnt == 0)
@@ -111,18 +117,18 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 				RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack3"));
 			}
 		}
-		else if (comboCnt == 3)
-		{
-			// 콤보최소시간 <= 현재시간 이고 현재시간 <= 최대시간
-			if (comboMinTime <= comboCurrTime && comboCurrTime <= comboMaxTime)
-			{
-				comboCnt++;
-				comboCurrTime = 0;
-
-				// 단검 아이템에 있는 애님몽타주 실행
-				RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack4"));
-			}
-		}
+		//else if (comboCnt == 3)
+		//{
+		//	// 콤보최소시간 <= 현재시간 이고 현재시간 <= 최대시간
+		//	if (comboMinTime <= comboCurrTime && comboCurrTime <= comboMaxTime)
+		//	{
+		//		comboCnt++;
+		//		comboCurrTime = 0;
+		//
+		//		// 단검 아이템에 있는 애님몽타주 실행
+		//		RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack4"));
+		//	}
+		//}
 	}
 }
 
@@ -145,12 +151,30 @@ void UDBRogueAttackComponent::UpdateComboCount(float DeltaTime)
 
 void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 {	
-	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-	
-	UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
-	RogueSkillComponent->ThrowingKnife->isThrowing = true;
-	RogueSkillComponent->ThrowingKnife->projectileComponent->ProjectileGravityScale = 1.0f;
-	RogueSkillComponent->ThrowingKnife->projectileComponent->SetActive(true, true);
- 	RogueSkillComponent->ThrowingKnife->projectileComponent->SetVelocityInLocalSpace(FVector(2000, 0, 0));
+	ServerRPC_RogueThrowKnifeAttack();
 }
+
+
+void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
+{
+	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+	//누르면 TKmagazine에 있는 탄창을 0부터 ~ num()까지 RemoveAt
+
+	//한번에 모두 투척
+	for (int32 i = 0; i < RogueSkillComponent->magazineCnt; i++)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
+		RogueSkillComponent->TKMagazine[i]->MultiRPC_RogueThrowKnifeAttack();
+		/*RogueSkillComponent->TKMagazine[i]->isThrowing = true;
+		RogueSkillComponent->TKMagazine[i]->projectileComponent->ProjectileGravityScale = 0.0f;
+		RogueSkillComponent->TKMagazine[i]->projectileComponent->SetActive(true, true);
+		RogueSkillComponent->TKMagazine[i]->projectileComponent->SetVelocityInLocalSpace(FVector(100, 0, 0));*/
+		//RogueSkillComponent->ThrowingKnife->isThrowing = true;
+		//RogueSkillComponent->ThrowingKnife->projectileComponent->ProjectileGravityScale = 1.0f;
+		//RogueSkillComponent->ThrowingKnife->projectileComponent->SetActive(true, true);
+		//RogueSkillComponent->ThrowingKnife->projectileComponent->SetVelocityInLocalSpace(FVector(2000, 0, 0));
+	}
+}
+
+
 

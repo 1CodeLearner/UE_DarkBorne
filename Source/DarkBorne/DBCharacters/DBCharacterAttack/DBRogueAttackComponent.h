@@ -46,6 +46,11 @@ public:
 	void MultiRPC_RogueAttack();
 
 	void UpdateComboCount(float DeltaTime);
-	
+
+public:
 	void RogueThrowKnifeAttack();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_RogueThrowKnifeAttack();
+	
 };

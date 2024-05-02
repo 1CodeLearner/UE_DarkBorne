@@ -10,6 +10,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/ProjectileMovementComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
+#include <Net/UnrealNetwork.h>
 
 ARogueThrowingKnife::ARogueThrowingKnife()
 {
@@ -30,18 +31,23 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 	projectileComponent->bRotationFollowsVelocity = true;
 	projectileComponent->ProjectileGravityScale = 0;
 	projectileComponent->bAutoActivate = false;
+
+	//SetReplicateMovement(true);
 }
 
 void ARogueThrowingKnife::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//UE_LOG(LogTemp, Warning, TEXT("Owner in thisKnife: %s"), *GetNameSafe(GetOwner()));
+	UE_LOG(LogTemp, Warning, TEXT("Owner in thisKnife: %s"), *GetNameSafe(GetOwner()));
 	//서버에서 충돌판정을 하고싶다면 여기서부터 손보자
-	//if (GetOwner<ACharacter>()->IsLocallyControlled()) {
-		//CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ARogueThrowingKnife::OnOverlapBegin);
+	if (!GetOwner()) return;
+	
+	if (GetOwner<ACharacter>()->IsLocallyControlled()) 
+	{
+		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ARogueThrowingKnife::OnOverlapBegin);
 		//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//}
+	}
 }
 
 void ARogueThrowingKnife::Tick(float DeltaTime)
@@ -53,10 +59,21 @@ void ARogueThrowingKnife::Tick(float DeltaTime)
 	// 클릭하면 isThrowing을 true로
 	if (!isThrowing)
 	{
-	//위치 갱신
-	UpdateKnifeLocation();
-	
+		//위치 갱신
+		UpdateKnifeLocation();
 	}
+	
+}
+
+void ARogueThrowingKnife::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// 중앙식이랑 수리검 탄창 replicated
+	DOREPLIFETIME(ARogueThrowingKnife, halfValue);
+	DOREPLIFETIME(ARogueThrowingKnife, KnifeNumber);
+	DOREPLIFETIME(ARogueThrowingKnife, isThrowing);
+	 
 }
 
 void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -117,6 +134,7 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherPlayer->GetActorRotation() - GetActorRotation());
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 }
 
 void ARogueThrowingKnife::UpdateKnifeLocation()
@@ -126,27 +144,55 @@ void ARogueThrowingKnife::UpdateKnifeLocation()
 	// 수리검의 오너 담기
 	AActor* RoguePlayer = GetOwner();
 	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(RoguePlayer);
-	
-	// 수리검 위치는 플레이어 위치 + 플레이어 앞 벡터 * 50 / 간격을 i 마다 50만큼 추가시키기
-	FVector TKPosition = RogueCharacter->ThrowKnifePos->GetComponentLocation()+ RoguePlayer->GetActorForwardVector() * 50 + RoguePlayer->GetActorRightVector() * KnifeNumber * 50;
 
+	// 수리검 위치는 플레이어 위치 + 플레이어 앞 벡터 * 50 / 간격을 i 마다 50만큼 추가시키기
+	FVector TKPosition = RogueCharacter->ThrowKnifePos->GetComponentLocation() + RoguePlayer->GetActorForwardVector() * 50 + RoguePlayer->GetActorRightVector() * KnifeNumber * 50;
 	// 옆 벡터 * 수리검들 중앙값을 빼준다
 	TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
-	
-	//FRotator SpringArmRotation = RogueCharacter->ThrowKnifePos->GetComponentRotation();
-	//APlayerController* playerController = Cast<APlayerController>(RogueCharacter->GetController());
-	//playerController->PlayerCameraManager->GetCameraRotation();
-	
+
+	FRotator TKRotation = RogueCharacter->ThrowKnifePos->GetForwardVector().Rotation();
+	TKRotation.Normalize();
+
+	SetActorLocationAndRotation(TKPosition, TKRotation);
+}
+
+// 서버에서 위치 갱신
+void ARogueThrowingKnife::ServerRPC_UpdateKnifeLocation_Implementation()
+{
+	//SkillComp에서 for문으로 스폰시킨 수리검들을 틱으로 계속 위치 갱신준다
+
+	// 수리검의 오너 담기
+	AActor* RoguePlayer = GetOwner();
+	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(RoguePlayer);
+
+	// 수리검 위치는 플레이어 위치 + 플레이어 앞 벡터 * 50 / 간격을 i 마다 50만큼 추가시키기
+	FVector TKPosition = RogueCharacter->ThrowKnifePos->GetComponentLocation() + RoguePlayer->GetActorForwardVector() * 50 + RoguePlayer->GetActorRightVector() * KnifeNumber * 50;
+	// 옆 벡터 * 수리검들 중앙값을 빼준다
+	TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
+
 	FRotator NewRot = RogueCharacter->ThrowKnifePos->GetForwardVector().Rotation();
-	FRotator NewNewRot = RogueCharacter->GetActorForwardVector().Rotation();
+	NewRot.Normalize();
+	
+	MultiRPC_UpdateKnifeLocation(TKPosition, NewRot);
+}
+
+// 서버에서 갱신한 위치를 클라로 뿌려준다
+void ARogueThrowingKnife::MultiRPC_UpdateKnifeLocation_Implementation(FVector TKPosition, FRotator NewRot)
+{
 	// 수리검 위치 갱신 
 	SetActorLocationAndRotation(TKPosition, NewRot);
-	//UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), NewRot.Pitch, NewRot.Yaw, NewRot.Roll);
-	
-
 }
 
-void ARogueThrowingKnife::UpdateKnifeSpeed()
+// 클라에서 각자 로컬 위치 계산
+void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 {
+	AActor* RoguePlayer = GetOwner();
+	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(RoguePlayer);
 
+	isThrowing = true;
+	projectileComponent->ProjectileGravityScale = 0.0f;
+	projectileComponent->SetActive(true, true);
+	projectileComponent->SetVelocityInLocalSpace(FVector(1000, 0, 0));
+	PlayMontage(RogueCharacter, FName("ESkill_Start"));
 }
+

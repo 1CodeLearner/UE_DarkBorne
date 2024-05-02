@@ -19,6 +19,8 @@ public:
 public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 public:
 	//콜리전 함수
 	UFUNCTION()
@@ -33,18 +35,33 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* BloodVFX;
 public:
+	UPROPERTY(Replicated)
+
 	int32 KnifeNumber = 0;
+
+	UPROPERTY(Replicated)
 	float halfValue;
 
+	UPROPERTY(Replicated)
 	bool isThrowing = false;
 public:
 	UPROPERTY(EditAnywhere)
 	class UProjectileMovementComponent* projectileComponent;
 
-	//UPROPERTY(EditAnywhere)
-	//class UArrowComponent* 
+	
 	
 public:
 	void UpdateKnifeLocation();
-	void UpdateKnifeSpeed();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_UpdateKnifeLocation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_UpdateKnifeLocation(FVector TKPosition, FRotator NewRot);
+
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_RogueThrowKnifeAttack();
+
+	
 };

@@ -45,13 +45,17 @@ public:
 	UPROPERTY()
 	class ARogueThrowingKnife* ThrowingKnife;
 
+	// 수리검 여러개 들고 있는 탄창
+	UPROPERTY(Replicated ,VisibleAnywhere)
+	TArray<class ARogueThrowingKnife*> TKMagazine;
+
 	// 수리검 클래스
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<ARogueThrowingKnife> ThrowingKnifeClass;
+	TSubclassOf<class ARogueThrowingKnife> ThrowingKnifeClass;
 
 	// 수리검 클래스를 담은 배열
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<TSubclassOf<ARogueThrowingKnife>> ThrowKnifeArray;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//TArray<TSubclassOf<class ARogueThrowingKnife>> ThrowingKnifeClassArray;
 public:
 	UPROPERTY(Replicated, VisibleAnywhere)
 	bool isVanish = false;
@@ -61,8 +65,12 @@ public:
 	float CurrVanishTime = 0;
 
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated, VisibleAnywhere)
 	bool isSpawnKnife = false;
+
+	//수리검 탄창
+	UPROPERTY()
+	int32 magazineCnt = 4;
 	
 public:
 	void UpdateRogueQSkill(float DeltaTime);
@@ -78,5 +86,10 @@ public:
 public:
 	void ActiveRogueESkill();
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ActiveRogueESkill();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_ActiveRogueESkill();
 	
 };
