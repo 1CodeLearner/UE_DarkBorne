@@ -14,14 +14,8 @@ UDBInteractionComponent::UDBInteractionComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	InteractDistance = 2000.f;
 	InteractRadius = 50.f;
-}
-
-void UDBInteractionComponent::OnInteract(bool bIsInput)
-{
-	if (bIsInput) 
-	{
-		
-	}
+	interactSpeed = 3.f;
+	bInteracting = false;
 }
 
 void UDBInteractionComponent::BeginPlay()
@@ -32,6 +26,39 @@ void UDBInteractionComponent::BeginPlay()
 		Character = TempCharacter;
 }
 
+void UDBInteractionComponent::OnInteract(bool bIsInput)
+{
+	if (bIsInput)
+	{
+		if (OverlappingActor)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("OnInteract %s"),
+				GetWorld()->GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server")
+			);
+			bInteracting = true;
+			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
+			Interface->Execute_BeginInteract(OverlappingActor, this);
+		}
+	}
+	else if (bInteracting) {
+		bInteracting = false;
+		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
+		Interface->Execute_InterruptInteract(OverlappingActor);
+	}
+}
+
+void UDBInteractionComponent::InteractExecute()
+{
+	if (bInteracting) {
+		UE_LOG(LogTemp, Warning, TEXT("Middle %s"),
+			GetWorld()->GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server")
+		);
+		bInteracting = false;
+
+		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
+		Interface->Execute_ExecuteInteract(OverlappingActor, Character);
+	}
+}
 
 void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -39,9 +66,13 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 	const bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
 
-	if (CanInteract(bDebugDraw)) {
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Dot:%f"), bInteracting ? TEXT("INTERACTING") : TEXT("NOT INTERACTING")));
+
+
+	if (bInteracting)
+		UpdateTimer();
+	else if (CanInteract(bDebugDraw))
 		UpdateOverlappingActor(bDebugDraw);
-	}
 }
 
 bool UDBInteractionComponent::CanInteract(bool bDebugDraw)
@@ -52,6 +83,7 @@ bool UDBInteractionComponent::CanInteract(bool bDebugDraw)
 
 	FVector Vel = Character->GetMovementComponent()->Velocity;
 	float dotForward = FVector::DotProduct(Vel, Character->GetActorLocation());
+
 	if (bDebugDraw)
 		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Dot:%f"), dotForward));
 
@@ -154,5 +186,11 @@ void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
 			OnInteractActorUpdate.ExecuteIfBound(OverlappingActor);
 		}
 	}
+}
+
+void UDBInteractionComponent::UpdateTimer()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("UpdateTimer")));
+
 }
 

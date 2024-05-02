@@ -35,7 +35,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TObjectPtr<USceneComponent> SceneComp;
 
-	void BeginInteract_Implementation(ACharacter* Character);
+	void BeginInteract_Implementation(UDBInteractionComponent* InteractionComp);
 	void ExecuteInteract_Implementation(ACharacter* Character);
 	void InterruptInteract_Implementation();
 	UItemObject* GetItemObject_Implementation() const;

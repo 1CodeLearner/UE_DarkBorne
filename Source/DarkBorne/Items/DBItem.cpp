@@ -8,11 +8,12 @@
 #include "../Inventory/PlayerEquipmentComponent.h"
 #include "../Inventory/ItemObject.h"
 #include "Net/UnrealNetwork.h"
+#include "../Framework/ActorComponents/DBInteractionComponent.h"
 
 ADBItem::ADBItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	bReplicates = true;		
+	bReplicates = true;
 	SetReplicateMovement(true);
 	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComp;
@@ -28,7 +29,7 @@ ADBItem::ADBItem()
 void ADBItem::BeginPlay()
 {
 	Super::BeginPlay();
-	if (HasAuthority() && !GetOwner()) 
+	if (HasAuthority() && !GetOwner())
 	{
 		SMComp->SetSimulatePhysics(true);
 		bCanInteract = true;
@@ -53,9 +54,12 @@ void ADBItem::Initialize(UItemObject* ItemObject)
 		ItemObj = ItemObject;
 }
 
-void ADBItem::BeginInteract_Implementation(ACharacter* Character)
+void ADBItem::BeginInteract_Implementation(UDBInteractionComponent* InteractionComp)
 {
-	UE_LOG(LogTemp,Warning,TEXT("Interact"));
+	UE_LOG(LogTemp, Warning, TEXT("Interact %s, %s"), *GetNameSafe(InteractionComp),
+		GetWorld()->GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server")
+	);
+	InteractionComp->InteractExecute();
 }
 
 void ADBItem::ExecuteInteract_Implementation(ACharacter* Character)
@@ -70,12 +74,12 @@ void ADBItem::InterruptInteract_Implementation()
 
 void ADBItem::BeginTrace()
 {
-	UE_LOG(LogTemp, Warning, TEXT("BeginTrace"));
+	UE_LOG(LogTemp, Warning, TEXT("Activate material"));
 }
 
 void ADBItem::EndTrace()
 {
-	UE_LOG(LogTemp, Warning, TEXT("EndTrace"));
+	UE_LOG(LogTemp, Warning, TEXT("Deactivate material"));
 }
 
 UItemObject* ADBItem::GetItemObject_Implementation() const
@@ -123,7 +127,7 @@ bool ADBItem::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
 void ADBItem::Pickup(AActor* InteractingActor)
 {
 	auto PlayerEquipComp = InteractingActor->GetComponentByClass<UPlayerEquipmentComponent>();
-	if (PlayerEquipComp) 
+	if (PlayerEquipComp)
 	{
 		PlayerEquipComp->TryAddItem(ItemObj);
 	}

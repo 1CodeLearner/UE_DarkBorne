@@ -15,13 +15,14 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DARKBORNE_API UDBInteractionComponent : public UActorComponent
 {
 	GENERATED_BODY()
+	friend class ADBCharacter;
 
 public:
 	UDBInteractionComponent();
 
 	FInteractActorUpdateDelegate OnInteractActorUpdate;
 
-	void OnInteract(bool bIsInput);
+	void InteractExecute();
 
 protected:
 	virtual void BeginPlay() override;
@@ -29,20 +30,25 @@ protected:
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 protected:
-	UPROPERTY()
-	TObjectPtr<ACharacter> Character;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	float InteractDistance;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	float InteractRadius;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+	float interactSpeed;
 
 private:
+	void OnInteract(bool bIsInput);
+
+	UPROPERTY()
+	TObjectPtr<ACharacter> Character;
+
 	UPROPERTY()
 	TObjectPtr<AActor> OverlappingActor;
 
+	bool bInteracting;
+
 	bool CanInteract(bool bDebugDraw);
-
 	void UpdateOverlappingActor(bool bDebugDraw);
-
+	void UpdateTimer();	
 };

@@ -8,6 +8,7 @@
 
 class ACharacter;
 class UItemObject;
+class UDBInteractionComponent;
 
 USTRUCT()
 struct FDisplayInfo 
@@ -43,7 +44,7 @@ class DARKBORNE_API IInteractionInterface
 public:
 	
 	UFUNCTION(BlueprintNativeEvent)
-	void BeginInteract(ACharacter* Character);
+	void BeginInteract(UDBInteractionComponent* InteractionComp);
 
 	UFUNCTION(BlueprintNativeEvent)
 	void ExecuteInteract(ACharacter* Character);

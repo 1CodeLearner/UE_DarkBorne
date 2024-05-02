@@ -22,6 +22,14 @@
 #include "../Framework/ActorComponents/DBInteractionComponent.h"
 
 
+FFinalStat ADBCharacter::GetFinalStat(ACharacter* Character)
+{
+	if (Character->IsA<ADBCharacter>()) {
+		return Cast<ADBCharacter>(Character)->GetFinalStat();
+	}
+	return FFinalStat();
+}
+
 // Sets default values
 ADBCharacter::ADBCharacter()
 {	

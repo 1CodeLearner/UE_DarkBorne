@@ -23,6 +23,8 @@ UCLASS()
 class DARKBORNE_API ADBCharacter : public ACharacter
 {
 	GENERATED_BODY()
+public:
+	static FFinalStat GetFinalStat(ACharacter* Character);
 
 public:
 	// Sets default values for this character's properties
@@ -52,8 +54,6 @@ public:
 	FName RowName;
 	UPROPERTY(BlueprintReadOnly)
 	FCharacterBaseStat CharacterBaseStat;
-	UPROPERTY(VisibleAnywhere, Category = "Settings")
-	FFinalStat FinalStat;
 
 	//Inventory Components
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
@@ -124,4 +124,7 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	float InteractDistance;
+		
+	UPROPERTY(VisibleAnywhere, Category = "Settings")
+	FFinalStat FinalStat;
 };
