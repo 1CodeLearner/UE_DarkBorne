@@ -61,6 +61,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isFalling = false;
 
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
+	bool isDoubleJumping = false;
+
 public:
 	UFUNCTION()
 	void AnimNotify_Start_Damage();
@@ -73,4 +76,9 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_End_Hit();
+	
+	UFUNCTION()
+	void AnimNotify_DoubleJumpStart();
+	UFUNCTION()
+	void AnimNotify_DoubleJumpEnd();
 };

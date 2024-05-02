@@ -48,7 +48,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UProjectileMovementComponent* projectileComponent;
 
-	
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* ThrowKnifeTrail;
 	
 public:
 	void UpdateKnifeLocation();

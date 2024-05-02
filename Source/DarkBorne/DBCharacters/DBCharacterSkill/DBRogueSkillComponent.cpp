@@ -59,6 +59,7 @@ void UDBRogueSkillComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	DOREPLIFETIME(UDBRogueSkillComponent, CurrVanishTime);
 	DOREPLIFETIME(UDBRogueSkillComponent, TKMagazine);
 	DOREPLIFETIME(UDBRogueSkillComponent, isSpawnKnife);
+	DOREPLIFETIME(UDBRogueSkillComponent, magazineCnt);
 
 
 }

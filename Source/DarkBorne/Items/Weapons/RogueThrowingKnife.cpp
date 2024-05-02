@@ -12,6 +12,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 #include <Net/UnrealNetwork.h>
 #include "../../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
+#include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
 
 ARogueThrowingKnife::ARogueThrowingKnife()
 {
@@ -33,7 +34,8 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 	projectileComponent->ProjectileGravityScale = 0;
 	projectileComponent->bAutoActivate = false;
 
-	//SetReplicateMovement(true);
+	ThrowKnifeTrail = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Trail"));
+	ThrowKnifeTrail->SetupAttachment(SMComp);
 }
 
 void ARogueThrowingKnife::BeginPlay()
@@ -101,6 +103,7 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 		if (MyCharacterAnim->isAttacking)
 		{
 			ServerRPC_OnOverlapBegin(OtherActor);
+			
 		}
 	}
 }
@@ -119,6 +122,7 @@ void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* 
 		GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"), OtherPlayer->CurrHP);
 
 	MultiRPC_OnOverlapBegin(OtherActor);
+	Destroy();
 }
 
 void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
@@ -191,11 +195,10 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(RoguePlayer);
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
-	//RogueSkillComponent->TKMagazine.RemoveAt(KnifeNumber);
 	isThrowing = true;
 	projectileComponent->ProjectileGravityScale = 0.0f;
 	projectileComponent->SetActive(true, true);
-	projectileComponent->SetVelocityInLocalSpace(FVector(1000, 0, 0));
+	projectileComponent->SetVelocityInLocalSpace(FVector(2000, 0, 0));
 	PlayMontage(RogueCharacter, FName("ESkill_Start"));
 	SetLifeSpan(3);
 	

@@ -17,6 +17,7 @@
 #include "../Inventory/LootInventoryComponent.h"
 #include "../Inventory/LootEquipmentComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
+#include "DBRogueCharacter.h"
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
@@ -139,12 +140,15 @@ void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 
 void ADBCharacter::EnhancedJump(const struct FInputActionValue& value)
 {
-	Jump();
+	//Jump();
+	ServerRPC_DoubleJump();
+	
 }
 
 void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
 {
 	StopJumping();
+	
 }
 
 void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
@@ -153,6 +157,37 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 
 	AddControllerYawInput(dir.X);
 	AddControllerPitchInput(dir.Y);
+}
+
+void ADBCharacter::ServerRPC_DoubleJump_Implementation()
+{
+
+	MultiRPC_DoubleJump();
+}
+
+void ADBCharacter::MultiRPC_DoubleJump_Implementation()
+{
+	Jump();
+	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
+	if (RogueAnim->isFalling)
+	{
+		RogueAnim->isDoubleJumping = true;
+		UE_LOG(LogTemp, Warning, TEXT("double jump"));
+		//MultiRPC_DoubleJump();
+	}
+	else
+	{
+		RogueAnim->isDoubleJumping = false;
+		//MultiRPC_DoubleJump22();
+	}
+	/*UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
+	RogueAnim->isDoubleJumping = true;*/
+}
+
+void ADBCharacter::MultiRPC_DoubleJump22_Implementation()
+{
+	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
+	RogueAnim->isDoubleJumping = false;
 }
 
 void ADBCharacter::CreatePlayerWidget()

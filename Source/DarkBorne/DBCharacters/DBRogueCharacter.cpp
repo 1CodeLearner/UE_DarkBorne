@@ -59,7 +59,9 @@ ADBRogueCharacter::ADBRogueCharacter()
 	RogueAttackComponent = CreateDefaultSubobject<UDBRogueAttackComponent>(TEXT("RogueAttackComp"));
 
 	ThrowKnifePos = CreateDefaultSubobject<UArrowComponent>(TEXT("ThrowKnifePos"));
-	ThrowKnifePos->SetupAttachment(springArm);
+	ThrowKnifePos->SetupAttachment(camera);
+
+	JumpMaxCount = 2;
 }
 
 void ADBRogueCharacter::BeginPlay()

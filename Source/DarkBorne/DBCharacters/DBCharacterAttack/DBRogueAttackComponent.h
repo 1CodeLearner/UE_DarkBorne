@@ -41,7 +41,7 @@ public:
 
 public:
 	int32 KnifeCount = 0;
-	int32 DeleteKnifeCount = 0;
+
 public:
 	void RogueAttack();
 	UFUNCTION(Server, Reliable)

@@ -99,13 +99,20 @@ public:
 	float CurrHP = MaxHP;
 
 public:
-	//FVector newVec;
-public:
 	//Default 이동 관련 함수들
 	void EnhancedMove(const struct FInputActionValue& value);
 	void EnhancedJump(const struct FInputActionValue& value);
 	void EnhancedStopJump(const struct FInputActionValue& value);
 	void EnhancedLook(const struct FInputActionValue& value);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_DoubleJump();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_DoubleJump();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_DoubleJump22();
 
 public:
 	void CreatePlayerWidget();

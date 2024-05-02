@@ -64,6 +64,7 @@ void UDBRogueAnimInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UDBRogueAnimInstance, isDeath);
+	DOREPLIFETIME(UDBRogueAnimInstance, isDoubleJumping);
 }
 
 void UDBRogueAnimInstance::AnimNotify_Start_Damage()
@@ -86,9 +87,6 @@ void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 	else if(!SkillComp->TKMagazine.IsEmpty())
 	{
 		isAttacking = true;
-		
-		//SkillComp->ThrowingKnife->KnifeNumber = i;
-		//SkillComp->TKMagazine[i]->
 	}
 	
 }
@@ -100,7 +98,6 @@ void UDBRogueAnimInstance::AnimNotify_End_Damage()
 	// 공격중이 아님
 	if (WeaponComp->EquipSlotArray[0] && WeaponComp->hasWeapon)
 	{
-
 	isAttacking = false;
 	WeaponComp->RogueItems->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
@@ -114,4 +111,14 @@ void UDBRogueAnimInstance::AnimNotify_Start_Hit()
 void UDBRogueAnimInstance::AnimNotify_End_Hit()
 {
 	isHitting = false;
+}
+
+void UDBRogueAnimInstance::AnimNotify_DoubleJumpStart()
+{
+	isDoubleJumping = true;
+}
+
+void UDBRogueAnimInstance::AnimNotify_DoubleJumpEnd()
+{
+	isDoubleJumping = false;
 }

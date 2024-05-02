@@ -69,7 +69,7 @@ public:
 	bool isSpawnKnife = false;
 
 	//¼ö¸®°Ë ÅºÃ¢
-	UPROPERTY()
+	UPROPERTY(Replicated, VisibleAnywhere)
 	int32 magazineCnt = 4;
 	
 public:

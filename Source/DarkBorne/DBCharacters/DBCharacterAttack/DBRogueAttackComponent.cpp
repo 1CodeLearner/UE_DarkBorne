@@ -55,7 +55,6 @@ void UDBRogueAttackComponent::RogueAttack()
 		// 만약 탄창이 비었다면
 		if(RogueSkillComponent->TKMagazine.IsEmpty())
 		{
-			
 			return;
 		}
 		RogueThrowKnifeAttack();
@@ -64,7 +63,6 @@ void UDBRogueAttackComponent::RogueAttack()
 	// E스킬 쓰고있지않고 && 무기 꺼내고 있지 있으면 
 	else if (!RogueSkillComponent->isSpawnKnife && RogueWeaponComponent->hasWeapon)
 	{
-		
 		ServerRPC_RogueAttack();
 	}
 	
@@ -164,25 +162,26 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 {
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 	// 나이프 카운트가 탄창 갯수와 같아졌다면 
-	if(KnifeCount == RogueSkillComponent->magazineCnt)
-	{
-		// 스킬 끄기
-		RogueSkillComponent->isSpawnKnife = false;
-		return;
-	}
+	// 문제 : 나이프 카운트의 맥스는 3. 탄창의 맥스는 4라서 좌클릭을 한번 더 해야 배열이 초기화됨
 
 	RogueSkillComponent->TKMagazine[KnifeCount]->MultiRPC_RogueThrowKnifeAttack();
 	KnifeCount++;
-	//RogueSkillComponent->TKMagazine.RemoveAt(DeleteKnifeCount);
-	//DeleteKnifeCount++;
+
+	if(KnifeCount == RogueSkillComponent->magazineCnt)
+	{
+		// 탄창 초기화
+		RogueSkillComponent->TKMagazine.Empty();
+		// 나이프 카운트 초기화
+		KnifeCount = 0;
+		//NewKnifeCount = 0;
+		// 스킬 끄기
+		RogueSkillComponent->isSpawnKnife = false;
+		
+		return;
+	}
+	
+	
 	UE_LOG(LogTemp, Warning, TEXT("KnifeCount is : %d"), KnifeCount);
-	// 한개씩 던지기
-	// 좌클릭을 하였다면
-	// tkmagazine n번의 MultiRPC_RogueThrowKnifeAttack 실행
-	// 그리고 n++
-
-
-
 	
 	// 전부 던지기
 	//for (int32 i = 0; i < RogueSkillComponent->magazineCnt; i++)
