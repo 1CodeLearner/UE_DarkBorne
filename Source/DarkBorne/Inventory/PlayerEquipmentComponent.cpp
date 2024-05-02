@@ -193,16 +193,13 @@ void UPlayerEquipmentComponent::Server_SpawnItem_Implementation(AActor* Initiato
 		GetWorld()->GetNetMode() == NM_Client ? TEXT("CLIENT") : TEXT("SERVER")
 	);
 	if (Initiator && ItemObject) {
-		FVector SpawnLoc = Initiator->GetActorLocation();
-		SpawnLoc += Initiator->GetActorForwardVector() * forwardOffset;
-		FTransform Trans;
-		Trans.SetLocation(SpawnLoc);
-		Trans.SetRotation(FQuat::Identity);
-		Trans.SetScale3D(FVector::OneVector);
+		FTransform Trans = GetNewTransform(Initiator, forwardOffset);
 
 		auto ItemSpawned = GetWorld()->SpawnActorDeferred<ADBItem>(ItemObject->GetItemClass(), Trans, bSetOwner ? Initiator : nullptr);
 
 		ItemSpawned->Initialize(ItemObject);
+
+		ItemObject->AddItemActor(ItemSpawned);
 
 		UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
 	}
@@ -211,4 +208,28 @@ void UPlayerEquipmentComponent::Server_SpawnItem_Implementation(AActor* Initiato
 		UE_LOG(LogTemp, Error, TEXT("Spawn Item Failed in %s"), *GetNameSafe(this));
 		return;
 	}
+}
+
+void UPlayerEquipmentComponent::Server_PlaceItem_Implementation(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner, float forwardOffset)
+{
+	AActor* actor = Cast<AActor>(ItemObject->GetItemActor());
+	if (ensureAlways(actor)) 
+	{
+		FTransform Trans = GetNewTransform(Initiator, forwardOffset);
+		actor->SetActorTransform(Trans);
+	}
+}
+
+FTransform UPlayerEquipmentComponent::GetNewTransform(AActor* Instigator, float offset)
+{
+	FVector SpawnLoc = Instigator->GetActorLocation();
+	SpawnLoc += Instigator->GetActorForwardVector() * offset;
+
+	FTransform Trans;
+	
+	Trans.SetLocation(SpawnLoc);
+	Trans.SetRotation(FQuat::Identity);
+	Trans.SetScale3D(FVector::OneVector);
+
+	return Trans;
 }

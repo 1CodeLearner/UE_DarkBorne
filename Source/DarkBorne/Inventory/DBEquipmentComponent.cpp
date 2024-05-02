@@ -21,6 +21,22 @@ UDBEquipmentComponent::UDBEquipmentComponent()
 	Rows = 2;
 }
 
+bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject)
+{
+	if (Slots.IsEmpty())
+		return false;
+
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+	if (Slots[index] != nullptr)
+	{
+		return false;
+	}
+	else {
+		Server_AddItem(ItemObject);
+		return true;
+	}
+}
+
 void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObject)
 {
 	if (!ensureAlways(ItemObject))
@@ -30,6 +46,9 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	TArray<UItemObject*> old = Slots;
 	if (Slots.IsEmpty()) return;
 	Slots[index] = ItemObject;
+	
+	UE_LOG(LogTemp, Warning, TEXT("Actor %s"), *GetNameSafe(ItemObject->GetItemActor()));
+
 	//auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	//if (WeaponComp)
 	//{	

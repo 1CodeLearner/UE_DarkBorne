@@ -19,6 +19,7 @@ class DARKBORNE_API UDBEquipmentComponent : public UActorComponent
 public:
 	UDBEquipmentComponent();
 
+	bool TryAddItem(UItemObject* ItemObject);
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_AddItem(UItemObject* ItemObject);
 	UFUNCTION(Server, Reliable, BlueprintCallable)

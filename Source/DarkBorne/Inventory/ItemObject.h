@@ -7,15 +7,37 @@
 #include "../ItemTypes/ItemType.h"
 #include "ItemObject.generated.h"
 
+class ADBItem;
+
+USTRUCT()
+struct FItemData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FItem Item = FItem();
+
+	UPROPERTY()
+	TObjectPtr<ADBItem> ItemActor;
+};
+
 UCLASS(BlueprintAble)
 class DARKBORNE_API UItemObject : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
 
 public:
-	
+
 	UFUNCTION(BlueprintCallable)
-	void Initialize(FItem item);
+	void Initialize(FItem _Item, ADBItem* _ItemActor = nullptr);
+
+	UFUNCTION(BlueprintCallable)
+	void AddItemActor(ADBItem* _ItemActor);
+
+	UFUNCTION(BlueprintCallable)
+	bool HasItemActor() const;
+
+	ADBItem* GetItemActor() const;
 
 	UFUNCTION(BlueprintCallable)
 	FText GetDisplayName() const;
@@ -42,7 +64,7 @@ protected:
 	virtual TStatId GetStatId() const override;
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const;
+	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TSubclassOf<AActor> ItemClass;
@@ -54,7 +76,7 @@ protected:
 
 private:
 	UPROPERTY(Replicated)
-	FItem Item = FItem();
+	FItemData ItemData;
 
 	FIntPoint _dimentions;  // Ã¶ÀÚ ¼öÁ¤
 	class UMaterial* Icon;

@@ -109,4 +109,10 @@ protected:
 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_PlaceItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
+
+private:
+	FTransform GetNewTransform(AActor* Instigator, float offset);
 };

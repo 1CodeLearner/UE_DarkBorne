@@ -9,6 +9,7 @@
 #include "../Inventory/ItemObject.h"
 #include "Net/UnrealNetwork.h"
 #include "../Framework/ActorComponents/DBInteractionComponent.h"
+#include "../Inventory/DBEquipmentComponent.h"
 
 ADBItem::ADBItem()
 {
@@ -61,6 +62,13 @@ void ADBItem::BeginInteract_Implementation(UDBInteractionComponent* InteractionC
 
 void ADBItem::ExecuteInteract_Implementation(ACharacter* Character)
 {
+	auto Inventory = Character->GetComponentByClass<UPlayerEquipmentComponent>();
+	auto Equipment = Character->GetComponentByClass<UDBEquipmentComponent>();
+
+	if (Equipment->TryAddItem(ItemObj)) 
+	{
+		
+	}
 }
 
 void ADBItem::InterruptInteract_Implementation()
