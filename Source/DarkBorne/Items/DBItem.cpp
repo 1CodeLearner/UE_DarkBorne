@@ -56,30 +56,23 @@ void ADBItem::Initialize(UItemObject* ItemObject)
 
 void ADBItem::BeginInteract_Implementation(UDBInteractionComponent* InteractionComp)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Interact %s, %s"), *GetNameSafe(InteractionComp),
-		GetWorld()->GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server")
-	);
-	InteractionComp->InteractExecute();
+	//InteractionComp->InteractExecute();
 }
 
 void ADBItem::ExecuteInteract_Implementation(ACharacter* Character)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Execute"));
 }
 
 void ADBItem::InterruptInteract_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Interrupt"));
 }
 
 void ADBItem::BeginTrace()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Activate material"));
 }
 
 void ADBItem::EndTrace()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Deactivate material"));
 }
 
 UItemObject* ADBItem::GetItemObject_Implementation() const
@@ -100,6 +93,11 @@ FDisplayInfo ADBItem::GetDisplayInfo() const
 bool ADBItem::CanInteract() const
 {
 	return bCanInteract;
+}
+
+void ADBItem::SetCanInteract(bool bAllowInteract)
+{
+	bCanInteract = bAllowInteract;
 }
 
 bool ADBItem::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)

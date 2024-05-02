@@ -44,7 +44,7 @@ protected:
 	virtual void EndTrace() override;
 	virtual FDisplayInfo GetDisplayInfo() const override;
 	virtual bool CanInteract() const override;
-
+	virtual void SetCanInteract(bool bCanInteract) override;
 
 public:
 	/*

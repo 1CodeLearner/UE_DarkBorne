@@ -12,10 +12,13 @@ static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionD
 UDBInteractionComponent::UDBInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true);
 	InteractDistance = 2000.f;
 	InteractRadius = 50.f;
 	interactSpeed = 3.f;
 	bInteracting = false;
+
+	currTime = 0.f;
 }
 
 void UDBInteractionComponent::BeginPlay()
@@ -26,38 +29,58 @@ void UDBInteractionComponent::BeginPlay()
 		Character = TempCharacter;
 }
 
-void UDBInteractionComponent::OnInteract(bool bIsInput)
+void UDBInteractionComponent::OnInteract()
 {
-	if (bIsInput)
-	{
+	if (!bInteracting) {
 		if (OverlappingActor)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("OnInteract %s"),
-				GetWorld()->GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server")
-			);
 			bInteracting = true;
 			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 			Interface->Execute_BeginInteract(OverlappingActor, this);
+
+			SetCanInteract(OverlappingActor, false);
+
+			OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGININTERACT);
 		}
 	}
 	else if (bInteracting) {
 		bInteracting = false;
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 		Interface->Execute_InterruptInteract(OverlappingActor);
+
+		SetCanInteract(OverlappingActor, true);
+
+		OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::INTERRUPTINTERACT);
+
+		ResetTimer();
 	}
 }
 
 void UDBInteractionComponent::InteractExecute()
 {
 	if (bInteracting) {
-		UE_LOG(LogTemp, Warning, TEXT("Middle %s"),
-			GetWorld()->GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server")
-		);
 		bInteracting = false;
-
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 		Interface->Execute_ExecuteInteract(OverlappingActor, Character);
+		OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::EXECUTEINTERACT);
+
+		ResetTimer();
 	}
+}
+
+void UDBInteractionComponent::SetCanInteract(AActor* InteractingActor, bool bCanInteract)
+{
+	IInteractionInterface* Interface = Cast<IInteractionInterface>(InteractingActor);
+	if (Interface)
+		Interface->SetCanInteract(bCanInteract);
+
+	if (!GetOwner()->HasAuthority())
+		Server_SetCanInteract(InteractingActor, bCanInteract);
+}
+
+void UDBInteractionComponent::Server_SetCanInteract_Implementation(AActor* InteractingActor, bool bCanInteract)
+{
+	SetCanInteract(InteractingActor, bCanInteract);
 }
 
 void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -66,13 +89,15 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 	const bool bDebugDraw = CVarDebugDrawInteraction.GetValueOnGameThread();
 
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Dot:%f"), bInteracting ? TEXT("INTERACTING") : TEXT("NOT INTERACTING")));
-
-
 	if (bInteracting)
-		UpdateTimer();
+		UpdateTimer(DeltaTime, bDebugDraw);
 	else if (CanInteract(bDebugDraw))
 		UpdateOverlappingActor(bDebugDraw);
+
+	if (bDebugDraw)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("ActorTraced: %s"), *GetNameSafe(OverlappingActor)));
+	}
 }
 
 bool UDBInteractionComponent::CanInteract(bool bDebugDraw)
@@ -94,7 +119,7 @@ bool UDBInteractionComponent::CanInteract(bool bDebugDraw)
 			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 			Interface->EndTrace();
 			OverlappingActor = nullptr;
-			OnInteractActorUpdate.ExecuteIfBound(nullptr);
+			OnInteractActorUpdate.ExecuteIfBound(nullptr, EInteractState::ENDTRACE);
 		}
 		return false;
 	}
@@ -154,7 +179,16 @@ void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
 				AActor* HitActor = Hit.GetActor();
 				if (HitActor && HitActor->Implements<UInteractionInterface>())
 				{
-					if (!Cast<IInteractionInterface>(HitActor)->CanInteract()) break;
+					if (!Cast<IInteractionInterface>(HitActor)->CanInteract())
+					{
+						if (OverlappingActor) {
+							IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
+							Interface->EndTrace();
+							OverlappingActor = nullptr;
+							OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::ENDTRACE);
+						}
+						break;
+					};
 
 					if (!OverlappingActor)
 					{
@@ -162,18 +196,19 @@ void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
 
 						auto Interface = Cast<IInteractionInterface>(OverlappingActor);
 						Interface->BeginTrace();
-						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor);
+						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGINTRACE);
 					}
 					else if (OverlappingActor != HitActor)
 					{
 						IInteractionInterface* prevActor = Cast<IInteractionInterface>(OverlappingActor);
 						prevActor->EndTrace();
+						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::ENDTRACE);
 
 						OverlappingActor = HitActor;
 
 						IInteractionInterface* currActor = Cast<IInteractionInterface>(OverlappingActor);
 						currActor->BeginTrace();
-						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor);
+						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGINTRACE);
 					}
 				}
 				break;
@@ -183,14 +218,32 @@ void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
 			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 			Interface->EndTrace();
 			OverlappingActor = nullptr;
-			OnInteractActorUpdate.ExecuteIfBound(OverlappingActor);
+			OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::ENDTRACE);
 		}
 	}
 }
 
-void UDBInteractionComponent::UpdateTimer()
+void UDBInteractionComponent::UpdateTimer(float DeltaTime, bool bDebugDraw)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("UpdateTimer")));
+	currTime += DeltaTime;
 
+	OnInteractTimeUpdate.ExecuteIfBound(currTime, interactSpeed);
+
+	if (currTime >= interactSpeed)
+	{
+		InteractExecute();
+	}
+
+	if (bDebugDraw)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(
+			TEXT("UpdateTimer: %0.2f"), currTime));
+	}
+
+}
+
+void UDBInteractionComponent::ResetTimer()
+{
+	currTime = 0.f;
 }
 

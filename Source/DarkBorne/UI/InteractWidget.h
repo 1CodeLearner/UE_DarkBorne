@@ -8,7 +8,9 @@
 
 class UTextBlock;
 class ACharacter;
-
+class UCanvasPanel;
+class UProgressBar;
+enum class EInteractState : uint8;
 /**
  *
  */
@@ -18,20 +20,27 @@ class DARKBORNE_API UInteractWidget : public UUserWidget
 	GENERATED_BODY()
 
 public: 
-	void DisplayInteract(FString NameStr, FString ActionStr);
-	
+	void DisplayBeginTrace(bool bDisplay, AActor* ActorFound = nullptr);
+	void DisplayBeginInteract(bool bDisplay);
 protected:
 	virtual void NativeOnInitialized() override;
 
 	void SetNameText(FString NameStr);
 	void SetActionText(FString ActionStr);
 
-	void OnInteractActorUpdate(AActor* ActorFound);
-
+	void OnInteractActorUpdate(AActor* ActorFound, EInteractState InteractState);
+	void OnInteractTimeUpdate(float CurrentTime, float MaxTime);
 protected:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* Text_Name;
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* Text_Action;
+	
+	UPROPERTY(meta=(BindWidget))
+	UProgressBar* ProgressBar_Interact;
 
+	UPROPERTY(meta=(BindWidget))
+	UCanvasPanel* Canvas_BeginTrace;
+	UPROPERTY(meta=(BindWidget))
+	UCanvasPanel* Canvas_BeginInteract;
 };

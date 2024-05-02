@@ -45,18 +45,15 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void BeginInteract(UDBInteractionComponent* InteractionComp);
-
 	UFUNCTION(BlueprintNativeEvent)
 	void ExecuteInteract(ACharacter* Character);
-	
 	UFUNCTION(BlueprintNativeEvent)
 	void InterruptInteract();
 
 	virtual void BeginTrace() = 0;
 	virtual void EndTrace() = 0;
-		
 	virtual bool CanInteract() const = 0;
-
+	virtual void SetCanInteract(bool bAllowInteract) = 0;
 	virtual FDisplayInfo GetDisplayInfo() const = 0;
 
 	UFUNCTION(BlueprintNativeEvent)

@@ -122,7 +122,6 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		enhancedInputComponent->BindAction(ia_DB_Look, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedLook);
 
 		enhancedInputComponent->BindAction(ia_Interact, ETriggerEvent::Started, this, &ADBCharacter::EnhancedInteract);
-		enhancedInputComponent->BindAction(ia_Interact, ETriggerEvent::Completed, this, &ADBCharacter::EnhancedInteract);
 	}
 }
 
@@ -172,9 +171,8 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 
 void ADBCharacter::EnhancedInteract(const FInputActionValue& value)
 {
-	bool inputValue = value.Get<bool>();
-	if (InteractionComp)
-		InteractionComp->OnInteract(inputValue);
+	if (ensureAlways(InteractionComp))
+		InteractionComp->OnInteract();
 }
 
 void ADBCharacter::CreatePlayerWidget()

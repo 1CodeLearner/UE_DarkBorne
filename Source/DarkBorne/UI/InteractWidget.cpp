@@ -4,26 +4,62 @@
 #include "InteractWidget.h"
 #include "Components/TextBlock.h"
 #include "../Framework/ActorComponents/DBInteractionComponent.h"
-#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/Character.h>
 #include "../Framework/Interfaces/InteractionInterface.h"
 #include "../Inventory/ItemObject.h"
+#include "Components/CanvasPanel.h"
+#include "Components/ProgressBar.h"
 
-void UInteractWidget::DisplayInteract(FString NameStr, FString ActionStr)
+void UInteractWidget::DisplayBeginTrace(bool bDisplay, AActor* ActorFound)
 {
-	SetNameText(NameStr);
-	SetActionText(ActionStr);
+	if (bDisplay) 
+	{
+		if (Canvas_BeginInteract->IsVisible())
+			Canvas_BeginInteract->SetVisibility(ESlateVisibility::Collapsed);
+		
+		auto Interact = Cast<IInteractionInterface>(ActorFound);
+		if (Interact) 
+		{
+			FDisplayInfo displayInfo = Interact->GetDisplayInfo();
+			SetNameText(displayInfo.Name);
+			SetActionText(displayInfo.Action);
+		}
+		else {
+			SetNameText(FString::Printf(TEXT("None")));
+			SetActionText(FString::Printf(TEXT("Error")));
+		}
+			
+		Canvas_BeginTrace->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+	else {
+		Canvas_BeginTrace->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	
+}
+
+void UInteractWidget::DisplayBeginInteract(bool bDisplay)
+{
+	if (bDisplay) 
+	{
+		if (Canvas_BeginTrace->IsVisible())
+			Canvas_BeginTrace->SetVisibility(ESlateVisibility::Collapsed);
+
+		Canvas_BeginInteract->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+	else {
+		Canvas_BeginInteract->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void UInteractWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	APawn* What = GetOwningPlayerPawn();
-	
-	auto Comp = What->GetComponentByClass<UDBInteractionComponent>();
-		
+	APawn* Player = GetOwningPlayerPawn();
+
+	auto Comp = Player->GetComponentByClass<UDBInteractionComponent>();
+
 	Comp->OnInteractActorUpdate.BindUObject(this, &UInteractWidget::OnInteractActorUpdate);
-	
+	Comp->OnInteractTimeUpdate.BindUObject(this, &UInteractWidget::OnInteractTimeUpdate);
 	SetVisibility(ESlateVisibility::Collapsed);
 }
 
@@ -37,20 +73,40 @@ void UInteractWidget::SetActionText(FString ActionStr)
 	Text_Action->SetText(FText::FromString(ActionStr));
 }
 
-void UInteractWidget::OnInteractActorUpdate(AActor* ActorFound)
+void UInteractWidget::OnInteractActorUpdate(AActor* ActorFound, EInteractState InteractState)
 {
-	if (ActorFound) {
-		SetVisibility(ESlateVisibility::HitTestInvisible);
-
-		auto Interact = Cast<IInteractionInterface>(ActorFound);
-		FDisplayInfo displayInfo = Interact->GetDisplayInfo();
-		DisplayInteract(displayInfo.Name, displayInfo.Action);
-		
-		UE_LOG(LogTemp, Warning, TEXT("OnInteractActorFound here, %f"), 10.f);
+	switch (InteractState)
+	{
+	case EInteractState::BEGINTRACE:
+	{
+		if (ensureAlways(ActorFound))
+		{
+			SetVisibility(ESlateVisibility::HitTestInvisible);
+			DisplayBeginTrace(true, ActorFound);
+		}
+		break;
 	}
-	else {
+	case EInteractState::ENDTRACE:
+		DisplayBeginTrace(false);
+		break;
+	case EInteractState::BEGININTERACT:
+		DisplayBeginInteract(true);
+		break;
+	case EInteractState::INTERRUPTINTERACT:
+		DisplayBeginInteract(false);
+		DisplayBeginTrace(true, ActorFound);
+		break;
+	case EInteractState::EXECUTEINTERACT:
 		SetVisibility(ESlateVisibility::Collapsed);
+		break;
 	}
+}
 
+void UInteractWidget::OnInteractTimeUpdate(float CurrentTime, float MaxTime)
+{
+	if (ensureAlways(Canvas_BeginInteract->IsVisible()))
+	{
+		ProgressBar_Interact->SetPercent(CurrentTime/MaxTime);
+	}
 }
 

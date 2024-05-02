@@ -7,7 +7,19 @@
 #include "DBInteractionComponent.generated.h"
 
 
-DECLARE_DELEGATE_OneParam(FInteractActorUpdateDelegate, AActor* /*InteractingCharacter*/);
+UENUM(BlueprintType)
+enum class EInteractState : uint8
+{
+	BEGINTRACE UMETA(DisplayName="BeginTrace"),
+	ENDTRACE UMETA(DisplayName="EndTrace"),
+	BEGININTERACT UMETA(DisplayName="BeginInteract"),
+	EXECUTEINTERACT UMETA(DisplayName="ExecuteInteract"),
+	INTERRUPTINTERACT UMETA(DisplayName="InterruptInteract")
+};
+
+DECLARE_DELEGATE_TwoParams(FInteractActorUpdateDelegate, AActor* /*InteractingCharacter*/, EInteractState /*InteractState*/);
+
+DECLARE_DELEGATE_TwoParams(FInteractTimeUpdateDelegate, float /*CurrentTime*/, float /*MaxTime*/);
 
 class ACharacter;
 
@@ -21,7 +33,7 @@ public:
 	UDBInteractionComponent();
 
 	FInteractActorUpdateDelegate OnInteractActorUpdate;
-
+	FInteractTimeUpdateDelegate OnInteractTimeUpdate;
 	void InteractExecute();
 
 protected:
@@ -38,17 +50,23 @@ protected:
 	float interactSpeed;
 
 private:
-	void OnInteract(bool bIsInput);
-
+	void OnInteract();
+	
 	UPROPERTY()
 	TObjectPtr<ACharacter> Character;
-
 	UPROPERTY()
 	TObjectPtr<AActor> OverlappingActor;
 
 	bool bInteracting;
-
+	
 	bool CanInteract(bool bDebugDraw);
 	void UpdateOverlappingActor(bool bDebugDraw);
-	void UpdateTimer();	
+	void UpdateTimer(float DeltaTime, bool bDebugDraw);
+
+	void SetCanInteract(AActor* InteractingActor, bool bCanInteract);
+	UFUNCTION(Server, Reliable)
+	void Server_SetCanInteract(AActor* InteractingActor, bool bCanInteract);
+
+	float currTime;
+	void ResetTimer();
 };
