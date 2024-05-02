@@ -113,6 +113,11 @@ void UDBRogueAnimInstance::AnimNotify_End_Hit()
 	isHitting = false;
 }
 
+void UDBRogueAnimInstance::AnimNotify_Jump_End()
+{
+	isFalling = false;
+}
+
 void UDBRogueAnimInstance::AnimNotify_DoubleJumpStart()
 {
 	isDoubleJumping = true;

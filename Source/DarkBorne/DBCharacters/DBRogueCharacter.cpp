@@ -28,7 +28,6 @@ ADBRogueCharacter::ADBRogueCharacter()
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -88));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
-
 	//SpringArm 컴포넌트 생성
 	springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("springArm"));
 	//springArm 을 RootComponent 의 자식 (루프 컴포넌트는 디폴트 기본 자식임)
@@ -60,7 +59,7 @@ ADBRogueCharacter::ADBRogueCharacter()
 
 	ThrowKnifePos = CreateDefaultSubobject<UArrowComponent>(TEXT("ThrowKnifePos"));
 	ThrowKnifePos->SetupAttachment(camera);
-
+	
 	JumpMaxCount = 2;
 }
 
@@ -146,18 +145,12 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 
 		if (IsLocallyControlled())
 		{
-
 			APlayerController* pc = GetWorld()->GetFirstPlayerController();
 			pc->SetShowMouseCursor(true);
-			AddControllerPitchInput(0);
-			AddControllerYawInput(0);
+			DisableInput(pc);
+			
 			//pc->SetInputMode(FInputModeGameOnly());
 		}
-
-		//springArm->bUsePawnControlRotation = false;
-		//pc->AddYawInput(NULL);
-		//AddControllerPitchInput(NULL);
-
 	}
 }
 

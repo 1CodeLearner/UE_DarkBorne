@@ -169,26 +169,20 @@ void ADBCharacter::MultiRPC_DoubleJump_Implementation()
 {
 	Jump();
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
-	if (RogueAnim->isFalling)
+	// 공중에서 덮점 안했다면
+	if (RogueAnim->isFalling && !RogueAnim->isDoubleJumping)
 	{
-		RogueAnim->isDoubleJumping = true;
-		UE_LOG(LogTemp, Warning, TEXT("double jump"));
-		//MultiRPC_DoubleJump();
+		RogueAnim->AnimNotify_DoubleJumpStart();
+		// 문제 : 공중제비를 다 돌기전에 true를 맥이면 fall loop로 넘어가지 않는다
 	}
-	else
-	{
-		RogueAnim->isDoubleJumping = false;
-		//MultiRPC_DoubleJump22();
+	// 바닥이고 덮점 했으면
+	else if (!RogueAnim->isFalling && RogueAnim->isDoubleJumping)
+	{	
+		RogueAnim->AnimNotify_DoubleJumpEnd();
 	}
-	/*UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
-	RogueAnim->isDoubleJumping = true;*/
 }
 
-void ADBCharacter::MultiRPC_DoubleJump22_Implementation()
-{
-	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
-	RogueAnim->isDoubleJumping = false;
-}
+
 
 void ADBCharacter::CreatePlayerWidget()
 {

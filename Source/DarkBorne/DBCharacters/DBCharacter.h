@@ -111,8 +111,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_DoubleJump();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MultiRPC_DoubleJump22();
 
 public:
 	void CreatePlayerWidget();

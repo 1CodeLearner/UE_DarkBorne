@@ -78,6 +78,8 @@ public:
 	void AnimNotify_End_Hit();
 	
 	UFUNCTION()
+	void AnimNotify_Jump_End();
+	UFUNCTION()
 	void AnimNotify_DoubleJumpStart();
 	UFUNCTION()
 	void AnimNotify_DoubleJumpEnd();

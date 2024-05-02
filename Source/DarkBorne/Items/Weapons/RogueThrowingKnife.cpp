@@ -28,7 +28,7 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 	projectileComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	projectileComponent->UpdatedComponent = SceneComp;
 	projectileComponent->InitialSpeed = 0;
-	projectileComponent->MaxSpeed = 2000;
+	projectileComponent->MaxSpeed = 3000;
 	projectileComponent->bShouldBounce = false;
 	projectileComponent->bRotationFollowsVelocity = true;
 	projectileComponent->ProjectileGravityScale = 0;
@@ -197,8 +197,9 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 
 	isThrowing = true;
 	projectileComponent->ProjectileGravityScale = 0.0f;
+	//projectileComponent->InitialSpeed = 3000;
 	projectileComponent->SetActive(true, true);
-	projectileComponent->SetVelocityInLocalSpace(FVector(2000, 0, 0));
+	projectileComponent->SetVelocityInLocalSpace(FVector(3000, 0, 0));
 	PlayMontage(RogueCharacter, FName("ESkill_Start"));
 	SetLifeSpan(3);
 	
