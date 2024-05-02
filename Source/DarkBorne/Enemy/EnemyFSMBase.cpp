@@ -8,6 +8,8 @@
 #include "../DBCharacters/DBCharacter.h"
 #include <NavigationSystem.h>
 #include "../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
+#include <Net/UnrealNetwork.h>
+#include "../TP_ThirdPerson/TP_ThirdPersonGameMode.h"
 
 // FSM공통 부분 추가 발생시 추가할 스크립트
 //당장은 쓰이지 않음
@@ -18,11 +20,30 @@ UEnemyFSMBase::UEnemyFSMBase()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
+	//컴포넌트 멀티플레이 활성화
+	SetIsReplicatedByDefault(true);
 	// ...
 	// 
 	// 
-	
+	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(GetWorld());
+	if (GameMode)
+	{
+		// 캐스팅하여 사용자 정의 게임 모드로 변환
+		tpsgamemode = Cast<ATP_ThirdPersonGameMode>(GameMode);
+		if (tpsgamemode)
+		{
+			// 여기에서 MyGameMode의 멤버 함수나 변수 사용 가능
+			//ActivePlayers = tpsgamemode->;
+		}
+		else
+		{
+			// 게임 모드 캐스팅 실패 처리
+		}
+	}
+	else
+	{
+		// 게임 모드 가져오기 실패 처리
+	}
 	
 }
 
@@ -32,30 +53,32 @@ void UEnemyFSMBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADBCharacter::StaticClass(), FoundActors);
-	enemyTargetList = FoundActors;
-
-	//나 자신 액터
 	myActor = Cast<AEnemyBase>(GetOwner());
-	//! 차후를 위한 AI 컨트롤러 및 기타
-	
-	ai = Cast<AAIController>(myActor->GetController());
 
-	// 시야각을 cos(시야각) 으로 하자
-	float radianViewAngle = FMath::DegreesToRadians(viewAngle * 0.5f);
-	viewAngle = FMath::Cos(radianViewAngle);
-
-	switch (myActor->enemyAttackType)
+	if(myActor->HasAuthority())
 	{
-	case EEnemyAttackType::MELEE:
-		engageRange = closedWeaponAttackRange;
-		break;
-	case EEnemyAttackType::RANGED:
-		engageRange = rangedWeaponAttackRange;
-		break;
+		TArray<AActor*> FoundActors;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADBCharacter::StaticClass(), FoundActors);
+		enemyTargetList = FoundActors;
+
+		ai = Cast<AAIController>(myActor->GetController());
+
+		float radianViewAngle = FMath::DegreesToRadians(viewAngle * 0.5f);
+		viewAngle = FMath::Cos(radianViewAngle);
+
+		switch (myActor->enemyAttackType)
+		{
+		case EEnemyAttackType::MELEE:
+			engageRange = closedWeaponAttackRange;
+			break;
+		case EEnemyAttackType::RANGED:
+			engageRange = rangedWeaponAttackRange;
+			break;
+		}
+
+		ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 	}
-	// ...
+	
 	
 }
 
@@ -66,34 +89,46 @@ void UEnemyFSMBase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	 
 	// ...
-	switch (currState)
+
+	if (myActor->HasAuthority())
 	{
-	case EEnemyState::IDLE:
-		UpdateIdle();
-		break;
-	case EEnemyState::MOVE:
-		UpdateMove();
-		break;
-	case EEnemyState::PATROL:
-		UpdatePatrol();
-		break;
-	case EEnemyState::ATTACK:
-		EyeOnTarget();
-		UpdateAttack();
-		break;
-	case EEnemyState::ATTACK_DELAY:
-		EyeOnTarget();
-		UpdateAttackDelay();
-		break;
-	case EEnemyState::DAMAGE:
-		UpdateDamaged(DeltaTime);
-		break;
-	case EEnemyState::DIE:
-		UpdateDie();
-		break;
-	default:
-		break;
+		switch (currState)
+		{
+		case EEnemyState::IDLE:
+			UpdateIdle();
+			break;
+		case EEnemyState::MOVE:
+			UpdateMove();
+			break;
+		case EEnemyState::PATROL:
+			UpdatePatrol();
+			break;
+		case EEnemyState::ATTACK:
+			EyeOnTarget();
+			UpdateAttack();
+			break;
+		case EEnemyState::ATTACK_DELAY:
+			EyeOnTarget();
+			UpdateAttackDelay();
+			break;
+		case EEnemyState::DAMAGE:
+			UpdateDamaged(DeltaTime);
+			break;
+		case EEnemyState::DIE:
+			UpdateDie();
+			break;
+		default:
+			break;
+		}
 	}
+	
+}
+
+void UEnemyFSMBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UEnemyFSMBase, currState);
+	DOREPLIFETIME(UEnemyFSMBase, enemyTargetList);
 }
 
 void UEnemyFSMBase::ChangeState(EEnemyState e)
@@ -102,6 +137,7 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 	
 
 	// 바뀌는 상태를 출력하자
+	/*
 	UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEnemyState"), true);
 	if (enumPtr != nullptr)
 	{
@@ -109,10 +145,11 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 			*enumPtr->GetNameStringByIndex((int32)currState),
 			*enumPtr->GetNameStringByIndex((int32)e));
 	}
+	*/
 	currState = e;
 	currTime = 0;
 
-
+	if(ai == nullptr) return;
 	ai->StopMovement();
 	switch (currState)
 	{
@@ -134,7 +171,7 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 			while (islooping)
 			{
 				/**/
-				auto ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+				
 				bool result = ns->GetRandomReachablePointInRadius(myActor->GetActorLocation(), randMaxMovementRange, loc);
 				islooping = !result;
 
@@ -392,5 +429,12 @@ bool UEnemyFSMBase::IsPatrolPos()
 		return true;
 	}
 	return false;
+}
+
+void UEnemyFSMBase::OnRep_CurrentState()
+{
+	// 클라이언트에서 상태 변경 시 추가적으로 필요한 동작 구현
+
+
 }
 

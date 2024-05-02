@@ -12,6 +12,7 @@
 #include "../../../../../../../Source/Runtime/Engine/Classes/GameFramework/CharacterMovementComponent.h"
 #include "../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h"
 #include "../Enemy/MorigeshWeapon.h"
+#include <Net/UnrealNetwork.h>
 
 
 UMorigeshEnemyFSM::UMorigeshEnemyFSM()
@@ -53,6 +54,13 @@ void UMorigeshEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	
+}
+
+void UMorigeshEnemyFSM::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UMorigeshEnemyFSM, anim);
+	DOREPLIFETIME(UMorigeshEnemyFSM, montage);
 }
 
 //트랜지션 과정 + 변환
@@ -109,4 +117,14 @@ void UMorigeshEnemyFSM::FireWeapon(FVector targetPos)
 	FVector tempPos = weapon->GetActorLocation();
 	UE_LOG(LogTemp, Warning, TEXT("SpawnWeaponPos : %s"), *tempPos.ToString());
 	
+}
+
+void UMorigeshEnemyFSM::OnRep_CurrentState()
+{
+	Super::OnRep_CurrentState();
+	if (anim != nullptr)
+	{
+		anim->state = currState;
+
+	}
 }

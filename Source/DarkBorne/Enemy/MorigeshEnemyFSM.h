@@ -37,13 +37,16 @@ protected:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 public:
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(Replicated, EditAnywhere)
 	class UAnimMorigeshEnemy* anim;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	class UAnimMontage* montage;
 
 	//UPROPERTY(EditAnywhere)
@@ -67,9 +70,9 @@ public:
 
 	void FireWeapon(FVector targetPos);
 	
-
+	
+	virtual void OnRep_CurrentState() override;
 	
 	
-
 
 };

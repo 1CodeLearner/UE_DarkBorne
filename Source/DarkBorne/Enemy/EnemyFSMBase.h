@@ -41,7 +41,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void ChangeState(EEnemyState e);
 
@@ -77,20 +77,28 @@ public:
 	virtual bool CanVisibleAttack();
 
 	virtual bool IsPatrolPos();
-
+	
+	UFUNCTION()
+	virtual void OnRep_CurrentState();
 	
 
 
 public:
 
-	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class ATP_ThirdPersonGameMode* tpsgamemode;
+
 	//AIController
 	UPROPERTY(EditAnywhere)
 	class AAIController* ai;
 
-
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	TArray<AActor*> enemyTargetList;
 
+	//UPROPERTY( EditAnywhere, BlueprintReadWrite)
+	//TMap<class ADBPlayerController*, bool>* ActivePlayers;
+
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_CurrentState, BlueprintReadWrite, EditAnywhere)
 	EEnemyState currState = EEnemyState::IDLE;
 
 	UPROPERTY(EditInstanceOnly,BlueprintReadOnly)
@@ -99,8 +107,8 @@ public:
 	UPROPERTY(EditInstanceOnly,BlueprintReadOnly)
 	class AEnemyBase* myActor;
 
-
-	
+	UPROPERTY(EditAnywhere)
+	class UNavigationSystemV1* ns;
 
 	//시간 관련
 

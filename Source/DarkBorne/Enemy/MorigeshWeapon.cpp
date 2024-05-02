@@ -4,12 +4,14 @@
 #include "../Enemy/MorigeshWeapon.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include <Net/UnrealNetwork.h>
 
 // Sets default values
 AMorigeshWeapon::AMorigeshWeapon()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 
 	// �浹ü
 

@@ -4,6 +4,7 @@
 #include "../Enemy/MorigeshEnemy.h"
 #include "MorigeshEnemyFSM.h"
 
+
 AMorigeshEnemy::AMorigeshEnemy()
 {	
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> characterMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/ParagonMorigesh/Characters/Heroes/Morigesh/Meshes/Morigesh.Morigesh'"));
