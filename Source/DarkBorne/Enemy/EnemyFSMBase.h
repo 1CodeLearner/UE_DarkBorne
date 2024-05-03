@@ -80,6 +80,8 @@ public:
 	
 	UFUNCTION()
 	virtual void OnRep_CurrentState();
+
+	void OnPlayerStatus(class ADBPlayerController* temp,bool temp2);
 	
 
 
@@ -93,7 +95,7 @@ public:
 	class AAIController* ai;
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
-	TArray<AActor*> enemyTargetList;
+	TArray<class ADBCharacter*> enemyTargetList;
 
 	//UPROPERTY( EditAnywhere, BlueprintReadWrite)
 	//TMap<class ADBPlayerController*, bool>* ActivePlayers;

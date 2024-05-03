@@ -18,12 +18,6 @@ AMorigeshEnemy::AMorigeshEnemy()
 
 	baseFSM = CreateDefaultSubobject<UMorigeshEnemyFSM>(TEXT("FSM"));
 	
-
-	
-
-	
-
-
 }
 
 void AMorigeshEnemy::BeginPlay()

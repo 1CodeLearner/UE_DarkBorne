@@ -7,6 +7,7 @@
 #include "../ItemTypes/ItemType.h"
 #include "../ItemTypes/EnchantmentTypes.h"
 #include "../Framework/DBPlayerController.h"
+#include "../DBCharacters/DBCharacter.h"
 
 ATP_ThirdPersonGameMode::ATP_ThirdPersonGameMode()
 {
@@ -55,6 +56,30 @@ void ATP_ThirdPersonGameMode::OnPlayerDead(APlayerController* PlayerController)
 TArray<ADBPlayerController*> ATP_ThirdPersonGameMode::GetConnectedPlayers() const
 {
 	return ConnectedPlayers;
+}
+
+TArray<class ADBCharacter*> ATP_ThirdPersonGameMode::GetPlayerCharacters() 
+{
+	// 플레이어 캐릭터를 저장할 배열
+	TArray<class ADBCharacter*> PlayerCharacters;
+
+	// ActivePlayers 맵을 순회하며 각 플레이어에게 할당된 캐릭터 가져오기
+	for (auto& PlayerPair : ActivePlayers)
+	{
+		ADBPlayerController* PlayerController = PlayerPair.Key;
+		bool bIsPlayerAlive = PlayerPair.Value;
+
+		if (PlayerController && bIsPlayerAlive)
+		{
+			ADBCharacter* PlayerCharacter = Cast<ADBCharacter>(PlayerController->GetPawn());
+			if (PlayerCharacter)
+			{
+				PlayerCharacters.Add(PlayerCharacter);
+			}
+		}
+	}
+
+	return PlayerCharacters;
 }
 
 void ATP_ThirdPersonGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)

@@ -25,25 +25,6 @@ UEnemyFSMBase::UEnemyFSMBase()
 	// ...
 	// 
 	// 
-	AGameModeBase* GameMode = UGameplayStatics::GetGameMode(GetWorld());
-	if (GameMode)
-	{
-		// 캐스팅하여 사용자 정의 게임 모드로 변환
-		tpsgamemode = Cast<ATP_ThirdPersonGameMode>(GameMode);
-		if (tpsgamemode)
-		{
-			// 여기에서 MyGameMode의 멤버 함수나 변수 사용 가능
-			//ActivePlayers = tpsgamemode->;
-		}
-		else
-		{
-			// 게임 모드 캐스팅 실패 처리
-		}
-	}
-	else
-	{
-		// 게임 모드 가져오기 실패 처리
-	}
 	
 }
 
@@ -57,9 +38,23 @@ void UEnemyFSMBase::BeginPlay()
 
 	if(myActor->HasAuthority())
 	{
-		TArray<AActor*> FoundActors;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADBCharacter::StaticClass(), FoundActors);
-		enemyTargetList = FoundActors;
+		AGameModeBase* GameMode = UGameplayStatics::GetGameMode(GetWorld());
+		if (GameMode)
+		{
+			// 캐스팅하여 사용자 정의 게임 모드로 변환
+			tpsgamemode = Cast<ATP_ThirdPersonGameMode>(GameMode);
+			if (tpsgamemode)
+			{
+				// 여기에서 MyGameMode의 멤버 함수나 변수 사용 가능
+				//ActivePlayers = tpsgamemode->;
+				tpsgamemode->OnPlayerUpdate.AddUObject(this, &UEnemyFSMBase::OnPlayerStatus);
+				TArray<ADBCharacter*> FoundActors;
+				FoundActors = tpsgamemode->GetPlayerCharacters();
+				enemyTargetList = FoundActors;
+			}
+		}
+
+		
 
 		ai = Cast<AAIController>(myActor->GetController());
 
@@ -148,22 +143,23 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 	*/
 	currState = e;
 	currTime = 0;
-
-	if(ai == nullptr) return;
-	ai->StopMovement();
-	switch (currState)
+	if (myActor->HasAuthority())
 	{
+		if (ai == nullptr) return;
+		ai->StopMovement();
+		switch (currState)
+		{
 		case EEnemyState::IDLE:
 
-		break;
+			break;
 		case EEnemyState::MOVE:
-			if (nowTarget != nullptr) 
+			if (nowTarget != nullptr)
 			{
 
 				FVector pos = nowTarget->GetActorLocation();
 				ai->MoveToLocation(pos);
 			}
-		break;
+			break;
 		case EEnemyState::PATROL:
 		{
 			bool islooping = true;
@@ -171,7 +167,7 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 			while (islooping)
 			{
 				/**/
-				
+
 				bool result = ns->GetRandomReachablePointInRadius(myActor->GetActorLocation(), randMaxMovementRange, loc);
 				islooping = !result;
 
@@ -181,15 +177,17 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 		}
 		break;
 		case EEnemyState::ATTACK:
-		break;
+			break;
 		case EEnemyState::DAMAGE:
-		break;
+			break;
 		case EEnemyState::DIE:
-		break;
+			break;
 		default:
-		break;
+			break;
 
+		}
 	}
+	
 }
 
 void UEnemyFSMBase::UpdateIdle()
@@ -436,5 +434,15 @@ void UEnemyFSMBase::OnRep_CurrentState()
 	// 클라이언트에서 상태 변경 시 추가적으로 필요한 동작 구현
 
 
+}
+
+void UEnemyFSMBase::OnPlayerStatus(class ADBPlayerController* temp, bool temp2) 
+{
+	TArray<class ADBCharacter*> list;
+	
+	enemyTargetList = tpsgamemode->GetPlayerCharacters();
+
+	//UE_LOG(LogTemp,Warning,TEXT("this"));
+	return;
 }
 

@@ -34,6 +34,8 @@ public:
 	
 	TArray<ADBPlayerController*> GetConnectedPlayers() const;
 
+	TArray<class ADBCharacter*> GetPlayerCharacters() ;
+
 	FPlayerUpdateDelegate OnPlayerUpdate;
 
 	FGameEndDelegate OnGameEnd;
