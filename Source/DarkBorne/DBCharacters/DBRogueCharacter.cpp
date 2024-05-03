@@ -62,6 +62,7 @@ ADBRogueCharacter::ADBRogueCharacter()
 	ThrowKnifePos->SetupAttachment(camera);
 	
 	JumpMaxCount = 2;
+	GetCharacterMovement()->JumpZVelocity = 500.f;
 }
 
 void ADBRogueCharacter::BeginPlay()
