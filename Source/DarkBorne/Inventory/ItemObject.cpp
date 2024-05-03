@@ -31,6 +31,21 @@ ADBItem* UItemObject::GetItemActor() const
 	return ItemData.ItemActor;
 }
 
+void UItemObject::TryDestroyItemActor()
+{
+	AActor* ItemActor = GetItemActor();
+
+	if (IsValid(ItemActor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Has Actor %s, Destroying.."), *ItemActor->GetName());
+		ItemActor->Destroy();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Has no Actor"));
+	}
+}
+
 FText UItemObject::GetDisplayName() const
 {
 	return ItemData.Item.SlotHolder.DisplayName;

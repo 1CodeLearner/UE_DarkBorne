@@ -7,7 +7,6 @@
 #include "InteractWidget.generated.h"
 
 class UTextBlock;
-class ACharacter;
 class UCanvasPanel;
 class UProgressBar;
 enum class EInteractState : uint8;

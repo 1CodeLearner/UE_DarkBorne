@@ -23,7 +23,7 @@ UDBEquipmentComponent::UDBEquipmentComponent()
 
 bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 {
-	if (Slots.IsEmpty())
+	if (!IsValid(ItemObject) && Slots.IsEmpty())
 		return false;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
@@ -56,17 +56,7 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	//}
 	OnRep_What(old);
 
-	AActor* ItemActor = ItemObject->GetItemActor();
-
-	if(IsValid(ItemActor))
-	{
-		UE_LOG(LogTemp,Warning,TEXT("Has Actor %s"), *ItemActor->GetName());
-		ItemActor->Destroy();
-	}
-	else 
-	{
-		UE_LOG(LogTemp,Warning,TEXT("Has no Actor"));
-	}
+	ItemObject->TryDestroyItemActor();
 }
 
 void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)

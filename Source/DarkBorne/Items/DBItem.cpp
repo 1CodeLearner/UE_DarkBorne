@@ -57,10 +57,10 @@ void ADBItem::Initialize(UItemObject* ItemObject)
 
 void ADBItem::BeginInteract_Implementation(UDBInteractionComponent* InteractionComp)
 {
-	//InteractionComp->InteractExecute();
+	//InteractionComp->ExecuteInteraction();
 }
 
-void ADBItem::ExecuteInteract_Implementation(ACharacter* Character)
+void ADBItem::ExecuteInteract_Implementation(UDBInteractionComponent* InteractionComp, ACharacter* Character)
 {
 	auto Inventory = Character->GetComponentByClass<UPlayerEquipmentComponent>();
 	auto Equipment = Character->GetComponentByClass<UDBEquipmentComponent>();
@@ -68,6 +68,15 @@ void ADBItem::ExecuteInteract_Implementation(ACharacter* Character)
 	if (Equipment->TryAddItem(ItemObj)) 
 	{
 		
+	}
+	//else if (Inventory->TryAddItem(ItemObj))
+	//{
+	//	
+	//}
+	else 
+	{
+		UE_LOG(LogTemp,Warning,TEXT("2222"));
+		InteractionComp->DeclareFailedInteraction();
 	}
 }
 

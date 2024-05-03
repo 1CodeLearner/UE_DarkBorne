@@ -33,11 +33,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void AddItemActor(ADBItem* _ItemActor);
-
 	UFUNCTION(BlueprintCallable)
 	bool HasItemActor() const;
-
 	ADBItem* GetItemActor() const;
+	void TryDestroyItemActor();
 
 	UFUNCTION(BlueprintCallable)
 	FText GetDisplayName() const;
