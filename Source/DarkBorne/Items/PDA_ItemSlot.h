@@ -24,6 +24,9 @@ public:
 		Rarities.Add({ERarityType::COMMON, {0.f, 0.f}});
 		Rarities.Add({ERarityType::RARE, {0.f, 0.f}});
 		Rarities.Add({ERarityType::EPIC, {0.f, 0.f}});
+
+		SlotDimension.X = 1.f;
+		SlotDimension.Y = 1.f;
 	};
 
 public:

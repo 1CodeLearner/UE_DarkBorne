@@ -29,14 +29,6 @@ TArray<FItem> ATP_ThirdPersonGameMode::GenerateItems(FName MonsterName)
 	return TArray<FItem>();
 }
 
-ADBItem* ATP_ThirdPersonGameMode::SpawnItem(AActor* Instigated, FItem Item)
-{
-	if (ensureAlways(DropItemManager)) {
-		return DropItemManager->SpawnItem(Instigated, Item);
-	}
-	return nullptr;
-}
-
 void ATP_ThirdPersonGameMode::OnPlayerDead(APlayerController* PlayerController)
 {
 	auto DBPC = Cast<ADBPlayerController>(PlayerController);

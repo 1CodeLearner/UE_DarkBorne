@@ -27,9 +27,6 @@ public:
 	TArray<FItem> GenerateItems(FName MonsterName);
 
 	UFUNCTION(BlueprintCallable)
-	ADBItem* SpawnItem(AActor* Instigated, FItem Item);
-
-	UFUNCTION(BlueprintCallable)
 	void OnPlayerDead(APlayerController* PlayerController);
 	
 	TArray<ADBPlayerController*> GetConnectedPlayers() const;

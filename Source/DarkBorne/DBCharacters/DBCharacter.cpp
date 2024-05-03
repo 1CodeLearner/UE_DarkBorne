@@ -17,9 +17,23 @@
 #include "../Inventory/LootInventoryComponent.h"
 #include "../Inventory/LootEquipmentComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
+#include "DBRogueCharacter.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/Controller.h>
+#include <../../../../../../../Source/Runtime/UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
+#include "../Framework/ActorComponents/DBInteractionComponent.h"
+
+
+FFinalStat ADBCharacter::GetFinalStat(ACharacter* Character)
+{
+	if (Character->IsA<ADBCharacter>()) {
+		return Cast<ADBCharacter>(Character)->GetFinalStat();
+	}
+	return FFinalStat();
+}
+
 // Sets default values
 ADBCharacter::ADBCharacter()
-{
+{	
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
@@ -35,6 +49,9 @@ ADBCharacter::ADBCharacter()
 	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
 
+
+	InteractDistance = 400.f;
+	InteractionComp = CreateDefaultSubobject<UDBInteractionComponent>("InteractionComp");
 
 }
 
@@ -53,8 +70,8 @@ void ADBCharacter::BeginPlay()
 		if (playerContoller == nullptr) return;
 		//get subSystem
 		UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerContoller->GetLocalPlayer());
-		
-		
+
+
 		//서브시스템을 가져왔다면
 		if (subSystem)
 		{
@@ -66,7 +83,7 @@ void ADBCharacter::BeginPlay()
 			CreatePlayerWidget();
 		}
 	}
-	
+
 	// 서버라면
 	if (HasAuthority())
 	{
@@ -91,6 +108,7 @@ void ADBCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
 }
 
 // Called to bind functionality to input
@@ -106,8 +124,7 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		enhancedInputComponent->BindAction(ia_DB_Look, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedLook);
 
-
-
+		enhancedInputComponent->BindAction(ia_Interact, ETriggerEvent::Started, this, &ADBCharacter::EnhancedInteract);
 	}
 }
 
@@ -139,12 +156,15 @@ void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 
 void ADBCharacter::EnhancedJump(const struct FInputActionValue& value)
 {
-	Jump();
+	//Jump();
+	ServerRPC_DoubleJump();
+	
 }
 
 void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
 {
 	StopJumping();
+	
 }
 
 void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
@@ -155,10 +175,39 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 	AddControllerPitchInput(dir.Y);
 }
 
+void ADBCharacter::ServerRPC_DoubleJump_Implementation()
+{
+
+	MultiRPC_DoubleJump();
+}
+
+void ADBCharacter::MultiRPC_DoubleJump_Implementation()
+{
+	Jump();
+	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
+	// 공중에서 덮점 안했다면
+	if (RogueAnim->isFalling && !RogueAnim->isDoubleJumping)
+	{
+		RogueAnim->AnimNotify_DoubleJumpStart();
+		// 문제 : 공중제비를 다 돌기전에 true를 맥이면 fall loop로 넘어가지 않는다
+	}
+	// 바닥이고 덮점 했으면
+	else if (!RogueAnim->isFalling && RogueAnim->isDoubleJumping)
+	{	
+		RogueAnim->AnimNotify_DoubleJumpEnd();
+	}
+}
+
+void ADBCharacter::EnhancedInteract(const FInputActionValue& value)
+{
+	if (ensureAlways(InteractionComp))
+		InteractionComp->OnInteract();
+}
+
 void ADBCharacter::CreatePlayerWidget()
 {
 	// 내것이 아니거나 플레이어 위젯이 없다면 리턴
-	if(!IsLocallyControlled() || PlayerWidget != nullptr) return;
+	if (!IsLocallyControlled() || PlayerWidget != nullptr) return;
 
 	// 위젯 클래스 담고 생성
 	PlayerWidget = Cast<UDBPlayerWidget>(CreateWidget(GetWorld(), PlayerWidgetClass));
@@ -168,9 +217,9 @@ void ADBCharacter::CreatePlayerWidget()
 void ADBCharacter::OnRep_CurrHP()
 {
 	// 플레이어 위젯이 없으면 리턴
-	if(PlayerWidget == nullptr) return;
+	if (PlayerWidget == nullptr) return;
 	PlayerWidget->UpdateHeathBar(CurrHP, MaxHP);
-	UE_LOG(LogTemp,Warning,TEXT("Testing:%f"),CurrHP);
+	UE_LOG(LogTemp, Warning, TEXT("Testing:%f"), CurrHP);
 }
 
 const FFinalStat& ADBCharacter::GetFinalStat() const

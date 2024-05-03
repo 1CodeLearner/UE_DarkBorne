@@ -38,6 +38,10 @@ public:
 	float comboMinTime = 1.0f;
 	float comboMaxTime = 1.4f;
 	float comboCurrTime = 0;
+
+public:
+	int32 KnifeCount = 0;
+
 public:
 	void RogueAttack();
 	UFUNCTION(Server, Reliable)

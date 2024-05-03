@@ -15,6 +15,7 @@
 #include "../Inventory/PlayerEquipmentComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Public/Net/UnrealNetwork.h>
+#include "../Framework/DBPlayerController.h"
 
 
 
@@ -27,7 +28,6 @@ ADBRogueCharacter::ADBRogueCharacter()
 	// 메쉬 위치 셋팅
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -88));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
-
 
 	//SpringArm 컴포넌트 생성
 	springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("springArm"));
@@ -59,7 +59,12 @@ ADBRogueCharacter::ADBRogueCharacter()
 	RogueAttackComponent = CreateDefaultSubobject<UDBRogueAttackComponent>(TEXT("RogueAttackComp"));
 
 	ThrowKnifePos = CreateDefaultSubobject<UArrowComponent>(TEXT("ThrowKnifePos"));
-	ThrowKnifePos->SetupAttachment(springArm);
+	ThrowKnifePos->SetupAttachment(camera);
+	
+	JumpMaxCount = 2;
+	GetCharacterMovement()->JumpZVelocity = 500.f;
+
+	
 }
 
 void ADBRogueCharacter::BeginPlay()
@@ -74,7 +79,16 @@ void ADBRogueCharacter::BeginPlay()
 	// 시작 시 현재 hp 
 	OnRep_CurrHP();
 
+	//beginPlay때 컴포넌트 가져오고
+	//RogueSkillComponent = GetComponentByClass<UDBRogueSkillComponent>();
+	
+	//input component를 캐스팅해서 가져온다음
+	//UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	//component 붙이기
+	//RogueSkillComponent->SetupPlayerInputComponent(enhancedInputComponent);
+	
 }
+
 
 void ADBRogueCharacter::Tick(float DeltaTime)
 {
@@ -91,6 +105,7 @@ void ADBRogueCharacter::Tick(float DeltaTime)
 	}
 	else
 	{
+		//내 것이라면
 		if (IsLocallyControlled() == false)
 		{
 			ThrowKnifePos->SetWorldLocation(knifePos);
@@ -103,10 +118,12 @@ void ADBRogueCharacter::Tick(float DeltaTime)
 void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 	UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (enhancedInputComponent != nullptr)
 	{
+		
+
+		//RogueSkillComponent->SetupPlayerInputComponent(enhancedInputComponent);
 		RogueSkillComponent->SetupPlayerInputComponent(enhancedInputComponent);
 		RogueAttackComponent->SetupPlayerInputComponent(enhancedInputComponent);
 		RogueWeaponComp->SetupPlayerInputComponent(enhancedInputComponent);
@@ -144,18 +161,14 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 
 		if (IsLocallyControlled())
 		{
-
-			APlayerController* pc = GetWorld()->GetFirstPlayerController();
-			pc->SetShowMouseCursor(true);
-			AddControllerPitchInput(0);
-			AddControllerYawInput(0);
+			ADBPlayerController* pc = Cast<ADBPlayerController>(GetWorld()->GetFirstPlayerController());
+			//APlayerController* pc = GetWorld()->GetFirstPlayerController();
+			//pc->SetShowMouseCursor(true);
+			DisableInput(pc);
+			
+			pc->ChangeToSpectator();
 			//pc->SetInputMode(FInputModeGameOnly());
 		}
-
-		//springArm->bUsePawnControlRotation = false;
-		//pc->AddYawInput(NULL);
-		//AddControllerPitchInput(NULL);
-
 	}
 }
 

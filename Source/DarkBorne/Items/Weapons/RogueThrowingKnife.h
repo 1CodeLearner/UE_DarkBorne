@@ -48,16 +48,17 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UProjectileMovementComponent* projectileComponent;
 
-	
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* ThrowKnifeTrail;
 	
 public:
 	void UpdateKnifeLocation();
 
-	UFUNCTION(Server, Reliable)
-	void ServerRPC_UpdateKnifeLocation();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MultiRPC_UpdateKnifeLocation(FVector TKPosition, FRotator NewRot);
+	//UFUNCTION(Server, Reliable)
+	//void ServerRPC_UpdateKnifeLocation();
+	//
+	//UFUNCTION(NetMulticast, Reliable)
+	//void MultiRPC_UpdateKnifeLocation(FVector TKPosition, FRotator NewRot);
 
 
 	UFUNCTION(NetMulticast, Reliable)

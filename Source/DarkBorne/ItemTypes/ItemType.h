@@ -93,7 +93,7 @@ struct FSlotHolder
 };
 
 /// <summary>
-/// Item used in inventory, Do not modify anything in SlotHolder during runtime. 
+/// Item data stored in UItemObject, Do not modify anything in SlotHolder during runtime. 
 /// Must call Initialize function for FItem to be valid.
 /// </summary>
 USTRUCT(Blueprintable)

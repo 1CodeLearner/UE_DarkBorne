@@ -35,6 +35,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_E_Skill;
 
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_Shift_Skill;
+
 public:
 	//은신 머티리얼
 	UPROPERTY(EditAnywhere)
@@ -69,9 +72,12 @@ public:
 	bool isSpawnKnife = false;
 
 	//수리검 탄창
-	UPROPERTY()
+	UPROPERTY(Replicated, VisibleAnywhere)
 	int32 magazineCnt = 4;
-	
+
+public:
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* AM_RogueShiftSkill;
 public:
 	void UpdateRogueQSkill(float DeltaTime);
 
@@ -89,7 +95,12 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_ActiveRogueESkill();
 
+public:
+	void ActiveRogueShiftSkill();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ActiveRogueShiftSkill();
+
 	UFUNCTION(NetMulticast, Reliable)
-	void MultiRPC_ActiveRogueESkill();
-	
+	void MultiRPC_ActiveRogueShiftSkill();
 };

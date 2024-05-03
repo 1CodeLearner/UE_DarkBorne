@@ -51,15 +51,18 @@ void UDBRogueAttackComponent::RogueAttack()
 
 	// 수리검 스킬 수리검 남아있으면 
 	if (RogueSkillComponent->isSpawnKnife)
-	{
-		if(RogueSkillComponent->TKMagazine.IsEmpty()) return;
+	{	
+		// 만약 탄창이 비었다면
+		if(RogueSkillComponent->TKMagazine.IsEmpty())
+		{
+			return;
+		}
 		RogueThrowKnifeAttack();
 	}
 	// 다시 기본공격으로
-	// E스킬 쓰고있지않고 && 무기 꺼내고 있지 않으면 
+	// E스킬 쓰고있지않고 && 무기 꺼내고 있지 있으면 
 	else if (!RogueSkillComponent->isSpawnKnife && RogueWeaponComponent->hasWeapon)
 	{
-		
 		ServerRPC_RogueAttack();
 	}
 	
@@ -158,22 +161,36 @@ void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 {
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-	//누르면 TKmagazine에 있는 탄창을 0부터 ~ num()까지 RemoveAt
+	// 나이프 카운트가 탄창 갯수와 같아졌다면 
+	// 문제 : 나이프 카운트의 맥스는 3. 탄창의 맥스는 4라서 좌클릭을 한번 더 해야 배열이 초기화됨
 
-	//한번에 모두 투척
-	for (int32 i = 0; i < RogueSkillComponent->magazineCnt; i++)
+	RogueSkillComponent->TKMagazine[KnifeCount]->MultiRPC_RogueThrowKnifeAttack();
+	KnifeCount++;
+
+	if(KnifeCount == RogueSkillComponent->magazineCnt)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
-		RogueSkillComponent->TKMagazine[i]->MultiRPC_RogueThrowKnifeAttack();
-		/*RogueSkillComponent->TKMagazine[i]->isThrowing = true;
-		RogueSkillComponent->TKMagazine[i]->projectileComponent->ProjectileGravityScale = 0.0f;
-		RogueSkillComponent->TKMagazine[i]->projectileComponent->SetActive(true, true);
-		RogueSkillComponent->TKMagazine[i]->projectileComponent->SetVelocityInLocalSpace(FVector(100, 0, 0));*/
-		//RogueSkillComponent->ThrowingKnife->isThrowing = true;
-		//RogueSkillComponent->ThrowingKnife->projectileComponent->ProjectileGravityScale = 1.0f;
-		//RogueSkillComponent->ThrowingKnife->projectileComponent->SetActive(true, true);
-		//RogueSkillComponent->ThrowingKnife->projectileComponent->SetVelocityInLocalSpace(FVector(2000, 0, 0));
+		// 탄창 초기화
+		RogueSkillComponent->TKMagazine.Empty();
+		// 나이프 카운트 초기화
+		KnifeCount = 0;
+		//NewKnifeCount = 0;
+		// 스킬 끄기
+		RogueSkillComponent->isSpawnKnife = false;
+		
+		return;
 	}
+	
+	
+	UE_LOG(LogTemp, Warning, TEXT("KnifeCount is : %d"), KnifeCount);
+	
+	// 전부 던지기
+	//for (int32 i = 0; i < RogueSkillComponent->magazineCnt; i++)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("ThrowKnife"));
+	//	
+	//	RogueSkillComponent->TKMagazine[i]->MultiRPC_RogueThrowKnifeAttack();
+	//	
+	//}
 }
 
 

@@ -32,7 +32,7 @@ void ADBLobbyPlayerController::BeginPlay()
 
 	if (IsLocalPlayerController())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("YEs %s"), GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"));
+		/*UE_LOG(LogTemp, Warning, TEXT("YEs %s"), GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"));*/
 		UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
 		SetShowMouseCursor(false);
 	}

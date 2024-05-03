@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "../ItemTypes/ItemType.h"
+//#include "../Framework/Interfaces/InteractionInterface.h"
 #include "DBCharacter.generated.h"
 
 class UDataTable;
@@ -17,10 +18,14 @@ class UPlayerEquipmentComponent;
 class ULootInventoryComponent;
 class ULootEquipmentComponent;
 
+class UDBInteractionComponent;
+
 UCLASS()
-class DARKBORNE_API ADBCharacter : public ACharacter
+class DARKBORNE_API ADBCharacter : public ACharacter//, public IInteractionInterface
 {
 	GENERATED_BODY()
+public:
+	static FFinalStat GetFinalStat(ACharacter* Character);
 
 public:
 	// Sets default values for this character's properties
@@ -29,6 +34,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+public:
+	
 
 public:
 	// Called every frame
@@ -50,8 +58,6 @@ public:
 	FName RowName;
 	UPROPERTY(BlueprintReadOnly)
 	FCharacterBaseStat CharacterBaseStat;
-	UPROPERTY(VisibleAnywhere, Category = "Settings")
-	FFinalStat FinalStat;
 
 	//Inventory Components
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
@@ -68,6 +74,10 @@ public:
 	TSubclassOf<UInventoryMainWidget> InvMainWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Settings")
 	UInventoryMainWidget* InvMainWidget;
+
+	//Interaction
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UDBInteractionComponent> InteractionComp;
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -90,16 +100,16 @@ public:
 	class UInputAction* ia_DB_Look;
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_DB_Jump;
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_Interact;
 
 public:
-	UPROPERTY(Replicated ,EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	float MaxHP;
 	// 현재 체력을 계속 업뎃시키는 함수를 replicate 이거는 클라에서만 호출됨
 	UPROPERTY(ReplicatedUsing = OnRep_CurrHP, EditAnywhere)
 	float CurrHP = MaxHP;
 
-public:
-	//FVector newVec;
 public:
 	//Default 이동 관련 함수들
 	void EnhancedMove(const struct FInputActionValue& value);
@@ -107,9 +117,23 @@ public:
 	void EnhancedStopJump(const struct FInputActionValue& value);
 	void EnhancedLook(const struct FInputActionValue& value);
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_DoubleJump();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_DoubleJump();
+
+	void EnhancedInteract(const struct FInputActionValue& value);
 public:
 	void CreatePlayerWidget();
 
 	UFUNCTION()
 	void OnRep_CurrHP();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+	float InteractDistance;
+		
+	UPROPERTY(VisibleAnywhere, Category = "Settings")
+	FFinalStat FinalStat;
 };
