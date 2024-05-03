@@ -17,7 +17,6 @@
 #include "../Inventory/LootInventoryComponent.h"
 #include "../Inventory/LootEquipmentComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
-<<<<<<< HEAD
 #include "DBRogueCharacter.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/Controller.h>
 #include <../../../../../../../Source/Runtime/UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
@@ -174,7 +173,6 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 	AddControllerPitchInput(dir.Y);
 }
 
-<<<<<<< HEAD
 void ADBCharacter::ServerRPC_DoubleJump_Implementation()
 {
 
@@ -198,16 +196,12 @@ void ADBCharacter::MultiRPC_DoubleJump_Implementation()
 	}
 }
 
-
-
-=======
 void ADBCharacter::EnhancedInteract(const FInputActionValue& value)
 {
 	if (ensureAlways(InteractionComp))
 		InteractionComp->OnInteract();
 }
 
->>>>>>> J_Branch
 void ADBCharacter::CreatePlayerWidget()
 {
 	// 내것이 아니거나 플레이어 위젯이 없다면 리턴
