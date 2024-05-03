@@ -137,7 +137,7 @@ struct FAttribute
 	}
 	FAttribute operator-(const FAttribute& other) {
 		ensureAlways(AttributeType == other.AttributeType);
-		return FAttribute({AttributeType, Range - other.Range});
+		return FAttribute({ AttributeType, Range - other.Range });
 	}
 	FAttribute& operator+=(const FAttribute& other) {
 		ensureAlways(AttributeType == other.AttributeType);
@@ -285,7 +285,7 @@ struct FDarkBorneStats
 //};
 
 /// <summary>
-/// Stats used for damage calculation and UI display. Values are sorted by their enum types
+/// Stats used for damage calculation and UI display. TArrays are sorted by their enum types
 /// </summary>
 USTRUCT(Blueprintable)
 struct FFinalStat
@@ -310,4 +310,7 @@ struct FFinalStat
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<FPhysicalDamage> PhysDamages;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<float> DamageBlocks;
 };

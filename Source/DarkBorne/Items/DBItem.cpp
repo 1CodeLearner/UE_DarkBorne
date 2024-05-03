@@ -5,28 +5,114 @@
 #include "Components/StaticMeshComponent.h"
 #include "../DBAnimInstance/DBRogueAnimInstance.h"
 #include "GameFramework/Character.h"
+#include "../Inventory/PlayerEquipmentComponent.h"
+#include "../Inventory/ItemObject.h"
+#include "Net/UnrealNetwork.h"
+#include "../Framework/ActorComponents/DBInteractionComponent.h"
+#include "../Inventory/DBEquipmentComponent.h"
 
 ADBItem::ADBItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	
+	SetReplicateMovement(true);
 	SceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	RootComponent = SceneComp;
-	
+
 	SMComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SMComp"));
-	SMComp->SetCollisionProfileName(TEXT("WeaponSMColl"));
 	SMComp->SetupAttachment(RootComponent);
-	
-	
-	//RootComponent = SMComp;
+
+	SMComp->SetCollisionProfileName(FName("Item"));
+
+	bCanInteract = false;
+}
+
+void ADBItem::BeginPlay()
+{
+	Super::BeginPlay();
+	if (HasAuthority() && !GetOwner())
+	{
+		SMComp->SetSimulatePhysics(true);
+		bCanInteract = true;
+	}
+}
+
+void ADBItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ADBItem, bCanInteract);
+	DOREPLIFETIME(ADBItem, ItemObj);
+}
+
+void ADBItem::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void ADBItem::Initialize(UItemObject* ItemObject)
+{
+	if (ensureAlways(ItemObject))
+		ItemObj = ItemObject;
+}
+
+void ADBItem::BeginInteract_Implementation(UDBInteractionComponent* InteractionComp)
+{
+	//InteractionComp->InteractExecute();
+}
+
+void ADBItem::ExecuteInteract_Implementation(ACharacter* Character)
+{
+	auto Inventory = Character->GetComponentByClass<UPlayerEquipmentComponent>();
+	auto Equipment = Character->GetComponentByClass<UDBEquipmentComponent>();
+
+	if (Equipment->TryAddItem(ItemObj)) 
+	{
+		
+	}
+}
+
+void ADBItem::InterruptInteract_Implementation()
+{
+}
+
+void ADBItem::BeginTrace()
+{
+}
+
+void ADBItem::EndTrace()
+{
+}
+
+UItemObject* ADBItem::GetItemObject_Implementation() const
+{
+	return ItemObj;
+}
+
+FDisplayInfo ADBItem::GetDisplayInfo() const
+{
+	if (ItemObj) {
+		FString Name = ItemObj->GetDisplayName().ToString();
+		FString Action = TEXT("Pickup");
+		return FDisplayInfo(Action, Name);
+	}
+	return FDisplayInfo(TEXT("ERROR"), TEXT("Missing ItemObj"));
+}
+
+bool ADBItem::CanInteract() const
+{
+	return bCanInteract;
+}
+
+void ADBItem::SetCanInteract(bool bAllowInteract)
+{
+	bCanInteract = bAllowInteract;
 }
 
 bool ADBItem::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
 {
-	if(!PlayerCharacter) return false;
-	if(!PlayerCharacter->GetMesh()) return false;
-	if(!PlayerCharacter->GetMesh()->GetAnimInstance()) return false;
+	if (!PlayerCharacter) return false;
+	if (!PlayerCharacter->GetMesh()) return false;
+	if (!PlayerCharacter->GetMesh()->GetAnimInstance()) return false;
 
 	auto AnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance();
 	if (AnimInstance && ensureAlways(AnimMontage)) {
@@ -44,14 +130,21 @@ bool ADBItem::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
 		return false;
 }
 
-void ADBItem::BeginPlay()
+void ADBItem::Pickup(AActor* InteractingActor)
 {
-	Super::BeginPlay();
-
+	auto PlayerEquipComp = InteractingActor->GetComponentByClass<UPlayerEquipmentComponent>();
+	if (PlayerEquipComp)
+	{
+		PlayerEquipComp->TryAddItem(ItemObj);
+	}
 }
 
-void ADBItem::Tick(float DeltaTime)
+void ADBItem::OnRep_bCanInteract()
 {
-	Super::Tick(DeltaTime);
+	if (bCanInteract)
+	{
+		SMComp->SetSimulatePhysics(true);
+	}
 }
+
 

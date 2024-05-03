@@ -7,39 +7,88 @@
 #include "Materials/MaterialInterface.h"
 #include "../Items/DBItem.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
+#include "../Items/DBItem.h"
 
-void UItemObject::Initialize(FItem item)
+void UItemObject::Initialize(FItem _Item, ADBItem* _ItemActor)
 {
-	this->Item = item;
+	ItemData = FItemData(_Item, _ItemActor);
+}
+
+void UItemObject::AddItemActor(ADBItem* _ItemActor)
+{
+	if (ensureAlways(_ItemActor))
+		ItemData.ItemActor = _ItemActor;
+}
+
+bool UItemObject::HasItemActor() const
+{
+	return ItemData.ItemActor != nullptr;
+}
+
+ADBItem* UItemObject::GetItemActor() const
+{
+	return ItemData.ItemActor;
+}
+
+FText UItemObject::GetDisplayName() const
+{
+	return ItemData.Item.SlotHolder.DisplayName;
 }
 
 FIntPoint UItemObject::GetDimentions()
 {
 	//FIntPoint TempDimensions(100, 100);  // 예제 값으로 100x100 설정
 	//return _dimentions;
-	FIntPoint Temp(Item.SlotHolder.SlotDimension.X, Item.SlotHolder.SlotDimension.Y);
+	FIntPoint Temp(ItemData.Item.SlotHolder.SlotDimension.X, ItemData.Item.SlotHolder.SlotDimension.Y);
 	return Temp;
 }
 
 UMaterialInterface* UItemObject::GetIcon()
 {
-	return Item.SlotHolder.DisplayMaterial;
+	return ItemData.Item.SlotHolder.DisplayMaterial;
 }
 
 TSubclassOf<AActor> UItemObject::GetItemClass()
 {
-	return Item.SlotHolder.ItemClass;
+	return ItemData.Item.SlotHolder.ItemClass;
 }
 
 ESlotType UItemObject::GetSlotType() const
 {
-	return Item.SlotHolder.SlotType;
+	return ItemData.Item.SlotHolder.SlotType;
 }
 
 const FItem& UItemObject::GetItem() const
 {
-	return Item;
+	return ItemData.Item;
 }
+
+//void UItemObject::Server_SpawnItem_Implementation(AActor* Initiator, float forwardOffset, bool bSetOwner)
+//{
+//	///UE_LOG(LogTemp, Warning, TEXT("Net? %s"),
+//		GetWorld()->GetNetMode() == NM_Client ? TEXT("CLIENT") : TEXT("SERVER")
+//	);
+//	if (Initiator && GetWorld()) {
+//		FVector SpawnLoc = Initiator->GetActorLocation();
+//		SpawnLoc += Initiator->GetActorForwardVector() * forwardOffset;
+//		FTransform Trans;
+//		Trans.SetLocation(SpawnLoc);
+//		Trans.SetRotation(FQuat::Identity);
+//		Trans.SetScale3D(FVector::OneVector);
+//
+//		auto ItemSpawned = GetWorld()->SpawnActorDeferred<ADBItem>(GetItemClass(), Trans, bSetOwner ? Initiator : nullptr);
+//
+//		ItemSpawned->Initialize(this);
+//
+//		UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
+//	}
+//	else
+//	{
+//		UE_LOG(LogTemp, Error, TEXT("Spawn Item Failed in %s"), *GetNameSafe(this));
+//		return;
+//	}
+//}
 
 UWorld* UItemObject::GetWorld() const
 {
@@ -65,7 +114,7 @@ void UItemObject::Tick(float DeltaTime)
 		(
 			TEXT("[%s] %s"),
 			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
-			*Item.SlotHolder.DisplayName.ToString()
+			*ItemData.Item.SlotHolder.DisplayName.ToString()
 		)
 		);
 }
@@ -74,5 +123,5 @@ void UItemObject::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UItemObject, Item);
+	DOREPLIFETIME(UItemObject, ItemData);
 }

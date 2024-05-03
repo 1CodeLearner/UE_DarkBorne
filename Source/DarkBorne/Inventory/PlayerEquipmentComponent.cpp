@@ -6,6 +6,8 @@
 #include "../Inventory/ItemObject.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
+#include "../Items/DBItem.h"
+#include "Kismet/GameplayStatics.h"
 
 UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 {
@@ -24,9 +26,7 @@ void UPlayerEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	FDoRepLifetimeParams Params; 
-	Params.bIsPushBased = true;
-	DOREPLIFETIME_WITH_PARAMS_FAST(UPlayerEquipmentComponent, itemArray, Params);
+	DOREPLIFETIME(UPlayerEquipmentComponent, itemArray);
 	
 	
 
@@ -67,6 +67,20 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 	return false;
 }
 
+void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
+{
+	if (!IsValid(ItemObject)) return;
+	TArray<UItemObject*> old = itemArray;
+	for (int32 i = 0; i < itemArray.Num(); i++)
+	{
+		if (itemArray[i] == ItemObject)
+		{
+			itemArray[i] = nullptr;
+		}
+	}
+	OnRep_itemArray(old);
+}
+
 void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* ItemObject, int32 TopLeftIndex)
 {
 	////ForEachIndex
@@ -81,20 +95,6 @@ void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* Ite
 			newTile.X = i;
 			newTile.Y = j;
 			itemArray[TileToIndex(newTile)] = ItemObject;
-		}
-	}
-	OnRep_itemArray(old);
-}
-
-void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
-{
-	if (!IsValid(ItemObject)) return;
-	TArray<UItemObject*> old = itemArray;
-	for (int32 i = 0; i < itemArray.Num(); i++)
-	{
-		if (itemArray[i] == ItemObject)
-		{
-			itemArray[i] = nullptr;
 		}
 	}
 	OnRep_itemArray(old);
@@ -185,4 +185,51 @@ bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
 void UPlayerEquipmentComponent::OnRep_itemArray(TArray<UItemObject*> OldItemArray)
 {
 	isDirty = true;
+}
+
+void UPlayerEquipmentComponent::Server_SpawnItem_Implementation(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner, float forwardOffset)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Net? %s"),
+		GetWorld()->GetNetMode() == NM_Client ? TEXT("CLIENT") : TEXT("SERVER")
+	);
+	if (Initiator && ItemObject) {
+		FTransform Trans = GetNewTransform(Initiator, forwardOffset);
+
+		auto ItemSpawned = GetWorld()->SpawnActorDeferred<ADBItem>(ItemObject->GetItemClass(), Trans, bSetOwner ? Initiator : nullptr);
+
+		ItemSpawned->Initialize(ItemObject);
+
+		ItemObject->AddItemActor(ItemSpawned);
+
+		UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Spawn Item Failed in %s"), *GetNameSafe(this));
+		return;
+	}
+}
+
+void UPlayerEquipmentComponent::Server_PlaceItem_Implementation(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner, float forwardOffset)
+{
+	AActor* actor = Cast<AActor>(ItemObject->GetItemActor());
+	if (ensureAlways(actor)) 
+	{
+		FTransform Trans = GetNewTransform(Initiator, forwardOffset);
+		actor->SetActorTransform(Trans);
+	}
+}
+
+FTransform UPlayerEquipmentComponent::GetNewTransform(AActor* Instigator, float offset)
+{
+	FVector SpawnLoc = Instigator->GetActorLocation();
+	SpawnLoc += Instigator->GetActorForwardVector() * offset;
+
+	FTransform Trans;
+	
+	Trans.SetLocation(SpawnLoc);
+	Trans.SetRotation(FQuat::Identity);
+	Trans.SetScale3D(FVector::OneVector);
+
+	return Trans;
 }

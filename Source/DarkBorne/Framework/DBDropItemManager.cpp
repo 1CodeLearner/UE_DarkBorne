@@ -3,7 +3,6 @@
 
 #include "DBDropItemManager.h"
 #include "Interfaces/ItemInterface.h"
-#include "../Items/DBItem.h"
 #include "../Framework/BFL/ItemLibrary.h"
 #include "../Test/J_TestCharacter.h"
 #include "../Items/PDA_ItemSlot.h"
@@ -11,6 +10,7 @@
 ADBDropItemManager::ADBDropItemManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 }
 
 void ADBDropItemManager::BeginPlay()
@@ -95,23 +95,6 @@ FItem ADBDropItemManager::GenerateItemByName(FName ItemName, EItemType Type)
 		return FItem();
 }
 
-ADBItem* ADBDropItemManager::SpawnItem(AActor* Instigated, FItem _ItemToSpawn)
-{
-	ADBItem* Item = GetWorld()->SpawnActorDeferred<ADBItem>
-		(
-			_ItemToSpawn.SlotHolder.ItemClass,
-			Instigated->GetTransform(),
-			Instigated
-		);
-
-	if (Item)
-	{
-		return Item;
-	}
-
-	return nullptr;
-}
-
 void ADBDropItemManager::AdjustFinalStat(AActor* Instigated, const FItem& item, bool bIsAdd)
 {
 	AJ_TestCharacter* Character = Cast<AJ_TestCharacter>(Instigated);
@@ -158,9 +141,9 @@ void ADBDropItemManager::AdjustFinalStat(AActor* Instigated, const FItem& item, 
 
 }
 
-
 FItem ADBDropItemManager::CreateItem(UDataTable* Table, FName RowName)
 {
+	GetWorld();
 	FItem* item = Table->FindRow<FItem>(RowName, FString::Printf(TEXT("Context")));
 	if (!item)
 		return FItem();

@@ -17,10 +17,24 @@
 #include "../Inventory/LootInventoryComponent.h"
 #include "../Inventory/LootEquipmentComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
+<<<<<<< HEAD
 #include "DBRogueCharacter.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/Controller.h>
+#include <../../../../../../../Source/Runtime/UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
+#include "../Framework/ActorComponents/DBInteractionComponent.h"
+
+
+FFinalStat ADBCharacter::GetFinalStat(ACharacter* Character)
+{
+	if (Character->IsA<ADBCharacter>()) {
+		return Cast<ADBCharacter>(Character)->GetFinalStat();
+	}
+	return FFinalStat();
+}
+
 // Sets default values
 ADBCharacter::ADBCharacter()
-{
+{	
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
@@ -36,7 +50,8 @@ ADBCharacter::ADBCharacter()
 	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
 
-
+	InteractDistance = 400.f;
+	InteractionComp = CreateDefaultSubobject<UDBInteractionComponent>("InteractionComp");
 }
 
 // Called when the game starts or when spawned
@@ -54,8 +69,8 @@ void ADBCharacter::BeginPlay()
 		if (playerContoller == nullptr) return;
 		//get subSystem
 		UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerContoller->GetLocalPlayer());
-		
-		
+
+
 		//서브시스템을 가져왔다면
 		if (subSystem)
 		{
@@ -67,7 +82,7 @@ void ADBCharacter::BeginPlay()
 			CreatePlayerWidget();
 		}
 	}
-	
+
 	// 서버라면
 	if (HasAuthority())
 	{
@@ -92,6 +107,7 @@ void ADBCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
 }
 
 // Called to bind functionality to input
@@ -107,8 +123,7 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		enhancedInputComponent->BindAction(ia_DB_Look, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedLook);
 
-
-
+		enhancedInputComponent->BindAction(ia_Interact, ETriggerEvent::Started, this, &ADBCharacter::EnhancedInteract);
 	}
 }
 
@@ -159,6 +174,7 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 	AddControllerPitchInput(dir.Y);
 }
 
+<<<<<<< HEAD
 void ADBCharacter::ServerRPC_DoubleJump_Implementation()
 {
 
@@ -184,10 +200,18 @@ void ADBCharacter::MultiRPC_DoubleJump_Implementation()
 
 
 
+=======
+void ADBCharacter::EnhancedInteract(const FInputActionValue& value)
+{
+	if (ensureAlways(InteractionComp))
+		InteractionComp->OnInteract();
+}
+
+>>>>>>> J_Branch
 void ADBCharacter::CreatePlayerWidget()
 {
 	// 내것이 아니거나 플레이어 위젯이 없다면 리턴
-	if(!IsLocallyControlled() || PlayerWidget != nullptr) return;
+	if (!IsLocallyControlled() || PlayerWidget != nullptr) return;
 
 	// 위젯 클래스 담고 생성
 	PlayerWidget = Cast<UDBPlayerWidget>(CreateWidget(GetWorld(), PlayerWidgetClass));
@@ -197,9 +221,9 @@ void ADBCharacter::CreatePlayerWidget()
 void ADBCharacter::OnRep_CurrHP()
 {
 	// 플레이어 위젯이 없으면 리턴
-	if(PlayerWidget == nullptr) return;
+	if (PlayerWidget == nullptr) return;
 	PlayerWidget->UpdateHeathBar(CurrHP, MaxHP);
-	UE_LOG(LogTemp,Warning,TEXT("Testing:%f"),CurrHP);
+	UE_LOG(LogTemp, Warning, TEXT("Testing:%f"), CurrHP);
 }
 
 const FFinalStat& ADBCharacter::GetFinalStat() const

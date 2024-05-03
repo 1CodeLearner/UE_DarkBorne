@@ -2,3 +2,8 @@
 
 
 #include "DBWeapon.h"
+
+ADBWeapon::ADBWeapon()
+{
+	SMComp->SetCollisionProfileName(TEXT("WeaponSMColl"));
+}

@@ -7,6 +7,20 @@
 #include "../ItemTypes/ItemType.h"
 #include "ItemObject.generated.h"
 
+class ADBItem;
+
+USTRUCT()
+struct FItemData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FItem Item = FItem();
+
+	UPROPERTY()
+	TObjectPtr<ADBItem> ItemActor;
+};
+
 UCLASS(BlueprintAble)
 class DARKBORNE_API UItemObject : public UObject, public FTickableGameObject
 {
@@ -15,7 +29,18 @@ class DARKBORNE_API UItemObject : public UObject, public FTickableGameObject
 public:
 
 	UFUNCTION(BlueprintCallable)
-	void Initialize(FItem item);
+	void Initialize(FItem _Item, ADBItem* _ItemActor = nullptr);
+
+	UFUNCTION(BlueprintCallable)
+	void AddItemActor(ADBItem* _ItemActor);
+
+	UFUNCTION(BlueprintCallable)
+	bool HasItemActor() const;
+
+	ADBItem* GetItemActor() const;
+
+	UFUNCTION(BlueprintCallable)
+	FText GetDisplayName() const;
 
 	UFUNCTION(BlueprintPure)
 	FIntPoint GetDimentions();  // Ã¶ÀÚ ¼öÁ¤
@@ -27,6 +52,10 @@ public:
 	ESlotType GetSlotType() const;
 
 	const FItem& GetItem() const;
+
+	/*UFUNCTION(Server, Reliable, BlueprintCallable)
+	void Server_SpawnItem(AActor* Initiator, float forwardOffset = 200.f, bool bSetOwner = false);*/
+
 protected:
 	UFUNCTION()
 	virtual UWorld* GetWorld() const override;
@@ -35,7 +64,7 @@ protected:
 	virtual TStatId GetStatId() const override;
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void GetLifetimeReplicatedProps( TArray< class FLifetimeProperty > & OutLifetimeProps ) const;
+	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TSubclassOf<AActor> ItemClass;
@@ -47,7 +76,7 @@ protected:
 
 private:
 	UPROPERTY(Replicated)
-	FItem Item = FItem();
+	FItemData ItemData;
 
 	FIntPoint _dimentions;  // Ã¶ÀÚ ¼öÁ¤
 	class UMaterial* Icon;
