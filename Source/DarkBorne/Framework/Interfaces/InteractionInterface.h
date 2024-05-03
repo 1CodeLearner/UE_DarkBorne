@@ -43,19 +43,15 @@ class DARKBORNE_API IInteractionInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	
-	UFUNCTION(BlueprintNativeEvent)
-	void BeginInteract(UDBInteractionComponent* InteractionComp);
-	UFUNCTION(BlueprintNativeEvent)
-	void ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character);
-	UFUNCTION(BlueprintNativeEvent)
-	void InterruptInteract();
+	virtual void BeginInteract(UDBInteractionComponent* InteractionComp) = 0;
+	virtual void ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character) = 0;
+	virtual void InterruptInteract() = 0;
 
 	virtual void BeginTrace() = 0;
 	virtual void EndTrace() = 0;
+
 	virtual bool CanInteract() const = 0;
 	virtual void SetCanInteract(bool bAllowInteract) = 0;
-	virtual FDisplayInfo GetDisplayInfo() const = 0;
 
-	UFUNCTION(BlueprintNativeEvent)
-	UItemObject* GetItemObject() const;
+	virtual FDisplayInfo GetDisplayInfo() const = 0;
 };

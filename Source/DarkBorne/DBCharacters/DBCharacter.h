@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "../ItemTypes/ItemType.h"
+//#include "../Framework/Interfaces/InteractionInterface.h"
 #include "DBCharacter.generated.h"
 
 class UDataTable;
@@ -20,7 +21,7 @@ class ULootEquipmentComponent;
 class UDBInteractionComponent;
 
 UCLASS()
-class DARKBORNE_API ADBCharacter : public ACharacter
+class DARKBORNE_API ADBCharacter : public ACharacter//, public IInteractionInterface
 {
 	GENERATED_BODY()
 public:
@@ -33,6 +34,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+public:
+	
 
 public:
 	// Called every frame

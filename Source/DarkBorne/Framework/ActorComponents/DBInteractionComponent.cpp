@@ -42,7 +42,7 @@ void UDBInteractionComponent::OnInteract()
 				OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGININTERACT);
 
 				SetCanInteract(OverlappingActor, false);
-				Interface->Execute_BeginInteract(OverlappingActor, this);
+				Interface->BeginInteract(this);
 			}
 		}
 		else if (bInteracting) {
@@ -53,7 +53,7 @@ void UDBInteractionComponent::OnInteract()
 			OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::INTERRUPTINTERACT);
 
 			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
-			Interface->Execute_InterruptInteract(OverlappingActor);
+			Interface->InterruptInteract();
 		}
 	}
 }
@@ -63,12 +63,11 @@ void UDBInteractionComponent::ExecuteInteraction()
 	if (bInteracting) {
 		bInteracting = false;
 		ResetTimer();
-		UE_LOG(LogTemp, Warning, TEXT("1111"));
 
 		OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::EXECUTEINTERACT);
 
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
-		Interface->Execute_ExecuteInteract(OverlappingActor, this, Character);
+		Interface->ExecuteInteract(this, Character);
 	}
 }
 
@@ -82,7 +81,6 @@ void UDBInteractionComponent::DeclareFailedInteraction()
 		Interface->BeginTrace();
 		OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGINTRACE);*/
 
-		UE_LOG(LogTemp, Warning, TEXT("3333"));
 		ResetTimer();
 		bInteracting = false;
 		SetCanInteract(OverlappingActor, true);
@@ -90,7 +88,7 @@ void UDBInteractionComponent::DeclareFailedInteraction()
 		OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGINTRACE);
 
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
-		Interface->Execute_InterruptInteract(OverlappingActor);
+		Interface->InterruptInteract();
 	}
 }
 
@@ -121,7 +119,6 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 		return;
 
 	if (bInteracting) {
-		UE_LOG(LogTemp, Warning, TEXT("4444"));
 		UpdateTimer(DeltaTime, bDebugDraw);
 	}
 	else if (CanInteract(bDebugDraw))

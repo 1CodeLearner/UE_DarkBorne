@@ -55,33 +55,33 @@ void ADBItem::Initialize(UItemObject* ItemObject)
 		ItemObj = ItemObject;
 }
 
-void ADBItem::BeginInteract_Implementation(UDBInteractionComponent* InteractionComp)
+void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp)
 {
 	//InteractionComp->ExecuteInteraction();
 }
 
-void ADBItem::ExecuteInteract_Implementation(UDBInteractionComponent* InteractionComp, ACharacter* Character)
+void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character)
 {
 	auto Inventory = Character->GetComponentByClass<UPlayerEquipmentComponent>();
 	auto Equipment = Character->GetComponentByClass<UDBEquipmentComponent>();
 
-	if (Equipment->TryAddItem(ItemObj)) 
+	if (Equipment->TryAddItem(ItemObj))
 	{
-		
+
 	}
-	//else if (Inventory->TryAddItem(ItemObj))
-	//{
-	//	
-	//}
-	else 
+	else if (Inventory->TryAddItem(ItemObj))
 	{
-		UE_LOG(LogTemp,Warning,TEXT("2222"));
+
+	}
+	else
+	{
 		InteractionComp->DeclareFailedInteraction();
 	}
 }
 
-void ADBItem::InterruptInteract_Implementation()
+void ADBItem::InterruptInteract()
 {
+
 }
 
 void ADBItem::BeginTrace()
@@ -90,11 +90,6 @@ void ADBItem::BeginTrace()
 
 void ADBItem::EndTrace()
 {
-}
-
-UItemObject* ADBItem::GetItemObject_Implementation() const
-{
-	return ItemObj;
 }
 
 FDisplayInfo ADBItem::GetDisplayInfo() const

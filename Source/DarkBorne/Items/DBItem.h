@@ -35,16 +35,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TObjectPtr<USceneComponent> SceneComp;
 
-	void BeginInteract_Implementation(UDBInteractionComponent* InteractionComp);
-	void ExecuteInteract_Implementation(UDBInteractionComponent* InteractionComp, ACharacter* Character);
-	void InterruptInteract_Implementation();
-	UItemObject* GetItemObject_Implementation() const;
-	
+protected:
+	virtual void BeginInteract(UDBInteractionComponent* InteractionComp) override;
+	virtual void ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character) override;
+	virtual void InterruptInteract() override;
+
 	virtual void BeginTrace() override;
 	virtual void EndTrace() override;
-	virtual FDisplayInfo GetDisplayInfo() const override;
+	
 	virtual bool CanInteract() const override;
 	virtual void SetCanInteract(bool bCanInteract) override;
+
+	virtual FDisplayInfo GetDisplayInfo() const override;
 
 public:
 	/*
