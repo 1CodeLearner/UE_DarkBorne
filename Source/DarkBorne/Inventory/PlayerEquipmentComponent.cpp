@@ -14,6 +14,8 @@ UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 	isDirty = false;
+	Columns = 8;
+	Rows = 5;
 }
 
 void UPlayerEquipmentComponent::BeginPlay()
@@ -97,6 +99,8 @@ void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* Ite
 			itemArray[TileToIndex(newTile)] = ItemObject;
 		}
 	}
+
+	ItemObject->TryDestroyItemActor();
 	OnRep_itemArray(old);
 }
 

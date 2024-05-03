@@ -46,7 +46,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void BeginInteract(UDBInteractionComponent* InteractionComp);
 	UFUNCTION(BlueprintNativeEvent)
-	void ExecuteInteract(ACharacter* Character);
+	void ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character);
 	UFUNCTION(BlueprintNativeEvent)
 	void InterruptInteract();
 

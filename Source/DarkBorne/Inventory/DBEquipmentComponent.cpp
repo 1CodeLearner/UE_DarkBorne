@@ -23,7 +23,7 @@ UDBEquipmentComponent::UDBEquipmentComponent()
 
 bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 {
-	if (Slots.IsEmpty())
+	if (!IsValid(ItemObject) && Slots.IsEmpty())
 		return false;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
@@ -46,7 +46,7 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	TArray<UItemObject*> old = Slots;
 	if (Slots.IsEmpty()) return;
 	Slots[index] = ItemObject;
-	
+
 	UE_LOG(LogTemp, Warning, TEXT("Actor %s"), *GetNameSafe(ItemObject->GetItemActor()));
 
 	//auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
@@ -55,6 +55,8 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	//	WeaponComp->PassItem(ItemObject);
 	//}
 	OnRep_What(old);
+
+	ItemObject->TryDestroyItemActor();
 }
 
 void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)

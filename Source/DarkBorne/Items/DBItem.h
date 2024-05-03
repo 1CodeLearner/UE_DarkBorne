@@ -36,7 +36,7 @@ protected:
 	TObjectPtr<USceneComponent> SceneComp;
 
 	void BeginInteract_Implementation(UDBInteractionComponent* InteractionComp);
-	void ExecuteInteract_Implementation(ACharacter* Character);
+	void ExecuteInteract_Implementation(UDBInteractionComponent* InteractionComp, ACharacter* Character);
 	void InterruptInteract_Implementation();
 	UItemObject* GetItemObject_Implementation() const;
 	
