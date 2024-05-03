@@ -26,7 +26,7 @@ void UDBInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	auto TempCharacter = GetOwner<ACharacter>();
-	if (TempCharacter && TempCharacter->IsLocallyControlled()) 
+	if (TempCharacter && TempCharacter->IsLocallyControlled())
 	{
 		Character = TempCharacter;
 		DBCharacter = Cast<ADBCharacter>(Character);
@@ -134,14 +134,15 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	//Check if player is dead, stop ticking and return if true
 	if (IsDead())
 	{
-		UE_LOG(LogTemp,Warning,TEXT("Here:%s"), GetWorld()->GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server"));
+		UE_LOG(LogTemp, Warning, TEXT("Here:%s"), GetWorld()->GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server"));
 
-		
+
 		OnInteractActorUpdate.ExecuteIfBound(nullptr, EInteractState::ENDTRACE);
 
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
-		Interface->EndTrace();
-		
+		if (Interface)
+			Interface->EndTrace();
+
 		OverlappingActor = nullptr;
 
 		SetComponentTickEnabled(false);
