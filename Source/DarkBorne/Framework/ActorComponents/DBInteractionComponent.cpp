@@ -152,7 +152,7 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	if (bInteracting) {
 		UpdateTimer(DeltaTime, bDebugDraw);
 	}
-	else if (CanInteract(bDebugDraw))
+	else if (CanTrace(bDebugDraw))
 		UpdateOverlappingActor(bDebugDraw);
 
 	if (bDebugDraw)
@@ -161,7 +161,7 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	}
 }
 
-bool UDBInteractionComponent::CanInteract(bool bDebugDraw)
+bool UDBInteractionComponent::CanTrace(bool bDebugDraw)
 {
 	FVector Vel = Character->GetMovementComponent()->Velocity;
 	float dotForward = FVector::DotProduct(Vel, Character->GetActorLocation());

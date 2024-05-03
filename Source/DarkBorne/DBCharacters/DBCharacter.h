@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "../ItemTypes/ItemType.h"
-//#include "../Framework/Interfaces/InteractionInterface.h"
+#include "../Framework/Interfaces/InteractionInterface.h"
 #include "DBCharacter.generated.h"
 
 class UDataTable;
@@ -21,7 +21,7 @@ class ULootEquipmentComponent;
 class UDBInteractionComponent;
 
 UCLASS()
-class DARKBORNE_API ADBCharacter : public ACharacter//, public IInteractionInterface
+class DARKBORNE_API ADBCharacter : public ACharacter, public IInteractionInterface
 {
 	GENERATED_BODY()
 public:
@@ -36,7 +36,23 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	
+	virtual void BeginInteract(UDBInteractionComponent* InteractionComponent) override;
+	virtual void ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* Character) override;
+	virtual void InterruptInteract() override;
+
+	virtual void BeginTrace() override;
+	virtual void EndTrace() override;
+
+	virtual bool CanInteract() const override;
+	virtual void SetCanInteract(bool bAllowInteract) override;
+	UPROPERTY(ReplicatedUsing = "OnRep_bCanInteract")
+	bool bCanInteract;
+	UFUNCTION()
+	void OnRep_bCanInteract();
+
+	virtual FDisplayInfo GetDisplayInfo() const override;
+	FString PlayerName;
+	void SetPlayerName(FString _PlayerName);
 
 public:
 	// Called every frame

@@ -67,7 +67,7 @@ private:
 	bool bIsUpdating;
 	
 	//Happens in tick
-	bool CanInteract(bool bDebugDraw);
+	bool CanTrace(bool bDebugDraw);
 	void UpdateOverlappingActor(bool bDebugDraw);
 	void UpdateTimer(float DeltaTime, bool bDebugDraw);
 

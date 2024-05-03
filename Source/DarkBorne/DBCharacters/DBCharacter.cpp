@@ -103,6 +103,54 @@ void ADBCharacter::BeginPlay()
 	}
 }
 
+void ADBCharacter::BeginInteract(UDBInteractionComponent* InteractionComponent)
+{
+}
+
+void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* Character)
+{
+	UE_LOG(LogTemp,Warning,TEXT("Im interacting with this dead character"));
+}
+
+void ADBCharacter::InterruptInteract()
+{
+}
+
+void ADBCharacter::BeginTrace()
+{
+}
+
+void ADBCharacter::EndTrace()
+{
+}
+
+bool ADBCharacter::CanInteract() const
+{
+	return bCanInteract;
+}
+
+void ADBCharacter::SetCanInteract(bool bAllowInteract)
+{
+	bCanInteract = bAllowInteract;
+}
+
+void ADBCharacter::OnRep_bCanInteract()
+{
+	if (bCanInteract) {
+
+	}
+}
+
+FDisplayInfo ADBCharacter::GetDisplayInfo() const
+{
+	return FDisplayInfo(TEXT("Loot"), TEXT("PlaceholderName"));
+}
+
+void ADBCharacter::SetPlayerName(FString _PlayerName)
+{
+	PlayerName = _PlayerName;
+}
+
 // Called every frame
 void ADBCharacter::Tick(float DeltaTime)
 {
