@@ -46,7 +46,7 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	TArray<UItemObject*> old = Slots;
 	if (Slots.IsEmpty()) return;
 	Slots[index] = ItemObject;
-	
+
 	UE_LOG(LogTemp, Warning, TEXT("Actor %s"), *GetNameSafe(ItemObject->GetItemActor()));
 
 	//auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
@@ -55,6 +55,18 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	//	WeaponComp->PassItem(ItemObject);
 	//}
 	OnRep_What(old);
+
+	AActor* ItemActor = ItemObject->GetItemActor();
+
+	if(IsValid(ItemActor))
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Has Actor %s"), *ItemActor->GetName());
+		ItemActor->Destroy();
+	}
+	else 
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Has no Actor"));
+	}
 }
 
 void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)

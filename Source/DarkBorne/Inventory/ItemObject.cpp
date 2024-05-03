@@ -23,7 +23,7 @@ void UItemObject::AddItemActor(ADBItem* _ItemActor)
 
 bool UItemObject::HasItemActor() const
 {
-	return ItemData.ItemActor != nullptr;
+	return IsValid(ItemData.ItemActor);
 }
 
 ADBItem* UItemObject::GetItemActor() const
