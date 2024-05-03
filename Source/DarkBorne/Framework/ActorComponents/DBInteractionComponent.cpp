@@ -6,6 +6,7 @@
 #include "../Interfaces/InteractionInterface.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
+#include "../../DBCharacters/DBCharacter.h"
 
 static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
 
@@ -25,8 +26,11 @@ void UDBInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	auto TempCharacter = GetOwner<ACharacter>();
-	if (TempCharacter && TempCharacter->IsLocallyControlled())
+	if (TempCharacter && TempCharacter->IsLocallyControlled()) 
+	{
 		Character = TempCharacter;
+		DBCharacter = Cast<ADBCharacter>(Character);
+	}
 }
 
 void UDBInteractionComponent::OnInteract()
@@ -56,6 +60,16 @@ void UDBInteractionComponent::OnInteract()
 			Interface->Execute_InterruptInteract(OverlappingActor);
 		}
 	}
+}
+
+bool UDBInteractionComponent::IsDead()
+{
+	if (!DBCharacter) return false;
+
+	if (DBCharacter->CurrHP <= 0.f)
+		return true;
+
+	return false;
 }
 
 void UDBInteractionComponent::ExecuteInteraction()
@@ -119,6 +133,22 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 		return;
 	if (!Character->IsLocallyControlled())
 		return;
+	//Check if player is dead, stop ticking and return if true
+	if (IsDead())
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Here:%s"), GetWorld()->GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server"));
+
+		
+		OnInteractActorUpdate.ExecuteIfBound(nullptr, EInteractState::ENDTRACE);
+
+		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
+		Interface->EndTrace();
+		
+		OverlappingActor = nullptr;
+
+		SetComponentTickEnabled(false);
+		return;
+	}
 
 	if (bInteracting) {
 		UE_LOG(LogTemp, Warning, TEXT("4444"));

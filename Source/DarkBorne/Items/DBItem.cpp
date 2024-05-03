@@ -69,10 +69,10 @@ void ADBItem::ExecuteInteract_Implementation(UDBInteractionComponent* Interactio
 	{
 		
 	}
-	//else if (Inventory->TryAddItem(ItemObj))
-	//{
-	//	
-	//}
+	else if (Inventory->TryAddItem(ItemObj))
+	{
+
+	}
 	else 
 	{
 		UE_LOG(LogTemp,Warning,TEXT("2222"));
