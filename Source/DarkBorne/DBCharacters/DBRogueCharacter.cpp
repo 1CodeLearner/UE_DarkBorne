@@ -15,6 +15,7 @@
 #include "../Inventory/PlayerEquipmentComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Public/Net/UnrealNetwork.h>
+#include "../Framework/DBPlayerController.h"
 
 
 
@@ -92,6 +93,7 @@ void ADBRogueCharacter::Tick(float DeltaTime)
 	}
 	else
 	{
+		//내 것이라면
 		if (IsLocallyControlled() == false)
 		{
 			ThrowKnifePos->SetWorldLocation(knifePos);
@@ -145,10 +147,12 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 
 		if (IsLocallyControlled())
 		{
-			APlayerController* pc = GetWorld()->GetFirstPlayerController();
-			pc->SetShowMouseCursor(true);
+			ADBPlayerController* pc = Cast<ADBPlayerController>(GetWorld()->GetFirstPlayerController());
+			//APlayerController* pc = GetWorld()->GetFirstPlayerController();
+			//pc->SetShowMouseCursor(true);
 			DisableInput(pc);
 			
+			pc->ChangeToSpectator();
 			//pc->SetInputMode(FInputModeGameOnly());
 		}
 	}

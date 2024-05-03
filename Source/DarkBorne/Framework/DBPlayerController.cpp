@@ -11,6 +11,8 @@
 #include "../DBCharacters/DBCharacter.h"
 #include "../Inventory/DBEquipmentComponent.h"
 #include "../TP_ThirdPerson/TP_ThirdPersonGameMode.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/SpectatorPawn.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h>
 
 void ADBPlayerController::Client_DisplayGameResult_Implementation(bool bHasWon)
 {
@@ -70,5 +72,30 @@ void ADBPlayerController::OnPossess(APawn* aPawn)
 				EquipComp->Server_AddItem(ItemObject);
 			}
 		}
+	}
+}
+
+void ADBPlayerController::ChangeToSpectator()
+{
+	ServerRPC_ChangeToSpectator();
+}
+
+void ADBPlayerController::ServerRPC_ChangeToSpectator_Implementation()
+{
+	APawn* player = GetPawn();
+	if (player)
+	{
+		// 플레이 게임 모드의 게임모드를 가져오기
+		ATP_ThirdPersonGameMode* gm = Cast<ATP_ThirdPersonGameMode>(GetWorld()->GetAuthGameMode());
+
+		// 관전자 Pawn 생성
+		ASpectatorPawn* spectator = GetWorld()->SpawnActor<ASpectatorPawn>(gm->SpectatorClass, player->GetActorTransform());
+
+		// 현재 플레이어 Possess 해제
+		UnPossess();
+
+		// 관전자 Pawn 을 Possess
+		Possess(spectator);
+		//UKismetSystemLibrary::K2_SetTimer(this, TEXT("ChangeToSpectator"), 5, false);
 	}
 }

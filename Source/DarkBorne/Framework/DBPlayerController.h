@@ -25,4 +25,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TSubclassOf<UGameEndWidget> GameEndWidgetClass;
 	TObjectPtr<UGameEndWidget> GameEndWidget;
+
+public:
+	// 관전자 모드 되기
+	void ChangeToSpectator();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ChangeToSpectator();
 };
