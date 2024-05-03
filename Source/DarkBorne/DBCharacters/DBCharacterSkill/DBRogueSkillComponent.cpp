@@ -12,6 +12,7 @@
 #include "../../DBAnimInstance/DBRogueAnimInstance.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/Animation/AnimMontage.h>
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -45,6 +46,7 @@ void UDBRogueSkillComponent::SetupPlayerInputComponent(class UEnhancedInputCompo
 {
 	enhancedInputComponent->BindAction(ia_Q_Skill, ETriggerEvent::Triggered, this, &UDBRogueSkillComponent::ActiveRogueQSkill);
 	enhancedInputComponent->BindAction(ia_E_Skill, ETriggerEvent::Triggered, this, &UDBRogueSkillComponent::ActiveRogueESkill);
+	enhancedInputComponent->BindAction(ia_Shift_Skill, ETriggerEvent::Triggered, this, &UDBRogueSkillComponent::ActiveRogueShiftSkill);
 
 }
 
@@ -110,24 +112,32 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 	// 은신을 사용 했다면
 	if (isVanish)
 	{
-		// 화면 회색 처리
-		RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = true;
-		RoguePlayer->camera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
-		// 로그 캐릭터 머티리얼 인덱스 0 부터 last까지 가져와서
-		for (int32 i = 0; i < RoguePlayer->MatArr.Num(); i++)
+		// 나의 것이라면
+		if (RoguePlayer->IsLocallyControlled())
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("PlayerMat"));
-			// 기존 캐릭터 메쉬 머티리얼을 투명한 머티리얼로 바꾸자
-			RoguePlayer->GetMesh()->SetMaterial(i, VanishMat);
+			// 화면 회색 처리
+			RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = true;
+			RoguePlayer->camera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
 		}
-		// 무기 가지고 있으면
-		if (weaponComponent->EquipSlotArray[0])
+		// 다른 캐릭터들한텐
+		else
 		{
-			// 무기 머티리얼 인덱스 가져와서
-			for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
+			// 로그 캐릭터 머티리얼 인덱스 0 부터 last까지 가져와서
+			for (int32 i = 0; i < RoguePlayer->MatArr.Num(); i++)
 			{
-				// 무기를 은신 머티리얼로 설정
-				weaponComponent->RogueItems->SMComp->SetMaterial(i, VanishMat);
+				//UE_LOG(LogTemp, Warning, TEXT("PlayerMat"));
+				// 기존 캐릭터 메쉬 머티리얼을 투명한 머티리얼로 바꾸자
+				RoguePlayer->GetMesh()->SetMaterial(i, VanishMat);
+			}
+			// 무기 가지고 있으면
+			if (weaponComponent->EquipSlotArray[0])
+			{
+				// 무기 머티리얼 인덱스 가져와서
+				for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
+				{
+					// 무기를 은신 머티리얼로 설정
+					weaponComponent->RogueItems->SMComp->SetMaterial(i, VanishMat);
+				}
 			}
 		}
 
@@ -142,26 +152,29 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 	isVanish = false;
 	// 최대 지속시간에 도달했다면
 	if (!isVanish)
-	{
-		//화면 원래대로
-		RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = false;
-		//로그 캐릭터 머티리얼 가져와서
-		// 머티리얼 인덱스 0 부터 last까지 가져와서
-		for (int32 i = 0; i < RoguePlayer->MatArr.Num(); i++)
+	{	
+		if (RoguePlayer->IsLocallyControlled())
 		{
-
-			// 기존 캐릭터 메쉬 머티리얼을 투명한 머티리얼로 바꾸자
-			RoguePlayer->GetMesh()->SetMaterial(i, RoguePlayer->MatArr[i]);
-
+			//화면 원래대로
+			RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = false;
 		}
-		// 무기 가지고 있으면
-		if (weaponComponent->EquipSlotArray[0])
+		else
 		{
-
-			for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
+			//로그 캐릭터 머티리얼 가져와서
+			// 머티리얼 인덱스 0 부터 last까지 가져와서
+			for (int32 i = 0; i < RoguePlayer->MatArr.Num(); i++)
 			{
-				// 무기도 은신 머티리얼로 설정
-				weaponComponent->RogueItems->SMComp->SetMaterial(i, weaponComponent->RogueItemSMMat[i]);
+				// 기존 캐릭터 메쉬 머티리얼을 투명한 머티리얼로 바꾸자
+				RoguePlayer->GetMesh()->SetMaterial(i, RoguePlayer->MatArr[i]);
+			}
+			// 무기 가지고 있으면
+			if (weaponComponent->EquipSlotArray[0])
+			{
+				for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
+				{
+					// 무기도 은신 머티리얼로 설정
+					weaponComponent->RogueItems->SMComp->SetMaterial(i, weaponComponent->RogueItemSMMat[i]);
+				}
 			}
 		}
 
@@ -200,17 +213,12 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 			//스폰 시작
 			UGameplayStatics::FinishSpawningActor(ThrowingKnife, RoguePlayer->ThrowKnifePos->GetComponentTransform());
 			//ThrowingKnife = GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowingKnifeClass, NewLoc, NewRot);
-			//// 빈 총알 지우고
-			//TKMagazine.RemoveAt(i);
-			//// 탄창에 총알 삽입
-			//TKMagazine.Insert(ThrowingKnife, i);
-
+			
 			// 수리검의 인덱스를 수리검 갯수로 넘겨
 			ThrowingKnife->KnifeNumber = i;
 			// 중앙배치 식을 수리검에 넘기기 
 			ThrowingKnife->halfValue = halfValue;
 			ThrowingKnife->isThrowing = false;
-
 			
 		}
 
@@ -218,8 +226,26 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 
 }
 
-void UDBRogueSkillComponent::MultiRPC_ActiveRogueESkill_Implementation()
-{
 
+void UDBRogueSkillComponent::ActiveRogueShiftSkill()
+{
+	ServerRPC_ActiveRogueShiftSkill();
+}
+
+void UDBRogueSkillComponent::ServerRPC_ActiveRogueShiftSkill_Implementation()
+{
+	MultiRPC_ActiveRogueShiftSkill();
+	
+}
+
+void UDBRogueSkillComponent::MultiRPC_ActiveRogueShiftSkill_Implementation()
+{
+	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
+	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	if (weaponComponent->hasWeapon)
+	{
+		RoguePlayer->PlayAnimMontage(AM_RogueShiftSkill, 1.f, FName("Shift_Start"));
+	}
 }
 

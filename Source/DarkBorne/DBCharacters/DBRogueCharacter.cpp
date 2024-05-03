@@ -63,6 +63,8 @@ ADBRogueCharacter::ADBRogueCharacter()
 	
 	JumpMaxCount = 2;
 	GetCharacterMovement()->JumpZVelocity = 500.f;
+
+	
 }
 
 void ADBRogueCharacter::BeginPlay()
@@ -77,7 +79,16 @@ void ADBRogueCharacter::BeginPlay()
 	// 시작 시 현재 hp 
 	OnRep_CurrHP();
 
+	//beginPlay때 컴포넌트 가져오고
+	//RogueSkillComponent = GetComponentByClass<UDBRogueSkillComponent>();
+	
+	//input component를 캐스팅해서 가져온다음
+	//UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	//component 붙이기
+	//RogueSkillComponent->SetupPlayerInputComponent(enhancedInputComponent);
+	
 }
+
 
 void ADBRogueCharacter::Tick(float DeltaTime)
 {
@@ -107,10 +118,12 @@ void ADBRogueCharacter::Tick(float DeltaTime)
 void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 	UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (enhancedInputComponent != nullptr)
 	{
+		
+
+		//RogueSkillComponent->SetupPlayerInputComponent(enhancedInputComponent);
 		RogueSkillComponent->SetupPlayerInputComponent(enhancedInputComponent);
 		RogueAttackComponent->SetupPlayerInputComponent(enhancedInputComponent);
 		RogueWeaponComp->SetupPlayerInputComponent(enhancedInputComponent);
