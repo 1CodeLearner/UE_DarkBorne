@@ -36,7 +36,7 @@ ADBCharacter::ADBCharacter()
 	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
 
-
+	
 }
 
 // Called when the game starts or when spawned
