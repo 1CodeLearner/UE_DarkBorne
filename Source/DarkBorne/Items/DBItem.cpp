@@ -73,7 +73,7 @@ void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharact
 	{
 
 	}
-	else
+	else 
 	{
 		InteractionComp->DeclareFailedInteraction();
 	}

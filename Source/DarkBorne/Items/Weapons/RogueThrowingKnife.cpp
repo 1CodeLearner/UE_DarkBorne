@@ -21,7 +21,7 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
 	CapsuleComp->SetupAttachment(SMComp);
 	CapsuleComp->SetRelativeLocation(FVector(0, 0, 19));
-	CapsuleComp->SetCapsuleHalfHeight(10);
+	CapsuleComp->SetCapsuleHalfHeight(22);
 	CapsuleComp->SetCapsuleRadius(3);
 	CapsuleComp->SetCollisionProfileName(TEXT("WeaponCapColl"));
 
@@ -33,6 +33,8 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 	projectileComponent->bRotationFollowsVelocity = true;
 	projectileComponent->ProjectileGravityScale = 0;
 	projectileComponent->bAutoActivate = false;
+	projectileComponent->bInterpMovement = true;
+	projectileComponent->bInterpRotation = true;
 
 	ThrowKnifeTrail = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Trail"));
 	ThrowKnifeTrail->SetupAttachment(SMComp);
