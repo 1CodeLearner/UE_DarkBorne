@@ -60,7 +60,7 @@ ADBRogueCharacter::ADBRogueCharacter()
 
 	ThrowKnifePos = CreateDefaultSubobject<UArrowComponent>(TEXT("ThrowKnifePos"));
 	ThrowKnifePos->SetupAttachment(camera);
-	
+
 	JumpMaxCount = 2;
 	GetCharacterMovement()->JumpZVelocity = 500.f;
 }
@@ -82,6 +82,9 @@ void ADBRogueCharacter::BeginPlay()
 void ADBRogueCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("Object Type:%s"),
+		*UEnum::GetValueAsString(GetMesh()->GetCollisionObjectType())));
 
 	//¼­¹ö¸é
 	if (HasAuthority())
@@ -139,10 +142,18 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
 	if (CurrHP <= 0 && !MyCharacterAnim->isDeath)
 	{
+		if (HasAuthority())
+		{
+			//change collision object type to item
+			GetMesh()->SetCollisionProfileName("Item");
+			//set bCanInteract to true
+			SetCanInteract(true);
+		}
+
 		MyCharacterAnim->isDeath = true;
 		UE_LOG(LogTemp, Warning, TEXT("%s"), GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"));
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetCharacterMovement()->DisableMovement();
 		bUseControllerRotationYaw = false;
 
@@ -152,7 +163,7 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 			//APlayerController* pc = GetWorld()->GetFirstPlayerController();
 			//pc->SetShowMouseCursor(true);
 			DisableInput(pc);
-			
+
 			pc->ChangeToSpectator();
 			//pc->SetInputMode(FInputModeGameOnly());
 		}

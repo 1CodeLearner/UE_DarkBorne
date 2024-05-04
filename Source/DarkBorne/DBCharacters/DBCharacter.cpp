@@ -33,7 +33,7 @@ FFinalStat ADBCharacter::GetFinalStat(ACharacter* Character)
 
 // Sets default values
 ADBCharacter::ADBCharacter()
-{	
+{
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
@@ -109,7 +109,7 @@ void ADBCharacter::BeginInteract(UDBInteractionComponent* InteractionComponent)
 
 void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* Character)
 {
-	UE_LOG(LogTemp,Warning,TEXT("Im interacting with this dead character"));
+	UE_LOG(LogTemp, Warning, TEXT("Im interacting with this dead character"));
 }
 
 void ADBCharacter::InterruptInteract()
@@ -137,7 +137,7 @@ void ADBCharacter::SetCanInteract(bool bAllowInteract)
 void ADBCharacter::OnRep_bCanInteract()
 {
 	if (bCanInteract) {
-
+		GetMesh()->SetCollisionProfileName("Item");
 	}
 }
 
@@ -181,6 +181,7 @@ void ADBCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(ADBCharacter, MaxHP);
 	DOREPLIFETIME(ADBCharacter, CurrHP);
+	DOREPLIFETIME(ADBCharacter, bCanInteract);
 }
 
 
@@ -206,13 +207,13 @@ void ADBCharacter::EnhancedJump(const struct FInputActionValue& value)
 {
 	//Jump();
 	ServerRPC_DoubleJump();
-	
+
 }
 
 void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
 {
 	StopJumping();
-	
+
 }
 
 void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
@@ -241,7 +242,7 @@ void ADBCharacter::MultiRPC_DoubleJump_Implementation()
 	}
 	// ¹Ù´ÚÀÌ°í µ¤Á¡ ÇßÀ¸¸é
 	else if (!RogueAnim->isFalling && RogueAnim->isDoubleJumping)
-	{	
+	{
 		RogueAnim->AnimNotify_DoubleJumpEnd();
 	}
 }
