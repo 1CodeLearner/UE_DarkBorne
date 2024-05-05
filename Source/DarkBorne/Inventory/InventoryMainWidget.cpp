@@ -7,13 +7,31 @@
 #include "DBEquipmentComponent.h"
 #include "LootInventoryComponent.h"
 
+#include "LootDisplayWidget.h"
+
+#include "Blueprint/WidgetBlueprintLibrary.h"
+
+void UInventoryMainWidget::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+	SetIsFocusable(true);
+}
+
 void UInventoryMainWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("Equipment Loot: %s"),
 		*GetNameSafe(EquipmentComp_Loot)));
 
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("Equipment Loot: %s"),
 		*GetNameSafe(InventoryComp_Loot)));
+
+}
+
+void UInventoryMainWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
 }
 
 void UInventoryMainWidget::DisplayInventory(bool bEnabled)
@@ -22,15 +40,35 @@ void UInventoryMainWidget::DisplayInventory(bool bEnabled)
 	{
 		if(IsLootValid())
 		{
-
+			WBP_LootDisplay->SetVisibility(ESlateVisibility::Visible);
+			WBP_LootDisplay->StartInit(InventoryComp_Loot, EquipmentComp_Loot);
+		}
+		
+		if(ensureAlways(!IsInViewport()))
+		{
+			AddToViewport();
+			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
+				GetOwningPlayer(), this, EMouseLockMode::LockOnCapture);
+			GetOwningPlayer()->bShowMouseCursor = true;
 		}
 	}
 	else
 	{
 		if(IsLootValid())
 		{
+			WBP_LootDisplay->SetVisibility(ESlateVisibility::Collapsed);	
 			
+			ClearLoot();
+			WBP_LootDisplay->Reset();
+			bLootValid = false;
 		}
+		
+		if(ensureAlways(IsInViewport()))
+		{
+			RemoveFromParent();
+			UWidgetBlueprintLibrary::SetInputMode_GameOnly(GetOwningPlayer(), true);
+			GetOwningPlayer()->bShowMouseCursor = false;
+		}			
 	}
 }
 

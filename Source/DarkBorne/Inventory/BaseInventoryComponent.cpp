@@ -54,6 +54,11 @@ void UBaseInventoryComponent::RemoveItem(UItemObject* ItemObject)
 	return;
 }
 
+float UBaseInventoryComponent::GetTileSize() const
+{
+	return TileSize;
+}
+
 void UBaseInventoryComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
 {
 	return;

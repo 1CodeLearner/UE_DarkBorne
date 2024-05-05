@@ -9,13 +9,13 @@
 /**
  *
  */
+
+class UInventoryGridWidget;
+class ULootDisplayWidget;
+
 class UPlayerEquipmentComponent;
 class UDBEquipmentComponent;
 class UBaseInventoryComponent;
-
-class UInventoryGridWidget;
-class ULootInventoryComponent;
-class ULootEquipmentComponent;
 
 enum class EEntityType : uint8;
 
@@ -24,9 +24,12 @@ class DARKBORNE_API UInventoryMainWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-public:
+protected:
+	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
+	virtual void NativeConstruct() override;
 
+public:
 	UFUNCTION(BlueprintCallable)
 	void DisplayInventory(bool bEnabled);
 	//Dynamically change loot display
@@ -36,9 +39,12 @@ public:
 	bool IsLootValid() const;
 
 protected:
+	//Widgets
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
-	UInventoryGridWidget* InventoryGrid_Widget;
-	
+	UInventoryGridWidget* WBP_InventoryGrid;
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	ULootDisplayWidget* WBP_LootDisplay;
+
 	//Owning player's Inventories
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
@@ -55,8 +61,7 @@ private:
 	bool bLootValid;
 	void AssignLootFrom(AActor* OtherEntity);
 	bool IsValidForInit(const TArray<UBaseInventoryComponent*>& Inventories) const;
+		bool IsValidNum(const TArray<UBaseInventoryComponent*>& Inventories) const;
+		bool IsReadyForAssignment() const;
 	void ClearLoot();
-
-	bool IsValidNum(const TArray<UBaseInventoryComponent*>& Inventories) const;
-	bool IsReadyForAssignment() const;
 };

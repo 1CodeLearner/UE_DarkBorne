@@ -175,7 +175,8 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		enhancedInputComponent->BindAction(ia_DB_Look, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedLook);
 
-		enhancedInputComponent->BindAction(ia_Interact, ETriggerEvent::Started, this, &ADBCharacter::EnhancedInteract);
+		enhancedInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &ADBCharacter::EnhancedInteract);
+		enhancedInputComponent->BindAction(IA_Inventory, ETriggerEvent::Started, this, &ADBCharacter::EnhancedInventory);
 	}
 }
 
@@ -254,6 +255,17 @@ void ADBCharacter::EnhancedInteract(const FInputActionValue& value)
 {
 	if (ensureAlways(InteractionComp))
 		InteractionComp->OnInteract();
+}
+
+void ADBCharacter::EnhancedInventory(const FInputActionValue& value)
+{
+	if(ensureAlways(InvMainWidget))
+	{
+		if(InvMainWidget->IsInViewport())
+			InvMainWidget->DisplayInventory(false);
+		else
+			InvMainWidget->DisplayInventory(true);
+	}
 }
 
 void ADBCharacter::CreatePlayerWidget()

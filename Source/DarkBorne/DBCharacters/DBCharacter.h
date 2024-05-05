@@ -110,8 +110,10 @@ public:
 	class UInputAction* ia_DB_Look;
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_DB_Jump;
-	UPROPERTY(EditAnywhere)
-	class UInputAction* ia_Interact;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UInputAction> IA_Interact;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UInputAction> IA_Inventory;
 
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
@@ -134,6 +136,7 @@ public:
 	void MultiRPC_DoubleJump();
 
 	void EnhancedInteract(const struct FInputActionValue& value);
+	void EnhancedInventory(const struct FInputActionValue& value);
 public:
 	void CreatePlayerWidget();
 

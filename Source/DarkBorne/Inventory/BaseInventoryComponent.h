@@ -33,6 +33,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void RemoveItem(UItemObject* ItemObject);
 
+	UFUNCTION(BlueprintCallable)
+	float GetTileSize() const;
+
 protected:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
@@ -46,6 +49,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Rows = -1;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float TileSize;
+
 	UPROPERTY(ReplicatedUsing = OnRep_Items, VisibleAnywhere)
 	TArray<UItemObject*> Items;
 	

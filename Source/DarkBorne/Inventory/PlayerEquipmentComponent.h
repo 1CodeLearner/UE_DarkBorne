@@ -25,7 +25,13 @@ USTRUCT(BlueprintType)
 struct FLine
 {
 	GENERATED_BODY()
-
+	FLine() = default;
+	FLine(FVector2D _Start, FVector2D _End)
+	{
+		Start = _Start;
+		End = _End;
+	}
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FVector2D Start = FVector2D::Zero();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
@@ -49,6 +55,15 @@ public:
 	void Server_AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex);
 
 	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject) override;
+		
+	UFUNCTION(BlueprintCallable)
+	FVector2D GetSize() const;
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetColumn() const;
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetRow() const;
 
 	//Holds ItemObject until mouse button is released
 	/*UPROPERTY(BlueprintReadOnly)
