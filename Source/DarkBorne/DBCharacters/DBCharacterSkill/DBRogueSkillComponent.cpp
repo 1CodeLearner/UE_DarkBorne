@@ -151,8 +151,10 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 {
 	//로그 캐릭터 가져오기 
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 
+	if (RogueAnim->isCastingShift) return;
 	if(isVanish) return;
 	isVanish = true;
 	// 은신을 사용 했다면
@@ -313,8 +315,9 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueShiftSkill_Implementation()
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 
-	if(RogueAnim->isCastingShift) return; 
-	RogueAnim->isCastingShift = true;
+	if(RogueAnim->isCastingShift) return;
+	if(!weaponComponent->hasWeapon) return;
+		RogueAnim->isCastingShift = true;
 
 	// 은신 상태면 은신 풀어주자
 	if (isVanish)
