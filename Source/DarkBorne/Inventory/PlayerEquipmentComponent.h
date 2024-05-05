@@ -41,10 +41,6 @@ class DARKBORNE_API UPlayerEquipmentComponent : public UBaseInventoryComponent
 public:
 	UPlayerEquipmentComponent();
 
-protected:
-	virtual void BeginPlay() override;
-
-public:
 	virtual bool TryAddItem(UItemObject* ItemObject) override;
 
 	virtual void RemoveItem(UItemObject* ItemObject) override;
@@ -57,6 +53,9 @@ public:
 	//Holds ItemObject until mouse button is released
 	/*UPROPERTY(BlueprintReadOnly)
 	UItemObject* ItemObjectHolder;*/
+
+protected:
+	virtual void BeginPlay() override;
 
 public:
 	UFUNCTION(BlueprintCallable)
