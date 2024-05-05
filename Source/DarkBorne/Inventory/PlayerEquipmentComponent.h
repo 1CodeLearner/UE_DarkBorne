@@ -3,17 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "BaseInventoryComponent.h"
 #include "PlayerEquipmentComponent.generated.h"
 
 
 class UItemObject;
 class UActorChannel;
 class FOutBunch;
-
-//for blueprint use
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryChangedDel);
-
 
 USTRUCT(BlueprintType)
 struct FTile
@@ -37,32 +33,26 @@ struct FLine
 };
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent), Blueprintable)
-class DARKBORNE_API UPlayerEquipmentComponent : public UActorComponent
+class DARKBORNE_API UPlayerEquipmentComponent : public UBaseInventoryComponent
 {
 	GENERATED_BODY()
 	friend class ULootInventoryComponent;
 
 public:
-	// Sets default values for this component's properties
 	UPlayerEquipmentComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
-public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	//Sends Server RPC when item can be added
-	UFUNCTION(BlueprintCallable)
-	bool TryAddItem(UItemObject* ItemObject);
+public:
+	virtual bool TryAddItem(UItemObject* ItemObject) override;
+
+	virtual void RemoveItem(UItemObject* ItemObject) override;
 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex);
 
-	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void Server_RemoveItem(UItemObject* ItemObject);
+	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject) override;
 
 	//Holds ItemObject until mouse button is released
 	/*UPROPERTY(BlueprintReadOnly)
@@ -85,34 +75,4 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsTileValid(FTile tile) const;
-
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Columns = -1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Rows = -1;
-
-protected:
-	UPROPERTY(ReplicatedUsing = OnRep_itemArray, VisibleAnywhere)
-	TArray<UItemObject*> itemArray;
-
-	UFUNCTION()
-	void OnRep_itemArray(TArray<UItemObject*> OldItemArray);
-
-	UPROPERTY(EditAnywhere)
-	bool isDirty;
-
-protected:
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FOnInventoryChangedDel onInventoryChangedDel;
-
-	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void Server_PlaceItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
-
-private:
-	FTransform GetNewTransform(AActor* Instigator, float offset);
 };

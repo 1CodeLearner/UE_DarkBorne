@@ -13,7 +13,7 @@ UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
-	isDirty = false;
+	bIsDirty = false;
 	Columns = 8;
 	Rows = 5;
 }
@@ -21,43 +21,13 @@ UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 void UPlayerEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	itemArray.SetNum(Columns * Rows);
-}
-
-void UPlayerEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(UPlayerEquipmentComponent, itemArray);
-	
-	
-
-}
-
-bool UPlayerEquipmentComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
-{
-	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-
-	for(UItemObject* ItemObject: itemArray)
-	{
-		WroteSomething |= Channel->ReplicateSubobject(ItemObject, *Bunch, *RepFlags);
-	}
-	return WroteSomething;
-}
-
-void UPlayerEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	if (isDirty)
-	{
-		isDirty = false;
-		onInventoryChangedDel.Broadcast();
-	}
+	Items.SetNum(Columns * Rows);
 }
 
 bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 {
 	if (!IsValid(ItemObject)) return false;
-	for (int i = 0; i < itemArray.Num(); i++)
+	for (int i = 0; i < Items.Num(); i++)
 	{
 		if (IsRoomAvailable(ItemObject, i))
 		{
@@ -69,18 +39,23 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 	return false;
 }
 
+void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject)
+{
+	Server_RemoveItem(ItemObject);
+}
+
 void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
 {
 	if (!IsValid(ItemObject)) return;
-	TArray<UItemObject*> old = itemArray;
-	for (int32 i = 0; i < itemArray.Num(); i++)
+	TArray<UItemObject*> old = Items;
+	for (int32 i = 0; i < Items.Num(); i++)
 	{
-		if (itemArray[i] == ItemObject)
+		if (Items[i] == ItemObject)
 		{
-			itemArray[i] = nullptr;
+			Items[i] = nullptr;
 		}
 	}
-	OnRep_itemArray(old);
+	OnRep_Items(old);
 }
 
 void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* ItemObject, int32 TopLeftIndex)
@@ -89,19 +64,19 @@ void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* Ite
 	FTile refTile = IndexToTile(TopLeftIndex);
 	FIntPoint dimentions = ItemObject->GetDimentions();
 	FTile newTile;
-	TArray<UItemObject*> old = itemArray;
+	TArray<UItemObject*> old = Items;
 	for (int32 i = refTile.X; i < refTile.X + (dimentions.X); i++)
 	{
 		for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y); j++)
 		{
 			newTile.X = i;
 			newTile.Y = j;
-			itemArray[TileToIndex(newTile)] = ItemObject;
+			Items[TileToIndex(newTile)] = ItemObject;
 		}
 	}
 
 	ItemObject->TryDestroyItemActor();
-	OnRep_itemArray(old);
+	OnRep_Items(old);
 }
 
 TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems() const
@@ -109,9 +84,9 @@ TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems() const
 	TMap<UItemObject*, FTile> AllItems;
 	UItemObject* CurrentItemObject;
 
-	for (int i = 0; i < itemArray.Num(); i++)
+	for (int i = 0; i < Items.Num(); i++)
 	{
-		CurrentItemObject = itemArray[i];
+		CurrentItemObject = Items[i];
 		if (IsValid(CurrentItemObject) && !AllItems.Contains(CurrentItemObject))
 		{
 			AllItems.Add(CurrentItemObject, IndexToTile(i));
@@ -172,7 +147,7 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 
 inline TTuple<bool, UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index) const
 {
-	return MakeTuple(IsValid(itemArray[Index]), itemArray[Index]);
+	return MakeTuple(IsValid(Items[Index]), Items[Index]);
 }
 
 bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
@@ -184,56 +159,4 @@ bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
 
 	return false;
 
-}
-
-void UPlayerEquipmentComponent::OnRep_itemArray(TArray<UItemObject*> OldItemArray)
-{
-	isDirty = true;
-}
-
-void UPlayerEquipmentComponent::Server_SpawnItem_Implementation(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner, float forwardOffset)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Net? %s"),
-		GetWorld()->GetNetMode() == NM_Client ? TEXT("CLIENT") : TEXT("SERVER")
-	);
-	if (Initiator && ItemObject) {
-		FTransform Trans = GetNewTransform(Initiator, forwardOffset);
-
-		auto ItemSpawned = GetWorld()->SpawnActorDeferred<ADBItem>(ItemObject->GetItemClass(), Trans, bSetOwner ? Initiator : nullptr);
-
-		ItemSpawned->Initialize(ItemObject);
-
-		ItemObject->AddItemActor(ItemSpawned);
-
-		UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Spawn Item Failed in %s"), *GetNameSafe(this));
-		return;
-	}
-}
-
-void UPlayerEquipmentComponent::Server_PlaceItem_Implementation(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner, float forwardOffset)
-{
-	AActor* actor = Cast<AActor>(ItemObject->GetItemActor());
-	if (ensureAlways(actor)) 
-	{
-		FTransform Trans = GetNewTransform(Initiator, forwardOffset);
-		actor->SetActorTransform(Trans);
-	}
-}
-
-FTransform UPlayerEquipmentComponent::GetNewTransform(AActor* Instigator, float offset)
-{
-	FVector SpawnLoc = Instigator->GetActorLocation();
-	SpawnLoc += Instigator->GetActorForwardVector() * offset;
-
-	FTransform Trans;
-	
-	Trans.SetLocation(SpawnLoc);
-	Trans.SetRotation(FQuat::Identity);
-	Trans.SetScale3D(FVector::OneVector);
-
-	return Trans;
 }
