@@ -15,8 +15,6 @@ class ULootDisplayWidget;
 
 class UDBEquipmentComponent;
 class UPlayerEquipmentComponent;
-class ULootInventoryComponent;
-class ULootEquipmentComponent;
 
 class UDBInteractionComponent;
 
@@ -37,7 +35,7 @@ protected:
 
 public:
 	virtual void BeginInteract(UDBInteractionComponent* InteractionComponent) override;
-	virtual void ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* Character) override;
+	virtual void ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* OtherCharacter) override;
 	virtual void InterruptInteract() override;
 
 	virtual void BeginTrace() override;
@@ -80,10 +78,6 @@ public:
 	UDBEquipmentComponent* EquipmentComponent;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
-	ULootInventoryComponent* LootInventoryComponent;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
-	ULootEquipmentComponent* LootEquipmentComponent;
 
 	//Inventory UI
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")

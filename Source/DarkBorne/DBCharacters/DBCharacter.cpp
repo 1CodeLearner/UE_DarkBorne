@@ -14,8 +14,6 @@
 #include "Net/UnrealNetwork.h"
 #include "../DBPlayerWidget/DBPlayerWidget.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
-#include "../Inventory/LootInventoryComponent.h"
-#include "../Inventory/LootEquipmentComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 #include "DBRogueCharacter.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/Controller.h>
@@ -46,13 +44,8 @@ ADBCharacter::ADBCharacter()
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerColl"));
 	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 
-	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
-	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
-
-
 	InteractDistance = 400.f;
 	InteractionComp = CreateDefaultSubobject<UDBInteractionComponent>("InteractionComp");
-
 }
 
 // Called when the game starts or when spawned
@@ -107,9 +100,19 @@ void ADBCharacter::BeginInteract(UDBInteractionComponent* InteractionComponent)
 {
 }
 
-void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* Character)
+void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* OtherCharacter)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Im interacting with this dead character"));
+	UE_LOG(LogTemp, Warning, TEXT("this guys interacting with me dude"));
+
+	auto OtherPlayer =Cast<ADBCharacter>(OtherCharacter);
+	if(ensureAlways(OtherPlayer) && OtherPlayer->InvMainWidget)
+	{
+		OtherPlayer->InvMainWidget->InitLootDisplay(this);
+		if(OtherPlayer->InvMainWidget->IsLootValid())
+		{
+			OtherPlayer->InvMainWidget->DisplayInventory(true);
+		}
+	}
 }
 
 void ADBCharacter::InterruptInteract()

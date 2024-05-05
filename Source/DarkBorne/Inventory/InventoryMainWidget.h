@@ -10,6 +10,9 @@
  *
  */
 class UPlayerEquipmentComponent;
+class UDBEquipmentComponent;
+class UBaseInventoryComponent;
+
 class UInventoryGridWidget;
 class ULootInventoryComponent;
 class ULootEquipmentComponent;
@@ -22,20 +25,38 @@ class DARKBORNE_API UInventoryMainWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	//Dynamically change inventory and equipment inventory size
-	UFUNCTION(BlueprintImplementableEvent)
-	void StartInit(EEntityType EntityType);
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
+
+	UFUNCTION(BlueprintCallable)
+	void DisplayInventory(bool bEnabled);
+	//Dynamically change loot display
+	UFUNCTION(BlueprintCallable)
+	void InitLootDisplay(AActor* OtherEntity);
+	UFUNCTION(BlueprintCallable)
+	bool IsLootValid() const;
 
 protected:
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryGrid_Widget;
-
+	
+	//Owning player's Inventories
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn))
+	UDBEquipmentComponent* EquipmentComp;
 
+	//Other entity's inventory
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
-	ULootInventoryComponent* LootInventoryComp;
+	TObjectPtr<UDBEquipmentComponent> EquipmentComp_Loot;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
+	TObjectPtr<UPlayerEquipmentComponent> InventoryComp_Loot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
-	ULootEquipmentComponent* LootEquipmentComp;
+private:
+	bool bLootValid;
+	void AssignLootFrom(AActor* OtherEntity);
+	bool IsValidForInit(const TArray<UBaseInventoryComponent*>& Inventories) const;
+	void ClearLoot();
+
+	bool IsValidNum(const TArray<UBaseInventoryComponent*>& Inventories) const;
+	bool IsReadyForAssignment() const;
 };

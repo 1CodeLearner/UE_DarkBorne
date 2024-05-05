@@ -22,15 +22,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable)
-	void DisplayLoot(AActor* OtherActor, EEntityType EntityType);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void Server_CopyItems(AActor* OtherActor, EEntityType EntityType);
-	
-	UPROPERTY()
-	TObjectPtr<ADBCharacter> Character;
-
 protected:
 	
 		
