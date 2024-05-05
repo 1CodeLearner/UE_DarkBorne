@@ -21,9 +21,8 @@ class DARKBORNE_API UInventoryGridWidget : public UUserWidget
 public:
 	UFUNCTION(BlueprintCallable)
 	void StartInit(UPlayerEquipmentComponent* InventoryComp);
-	
-	UFUNCTION(BlueprintImplementableEvent)
-	void Refresh();
+
+	void Reset();
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
@@ -37,6 +36,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UBorder> GridBorder;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void Refresh();
 private:
 	void CreateLineSegments();
 };

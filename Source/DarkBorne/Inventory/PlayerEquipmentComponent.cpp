@@ -164,7 +164,13 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 
 inline TTuple<bool, UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index) const
 {
-	return MakeTuple(IsValid(Items[Index]), Items[Index]);
+	if (Items.IsValidIndex(Index))
+		return MakeTuple(IsValid(Items[Index]), Items[Index]);
+	else
+	{
+		UE_LOG(LogTemp,Warning,TEXT("index out of bounds: %d"), Index);
+		return MakeTuple(false, nullptr);
+	}
 }
 
 bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const

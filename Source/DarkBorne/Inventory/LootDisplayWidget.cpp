@@ -10,30 +10,21 @@
 void ULootDisplayWidget::StartInit(UPlayerEquipmentComponent* InventoryComp, UDBEquipmentComponent* EquipmentComp)
 {
 	if (EquipmentComp) //Dead Player's Inventory
-	{
-		OtherInventoryComp = InventoryComp;
-		OtherEquipmentComp = EquipmentComp;
-		
-		InventoryLoot_Player->StartInit(OtherInventoryComp);
+	{		
+		InventoryLoot_Player->StartInit(InventoryComp);
+		//Initialize EquipmentGrid_Weapon
+		//Initialize EquipmentGrid_Consumable
 		WidgetSwitcher_Loot->SetActiveWidgetIndex(0);
 	}
 	else // non-player inventory (Chests, monsters)
 	{
-		OtherInventoryComp = InventoryComp;
-		OtherEquipmentComp = nullptr;
-
-		InventoryLoot_Other->StartInit(OtherInventoryComp);
+		InventoryLoot_Other->StartInit(InventoryComp);
 		WidgetSwitcher_Loot->SetActiveWidgetIndex(1);
 	}
 }
 
 void ULootDisplayWidget::Reset()
 {
-	//Clear Inventory Component references in WBP_LootDisplay	
-	OtherInventoryComp = nullptr;
-	OtherEquipmentComp = nullptr;
-
-	InventoryLoot_Player->Refresh();
-	InventoryLoot_Other->Refresh();
-	//Clear Item Images in WBP_LootDisplay
+	InventoryLoot_Other->Reset();
+	InventoryLoot_Player->Reset();
 }

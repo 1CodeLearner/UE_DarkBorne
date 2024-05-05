@@ -21,8 +21,19 @@ void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp)
 	InventoryComponent->OnInventoryChanged.AddDynamic(this, &UInventoryGridWidget::Refresh);
 }
 
+void UInventoryGridWidget::Reset()
+{
+	if(InventoryComponent->OnInventoryChanged.IsBound())
+	{
+		InventoryComponent->OnInventoryChanged.Clear();
+	}
+	InventoryComponent = nullptr;
+}
+
 void UInventoryGridWidget::CreateLineSegments()
 {
+	Lines.Empty();
+
 	for(int32 i = 0; i < InventoryComponent->GetColumn() + 1; ++i)
 	{
 		int32 x = i * TileSize;

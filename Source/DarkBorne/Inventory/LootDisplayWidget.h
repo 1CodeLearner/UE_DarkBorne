@@ -22,15 +22,13 @@ class DARKBORNE_API ULootDisplayWidget : public UUserWidget
 public:
 	void StartInit(UPlayerEquipmentComponent* InventoryComp, UDBEquipmentComponent* EquipmentComp);
 	void Reset();
+
 protected:
-	UPROPERTY(BlueprintReadOnly, Category = "Settings")
-	TObjectPtr<UPlayerEquipmentComponent> OtherInventoryComp;
-	UPROPERTY(BlueprintReadOnly, Category = "Settings")
-	TObjectPtr<UDBEquipmentComponent> OtherEquipmentComp;
-
-
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryLoot_Player;
+	//EquipmentGrid_Weapon
+	//EquipmentGrid_Consumable
+	
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	TObjectPtr<UWidgetSwitcher> WidgetSwitcher_Loot;
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
