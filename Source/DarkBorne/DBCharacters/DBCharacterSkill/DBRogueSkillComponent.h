@@ -44,7 +44,6 @@ public:
 	class UMaterialInterface* VanishMat;
 
 public:
-
 	UPROPERTY()
 	class ARogueThrowingKnife* ThrowingKnife;
 
@@ -56,16 +55,22 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ARogueThrowingKnife> ThrowingKnifeClass;
 
-	// 수리검 클래스를 담은 배열
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	//TArray<TSubclassOf<class ARogueThrowingKnife>> ThrowingKnifeClassArray;
 public:
 	UPROPERTY(Replicated, VisibleAnywhere)
 	bool isVanish = false;
+
 	UPROPERTY(Replicated, VisibleAnywhere)
 	float MaxVanishTime = 5;
 	UPROPERTY(Replicated, VisibleAnywhere)
 	float CurrVanishTime = 0;
+
+	UPROPERTY(Replicated, VisibleAnywhere)
+	float Q_MaxCoolTime = 3;
+	UPROPERTY(ReplicatedUsing = OnRep_CurrQSkill, VisibleAnywhere)
+	float Q_CurrCoolTime = 0;
+	
+	UFUNCTION()
+	void OnRep_CurrQSkill();
 
 public:
 	UPROPERTY(Replicated, VisibleAnywhere)
@@ -75,7 +80,15 @@ public:
 	UPROPERTY(Replicated, VisibleAnywhere)
 	int32 magazineCnt = 4;
 
+	UPROPERTY(Replicated, VisibleAnywhere)
+	float E_MaxCoolTime = 3;
+	UPROPERTY(ReplicatedUsing = OnRep_CurrESkill, VisibleAnywhere)
+	float E_CurrCoolTime = 0;
+
+	UFUNCTION()
+	void OnRep_CurrESkill();
 public:
+	
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* AM_RogueShiftSkill;
 public:
@@ -96,6 +109,8 @@ public:
 	void ServerRPC_ActiveRogueESkill();
 
 public:
+	void UpdateRogueESkill(float DeltaTime);
+
 	void ActiveRogueShiftSkill();
 
 	UFUNCTION(Server, Reliable)
@@ -103,4 +118,6 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_ActiveRogueShiftSkill();
+
+
 };

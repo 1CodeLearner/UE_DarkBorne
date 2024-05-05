@@ -59,7 +59,7 @@ ADBRogueCharacter::ADBRogueCharacter()
 	RogueAttackComponent = CreateDefaultSubobject<UDBRogueAttackComponent>(TEXT("RogueAttackComp"));
 
 	ThrowKnifePos = CreateDefaultSubobject<UArrowComponent>(TEXT("ThrowKnifePos"));
-	ThrowKnifePos->SetupAttachment(camera);
+	ThrowKnifePos->SetupAttachment(GetMesh());
 	
 	JumpMaxCount = 2;
 	GetCharacterMovement()->JumpZVelocity = 500.f;

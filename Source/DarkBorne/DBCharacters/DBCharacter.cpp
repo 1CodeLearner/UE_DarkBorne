@@ -49,7 +49,6 @@ ADBCharacter::ADBCharacter()
 	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
 
-
 	InteractDistance = 400.f;
 	InteractionComp = CreateDefaultSubobject<UDBInteractionComponent>("InteractionComp");
 
@@ -71,7 +70,6 @@ void ADBCharacter::BeginPlay()
 		//get subSystem
 		UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerContoller->GetLocalPlayer());
 
-
 		//서브시스템을 가져왔다면
 		if (subSystem)
 		{
@@ -83,7 +81,6 @@ void ADBCharacter::BeginPlay()
 			CreatePlayerWidget();
 		}
 	}
-
 	// 서버라면
 	if (HasAuthority())
 	{
@@ -177,7 +174,6 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 
 void ADBCharacter::ServerRPC_DoubleJump_Implementation()
 {
-
 	MultiRPC_DoubleJump();
 }
 
@@ -189,7 +185,6 @@ void ADBCharacter::MultiRPC_DoubleJump_Implementation()
 	if (RogueAnim->isFalling && !RogueAnim->isDoubleJumping)
 	{
 		RogueAnim->AnimNotify_DoubleJumpStart();
-		// 문제 : 공중제비를 다 돌기전에 true를 맥이면 fall loop로 넘어가지 않는다
 	}
 	// 바닥이고 덮점 했으면
 	else if (!RogueAnim->isFalling && RogueAnim->isDoubleJumping)

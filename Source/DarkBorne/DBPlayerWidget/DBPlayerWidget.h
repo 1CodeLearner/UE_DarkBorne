@@ -21,7 +21,14 @@ public:
 public:
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* HealthBar;
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* Q_SkillBar;
+
+	UPROPERTY(meta = (BindWidget))
+	class UProgressBar* E_SkillBar;
 
 public:
 	void UpdateHeathBar(float currHP, float maxHP);
+	void UpdateQSkillBar(float Q_CurrCoolTime, float Q_MaxCoolTime);
+	void UpdateESkillBar(float E_CurrCoolTime, float E_MaxCoolTime);
 };
