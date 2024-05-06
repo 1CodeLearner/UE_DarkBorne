@@ -11,7 +11,6 @@
  */
 
 class UInventoryGridWidget;
-class ULootDisplayWidget;
 
 class UPlayerEquipmentComponent;
 class UDBEquipmentComponent;
@@ -39,23 +38,31 @@ public:
 	bool IsLootValid() const;
 
 protected:
-	//Widgets
+	//Owning Player's Widgets
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* WBP_InventoryGrid;
-	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
-	ULootDisplayWidget* WBP_LootDisplay;
 
 	//Owning player's Inventories
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn))
 	UDBEquipmentComponent* EquipmentComp;
+	
+	//Other entity's Widgets
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	UInventoryGridWidget* InventoryLoot_Player;
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	UInventoryGridWidget* InventoryLoot_Other;
 
 	//Other entity's inventory
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
 	TObjectPtr<UDBEquipmentComponent> EquipmentComp_Loot;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
 	TObjectPtr<UPlayerEquipmentComponent> InventoryComp_Loot;
+	
+	void DisplayPlayerLoot(UPlayerEquipmentComponent* _InventoryComp, UDBEquipmentComponent* _EquipmentComp);
+	void DisplayOtherLoot(UPlayerEquipmentComponent* _InventoryComp);
+	void HideLoots();
 
 private:
 	bool bLootValid;

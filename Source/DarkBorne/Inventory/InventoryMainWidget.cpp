@@ -7,7 +7,7 @@
 #include "DBEquipmentComponent.h"
 #include "LootInventoryComponent.h"
 
-#include "LootDisplayWidget.h"
+#include "../Inventory/InventoryGridWidget.h"
 
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
@@ -15,6 +15,7 @@ void UInventoryMainWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	SetIsFocusable(true);
+	HideLoots();
 }
 
 void UInventoryMainWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -36,15 +37,21 @@ void UInventoryMainWidget::NativeConstruct()
 
 void UInventoryMainWidget::DisplayInventory(bool bEnabled)
 {
-	if(bEnabled)
+	if (bEnabled)
 	{
-		if(IsLootValid())
+		if (IsLootValid())
 		{
-			WBP_LootDisplay->SetVisibility(ESlateVisibility::Visible);
-			WBP_LootDisplay->StartInit(InventoryComp_Loot, EquipmentComp_Loot);
+			if (EquipmentComp) //Dead Player's Inventory
+			{
+				DisplayPlayerLoot(InventoryComp_Loot, EquipmentComp_Loot);
+			}
+			else // non-player inventory (Chests, monsters)
+			{
+				DisplayOtherLoot(InventoryComp_Loot);
+			}
 		}
-		
-		if(ensureAlways(!IsInViewport()))
+
+		if (ensureAlways(!IsInViewport()))
 		{
 			AddToViewport();
 			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
@@ -54,21 +61,19 @@ void UInventoryMainWidget::DisplayInventory(bool bEnabled)
 	}
 	else
 	{
-		if(IsLootValid())
+		if (IsLootValid())
 		{
-			WBP_LootDisplay->SetVisibility(ESlateVisibility::Collapsed);	
-			
 			ClearLoot();
-			WBP_LootDisplay->Reset();
+			HideLoots();
 			bLootValid = false;
 		}
-		
-		if(ensureAlways(IsInViewport()))
+
+		if (ensureAlways(IsInViewport()))
 		{
 			RemoveFromParent();
 			UWidgetBlueprintLibrary::SetInputMode_GameOnly(GetOwningPlayer(), true);
 			GetOwningPlayer()->bShowMouseCursor = false;
-		}			
+		}
 	}
 }
 
@@ -153,4 +158,39 @@ void UInventoryMainWidget::ClearLoot()
 {
 	EquipmentComp_Loot = nullptr;
 	InventoryComp_Loot = nullptr;
+
+	if (InventoryLoot_Other)
+		InventoryLoot_Other->Reset();
+	if (InventoryLoot_Player)
+		InventoryLoot_Player->Reset();
+	//if(EquipmentGrid_Weapon)
+		//EquipmentGrid_Weapon->Reset();
+	//if(EquipmentGrid_Consumable)
+		//EquipmentGrid_Consumable->Reset();
+}
+
+void UInventoryMainWidget::DisplayPlayerLoot(UPlayerEquipmentComponent* _InventoryComp, UDBEquipmentComponent* _EquipmentComp)
+{
+	InventoryLoot_Player->StartInit(_InventoryComp);
+
+	InventoryLoot_Player->SetVisibility(ESlateVisibility::Visible);
+	InventoryLoot_Other->SetVisibility(ESlateVisibility::Collapsed);
+	//Initialize EquipmentGrid_Weapon
+//Initialize EquipmentGrid_Consumable
+}
+
+void UInventoryMainWidget::DisplayOtherLoot(UPlayerEquipmentComponent* _InventoryComp)
+{
+	InventoryLoot_Other->StartInit(_InventoryComp);
+
+	InventoryLoot_Other->SetVisibility(ESlateVisibility::Visible);
+	InventoryLoot_Player->SetVisibility(ESlateVisibility::Collapsed);
+	//Hide EquipmentGrid_Weapon
+//Hide EquipmentGrid_Consumable
+}
+
+void UInventoryMainWidget::HideLoots()
+{
+	InventoryLoot_Other->SetVisibility(ESlateVisibility::Collapsed);
+	InventoryLoot_Player->SetVisibility(ESlateVisibility::Collapsed);
 }

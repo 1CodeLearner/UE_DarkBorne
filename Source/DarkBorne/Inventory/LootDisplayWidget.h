@@ -14,7 +14,9 @@ class UPlayerEquipmentComponent;
 class UDBEquipmentComponent;
 
 class UInventoryGridWidget;
-class UWidgetSwitcher;
+
+class UCanvasPanel;
+
 UCLASS()
 class DARKBORNE_API ULootDisplayWidget : public UUserWidget
 {
@@ -26,11 +28,13 @@ public:
 protected:
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryLoot_Player;
-	//EquipmentGrid_Weapon
-	//EquipmentGrid_Consumable
-	
-	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
-	TObjectPtr<UWidgetSwitcher> WidgetSwitcher_Loot;
+
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryLoot_Other;
+
+	void DisplayPlayerLoot(UPlayerEquipmentComponent* InventoryComp, UDBEquipmentComponent* EquipmentComp);
+	void DisplayOtherLoot(UPlayerEquipmentComponent* InventoryComp, UDBEquipmentComponent* EquipmentComp);
+	//EquipmentGrid_Weapon
+	//EquipmentGrid_Consumable
+
 };
