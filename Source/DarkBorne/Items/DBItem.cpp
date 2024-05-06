@@ -57,7 +57,7 @@ void ADBItem::Initialize(UItemObject* ItemObject)
 
 void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp)
 {
-	//InteractionComp->ExecuteInteraction();
+	InteractionComp->ExecuteInteraction();
 }
 
 void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character)

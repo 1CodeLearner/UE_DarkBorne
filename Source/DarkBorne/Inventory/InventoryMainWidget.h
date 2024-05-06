@@ -11,11 +11,11 @@
  */
 
 class UInventoryGridWidget;
+class UEquipmentGridWidget;
 
 class UPlayerEquipmentComponent;
 class UDBEquipmentComponent;
 class UBaseInventoryComponent;
-
 enum class EEntityType : uint8;
 
 UCLASS()
