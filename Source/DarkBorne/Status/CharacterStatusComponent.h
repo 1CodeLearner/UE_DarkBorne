@@ -58,12 +58,18 @@ public:
 	TickUpdateDelegate tickDelegate;
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	class AActor* myActor;
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
+	class USkeletalMeshComponent* skeletal;
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	class UAnimInstance* myAnim;
 		
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	TArray<class UConditionBaseData*> conditionList;
 
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
+    TScriptInterface<class ICharacterStatusAnimInterface> CharacterAnimInterface;
 	//½ºÅÝ °ü·Ã
 
 	UPROPERTY(Replicated, EditAnywhere,BlueprintReadWrite)

@@ -4,6 +4,8 @@
 #include "../Status/CharacterStatusComponent.h"
 #include "../Status/ConditionBaseData.h"
 #include "Net/UnrealNetwork.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "CharacterStatusAnimInterface.h"
 
 // Sets default values for this component's properties
 UCharacterStatusComponent::UCharacterStatusComponent()
@@ -23,9 +25,24 @@ void UCharacterStatusComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+
+	if(GetOwner() == nullptr) return;
 	myActor = GetOwner();
+
+	if(myActor->GetComponentByClass<USkeletalMeshComponent>() == nullptr) return;
+	skeletal = myActor->GetComponentByClass<USkeletalMeshComponent>();
+
 	
+	if(skeletal->GetAnimInstance() == nullptr) return;
+	myAnim = skeletal->GetAnimInstance();
+
+	if (ICharacterStatusAnimInterface* CharacterStatusAnimInterface = Cast<ICharacterStatusAnimInterface>(myAnim))
+	{
+		CharacterAnimInterface.SetInterface(CharacterStatusAnimInterface);
+		CharacterAnimInterface.SetObject(myActor);
+	}
+
+
 }
 
 

@@ -16,9 +16,6 @@ class DARKBORNE_API UPoisonConditionData : public UConditionBaseData
 
 
 
-public:
-	class UTexture2D* conditionImage;
-	
 protected:
 	virtual void StartEvent() override;
 	virtual void TickUpdate(float DeltaTime) override;

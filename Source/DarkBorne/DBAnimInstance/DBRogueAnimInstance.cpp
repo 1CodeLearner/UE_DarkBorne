@@ -127,3 +127,15 @@ void UDBRogueAnimInstance::AnimNotify_DoubleJumpEnd()
 {
 	isDoubleJumping = false;
 }
+
+void UDBRogueAnimInstance::SetAnimation(uint8 value)
+{
+	
+}
+
+uint8 UDBRogueAnimInstance::GetAnimation() const
+{
+	uint8 temp = 0;
+	return temp;
+}
+

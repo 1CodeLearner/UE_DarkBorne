@@ -18,6 +18,9 @@ class DARKBORNE_API UConditionBaseData : public UObject
 
 public:
 	FDelegateHandle handler;
+
+	class UTexture2D* conditionImage;
+
 	float delayTime;
 
 	UFUNCTION()

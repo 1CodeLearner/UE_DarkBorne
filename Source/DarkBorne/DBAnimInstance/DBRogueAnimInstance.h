@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "../Status/CharacterStatusAnimInterface.h"
 #include "DBRogueAnimInstance.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKBORNE_API UDBRogueAnimInstance : public UAnimInstance
+class DARKBORNE_API UDBRogueAnimInstance : public UAnimInstance, public ICharacterStatusAnimInterface
 {
 	GENERATED_BODY()
 
@@ -83,4 +84,12 @@ public:
 	void AnimNotify_DoubleJumpStart();
 	UFUNCTION()
 	void AnimNotify_DoubleJumpEnd();
+
+
+
+	virtual void SetAnimation(uint8 value) override;
+
+	virtual uint8 GetAnimation() const override;
+
+
 };
