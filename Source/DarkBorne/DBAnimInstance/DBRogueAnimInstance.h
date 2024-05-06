@@ -57,6 +57,9 @@ public:
 	bool isAttacking;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isCastingShift = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isHitting = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -68,13 +71,11 @@ public:
 public:
 	UFUNCTION()
 	void AnimNotify_Start_Damage();
-	
 	UFUNCTION()
 	void AnimNotify_End_Damage();
 
 	UFUNCTION()
 	void AnimNotify_Start_Hit();
-
 	UFUNCTION()
 	void AnimNotify_End_Hit();
 	
@@ -85,11 +86,8 @@ public:
 	UFUNCTION()
 	void AnimNotify_DoubleJumpEnd();
 
-
-
-	virtual void SetAnimation(uint8 value) override;
-
-	virtual uint8 GetAnimation() const override;
-
-
+	UFUNCTION()
+	void AnimNotify_Start_Shift();
+	UFUNCTION()
+	void AnimNotify_End_Shift();
 };

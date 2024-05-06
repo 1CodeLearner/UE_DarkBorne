@@ -8,6 +8,8 @@
 #include "../../Items/Weapons/DBWeapon_CloseRange.h"
 #include "../DBCharacterSkill/DBRogueSkillComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/ProjectileMovementComponent.h>
+#include "../../DBAnimInstance/DBRogueAnimInstance.h"
+
 
 
 // Sets default values for this component's properties
@@ -46,17 +48,18 @@ void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 
 void UDBRogueAttackComponent::RogueAttack()
 {
+	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 	UDBRogueWeaponComponent* RogueWeaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	// shift 쓰고있으면 리턴
+	if(RogueAnim->isCastingShift) return;
 
 	// 수리검 스킬 수리검 남아있으면 
 	if (RogueSkillComponent->isSpawnKnife)
 	{	
 		// 만약 탄창이 비었다면
-		if(RogueSkillComponent->TKMagazine.IsEmpty())
-		{
-			return;
-		}
+		if(RogueSkillComponent->TKMagazine.IsEmpty()) return;
 		RogueThrowKnifeAttack();
 	}
 	// 다시 기본공격으로
@@ -81,13 +84,13 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
 	// 단검을 들고 있으면 
 
-	//현재 문제점 : 장착 슬롯(EquipSlotArray[0])에 아이템 정보가 들어있고
-	//무기를 꺼내지(장착하지) 않은 상태에서 아래 함수를 실행하여 문제가 생김
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0])
 	{
-		
-		RogueSkillComponent->CurrVanishTime = 0;
-		RogueSkillComponent->DeactiveRogueQSkill();
+		// 은신 상태면 은신 풀어주자
+		if (RogueSkillComponent->isVanish)
+		{
+			RogueSkillComponent->DeactiveRogueQSkill();
+		}
 		if (comboCnt == 0)
 		{
 			comboCnt++;
@@ -120,18 +123,7 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 				RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack3"));
 			}
 		}
-		//else if (comboCnt == 3)
-		//{
-		//	// 콤보최소시간 <= 현재시간 이고 현재시간 <= 최대시간
-		//	if (comboMinTime <= comboCurrTime && comboCurrTime <= comboMaxTime)
-		//	{
-		//		comboCnt++;
-		//		comboCurrTime = 0;
-		//
-		//		// 단검 아이템에 있는 애님몽타주 실행
-		//		RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack4"));
-		//	}
-		//}
+		
 	}
 }
 
@@ -161,9 +153,7 @@ void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 {
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-	// 나이프 카운트가 탄창 갯수와 같아졌다면 
-	// 문제 : 나이프 카운트의 맥스는 3. 탄창의 맥스는 4라서 좌클릭을 한번 더 해야 배열이 초기화됨
-
+	
 	RogueSkillComponent->TKMagazine[KnifeCount]->MultiRPC_RogueThrowKnifeAttack();
 	KnifeCount++;
 
@@ -173,16 +163,12 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 		RogueSkillComponent->TKMagazine.Empty();
 		// 나이프 카운트 초기화
 		KnifeCount = 0;
-		//NewKnifeCount = 0;
+		
 		// 스킬 끄기
 		RogueSkillComponent->isSpawnKnife = false;
-		
+		RogueSkillComponent->E_CurrCoolTime = 0;
 		return;
 	}
-	
-	
-	UE_LOG(LogTemp, Warning, TEXT("KnifeCount is : %d"), KnifeCount);
-	
 	// 전부 던지기
 	//for (int32 i = 0; i < RogueSkillComponent->magazineCnt; i++)
 	//{

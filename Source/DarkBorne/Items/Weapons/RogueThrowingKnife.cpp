@@ -13,6 +13,7 @@
 #include <Net/UnrealNetwork.h>
 #include "../../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
 #include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
 
 ARogueThrowingKnife::ARogueThrowingKnife()
 {
@@ -38,6 +39,9 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 
 	ThrowKnifeTrail = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Trail"));
 	ThrowKnifeTrail->SetupAttachment(SMComp);
+
+	ThrowKnifeVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Aura"));
+	ThrowKnifeVFX->SetupAttachment(SMComp);
 }
 
 void ARogueThrowingKnife::BeginPlay()
@@ -157,7 +161,8 @@ void ARogueThrowingKnife::UpdateKnifeLocation()
 	// ¿· º¤ÅÍ * ¼ö¸®°Ëµé Áß¾Ó°ªÀ» »©ÁØ´Ù
 	TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
 
-	FRotator TKRotation = RogueCharacter->ThrowKnifePos->GetForwardVector().Rotation();
+	//FRotator TKRotation = RogueCharacter->ThrowKnifePos->GetForwardVector().Rotation();
+	FRotator TKRotation = RogueCharacter->camera->GetForwardVector().Rotation();
 	TKRotation.Normalize();
 
 	SetActorLocationAndRotation(TKPosition, TKRotation);
@@ -202,6 +207,7 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 	//projectileComponent->InitialSpeed = 3000;
 	projectileComponent->SetActive(true, true);
 	projectileComponent->SetVelocityInLocalSpace(FVector(3000, 0, 0));
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ThrowSound, RoguePlayer->GetActorLocation());
 	PlayMontage(RogueCharacter, FName("ESkill_Start"));
 	SetLifeSpan(3);
 	

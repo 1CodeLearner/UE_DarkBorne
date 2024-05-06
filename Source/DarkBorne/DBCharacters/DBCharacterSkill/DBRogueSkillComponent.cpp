@@ -13,6 +13,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Animation/AnimMontage.h>
+#include "../../DBPlayerWidget/DBPlayerWidget.h"
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -31,6 +32,11 @@ void UDBRogueSkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	Q_CurrCoolTime = Q_MaxCoolTime;
+	E_CurrCoolTime = E_MaxCoolTime;
+	
+	OnRep_CurrQSkill();
+	OnRep_CurrESkill();
 }
 
 
@@ -40,6 +46,7 @@ void UDBRogueSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	UpdateRogueQSkill(DeltaTime);
+	UpdateRogueESkill(DeltaTime);
 }
 
 void UDBRogueSkillComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* enhancedInputComponent)
@@ -59,11 +66,35 @@ void UDBRogueSkillComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	DOREPLIFETIME(UDBRogueSkillComponent, isVanish);
 	DOREPLIFETIME(UDBRogueSkillComponent, MaxVanishTime);
 	DOREPLIFETIME(UDBRogueSkillComponent, CurrVanishTime);
+
 	DOREPLIFETIME(UDBRogueSkillComponent, TKMagazine);
 	DOREPLIFETIME(UDBRogueSkillComponent, isSpawnKnife);
 	DOREPLIFETIME(UDBRogueSkillComponent, magazineCnt);
 
+	DOREPLIFETIME(UDBRogueSkillComponent, Q_MaxCoolTime);
+	DOREPLIFETIME(UDBRogueSkillComponent, Q_CurrCoolTime);
 
+	DOREPLIFETIME(UDBRogueSkillComponent, E_MaxCoolTime);
+	DOREPLIFETIME(UDBRogueSkillComponent, E_CurrCoolTime);
+}
+
+void UDBRogueSkillComponent::OnRep_CurrQSkill()
+{
+	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+	
+	// 플레이어 위젯이 없으면 리턴
+	if (RoguePlayer->PlayerWidget == nullptr) return;
+	RoguePlayer->PlayerWidget->UpdateQSkillBar(Q_CurrCoolTime, Q_MaxCoolTime);
+	//UE_LOG(LogTemp, Warning, TEXT("Testing:%f"), CurrHP);
+}
+
+void UDBRogueSkillComponent::OnRep_CurrESkill()
+{
+	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+
+	// 플레이어 위젯이 없으면 리턴
+	if (RoguePlayer->PlayerWidget == nullptr) return;
+	RoguePlayer->PlayerWidget->UpdateESkillBar(E_CurrCoolTime, E_MaxCoolTime);
 }
 
 void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
@@ -75,41 +106,59 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 		{
 			// 현재 은신 시간에 델타타임 더하기
 			CurrVanishTime += DeltaTime;
-			//UE_LOG(LogTemp, Warning, TEXT("Vanish Curr Time : %.f"), CurrVanishTime);
 
 			//현재 은신시간이 최대 은신시간과 같아졌다면
 			if (CurrVanishTime >= MaxVanishTime)
-			{
-				//현재 은신시간 초기화
-				CurrVanishTime = 0;
+			{	
 				// 은신 비활성화
 				DeactiveRogueQSkill();
+				
 			}
 		}
+	}
+	// 은신 false고 현재 쿨타임이 최대 쿨보다 작다면
+	else if (!isVanish && Q_CurrCoolTime < Q_MaxCoolTime)
+	{
+		// curr cooltime에 델타타임 더한다
+		Q_CurrCoolTime += DeltaTime;
+
+		//서버 플레이어를 위한 호출
+		OnRep_CurrQSkill();
+
+		//UE_LOG(LogTemp, Warning, TEXT("Vanish Cool Time : %.f"), Q_CurrCoolTime);
 	}
 }
 
 void UDBRogueSkillComponent::ActiveRogueQSkill()
 {
-	//서버 함수 실행
-	ServerRPC_ActiveRogueQSkill();
+	// curr cooltime >= max time이 되었다면
+	if (Q_CurrCoolTime >= Q_MaxCoolTime)
+	{
+		// q skill 활성화
+		//서버 함수 실행
+		ServerRPC_ActiveRogueQSkill();
+	}
 }
 
 void UDBRogueSkillComponent::ServerRPC_ActiveRogueQSkill_Implementation()
 {
 	// 서버에서 클라이언트들에게 뿌리기
 	MultiRPC_ActiveRogueQSkill();
+	
 }
 
 void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Rogue Q Skill"));
 	//로그 캐릭터 가져오기 
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 
+	if (RogueAnim->isCastingShift) return;
+	if(isVanish) return;
 	isVanish = true;
 	// 은신을 사용 했다면
+	UE_LOG(LogTemp, Warning, TEXT("Rogue Q Skill"));
 	if (isVanish)
 	{
 		// 나의 것이라면
@@ -140,7 +189,6 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 				}
 			}
 		}
-
 	}
 }
 
@@ -150,9 +198,14 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 
 	isVanish = false;
+	
 	// 최대 지속시간에 도달했다면
 	if (!isVanish)
 	{	
+		//은신 시간, 은신 쿨타임 초기화
+		CurrVanishTime = 0;
+		Q_CurrCoolTime = 0;
+		
 		if (RoguePlayer->IsLocallyControlled())
 		{
 			//화면 원래대로
@@ -177,32 +230,35 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 				}
 			}
 		}
-
 	}
 }
 
 
 void UDBRogueSkillComponent::ActiveRogueESkill()
 {
-	ServerRPC_ActiveRogueESkill();
+	// 쿨타임 다 차면 
+	if (E_CurrCoolTime >= E_MaxCoolTime)
+	{
+		ServerRPC_ActiveRogueESkill();
+	}
 }
 
 // 서버에서 수리검 스폰한다
 void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 {
-	if (isSpawnKnife) return;
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
+
+	if (isSpawnKnife) return;
+	if(RogueAnim->isCastingShift) return;
 
 	isSpawnKnife = true;
 	if (isSpawnKnife)
 	{
-		
 		float halfValue = ((magazineCnt - 1) * 50) / 2.0f;
 
 		for (int32 i = 0; i < magazineCnt; i++)
 		{
-
 			//FVector NewLoc = RoguePlayer->ThrowKnifePos->GetComponentLocation();
 			//FRotator NewRot = RoguePlayer->ThrowKnifePos->GetForwardVector().Rotation();
 			//NewRot.Normalize();
@@ -226,6 +282,21 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 
 }
 
+void UDBRogueSkillComponent::UpdateRogueESkill(float DeltaTime)
+{
+	// 탄창 배열이 isEmpty 라면
+	if (TKMagazine.IsEmpty())
+	{	
+		// 현재 타임을 맥스가 될때까지 더한다
+		if (E_CurrCoolTime < E_MaxCoolTime)
+		{
+			E_CurrCoolTime += DeltaTime;
+			//서버 플레이어를 위한 호출
+			OnRep_CurrESkill();
+			UE_LOG(LogTemp, Warning, TEXT("throw skill cool is : %.f"), E_CurrCoolTime);
+		}
+	}
+}
 
 void UDBRogueSkillComponent::ActiveRogueShiftSkill()
 {
@@ -243,7 +314,18 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueShiftSkill_Implementation()
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-	if (weaponComponent->hasWeapon)
+
+	if(RogueAnim->isCastingShift) return;
+	if(!weaponComponent->hasWeapon) return;
+		RogueAnim->isCastingShift = true;
+
+	// 은신 상태면 은신 풀어주자
+	if (isVanish)
+	{
+		DeactiveRogueQSkill();
+	}
+
+	if (weaponComponent->hasWeapon && RogueAnim->isCastingShift)
 	{
 		RoguePlayer->PlayAnimMontage(AM_RogueShiftSkill, 1.f, FName("Shift_Start"));
 	}

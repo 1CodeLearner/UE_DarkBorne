@@ -79,23 +79,21 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 		//장착 슬롯 배열 가져오기
 		EquipSlotArray = EquipComponent->GetSlots();
 		
-	
-	
 		// 무기슬롯에 무기데이터가 있으면
 		if (EquipSlotArray[0])
 		{
 			// 무기 월드에 스폰 delay
 			// SpawnActorDeferred : BeginPlay가 실행되기 전에 셋팅
 			RogueItems = GetWorld()->SpawnActorDeferred<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentTransform(), GetOwner());
+			//RogueItems = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
 
 			//스폰 시작
 			UGameplayStatics::FinishSpawningActor(RogueItems, GetComponentTransform());
 
-			//RogueItems = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
-
 			// 무기를 이 컴포넌트에 붙인다 
 			RogueItems->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
+			// 무기의 머티리얼 가져오기
 			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
 			// 무기 오너 셋팅
 			RogueItems->SetOwner(GetOwner());

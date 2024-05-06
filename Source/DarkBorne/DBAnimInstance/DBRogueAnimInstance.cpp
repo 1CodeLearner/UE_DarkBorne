@@ -72,9 +72,6 @@ void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	UDBRogueSkillComponent* SkillComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
-	// weaponComponent의 Dagger를 가져와라
-	
-	//ADBWeapon_CloseRange* WeaponComponentDagger = Cast<ADBWeapon_CloseRange>(WeaponComp->Dagger);
 	// 공격중
 	// 무기슬롯에 아이템이 있고 아이템 꺼내고 있다면
 	if (WeaponComp->EquipSlotArray[0] && WeaponComp->hasWeapon)
@@ -128,14 +125,12 @@ void UDBRogueAnimInstance::AnimNotify_DoubleJumpEnd()
 	isDoubleJumping = false;
 }
 
-void UDBRogueAnimInstance::SetAnimation(uint8 value)
+void UDBRogueAnimInstance::AnimNotify_Start_Shift()
 {
-	
+	isCastingShift = true;
 }
 
-uint8 UDBRogueAnimInstance::GetAnimation() const
+void UDBRogueAnimInstance::AnimNotify_End_Shift()
 {
-	uint8 temp = 0;
-	return temp;
+	isCastingShift = false;
 }
-

@@ -50,7 +50,11 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UNiagaraComponent* ThrowKnifeTrail;
-	
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* ThrowKnifeVFX;
+
+	UPROPERTY(EditAnywhere)
+	class USoundBase* ThrowSound;
 public:
 	void UpdateKnifeLocation();
 
