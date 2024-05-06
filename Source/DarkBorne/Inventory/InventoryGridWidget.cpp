@@ -23,7 +23,7 @@ void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp)
 
 void UInventoryGridWidget::Reset()
 {
-	if(InventoryComponent->OnInventoryChanged.IsBound())
+	if(InventoryComponent && InventoryComponent->OnInventoryChanged.IsBound())
 	{
 		InventoryComponent->OnInventoryChanged.Clear();
 	}

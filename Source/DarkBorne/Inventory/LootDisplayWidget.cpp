@@ -10,7 +10,7 @@
 void ULootDisplayWidget::StartInit(UPlayerEquipmentComponent* InventoryComp, UDBEquipmentComponent* EquipmentComp)
 {
 	if (EquipmentComp) //Dead Player's Inventory
-	{		
+	{
 		InventoryLoot_Player->StartInit(InventoryComp);
 		//Initialize EquipmentGrid_Weapon
 		//Initialize EquipmentGrid_Consumable
@@ -25,6 +25,12 @@ void ULootDisplayWidget::StartInit(UPlayerEquipmentComponent* InventoryComp, UDB
 
 void ULootDisplayWidget::Reset()
 {
-	InventoryLoot_Other->Reset();
-	InventoryLoot_Player->Reset();
+	if (InventoryLoot_Other)
+		InventoryLoot_Other->Reset();
+	if (InventoryLoot_Player)
+		InventoryLoot_Player->Reset();
+	//if(EquipmentGrid_Weapon)
+		//EquipmentGrid_Weapon->Reset();
+	//if(EquipmentGrid_Consumable)
+		//EquipmentGrid_Consumable->Reset();
 }

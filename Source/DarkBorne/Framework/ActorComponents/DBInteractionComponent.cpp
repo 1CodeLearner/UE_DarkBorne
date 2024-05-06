@@ -84,6 +84,7 @@ void UDBInteractionComponent::ExecuteInteraction()
 
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 		Interface->ExecuteInteract(this, Character);
+		Interface->SetCanInteract(true);
 	}
 }
 
