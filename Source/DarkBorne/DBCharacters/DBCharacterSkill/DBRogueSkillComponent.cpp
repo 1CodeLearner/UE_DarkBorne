@@ -14,6 +14,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Animation/AnimMontage.h>
 #include "../../DBPlayerWidget/DBPlayerWidget.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetMathLibrary.h>
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -153,7 +154,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-
+	
 	if (RogueAnim->isCastingShift) return;
 	if(isVanish) return;
 	isVanish = true;
@@ -167,6 +168,9 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 			// 화면 회색 처리
 			RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = true;
 			RoguePlayer->camera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
+
+			RoguePlayer->camera->PostProcessSettings.bOverride_VignetteIntensity = true;
+			RoguePlayer->camera->PostProcessSettings.VignetteIntensity = 0.7f;
 		}
 		// 다른 캐릭터들한텐
 		else
@@ -210,6 +214,7 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 		{
 			//화면 원래대로
 			RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = false;
+			RoguePlayer->camera->PostProcessSettings.bOverride_VignetteIntensity = false;
 		}
 		else
 		{

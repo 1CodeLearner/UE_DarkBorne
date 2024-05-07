@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DBWeapon.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/TimelineComponent.h>
 #include "RogueThrowingKnife.generated.h"
 
 /**
@@ -56,13 +57,37 @@ public:
 	UPROPERTY(EditAnywhere)
 	class USoundBase* ThrowSound;
 public:
-	void UpdateKnifeLocation();
+	//Timeline
 
-	//UFUNCTION(Server, Reliable)
-	//void ServerRPC_UpdateKnifeLocation();
-	//
-	//UFUNCTION(NetMulticast, Reliable)
-	//void MultiRPC_UpdateKnifeLocation(FVector TKPosition, FRotator NewRot);
+	UPROPERTY(EditAnywhere)
+	class UCurveFloat* KnifeCurve;
+
+	UPROPERTY(EditAnywhere)
+	class UTimelineComponent* KnifeTimeline;
+
+	UFUNCTION()
+	void TimelineProgress(float value);
+
+	FTimeline CurveTimeline;
+
+	UPROPERTY()
+	FVector StartLoc;
+	UPROPERTY()
+	FVector EndLoc;
+	UPROPERTY(EditAnywhere)
+	float ZOffset;
+
+	UPROPERTY()
+	FVector TKPosition;
+
+	UPROPERTY()
+	FVector TKEndPos;
+
+	UPROPERTY()
+	FRotator TKFirstRotation;
+
+public:
+	void UpdateKnifeLocation(float DeltaTime);
 
 
 	UFUNCTION(NetMulticast, Reliable)

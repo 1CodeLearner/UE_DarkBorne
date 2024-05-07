@@ -14,6 +14,8 @@
 #include "../../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
 #include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetMathLibrary.h>
+#include <../../../../../../../Source/Runtime/Engine/Classes/Components/TimelineComponent.h>
 
 ARogueThrowingKnife::ARogueThrowingKnife()
 {
@@ -47,7 +49,6 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 void ARogueThrowingKnife::BeginPlay()
 {
 	Super::BeginPlay();
-	
 	UE_LOG(LogTemp, Warning, TEXT("Owner in thisKnife: %s"), *GetNameSafe(GetOwner()));
 	//서버에서 충돌판정을 하고싶다면 여기서부터 손보자
 	if (!GetOwner()) return;
@@ -56,6 +57,28 @@ void ARogueThrowingKnife::BeginPlay()
 	{
 		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ARogueThrowingKnife::OnOverlapBegin);
 		//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		//Timeline
+		//커브가 있다면
+		if (KnifeCurve)
+		{
+			//타임라인의 특정 포인트에서 float 이 갱신될때 호출되는 델리게이트
+			FOnTimelineFloat TimelineProgress;
+			
+			//TimelineProgress 델리게이트 바인딩
+			TimelineProgress.BindUFunction(this, FName("TimelineProgress"));
+			CurveTimeline.AddInterpFloat(KnifeCurve, TimelineProgress);
+			CurveTimeline.SetLooping(true);
+
+			// 시작위치와 끝위치는 액터위치
+			StartLoc = EndLoc = GetActorLocation();
+
+			// 끝위치 Z축에 Z값 더하기
+			EndLoc.Z += ZOffset;
+
+			CurveTimeline.PlayFromStart();
+		}
+		
 	}
 }
 
@@ -68,8 +91,11 @@ void ARogueThrowingKnife::Tick(float DeltaTime)
 	// 클릭하면 isThrowing을 true로
 	if (!isThrowing)
 	{
+		//Timeline을 tick값으로 받는다
+		//CurveTimeline.TickTimeline(DeltaTime);
+
 		//위치 갱신
-		UpdateKnifeLocation();
+		UpdateKnifeLocation(DeltaTime);
 	}
 	
 }
@@ -148,52 +174,37 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 	
 }
 
-void ARogueThrowingKnife::UpdateKnifeLocation()
+
+void ARogueThrowingKnife::UpdateKnifeLocation(float DeltaTime)
 {
 	//SkillComp에서 for문으로 스폰시킨 수리검들을 틱으로 계속 위치 갱신준다
 
 	// 수리검의 오너 담기
 	AActor* RoguePlayer = GetOwner();
 	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(RoguePlayer);
-
+	
+	float randZLoc = UKismetMathLibrary::RandomFloatInRange(0, 50);
+	
 	// 수리검 위치는 플레이어 위치 + 플레이어 앞 벡터 * 50 / 간격을 i 마다 50만큼 추가시키기
-	FVector TKPosition = RogueCharacter->ThrowKnifePos->GetComponentLocation() + RoguePlayer->GetActorForwardVector() * 50 + RoguePlayer->GetActorRightVector() * KnifeNumber * 50;
+	 TKPosition = RogueCharacter->ThrowKnifePos->GetComponentLocation() + 
+						RogueCharacter->GetActorForwardVector() * 50 +
+						RogueCharacter->GetActorRightVector() * KnifeNumber * 50;
+
 	// 옆 벡터 * 수리검들 중앙값을 빼준다
 	TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
-
-	//FRotator TKRotation = RogueCharacter->ThrowKnifePos->GetForwardVector().Rotation();
-	FRotator TKRotation = RogueCharacter->camera->GetForwardVector().Rotation();
-	TKRotation.Normalize();
-
-	SetActorLocationAndRotation(TKPosition, TKRotation);
+	//TKPosition += FVector(0, 0, randZLoc);
+	
+	TKFirstRotation = RogueCharacter->ThrowKnifePos->GetUpVector().Rotation();
+	TKFirstRotation.Normalize();
+	SetActorLocationAndRotation(TKPosition, TKFirstRotation);
 }
 
-// 서버에서 위치 갱신
-//void ARogueThrowingKnife::ServerRPC_UpdateKnifeLocation_Implementation()
-//{
-//	//SkillComp에서 for문으로 스폰시킨 수리검들을 틱으로 계속 위치 갱신준다
-//
-//	// 수리검의 오너 담기
-//	AActor* RoguePlayer = GetOwner();
-//	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(RoguePlayer);
-//
-//	// 수리검 위치는 플레이어 위치 + 플레이어 앞 벡터 * 50 / 간격을 i 마다 50만큼 추가시키기
-//	FVector TKPosition = RogueCharacter->ThrowKnifePos->GetComponentLocation() + RoguePlayer->GetActorForwardVector() * 50 + RoguePlayer->GetActorRightVector//() * KnifeNumber * 50;
-//	// 옆 벡터 * 수리검들 중앙값을 빼준다
-//	TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
-//
-//	FRotator NewRot = RogueCharacter->ThrowKnifePos->GetForwardVector().Rotation();
-//	NewRot.Normalize();
-//	
-//	MultiRPC_UpdateKnifeLocation(TKPosition, NewRot);
-//}
-//
-//// 서버에서 갱신한 위치를 클라로 뿌려준다
-//void ARogueThrowingKnife::MultiRPC_UpdateKnifeLocation_Implementation(FVector TKPosition, FRotator NewRot)
-//{
-//	// 수리검 위치 갱신 
-//	SetActorLocationAndRotation(TKPosition, NewRot);
-//}
+//Timeline
+void ARogueThrowingKnife::TimelineProgress(float value)
+{
+	FVector NewLocation = FMath::Lerp(StartLoc, EndLoc, value);
+	SetActorLocation(NewLocation);
+}
 
 // 클라에서 각자 로컬 위치 계산
 void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
@@ -203,6 +214,10 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
 	isThrowing = true;
+	FRotator TKRotation = RogueCharacter->camera->GetForwardVector().Rotation();
+	TKRotation.Normalize();
+	SetActorRotation(TKRotation);
+
 	projectileComponent->ProjectileGravityScale = 0.0f;
 	//projectileComponent->InitialSpeed = 3000;
 	projectileComponent->SetActive(true, true);
@@ -211,5 +226,6 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 	PlayMontage(RogueCharacter, FName("ESkill_Start"));
 	SetLifeSpan(3);
 	
+
 }
 

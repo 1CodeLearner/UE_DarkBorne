@@ -56,5 +56,8 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_RogueThrowKnifeAttack();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_RogueThrowKnifeAttack();
 	
 };
