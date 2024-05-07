@@ -102,17 +102,25 @@ void ADBCharacter::BeginInteract(UDBInteractionComponent* InteractionComponent)
 
 void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* OtherCharacter)
 {
-	UE_LOG(LogTemp, Warning, TEXT("this guys interacting with me dude"));
-
-	auto OtherPlayer =Cast<ADBCharacter>(OtherCharacter);
-	if(ensureAlways(OtherPlayer) && OtherPlayer->InvMainWidget)
+	auto OtherPlayer = Cast<ADBCharacter>(OtherCharacter);
+	if (ensureAlways(OtherPlayer) && OtherPlayer->InvMainWidget)
 	{
 		OtherPlayer->InvMainWidget->InitLootDisplay(this);
-		if(OtherPlayer->InvMainWidget->IsLootValid())
+		if (OtherPlayer->InvMainWidget->IsLootValid())
 		{
 			OtherPlayer->InvMainWidget->DisplayInventory(true);
 		}
 	}
+
+	/*if (HasNetOwner())
+		PlayerEquipmentComp->Server_AddItemAt(nullptr, 10);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("HasNetOwner"));
+
+	if(	HasLocalNetOwner())
+		PlayerEquipmentComp->Server_AddItemAt(nullptr, 10);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("HasLocalNetOwner"));*/
 }
 
 void ADBCharacter::InterruptInteract()
@@ -259,9 +267,9 @@ void ADBCharacter::EnhancedInteract(const FInputActionValue& value)
 
 void ADBCharacter::EnhancedInventory(const FInputActionValue& value)
 {
-	if(ensureAlways(InvMainWidget))
+	if (ensureAlways(InvMainWidget))
 	{
-		if(InvMainWidget->IsInViewport())
+		if (InvMainWidget->IsInViewport())
 			InvMainWidget->DisplayInventory(false);
 		else
 			InvMainWidget->DisplayInventory(true);

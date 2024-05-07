@@ -47,13 +47,19 @@ class DARKBORNE_API UPlayerEquipmentComponent : public UBaseInventoryComponent
 public:
 	UPlayerEquipmentComponent();
 
-	virtual bool TryAddItem(UItemObject* ItemObject) override;
+	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
+	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
 
-	virtual void RemoveItem(UItemObject* ItemObject) override;
+	UFUNCTION(BlueprintCallable)
+	void AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex, UBaseInventoryComponent* TaxiToServer);
 
-	UFUNCTION(Server, Reliable, BlueprintCallable)
+	UFUNCTION(Server, Reliable)
+	void Server_TaxiForAddItemAt(UItemObject* ItemObject, int32 TopLeftIndex, UBaseInventoryComponent* TaxiedInventoryComp);
+	UFUNCTION(Server, Reliable)
+	void Server_TaxiForRemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
+
+	UFUNCTION(Server, Reliable)
 	void Server_AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex);
-
 	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject) override;
 		
 	UFUNCTION(BlueprintCallable)

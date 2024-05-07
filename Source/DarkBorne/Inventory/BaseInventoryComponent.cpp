@@ -45,11 +45,11 @@ bool UBaseInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBu
 	return WroteSomething;
 }
 
-bool UBaseInventoryComponent::TryAddItem(UItemObject* ItemObject)
+bool UBaseInventoryComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	return false;
 }
-void UBaseInventoryComponent::RemoveItem(UItemObject* ItemObject)
+void UBaseInventoryComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	return;
 }

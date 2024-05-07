@@ -22,16 +22,16 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	UPROPERTY(BlueprintAssignable)
 	FOnInventoryChangedDel OnInventoryChanged;
+
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual bool TryAddItem(UItemObject* ItemObject);
-
+	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
 	UFUNCTION(BlueprintCallable)
-	virtual void RemoveItem(UItemObject* ItemObject);
+	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
 
 	UFUNCTION(BlueprintCallable)
 	float GetTileSize() const;
@@ -39,8 +39,8 @@ public:
 protected:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
-	
-	UFUNCTION(Server, Reliable, BlueprintCallable)
+
+	UFUNCTION(Server, Reliable)
 	virtual void Server_RemoveItem(UItemObject* ItemObject);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -48,13 +48,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Rows = -1;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float TileSize;
 
 	UPROPERTY(ReplicatedUsing = OnRep_Items, VisibleAnywhere)
 	TArray<UItemObject*> Items;
-	
+
 	UFUNCTION()
 	void OnRep_Items(TArray<UItemObject*> OldItemArray);
 

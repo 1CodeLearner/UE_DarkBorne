@@ -24,14 +24,29 @@ void UPlayerEquipmentComponent::BeginPlay()
 	Items.SetNum(Columns * Rows);
 }
 
-bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
+bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	if (!IsValid(ItemObject)) return false;
+	if (!TaxiToServer) return false;
+	if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner(), TEXT("ensure TaxiToServer has owning connection for RPC call")))
+		return false;
+
 	for (int i = 0; i < Items.Num(); i++)
 	{
+		//		UE_LOG(LogTemp, Warning, TEXT("TaxiToServer and this are diff"));
 		if (IsRoomAvailable(ItemObject, i))
 		{
-			Server_AddItemAt(ItemObject, i);
+			if (this->GetOwner()->HasNetOwner())
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Has LocalNetOwner()"));
+				Server_AddItemAt(ItemObject, i);
+			}
+			else {
+				UE_LOG(LogTemp, Warning, TEXT("Has no LocalNetOwner()"));
+				auto PEComp = Cast<UPlayerEquipmentComponent>(TaxiToServer);
+				PEComp->Server_TaxiForAddItemAt(ItemObject, i, this);
+			}
+
 			return true;
 		}
 		else continue;
@@ -39,9 +54,63 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 	return false;
 }
 
-void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject)
+void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
-	Server_RemoveItem(ItemObject);
+	if (!TaxiToServer) return;
+	if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner(), TEXT("ensure TaxiToServer has owning connection for RPC call")))
+		return;
+
+	if (this->GetOwner()->HasNetOwner())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Has LocalNetOwner()"));
+		Server_RemoveItem(ItemObject);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Has no LocalNetOwner()"));
+		auto PEComp = Cast<UPlayerEquipmentComponent>(TaxiToServer);
+		PEComp->Server_TaxiForRemoveItem(ItemObject, this);
+	}
+
+}
+
+void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 index, UBaseInventoryComponent* TaxiToServer)
+{
+	if (!IsValid(ItemObject)) return;
+	if (!TaxiToServer &&
+		!TaxiToServer->GetOwner() &&
+		!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner(), TEXT("ensure TaxiToServer has owning connection for RPC call"))
+		)
+		return;
+
+	if (this->GetOwner()->HasNetOwner())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Has LocalNetOwner()"));
+		Server_AddItemAt(ItemObject, index);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Has no LocalNetOwner()"));
+		auto PEComp = Cast<UPlayerEquipmentComponent>(TaxiToServer);
+		PEComp->Server_TaxiForAddItemAt(ItemObject, index, this);
+	}
+}
+
+void UPlayerEquipmentComponent::Server_TaxiForAddItemAt_Implementation(UItemObject* ItemObject, int32 TopLeftIndex,
+	UBaseInventoryComponent* TaxiedInventoryComp)
+{
+	auto TaxiedPEComp = Cast<UPlayerEquipmentComponent>(TaxiedInventoryComp);
+	if (ensureAlways(TaxiedPEComp))
+	{
+		TaxiedPEComp->Server_AddItemAt(ItemObject, TopLeftIndex);
+	}
+}
+
+void UPlayerEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
+{
+	auto TaxiedPEComp = Cast<UPlayerEquipmentComponent>(TaxiedInventoryComp);
+	if (ensureAlways(TaxiedPEComp))
+	{
+		TaxiedPEComp->Server_RemoveItem(ItemObject);
+	}
 }
 
 void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
@@ -168,7 +237,7 @@ inline TTuple<bool, UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int3
 		return MakeTuple(IsValid(Items[Index]), Items[Index]);
 	else
 	{
-		UE_LOG(LogTemp,Warning,TEXT("index out of bounds: %d"), Index);
+		UE_LOG(LogTemp, Warning, TEXT("index out of bounds: %d"), Index);
 		return MakeTuple(false, nullptr);
 	}
 }

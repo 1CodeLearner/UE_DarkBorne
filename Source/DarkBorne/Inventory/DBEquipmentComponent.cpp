@@ -52,7 +52,7 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	}
 }
 
-bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject)
+bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	if (!IsValid(ItemObject) && Items.IsEmpty())
 		return false;
@@ -68,7 +68,7 @@ bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject)
 	}
 }
 
-void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject)
+void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	Server_RemoveItem(ItemObject);
 }

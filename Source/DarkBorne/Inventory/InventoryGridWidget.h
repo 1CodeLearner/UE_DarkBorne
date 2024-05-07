@@ -27,7 +27,9 @@ public:
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UPlayerEquipmentComponent> InventoryComponent;
-	
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UPlayerEquipmentComponent> TaxiToServer;
+
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FLine> Lines;
 

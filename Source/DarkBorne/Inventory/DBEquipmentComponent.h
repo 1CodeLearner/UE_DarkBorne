@@ -17,8 +17,8 @@ class DARKBORNE_API UDBEquipmentComponent : public UBaseInventoryComponent
 public:
 	UDBEquipmentComponent();
 
-	virtual bool TryAddItem(UItemObject* ItemObject) override;
-	virtual void RemoveItem(UItemObject* ItemObject) override;
+	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
+	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_AddItem(UItemObject* ItemObject);
 	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject) override;

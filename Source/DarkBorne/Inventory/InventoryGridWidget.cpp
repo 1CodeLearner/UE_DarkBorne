@@ -19,6 +19,12 @@ void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp)
 	Refresh();
 
 	InventoryComponent->OnInventoryChanged.AddDynamic(this, &UInventoryGridWidget::Refresh);
+
+	auto Taxi = GetOwningPlayerPawn()->GetComponentByClass<UPlayerEquipmentComponent>();
+	if(ensureAlways(Taxi))
+	{
+		TaxiToServer = Taxi;
+	}
 }
 
 void UInventoryGridWidget::Reset()

@@ -65,11 +65,11 @@ void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharact
 	auto Inventory = Character->GetComponentByClass<UPlayerEquipmentComponent>();
 	auto Equipment = Character->GetComponentByClass<UDBEquipmentComponent>();
 
-	if (Equipment->TryAddItem(ItemObj))
+	if (Equipment->TryAddItem(ItemObj, Equipment))
 	{
 
 	}
-	else if (Inventory->TryAddItem(ItemObj))
+	else if (Inventory->TryAddItem(ItemObj, Inventory))
 	{
 
 	}
@@ -139,7 +139,7 @@ void ADBItem::Pickup(AActor* InteractingActor)
 	auto PlayerEquipComp = InteractingActor->GetComponentByClass<UPlayerEquipmentComponent>();
 	if (PlayerEquipComp)
 	{
-		PlayerEquipComp->TryAddItem(ItemObj);
+		PlayerEquipComp->TryAddItem(ItemObj, PlayerEquipComp);
 	}
 }
 
