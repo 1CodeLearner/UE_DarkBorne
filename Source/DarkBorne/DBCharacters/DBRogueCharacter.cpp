@@ -99,15 +99,17 @@ void ADBRogueCharacter::Tick(float DeltaTime)
 	{
 		DeathProcess();
 
+		// 수리검 위치 회전값 가져오기
 		knifePos = ThrowKnifePos->GetComponentLocation();
 		knifeRot = ThrowKnifePos->GetComponentRotation();
 
 	}
 	else
 	{
-		//내 것이라면
+		//클라고 내 것이 아니라면 
 		if (IsLocallyControlled() == false)
 		{
+			// 수리검 위치값 셋팅
 			ThrowKnifePos->SetWorldLocation(knifePos);
 			ThrowKnifePos->SetWorldRotation(knifeRot);
 		}

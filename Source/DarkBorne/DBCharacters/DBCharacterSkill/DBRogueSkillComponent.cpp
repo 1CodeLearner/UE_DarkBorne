@@ -298,7 +298,7 @@ void UDBRogueSkillComponent::UpdateRogueESkill(float DeltaTime)
 			E_CurrCoolTime += DeltaTime;
 			//서버 플레이어를 위한 호출
 			OnRep_CurrESkill();
-			UE_LOG(LogTemp, Warning, TEXT("throw skill cool is : %.f"), E_CurrCoolTime);
+			//UE_LOG(LogTemp, Warning, TEXT("throw skill cool is : %.f"), E_CurrCoolTime);
 		}
 	}
 }

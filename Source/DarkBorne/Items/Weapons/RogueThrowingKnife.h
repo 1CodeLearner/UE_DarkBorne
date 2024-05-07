@@ -68,14 +68,13 @@ public:
 	UFUNCTION()
 	void TimelineProgress(float value);
 
+	
+
+	UPROPERTY()
 	FTimeline CurveTimeline;
 
 	UPROPERTY()
-	FVector StartLoc;
-	UPROPERTY()
-	FVector EndLoc;
-	UPROPERTY(EditAnywhere)
-	float ZOffset;
+	float ZOffset = 50;
 
 	UPROPERTY()
 	FVector TKPosition;

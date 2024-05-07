@@ -44,6 +44,7 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 
 	ThrowKnifeVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Aura"));
 	ThrowKnifeVFX->SetupAttachment(SMComp);
+	
 }
 
 void ARogueThrowingKnife::BeginPlay()
@@ -57,28 +58,19 @@ void ARogueThrowingKnife::BeginPlay()
 	{
 		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ARogueThrowingKnife::OnOverlapBegin);
 		//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	//Timeline
+	//커브가 있다면
+	if (KnifeCurve)
+	{
+		//타임라인의 특정 포인트에서 float 이 갱신될때 호출되는 델리게이트
+		FOnTimelineFloat TimelineProgress;
 
-		//Timeline
-		//커브가 있다면
-		if (KnifeCurve)
-		{
-			//타임라인의 특정 포인트에서 float 이 갱신될때 호출되는 델리게이트
-			FOnTimelineFloat TimelineProgress;
-			
-			//TimelineProgress 델리게이트 바인딩
-			TimelineProgress.BindUFunction(this, FName("TimelineProgress"));
-			CurveTimeline.AddInterpFloat(KnifeCurve, TimelineProgress);
-			CurveTimeline.SetLooping(true);
-
-			// 시작위치와 끝위치는 액터위치
-			StartLoc = EndLoc = GetActorLocation();
-
-			// 끝위치 Z축에 Z값 더하기
-			EndLoc.Z += ZOffset;
-
-			CurveTimeline.PlayFromStart();
-		}
-		
+		//TimelineProgress 델리게이트 바인딩
+		TimelineProgress.BindUFunction(this, FName("TimelineProgress"));
+		CurveTimeline.AddInterpFloat(KnifeCurve, TimelineProgress);
+		CurveTimeline.SetLooping(true);
+		CurveTimeline.PlayFromStart();
 	}
 }
 
@@ -91,13 +83,11 @@ void ARogueThrowingKnife::Tick(float DeltaTime)
 	// 클릭하면 isThrowing을 true로
 	if (!isThrowing)
 	{
-		//Timeline을 tick값으로 받는다
-		//CurveTimeline.TickTimeline(DeltaTime);
-
 		//위치 갱신
 		UpdateKnifeLocation(DeltaTime);
+		//Timeline을 tick값으로 받는다
+		CurveTimeline.TickTimeline(DeltaTime);
 	}
-	
 }
 
 void ARogueThrowingKnife::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -108,7 +98,6 @@ void ARogueThrowingKnife::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(ARogueThrowingKnife, halfValue);
 	DOREPLIFETIME(ARogueThrowingKnife, KnifeNumber);
 	DOREPLIFETIME(ARogueThrowingKnife, isThrowing);
-	 
 }
 
 void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -183,15 +172,22 @@ void ARogueThrowingKnife::UpdateKnifeLocation(float DeltaTime)
 	AActor* RoguePlayer = GetOwner();
 	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(RoguePlayer);
 	
-	float randZLoc = UKismetMathLibrary::RandomFloatInRange(0, 50);
+	//float randZLoc = UKismetMathLibrary::RandomFloatInRange(0, 50);
 	
 	// 수리검 위치는 플레이어 위치 + 플레이어 앞 벡터 * 50 / 간격을 i 마다 50만큼 추가시키기
 	 TKPosition = RogueCharacter->ThrowKnifePos->GetComponentLocation() + 
-						RogueCharacter->GetActorForwardVector() * 50 +
-						RogueCharacter->GetActorRightVector() * KnifeNumber * 50;
+				  RogueCharacter->GetActorForwardVector() +
+				  RogueCharacter->GetActorRightVector() * KnifeNumber * 50;
+	 TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
+
+	 TKEndPos = RogueCharacter->ThrowKnifePos->GetComponentLocation() +
+				RogueCharacter->GetActorForwardVector() +
+				RogueCharacter->GetActorRightVector() * KnifeNumber * 50;
+	TKEndPos.Z += ZOffset;
+
+	TKEndPos -= RoguePlayer->GetActorRightVector() * halfValue;
 
 	// 옆 벡터 * 수리검들 중앙값을 빼준다
-	TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
 	//TKPosition += FVector(0, 0, randZLoc);
 	
 	TKFirstRotation = RogueCharacter->ThrowKnifePos->GetUpVector().Rotation();
@@ -202,9 +198,10 @@ void ARogueThrowingKnife::UpdateKnifeLocation(float DeltaTime)
 //Timeline
 void ARogueThrowingKnife::TimelineProgress(float value)
 {
-	FVector NewLocation = FMath::Lerp(StartLoc, EndLoc, value);
-	SetActorLocation(NewLocation);
+	FVector NewNewLocation = FMath::Lerp(TKPosition, TKEndPos, value);
+	SetActorLocation(NewNewLocation);
 }
+
 
 // 클라에서 각자 로컬 위치 계산
 void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
