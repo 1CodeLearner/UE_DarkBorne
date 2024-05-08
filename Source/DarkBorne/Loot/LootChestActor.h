@@ -24,6 +24,9 @@ protected:
 	TObjectPtr<UStaticMeshComponent> SMComp;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Settings")
 	TObjectPtr<UPlayerEquipmentComponent> LootableInventoryComp;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
+	FName ItemDropName;
 
 protected:
 	// Inherited via IInteractionInterface
