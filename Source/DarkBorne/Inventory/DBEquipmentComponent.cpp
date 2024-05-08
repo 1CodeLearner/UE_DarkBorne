@@ -71,10 +71,8 @@ bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryCo
 void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	if (!IsValid(ItemObject)) return;
-	if (!TaxiToServer &&
-		!TaxiToServer->GetOwner() &&
-		!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner(), TEXT("ensure TaxiToServer has owning connection for RPC call"))
-		)
+	if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
+		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
 		return;
 
 	if (this->GetOwner()->HasNetOwner())
@@ -114,10 +112,8 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 void UDBEquipmentComponent::AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	if (!IsValid(ItemObject)) return;
-	if (!TaxiToServer &&
-		!TaxiToServer->GetOwner() &&
-		!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner(), TEXT("ensure TaxiToServer has owning connection for RPC call"))
-		)
+	if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
+		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
 		return;
 
 	if (this->GetOwner()->HasNetOwner())

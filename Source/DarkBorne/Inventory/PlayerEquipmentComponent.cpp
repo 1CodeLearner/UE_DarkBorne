@@ -28,8 +28,9 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInvento
 {
 	if (!IsValid(ItemObject)) return false;
 	if (!TaxiToServer) return false;
-	if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner(), TEXT("ensure TaxiToServer has owning connection for RPC call")))
-		return false;
+	//if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
+	//	this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
+	//	return false;
 
 	for (int i = 0; i < Items.Num(); i++)
 	{
@@ -57,8 +58,9 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInvento
 void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	if (!TaxiToServer) return;
-	if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner(), TEXT("ensure TaxiToServer has owning connection for RPC call")))
-		return;
+	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
+		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
+		return;*/
 
 	if (this->GetOwner()->HasNetOwner())
 	{
@@ -76,13 +78,11 @@ void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInvento
 void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 index, UBaseInventoryComponent* TaxiToServer)
 {
 	if (!IsValid(ItemObject)) return;
-	if (!TaxiToServer &&
-		!TaxiToServer->GetOwner() &&
-		!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner(), TEXT("ensure TaxiToServer has owning connection for RPC call"))
-		)
-		return;
-
-	if (this->GetOwner()->HasNetOwner())
+	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
+		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
+		return;*/
+	
+	if (this->GetOwner()->HasNetOwner() && this->GetOwner()->GetIsReplicated())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
 		Server_AddItemAt(ItemObject, index);

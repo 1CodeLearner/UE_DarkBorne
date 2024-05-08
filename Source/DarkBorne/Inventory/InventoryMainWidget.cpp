@@ -43,7 +43,7 @@ void UInventoryMainWidget::DisplayInventory(bool bEnabled)
 	{
 		if (IsLootValid())
 		{
-			if (EquipmentComp) //Dead Player's Inventory
+			if (EquipmentComp_Loot) //Dead Player's Inventory
 			{
 				DisplayPlayerLoot(InventoryComp_Loot, EquipmentComp_Loot);
 			}
@@ -73,7 +73,7 @@ void UInventoryMainWidget::DisplayInventory(bool bEnabled)
 		if (ensureAlways(IsInViewport()))
 		{
 			RemoveFromParent();
-			UWidgetBlueprintLibrary::SetInputMode_GameOnly(GetOwningPlayer(), true);
+			UWidgetBlueprintLibrary::SetInputMode_GameOnly(GetOwningPlayer(), false);
 			GetOwningPlayer()->bShowMouseCursor = false;
 		}
 	}
