@@ -8,6 +8,7 @@
 #include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h>
 #include <DarkBorne/Framework/DBDropItemManager.h>
 #include "DarkBorne/TP_ThirdPerson/TP_ThirdPersonGameMode.h"
+#include "../../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
 
 ADBWeapon_CloseRange::ADBWeapon_CloseRange()
 {
@@ -107,6 +108,14 @@ void ADBWeapon_CloseRange::MultiRPC_OnOverlapBegin_Implementation(class AActor* 
 
 	// 충돌한 액터의 hitting
 	OtherPlayerAnim->isHitting = true;
+	if (OtherPlayerAnim->isHitting)
+	{
+		UDBRogueSkillComponent* RogueSkillComponent = OtherPlayer->GetComponentByClass<UDBRogueSkillComponent>();
+		if (RogueSkillComponent->isVanish)
+		{
+			RogueSkillComponent->DeactiveRogueQSkill();
+		}
+	}
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherPlayer->GetActorRotation() - GetActorRotation());
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);

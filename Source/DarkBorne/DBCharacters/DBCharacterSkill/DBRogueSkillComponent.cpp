@@ -186,6 +186,13 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 
 			RoguePlayer->camera->PostProcessSettings.bOverride_VignetteIntensity = true;
 			RoguePlayer->camera->PostProcessSettings.VignetteIntensity = 0.7f;
+
+			RoguePlayer->camera->PostProcessSettings.bOverride_SceneFringeIntensity = true;
+			RoguePlayer->camera->PostProcessSettings.SceneFringeIntensity = 5.0f;
+
+			RoguePlayer->camera->PostProcessSettings.bOverride_ChromaticAberrationStartOffset = true;
+			RoguePlayer->camera->PostProcessSettings.ChromaticAberrationStartOffset = 0;
+
 		}
 		// 다른 캐릭터들한텐
 		else
@@ -231,6 +238,8 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 			//화면 원래대로
 			RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = false;
 			RoguePlayer->camera->PostProcessSettings.bOverride_VignetteIntensity = false;
+			RoguePlayer->camera->PostProcessSettings.bOverride_SceneFringeIntensity = false;
+			RoguePlayer->camera->PostProcessSettings.bOverride_ChromaticAberrationStartOffset = false;
 		}
 		else
 		{

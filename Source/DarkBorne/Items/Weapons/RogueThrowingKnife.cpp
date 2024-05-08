@@ -164,6 +164,15 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 
 	// 충돌한 액터의 hitting
 	OtherPlayerAnim->isHitting = true;
+	if (OtherPlayerAnim->isHitting)
+	{
+		UDBRogueSkillComponent* RogueSkillComponent = OtherPlayer->GetComponentByClass<UDBRogueSkillComponent>();
+		if (RogueSkillComponent->isVanish)
+		{
+			RogueSkillComponent->DeactiveRogueQSkill();
+		}
+	}
+
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherPlayer->GetActorRotation() - GetActorRotation());
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);

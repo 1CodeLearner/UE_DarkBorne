@@ -28,6 +28,9 @@ public:
 	class UProgressBar* E_SkillBar;
 
 public:
+	UPROPERTY(meta = (BindWidget))
+	class UImage* WeaponSlot;
+public:
 	void UpdateHeathBar(float currHP, float maxHP);
 	void UpdateQSkillBar(float Q_CurrCoolTime, float Q_MaxCoolTime);
 	void UpdateESkillBar(float E_CurrCoolTime, float E_MaxCoolTime);
