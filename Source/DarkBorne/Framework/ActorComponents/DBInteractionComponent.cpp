@@ -47,7 +47,7 @@ void UDBInteractionComponent::OnInteract()
 
 				OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGININTERACT);
 
-				SetCanInteract(OverlappingActor, false);
+				SetCanInteract(OverlappingActor, true);
 				Interface->BeginInteract(this);
 			}
 		}
