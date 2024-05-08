@@ -75,6 +75,7 @@ public:
 
 	UPROPERTY()
 	float ZOffset = 50;
+	float timelineOffset = 0;
 
 	UPROPERTY()
 	FVector TKPosition;

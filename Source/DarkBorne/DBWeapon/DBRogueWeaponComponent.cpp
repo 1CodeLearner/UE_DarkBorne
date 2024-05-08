@@ -9,6 +9,7 @@
 #include "../Inventory/DBEquipmentComponent.h"
 #include "Net/UnrealNetwork.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
+#include "../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
 
 // Sets default values for this component's properties
 UDBRogueWeaponComponent::UDBRogueWeaponComponent()
@@ -29,7 +30,6 @@ void UDBRogueWeaponComponent::BeginPlay()
 	UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
 	//장착 슬롯 배열 가져오기
 	EquipSlotArray = EquipComponent->GetSlots();
-	// ...
 
 	hasWeapon = false;
 }
@@ -40,7 +40,7 @@ void UDBRogueWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	
 }
 
 void UDBRogueWeaponComponent::SetupPlayerInputComponent(UEnhancedInputComponent* enhancedInputComponent)
@@ -70,12 +70,13 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 {
 	// 무기 꺼내고 있으면 재실행 x
 	if (hasWeapon) return;
-	
 	hasWeapon = true;
 	if (hasWeapon)
 	{
 		if(EquipSlotArray[0]) return;
 		UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
+		UDBRogueSkillComponent* SkillComp = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+
 		//장착 슬롯 배열 가져오기
 		EquipSlotArray = EquipComponent->GetSlots();
 		
@@ -85,24 +86,22 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 			// 무기 월드에 스폰 delay
 			// SpawnActorDeferred : BeginPlay가 실행되기 전에 셋팅
 			RogueItems = GetWorld()->SpawnActorDeferred<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentTransform(), GetOwner());
+			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
+			// 무기의 머티리얼 가져오기
 			//RogueItems = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
 
 			//스폰 시작
 			UGameplayStatics::FinishSpawningActor(RogueItems, GetComponentTransform());
-
+			
 			// 무기를 이 컴포넌트에 붙인다 
 			RogueItems->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
-			// 무기의 머티리얼 가져오기
-			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
 			// 무기 오너 셋팅
 			RogueItems->SetOwner(GetOwner());
 
 		}
 	
 	}
-	
-
 }
 
 

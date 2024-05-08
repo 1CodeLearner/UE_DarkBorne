@@ -44,7 +44,7 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 
 	ThrowKnifeVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Aura"));
 	ThrowKnifeVFX->SetupAttachment(SMComp);
-	
+
 }
 
 void ARogueThrowingKnife::BeginPlay()
@@ -53,8 +53,8 @@ void ARogueThrowingKnife::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("Owner in thisKnife: %s"), *GetNameSafe(GetOwner()));
 	//서버에서 충돌판정을 하고싶다면 여기서부터 손보자
 	if (!GetOwner()) return;
-	
-	if (GetOwner<ACharacter>()->IsLocallyControlled()) 
+
+	if (GetOwner<ACharacter>()->IsLocallyControlled())
 	{
 		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ARogueThrowingKnife::OnOverlapBegin);
 		//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -68,9 +68,16 @@ void ARogueThrowingKnife::BeginPlay()
 
 		//TimelineProgress 델리게이트 바인딩
 		TimelineProgress.BindUFunction(this, FName("TimelineProgress"));
+
+		//AddInterpFloat : 타임라인에 벡터 러프 함수 추가
 		CurveTimeline.AddInterpFloat(KnifeCurve, TimelineProgress);
 		CurveTimeline.SetLooping(true);
 		CurveTimeline.PlayFromStart();
+		// timelineOffset : 랜덤한 시간값을 가져온다
+		timelineOffset = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);
+		// 랜덤한 스타트 지점으로 시작한다.
+		CurveTimeline.SetPlaybackPosition(timelineOffset, false);
+
 	}
 }
 
@@ -85,7 +92,7 @@ void ARogueThrowingKnife::Tick(float DeltaTime)
 	{
 		//위치 갱신
 		UpdateKnifeLocation(DeltaTime);
-		//Timeline을 tick값으로 받는다
+		//Timeline의 시간을 tick값으로 받는다
 		CurveTimeline.TickTimeline(DeltaTime);
 	}
 }
@@ -124,7 +131,7 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 		if (MyCharacterAnim->isAttacking)
 		{
 			ServerRPC_OnOverlapBegin(OtherActor);
-			
+
 		}
 	}
 }
@@ -160,7 +167,7 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherPlayer->GetActorRotation() - GetActorRotation());
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
 }
 
 
@@ -171,33 +178,33 @@ void ARogueThrowingKnife::UpdateKnifeLocation(float DeltaTime)
 	// 수리검의 오너 담기
 	AActor* RoguePlayer = GetOwner();
 	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(RoguePlayer);
-	
-	//float randZLoc = UKismetMathLibrary::RandomFloatInRange(0, 50);
-	
-	// 수리검 위치는 플레이어 위치 + 플레이어 앞 벡터 * 50 / 간격을 i 마다 50만큼 추가시키기
-	 TKPosition = RogueCharacter->ThrowKnifePos->GetComponentLocation() + 
-				  RogueCharacter->GetActorForwardVector() +
-				  RogueCharacter->GetActorRightVector() * KnifeNumber * 50;
-	 TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
 
-	 TKEndPos = RogueCharacter->ThrowKnifePos->GetComponentLocation() +
-				RogueCharacter->GetActorForwardVector() +
-				RogueCharacter->GetActorRightVector() * KnifeNumber * 50;
-	TKEndPos.Z += ZOffset;
+	// 수리검 위치는 플레이어 위치 + 플레이어 앞 벡터 * 50 / 간격을 i 마다 50만큼 추가시키기
+	TKPosition = RogueCharacter->ThrowKnifePos->GetComponentLocation() +
+		RogueCharacter->GetActorForwardVector() +
+		RogueCharacter->GetActorRightVector() * KnifeNumber * 50;
+	// 옆 벡터 * 수리검들 중앙값을 빼준다
+	TKPosition -= RoguePlayer->GetActorRightVector() * halfValue;
+
+	// TKPos에서 러프로 이동하는 거리
+	TKEndPos = RogueCharacter->ThrowKnifePos->GetComponentLocation() +
+		RogueCharacter->GetActorForwardVector() +
+		RogueCharacter->GetActorRightVector() * KnifeNumber * 50;
 
 	TKEndPos -= RoguePlayer->GetActorRightVector() * halfValue;
+	TKEndPos.Z += ZOffset;
 
-	// 옆 벡터 * 수리검들 중앙값을 빼준다
-	//TKPosition += FVector(0, 0, randZLoc);
-	
 	TKFirstRotation = RogueCharacter->ThrowKnifePos->GetUpVector().Rotation();
 	TKFirstRotation.Normalize();
-	SetActorLocationAndRotation(TKPosition, TKFirstRotation);
+	SetActorRotation(TKFirstRotation);
+	//SetActorLocationAndRotation(TKPosition, TKFirstRotation);
 }
 
 //Timeline
 void ARogueThrowingKnife::TimelineProgress(float value)
 {
+	// 러프 : value는 Float curve클래스의 값
+
 	FVector NewNewLocation = FMath::Lerp(TKPosition, TKEndPos, value);
 	SetActorLocation(NewNewLocation);
 }
@@ -222,7 +229,5 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ThrowSound, RoguePlayer->GetActorLocation());
 	PlayMontage(RogueCharacter, FName("ESkill_Start"));
 	SetLifeSpan(3);
-	
-
 }
 

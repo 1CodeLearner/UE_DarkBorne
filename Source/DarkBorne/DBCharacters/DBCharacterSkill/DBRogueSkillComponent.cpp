@@ -102,6 +102,22 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 {
 	if (isVanish)
 	{
+		UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+		ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+
+		// 상대 입장에서만 무기를 투명화 시키자
+		if(!RoguePlayer->IsLocallyControlled())
+		{
+			// 무기 가지고 있으면
+			if (weaponComponent->EquipSlotArray[0])
+			{
+				for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
+				{
+					// 무기도 은신 머티리얼로 설정
+					weaponComponent->RogueItems->SMComp->SetMaterial(i, VanishMat);
+				}
+			}
+		}
 		// 현재 은신시간이 최대시간보다 작다면
 		if (CurrVanishTime < MaxVanishTime)
 		{
@@ -113,7 +129,6 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 			{	
 				// 은신 비활성화
 				DeactiveRogueQSkill();
-				
 			}
 		}
 	}
@@ -191,6 +206,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 					// 무기를 은신 머티리얼로 설정
 					weaponComponent->RogueItems->SMComp->SetMaterial(i, VanishMat);
 				}
+				
 			}
 		}
 	}
