@@ -124,14 +124,14 @@ TStatId UItemObject::GetStatId() const
 
 void UItemObject::Tick(float DeltaTime)
 {
-	if (GetWorld())
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf
-		(
-			TEXT("[%s] %s"),
-			(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
-			*ItemData.Item.SlotHolder.DisplayName.ToString()
-		)
-		);
+	//if (GetWorld())
+	//	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf
+	//	(
+	//		TEXT("[%s] %s"),
+	//		(GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
+	//		*ItemData.Item.SlotHolder.DisplayName.ToString()
+	//	)
+	//	);
 }
 
 void UItemObject::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

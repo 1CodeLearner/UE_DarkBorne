@@ -1,4 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -67,7 +69,7 @@ private:
 	bool bIsUpdating;
 	
 	//Happens in tick
-	bool CanInteract(bool bDebugDraw);
+	bool CanTrace(bool bDebugDraw);
 	void UpdateOverlappingActor(bool bDebugDraw);
 	void UpdateTimer(float DeltaTime, bool bDebugDraw);
 

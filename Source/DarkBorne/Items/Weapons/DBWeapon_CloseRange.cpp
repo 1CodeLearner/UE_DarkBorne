@@ -73,7 +73,7 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 
 	FString Level = GetWorld()->GetMapName();
 	Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
-	if (Level != TEXT("Level_Lobby"))
+	if (Level != TEXT("ThirdPersonMap"))
 	{
 		//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
 		OtherPlayer->CurrHP = OtherPlayer->CurrHP - WeaponDamage;
