@@ -9,6 +9,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
 #include "../DBWeapon/DBRogueWeaponComponent.h"
+#include "PlayerEquipmentComponent.h"
 
 UDBEquipmentComponent::UDBEquipmentComponent()
 {
@@ -72,9 +73,9 @@ bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryCo
 void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	if (!IsValid(ItemObject)) return;
-	if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
+	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
 		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
-		return;
+		return;*/
 
 	if (this->GetOwner()->HasNetOwner())
 	{
@@ -86,8 +87,6 @@ void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryCo
 		auto EquipCompTaxi = Cast<UDBEquipmentComponent>(TaxiToServer);
 		EquipCompTaxi->Server_TaxiForRemoveItem(ItemObject, this);
 	}
-
-
 }
 
 void UDBEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
@@ -107,15 +106,18 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
 	TArray<UItemObject*> old = Items;
 	Items[index] = nullptr;
+	
+	//destroy item begin held by player
+
 	OnRep_Items(old);
 }
 
 void UDBEquipmentComponent::AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	if (!IsValid(ItemObject)) return;
-	if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
+	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
 		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
-		return;
+		return;*/
 
 	if (this->GetOwner()->HasNetOwner())
 	{
@@ -144,20 +146,32 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 		return;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+
 	TArray<UItemObject*> old = Items;
-	if (Items.IsEmpty()) return;
+	if (Items.IsEmpty())
+		return;
+
+	if (Items[index])
+	{
+		UItemObject* TempItemObj = Items[index];
+		auto PEComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
+		//Throw Item away if inventory is full
+		if (!PEComp->TryAddItem(TempItemObj, PEComp))
+		{
+			Server_SpawnItem(GetOwner(), TempItemObj);
+		}
+	}
+
 	Items[index] = ItemObject;
 
-	UE_LOG(LogTemp, Warning, TEXT("Actor %s"), *GetNameSafe(ItemObject->GetItemActor()));
+	//Spawn and attach to player
+	auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	if (WeaponComp)
+	{
+		WeaponComp->PassItem(ItemObject);
+	}
 
-	//auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-	//if (WeaponComp)
-	//{	
-	//	WeaponComp->PassItem(ItemObject);
-	//}
 	OnRep_Items(old);
-
-	ItemObject->TryDestroyItemActor();
 }
 
 const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const

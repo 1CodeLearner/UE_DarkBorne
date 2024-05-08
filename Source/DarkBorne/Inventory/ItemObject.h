@@ -32,7 +32,7 @@ public:
 	void Initialize(FItem _Item, ADBItem* _ItemActor = nullptr);
 
 	UFUNCTION(BlueprintCallable)
-	void AddItemActor(ADBItem* _ItemActor);
+	void SetItemActor(ADBItem* _ItemActor);
 	UFUNCTION(BlueprintCallable)
 	bool HasItemActor() const;
 	ADBItem* GetItemActor() const;

@@ -38,4 +38,8 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void Refresh();
+
+private:
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess))
+	bool bIsBeingHeld;
 };

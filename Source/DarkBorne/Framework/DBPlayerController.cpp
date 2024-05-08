@@ -50,28 +50,6 @@ void ADBPlayerController::BeginPlay()
 void ADBPlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
-	if (HasAuthority()) {
-		UItemObject* ItemObject = nullptr;
-
-		auto GameplayGM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
-		if (GameplayGM) {
-			FItem Item = GameplayGM->DropItemManager->GenerateItemByName(FName("Dagger"), EItemType::WEAPON);
-			if (Item.IsValid()) {
-				ItemObject = NewObject<UItemObject>(this);
-				ItemObject->Initialize(Item);
-			}
-		}
-
-		if (!ItemObject) return;
-
-		auto Charac = Cast<ADBCharacter>(aPawn);
-		if (Charac) {
-			auto EquipComp = Charac->GetComponentByClass<UDBEquipmentComponent>();
-			if (EquipComp) {
-				EquipComp->Server_AddItem(ItemObject);
-			}
-		}
-	}
 }
 
 void ADBPlayerController::ChangeToSpectator()

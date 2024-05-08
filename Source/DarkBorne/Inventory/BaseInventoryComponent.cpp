@@ -81,7 +81,7 @@ void UBaseInventoryComponent::Server_SpawnItem_Implementation(AActor* Initiator,
 
 		ItemSpawned->Initialize(ItemObject);
 
-		ItemObject->AddItemActor(ItemSpawned);
+		ItemObject->SetItemActor(ItemSpawned);
 
 		UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
 	}

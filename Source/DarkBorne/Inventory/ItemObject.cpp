@@ -15,7 +15,7 @@ void UItemObject::Initialize(FItem _Item, ADBItem* _ItemActor)
 	ItemData = FItemData(_Item, _ItemActor);
 }
 
-void UItemObject::AddItemActor(ADBItem* _ItemActor)
+void UItemObject::SetItemActor(ADBItem* _ItemActor)
 {
 	if (ensureAlways(_ItemActor))
 		ItemData.ItemActor = _ItemActor;
