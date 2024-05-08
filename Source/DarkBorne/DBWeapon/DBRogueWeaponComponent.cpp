@@ -39,20 +39,32 @@ void UDBRogueWeaponComponent::BeginPlay()
 void UDBRogueWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	
+	int32 index = 0;
+	if (GetOwner()->HasAuthority())
+	{
+		auto Equip = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
+		if (RogueItems && !RogueItems->IsPendingKill())
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf(TEXT("Testing Here: %s"), *GetNameSafe(RogueItems)));
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Testing Here: Pending Kill")));
+		}
+	}
+		
 }
 
 void UDBRogueWeaponComponent::SetupPlayerInputComponent(UEnhancedInputComponent* enhancedInputComponent)
 {
 	enhancedInputComponent->BindAction(ia_WeaponSlot, ETriggerEvent::Triggered, this, &UDBRogueWeaponComponent::AttachWeapon);
-		
+
 }
 
 void UDBRogueWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
+
 	DOREPLIFETIME(UDBRogueWeaponComponent, RogueItems);
 	DOREPLIFETIME(UDBRogueWeaponComponent, EquipSlotArray);
 	DOREPLIFETIME(UDBRogueWeaponComponent, RogueItemSMMat);
@@ -60,7 +72,7 @@ void UDBRogueWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(UDBRogueWeaponComponent, hasWeapon);
 }
 
-	
+
 void UDBRogueWeaponComponent::AttachWeapon()
 {
 	ServerRPC_AttachWeapon();
@@ -73,13 +85,13 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 	hasWeapon = true;
 	if (hasWeapon)
 	{
-		if(EquipSlotArray[0]) return;
+		if (EquipSlotArray[0]) return;
 		UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
 		UDBRogueSkillComponent* SkillComp = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
 		//ÀåÂø ½½·Ô ¹è¿­ °¡Á®¿À±â
 		EquipSlotArray = EquipComponent->GetSlots();
-		
+
 		// ¹«±â½½·Ô¿¡ ¹«±âµ¥ÀÌÅÍ°¡ ÀÖÀ¸¸é
 		if (EquipSlotArray[0])
 		{
@@ -92,7 +104,7 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 
 			//½ºÆù ½ÃÀÛ
 			UGameplayStatics::FinishSpawningActor(RogueItems, GetComponentTransform());
-			
+
 			// ¹«±â¸¦ ÀÌ ÄÄÆ÷³ÍÆ®¿¡ ºÙÀÎ´Ù 
 			RogueItems->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
@@ -102,7 +114,7 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 			//다른 로직에 필요한 준비
 			EquipSlotArray[0]->SetItemActor(RogueItems);
 		}
-	
+
 	}
 }
 
@@ -115,19 +127,19 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 		AttachWeapon();
 	}
 
-	switch (Item->GetSlotType()) 
+	switch (Item->GetSlotType())
 	{
-		case ESlotType::WEAPON:
+	case ESlotType::WEAPON:
 		break;
-		case ESlotType::HEAD:
+	case ESlotType::HEAD:
 		break;
-		case ESlotType::UPPERWEAR:
+	case ESlotType::UPPERWEAR:
 		break;
-		case ESlotType::BOTTOMWEAR:
+	case ESlotType::BOTTOMWEAR:
 		break;
-		case ESlotType::GLOVES:
+	case ESlotType::GLOVES:
 		break;
-		case ESlotType::BOOTS:
+	case ESlotType::BOOTS:
 		break;
 
 	}
