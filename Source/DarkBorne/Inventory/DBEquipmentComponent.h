@@ -37,6 +37,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	const UItemObject* GetSlotItem(ESlotType SlotType) const;
 
+	UFUNCTION(BlueprintCallable)
+	bool IsSlotVacant(UItemObject* ItemObject) const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
@@ -45,4 +48,6 @@ protected:
 	TObjectPtr<UPlayerEquipmentComponent> PlayerEquipComp;
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvalidSlot;
+	UPROPERTY(BlueprintReadWrite)
+	bool bOccupiedSlot;
 };

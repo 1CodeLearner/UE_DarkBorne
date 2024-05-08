@@ -14,6 +14,7 @@ UDBEquipmentComponent::UDBEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	bInvalidSlot = false;
+	bOccupiedSlot = false;
 	Columns = 2;
 	Rows = 2;
 }
@@ -131,7 +132,7 @@ void UDBEquipmentComponent::AddItem(UItemObject* ItemObject, UBaseInventoryCompo
 void UDBEquipmentComponent::Server_TaxiForAddItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
 {
 	auto TaxiedEquipComp = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
-	if (ensureAlways(TaxiedEquipComp)) 
+	if (ensureAlways(TaxiedEquipComp))
 	{
 		TaxiedEquipComp->Server_AddItem(ItemObject);
 	}
@@ -169,5 +170,14 @@ const UItemObject* UDBEquipmentComponent::GetSlotItem(ESlotType SlotType) const
 	int32 index = UItemLibrary::GetSlotIndexByEnum(SlotType);
 	if (Items.IsEmpty()) return nullptr;
 	return Items[index];
+}
+
+bool UDBEquipmentComponent::IsSlotVacant(UItemObject* ItemObject) const
+{
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+	if (Items.IsValidIndex(index) && Items[index])
+		return false;
+
+	return true;
 }
 
