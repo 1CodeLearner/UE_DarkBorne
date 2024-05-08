@@ -35,7 +35,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetTileSize() const;
-
+			
+	UFUNCTION(BlueprintCallable)
+	FVector2D GetSize() const;
 protected:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);

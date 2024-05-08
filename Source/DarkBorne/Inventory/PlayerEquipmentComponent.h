@@ -61,9 +61,6 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex);
 	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject) override;
-		
-	UFUNCTION(BlueprintCallable)
-	FVector2D GetSize() const;
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetColumn() const;

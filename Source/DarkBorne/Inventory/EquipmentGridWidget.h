@@ -9,9 +9,33 @@
 /**
  * 
  */
+ class UDBEquipmentComponent;
+ class UBorder;
+
 UCLASS()
 class DARKBORNE_API UEquipmentGridWidget : public UUserWidget
 {
 	GENERATED_BODY()
+public:
+	UFUNCTION(BlueprintCallable)
+	void StartInit(UDBEquipmentComponent* EquipmentComp, ESlotType _SlotType);
+
+	void Reset();
+
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UDBEquipmentComponent> EquipmentComponent;
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UDBEquipmentComponent> TaxiToServer;
+	UPROPERTY(BlueprintReadOnly)
+	ESlotType SlotType;
+
+	UPROPERTY(BlueprintReadOnly)
+	float TileSize;
+
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	TObjectPtr<UBorder> GridBorder;
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	void Refresh();
 };

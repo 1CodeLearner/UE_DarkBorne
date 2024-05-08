@@ -127,13 +127,6 @@ void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* It
 	OnRep_Items(old);
 }
 
-FVector2D UPlayerEquipmentComponent::GetSize() const
-{
-	int32 x = Columns * TileSize;
-	int32 y = Rows * TileSize;
-	return FVector2D(x, y);
-}
-
 int32 UPlayerEquipmentComponent::GetColumn() const
 {
 	return Columns;
