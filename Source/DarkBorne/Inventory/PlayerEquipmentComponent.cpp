@@ -62,11 +62,11 @@ void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInvento
 
 	if (this->GetOwner()->HasNetOwner())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Has LocalNetOwner()"));
+		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
 		Server_RemoveItem(ItemObject);
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("Has no LocalNetOwner()"));
+		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
 		auto PEComp = Cast<UPlayerEquipmentComponent>(TaxiToServer);
 		PEComp->Server_TaxiForRemoveItem(ItemObject, this);
 	}
@@ -84,11 +84,11 @@ void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 index, 
 
 	if (this->GetOwner()->HasNetOwner())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Has LocalNetOwner()"));
+		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
 		Server_AddItemAt(ItemObject, index);
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("Has no LocalNetOwner()"));
+		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
 		auto PEComp = Cast<UPlayerEquipmentComponent>(TaxiToServer);
 		PEComp->Server_TaxiForAddItemAt(ItemObject, index, this);
 	}

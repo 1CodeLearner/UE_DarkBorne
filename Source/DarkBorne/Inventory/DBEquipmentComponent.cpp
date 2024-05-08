@@ -63,14 +63,82 @@ bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryCo
 		return false;
 	}
 	else {
-		Server_AddItem(ItemObject);
+		AddItem(ItemObject, TaxiToServer);
 		return true;
 	}
 }
 
 void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
-	Server_RemoveItem(ItemObject);
+	if (!IsValid(ItemObject)) return;
+	if (!TaxiToServer &&
+		!TaxiToServer->GetOwner() &&
+		!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner(), TEXT("ensure TaxiToServer has owning connection for RPC call"))
+		)
+		return;
+
+	if (this->GetOwner()->HasNetOwner())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
+		Server_RemoveItem(ItemObject);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
+		auto EquipCompTaxi = Cast<UDBEquipmentComponent>(TaxiToServer);
+		EquipCompTaxi->Server_TaxiForRemoveItem(ItemObject, this);
+	}
+
+
+}
+
+void UDBEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
+{
+	auto TaxiedEquipComp = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
+	if (ensureAlways(TaxiedEquipComp))
+	{
+		TaxiedEquipComp->Server_RemoveItem(ItemObject);
+	}
+}
+
+void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
+{
+	if (!ensureAlways(ItemObject))
+		return;
+
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+	TArray<UItemObject*> old = Items;
+	Items[index] = nullptr;
+	OnRep_Items(old);
+}
+
+void UDBEquipmentComponent::AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+{
+	if (!IsValid(ItemObject)) return;
+	if (!TaxiToServer &&
+		!TaxiToServer->GetOwner() &&
+		!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner(), TEXT("ensure TaxiToServer has owning connection for RPC call"))
+		)
+		return;
+
+	if (this->GetOwner()->HasNetOwner())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
+		Server_AddItem(ItemObject);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
+		auto EquipCompTaxi = Cast<UDBEquipmentComponent>(TaxiToServer);
+		EquipCompTaxi->Server_TaxiForAddItem(ItemObject, this);
+	}
+}
+
+void UDBEquipmentComponent::Server_TaxiForAddItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
+{
+	auto TaxiedEquipComp = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
+	if (ensureAlways(TaxiedEquipComp)) 
+	{
+		TaxiedEquipComp->Server_AddItem(ItemObject);
+	}
 }
 
 void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObject)
@@ -93,17 +161,6 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	OnRep_Items(old);
 
 	ItemObject->TryDestroyItemActor();
-}
-
-void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
-{
-	if (!ensureAlways(ItemObject))
-		return;
-
-	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	TArray<UItemObject*> old = Items;
-	Items[index] = nullptr;
-	OnRep_Items(old);
 }
 
 const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const

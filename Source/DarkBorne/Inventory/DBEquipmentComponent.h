@@ -16,10 +16,18 @@ class DARKBORNE_API UDBEquipmentComponent : public UBaseInventoryComponent
 	friend class ULootInventoryComponent;
 public:
 	UDBEquipmentComponent();
-
+		
+	UFUNCTION(BlueprintCallable)
+	void AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
 	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
 	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
-	UFUNCTION(Server, Reliable, BlueprintCallable)
+
+	UFUNCTION(Server, Reliable)
+	void Server_TaxiForAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
+	UFUNCTION(Server, Reliable)
+	void Server_TaxiForRemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
+
+	UFUNCTION(Server, Reliable)
 	void Server_AddItem(UItemObject* ItemObject);
 	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject) override;
 
