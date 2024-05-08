@@ -4,34 +4,31 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "PlayerEquipmentComponent.h"
-#include "InventoryGridWidget.generated.h"
+#include "EquipmentGridWidget.generated.h"
 
 /**
  * 
  */
-
- class UCanvasPanel;
+ class UDBEquipmentComponent;
  class UBorder;
+
 UCLASS()
-class DARKBORNE_API UInventoryGridWidget : public UUserWidget
+class DARKBORNE_API UEquipmentGridWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
 public:
 	UFUNCTION(BlueprintCallable)
-	void StartInit(UPlayerEquipmentComponent* InventoryComp);
+	void StartInit(UDBEquipmentComponent* EquipmentComp, ESlotType _SlotType);
 
 	void Reset();
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<UPlayerEquipmentComponent> InventoryComponent;
+	TObjectPtr<UDBEquipmentComponent> EquipmentComponent;
 	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<UPlayerEquipmentComponent> TaxiToServer;
-
+	TObjectPtr<UDBEquipmentComponent> TaxiToServer;
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FLine> Lines;
+	ESlotType SlotType;
 
 	UPROPERTY(BlueprintReadOnly)
 	float TileSize;
@@ -41,6 +38,4 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void Refresh();
-private:
-	void CreateLineSegments();
 };

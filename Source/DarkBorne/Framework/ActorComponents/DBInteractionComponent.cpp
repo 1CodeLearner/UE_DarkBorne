@@ -7,6 +7,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "../../DBCharacters/DBCharacter.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "../../Inventory/InventoryMainWidget.h"
 
 static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
 
@@ -45,7 +47,7 @@ void UDBInteractionComponent::OnInteract()
 
 				OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGININTERACT);
 
-				SetCanInteract(OverlappingActor, false);
+				SetCanInteract(OverlappingActor, true);
 				Interface->BeginInteract(this);
 			}
 		}
@@ -82,6 +84,7 @@ void UDBInteractionComponent::ExecuteInteraction()
 
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 		Interface->ExecuteInteract(this, Character);
+		Interface->SetCanInteract(true);
 	}
 }
 
@@ -134,9 +137,6 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	//Check if player is dead, stop ticking and return if true
 	if (IsDead())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Here:%s"), GetWorld()->GetNetMode() == NM_Client ? TEXT("Client") : TEXT("Server"));
-
-
 		OnInteractActorUpdate.ExecuteIfBound(nullptr, EInteractState::ENDTRACE);
 
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
@@ -152,7 +152,7 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	if (bInteracting) {
 		UpdateTimer(DeltaTime, bDebugDraw);
 	}
-	else if (CanInteract(bDebugDraw))
+	else if (CanTrace(bDebugDraw))
 		UpdateOverlappingActor(bDebugDraw);
 
 	if (bDebugDraw)
@@ -161,22 +161,34 @@ void UDBInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	}
 }
 
-bool UDBInteractionComponent::CanInteract(bool bDebugDraw)
+bool UDBInteractionComponent::CanTrace(bool bDebugDraw)
 {
+	if (!Character) return false;
+
+	bool bCanTrace = true;
+
 	FVector Vel = Character->GetMovementComponent()->Velocity;
 	float dotForward = FVector::DotProduct(Vel, Character->GetActorLocation());
-
 	if (bDebugDraw)
 		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Dot:%f"), dotForward));
-
 	if (abs(dotForward) != 0.f)
+		bCanTrace = false;
+
+	//Change this to more efficient code
+	TArray<UUserWidget*> Widgets;
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), Widgets, UInventoryMainWidget::StaticClass());
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("WidgetCount :%d"), Widgets.Num()));
+	if (Widgets.Num() > 0)
+		bCanTrace = false;
+
+	if (!bCanTrace)
 	{
 		if (OverlappingActor)
 		{
+			OnInteractActorUpdate.ExecuteIfBound(nullptr, EInteractState::ENDTRACE);
 			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 			Interface->EndTrace();
 			OverlappingActor = nullptr;
-			OnInteractActorUpdate.ExecuteIfBound(nullptr, EInteractState::ENDTRACE);
 		}
 		return false;
 	}

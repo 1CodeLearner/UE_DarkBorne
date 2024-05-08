@@ -59,12 +59,10 @@ ADBRogueCharacter::ADBRogueCharacter()
 	RogueAttackComponent = CreateDefaultSubobject<UDBRogueAttackComponent>(TEXT("RogueAttackComp"));
 
 	ThrowKnifePos = CreateDefaultSubobject<UArrowComponent>(TEXT("ThrowKnifePos"));
-	ThrowKnifePos->SetupAttachment(GetMesh());
-	
+	ThrowKnifePos->SetupAttachment(camera);
+
 	JumpMaxCount = 2;
 	GetCharacterMovement()->JumpZVelocity = 500.f;
-
-	
 }
 
 void ADBRogueCharacter::BeginPlay()
@@ -79,37 +77,29 @@ void ADBRogueCharacter::BeginPlay()
 	// 시작 시 현재 hp 
 	OnRep_CurrHP();
 
-	//beginPlay때 컴포넌트 가져오고
-	//RogueSkillComponent = GetComponentByClass<UDBRogueSkillComponent>();
-	
-	//input component를 캐스팅해서 가져온다음
-	//UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
-	//component 붙이기
-	//RogueSkillComponent->SetupPlayerInputComponent(enhancedInputComponent);
-	
 }
-
 
 void ADBRogueCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("Object Type:%s"),
+		*UEnum::GetValueAsString(GetMesh()->GetCollisionObjectType())));
 
 	//서버면
 	if (HasAuthority())
 	{
 		DeathProcess();
 
-		// 수리검 위치 회전값 가져오기
 		knifePos = ThrowKnifePos->GetComponentLocation();
 		knifeRot = ThrowKnifePos->GetComponentRotation();
 
 	}
 	else
 	{
-		//클라고 내 것이 아니라면 
+		//내 것이라면
 		if (IsLocallyControlled() == false)
 		{
-			// 수리검 위치값 셋팅
 			ThrowKnifePos->SetWorldLocation(knifePos);
 			ThrowKnifePos->SetWorldRotation(knifeRot);
 		}
@@ -120,12 +110,10 @@ void ADBRogueCharacter::Tick(float DeltaTime)
 void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
 	UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (enhancedInputComponent != nullptr)
 	{
-		
-
-		//RogueSkillComponent->SetupPlayerInputComponent(enhancedInputComponent);
 		RogueSkillComponent->SetupPlayerInputComponent(enhancedInputComponent);
 		RogueAttackComponent->SetupPlayerInputComponent(enhancedInputComponent);
 		RogueWeaponComp->SetupPlayerInputComponent(enhancedInputComponent);
@@ -154,10 +142,18 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
 	if (CurrHP <= 0 && !MyCharacterAnim->isDeath)
 	{
+		if (HasAuthority())
+		{
+			//change collision object type to item
+			GetMesh()->SetCollisionProfileName("Item");
+			//set bCanInteract to true
+			SetCanInteract(true);
+		}
+
 		MyCharacterAnim->isDeath = true;
 		UE_LOG(LogTemp, Warning, TEXT("%s"), GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"));
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetCharacterMovement()->DisableMovement();
 		bUseControllerRotationYaw = false;
 
@@ -167,7 +163,7 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 			//APlayerController* pc = GetWorld()->GetFirstPlayerController();
 			//pc->SetShowMouseCursor(true);
 			DisableInput(pc);
-			
+
 			pc->ChangeToSpectator();
 			//pc->SetInputMode(FInputModeGameOnly());
 		}
