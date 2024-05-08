@@ -8,8 +8,10 @@
 #include "LootInventoryComponent.h"
 
 #include "../Inventory/InventoryGridWidget.h"
+#include "EquipmentGridWidget.h"
 
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "../ItemTypes/EnchantmentTypes.h"
 
 void UInventoryMainWidget::NativeOnInitialized()
 {
@@ -163,20 +165,23 @@ void UInventoryMainWidget::ClearLoot()
 		InventoryLoot_Other->Reset();
 	if (InventoryLoot_Player)
 		InventoryLoot_Player->Reset();
-	//if(EquipmentGrid_Weapon)
-		//EquipmentGrid_Weapon->Reset();
-	//if(EquipmentGrid_Consumable)
-		//EquipmentGrid_Consumable->Reset();
+	if(EquipmentLoot_Weapon)
+		EquipmentLoot_Weapon->Reset();
+	if(EquipmentLoot_Consumable)
+		EquipmentLoot_Weapon->Reset();
 }
 
 void UInventoryMainWidget::DisplayPlayerLoot(UPlayerEquipmentComponent* _InventoryComp, UDBEquipmentComponent* _EquipmentComp)
 {
 	InventoryLoot_Player->StartInit(_InventoryComp);
+	EquipmentLoot_Weapon->StartInit(_EquipmentComp, ESlotType::WEAPON);
+	EquipmentLoot_Consumable->StartInit(_EquipmentComp, ESlotType::CONSUMABLE);
 
 	InventoryLoot_Player->SetVisibility(ESlateVisibility::Visible);
+	EquipmentLoot_Weapon->SetVisibility(ESlateVisibility::Visible);
+	EquipmentLoot_Consumable->SetVisibility(ESlateVisibility::Visible);
+
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Collapsed);
-	//Initialize EquipmentGrid_Weapon
-//Initialize EquipmentGrid_Consumable
 }
 
 void UInventoryMainWidget::DisplayOtherLoot(UPlayerEquipmentComponent* _InventoryComp)
@@ -184,13 +189,17 @@ void UInventoryMainWidget::DisplayOtherLoot(UPlayerEquipmentComponent* _Inventor
 	InventoryLoot_Other->StartInit(_InventoryComp);
 
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Visible);
+
 	InventoryLoot_Player->SetVisibility(ESlateVisibility::Collapsed);
-	//Hide EquipmentGrid_Weapon
-//Hide EquipmentGrid_Consumable
+	EquipmentLoot_Weapon->SetVisibility(ESlateVisibility::Collapsed);
+	EquipmentLoot_Consumable->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UInventoryMainWidget::HideLoots()
 {
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Collapsed);
+
 	InventoryLoot_Player->SetVisibility(ESlateVisibility::Collapsed);
+	EquipmentLoot_Weapon->SetVisibility(ESlateVisibility::Collapsed);
+	EquipmentLoot_Consumable->SetVisibility(ESlateVisibility::Collapsed);
 }

@@ -38,28 +38,42 @@ public:
 	bool IsLootValid() const;
 
 protected:
-	//Owning Player's Widgets
-	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
-	UInventoryGridWidget* WBP_InventoryGrid;
-
-	//Owning player's Inventories
+	//Owning player's Inventories.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ExposeOnSpawn))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
 	UDBEquipmentComponent* EquipmentComp;
-	
-	//Other entity's Widgets
+
+	//Owning Player's Widgets.
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	UInventoryGridWidget* WBP_InventoryGrid; //Already initialized in blueprint
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	UEquipmentGridWidget* EquipmentGrid_Weapon; //Already initialized in blueprint
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	UEquipmentGridWidget* EquipmentGrid_Consumable; //Already initialized in blueprint
+
+
+	//Other Player/Entity's inventory for looting.
+	//Other player has UDBEquipmentComponent. Entity does not have UDBEquipmentComponent.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
+	TObjectPtr<UDBEquipmentComponent> EquipmentComp_Loot;
+	//Both other player and other entity have UPlayerEquipmentComponent.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
+	TObjectPtr<UPlayerEquipmentComponent> InventoryComp_Loot;
+
+	//Other Player/Entity's Widgets for looting.
+	//Other Player.
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryLoot_Player;
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	UEquipmentGridWidget* EquipmentLoot_Weapon;
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	UEquipmentGridWidget* EquipmentLoot_Consumable;
+	//Other Entity.
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryLoot_Other;
 
-	//Other entity's inventory
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
-	TObjectPtr<UDBEquipmentComponent> EquipmentComp_Loot;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
-	TObjectPtr<UPlayerEquipmentComponent> InventoryComp_Loot;
-	
+
 	void DisplayPlayerLoot(UPlayerEquipmentComponent* _InventoryComp, UDBEquipmentComponent* _EquipmentComp);
 	void DisplayOtherLoot(UPlayerEquipmentComponent* _InventoryComp);
 	void HideLoots();
@@ -68,7 +82,7 @@ private:
 	bool bLootValid;
 	void AssignLootFrom(AActor* OtherEntity);
 	bool IsValidForInit(const TArray<UBaseInventoryComponent*>& Inventories) const;
-		bool IsValidNum(const TArray<UBaseInventoryComponent*>& Inventories) const;
-		bool IsReadyForAssignment() const;
+	bool IsValidNum(const TArray<UBaseInventoryComponent*>& Inventories) const;
+	bool IsReadyForAssignment() const;
 	void ClearLoot();
 };
