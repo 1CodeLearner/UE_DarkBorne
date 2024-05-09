@@ -75,31 +75,32 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
 	if (OtherPlayer)
 	{
-	FString Level = GetWorld()->GetMapName();
-	Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
-	if (Level != TEXT("ThirdPersonMap"))
-	{
-	UCharacterStatusComponent* StatusComponent = OtherActor->GetComponentByClass<UCharacterStatusComponent>();
-	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
-	//로비 체크
-		StatusComponent->DamageProcess(WeaponDamage,this);
-		//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
-		//onRep 함수는 클라에서만 호출되어서 서버에서도 한번 호출해줘야한다
-		StatusComponent->OnRep_CurrHP();
+		FString Level = GetWorld()->GetMapName();
+		Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
 
-		//UE_LOG(LogTemp, Warning, TEXT("%s : %.f"),
-		//	GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"), OtherPlayer->CurrHP);
-
-		auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
-		if (ensure(GM) && StatusComponent->CurrHP <= 0.f && OtherPlayer!= nullptr)
+		if (Level != TEXT("ThirdPersonMap"))
 		{
-			auto PC = OtherPlayer->GetOwner<APlayerController>();
-			if (PC)
+		UCharacterStatusComponent* StatusComponent = OtherActor->GetComponentByClass<UCharacterStatusComponent>();
+		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
+		//로비 체크
+			StatusComponent->DamageProcess(WeaponDamage,this);
+			//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
+			//onRep 함수는 클라에서만 호출되어서 서버에서도 한번 호출해줘야한다
+			StatusComponent->OnRep_CurrHP();
+
+			//UE_LOG(LogTemp, Warning, TEXT("%s : %.f"),
+			//	GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"), OtherPlayer->CurrHP);
+
+			auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
+			if (ensure(GM) && StatusComponent->CurrHP <= 0.f && OtherPlayer!= nullptr)
 			{
-				GM->OnPlayerDead(PC);
+				auto PC = OtherPlayer->GetOwner<APlayerController>();
+				if (PC)
+				{
+					GM->OnPlayerDead(PC);
+				}
 			}
 		}
-	}
 	MultiRPC_OnOverlapBegin(OtherActor);
 	}
 }

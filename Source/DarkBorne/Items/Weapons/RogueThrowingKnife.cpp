@@ -136,12 +136,12 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 			ServerRPC_OnOverlapBegin(OtherActor);
 
 		}
+		//else
+		//{
+		//	ServerRPC_WallOnOnerlapBegin(OtherActor);
+		//}
 	}
-	if (OtherActor)
-	{
-		Destroy();
-		return;
-	}
+	
 }
 
 void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
@@ -150,32 +150,33 @@ void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* 
 	if (OtherPlayer)
 	{
 
-	FString Level = GetWorld()->GetMapName();
-	Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
-	if (Level != TEXT("Level_Lobby"))
-	{
-		UCharacterStatusComponent* StatusComponent = OtherActor->GetComponentByClass<UCharacterStatusComponent>();
-
-		StatusComponent->DamageProcess(WeaponDamage, this);
-		StatusComponent->OnRep_CurrHP();
-
-		auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
-		if (ensure(GM) && StatusComponent->CurrHP <= 0.f)
+		FString Level = GetWorld()->GetMapName();
+		Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+		if (Level != TEXT("Level_Lobby"))
 		{
-			auto PC = OtherPlayer->GetOwner<APlayerController>();
-			if (PC)
+			UCharacterStatusComponent* StatusComponent = OtherActor->GetComponentByClass<UCharacterStatusComponent>();
+
+			StatusComponent->DamageProcess(WeaponDamage, this);
+			StatusComponent->OnRep_CurrHP();
+
+			auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
+			if (ensure(GM) && StatusComponent->CurrHP <= 0.f)
 			{
-				GM->OnPlayerDead(PC);
+				auto PC = OtherPlayer->GetOwner<APlayerController>();
+				if (PC)
+				{
+					GM->OnPlayerDead(PC);
+				}
 			}
 		}
-	}
 	MultiRPC_OnOverlapBegin(OtherActor);
 	Destroy();
 	}
 }
 
 void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
-{
+{	
+	
 	if (Cast<ADBCharacter>(OtherActor))
 	{
 		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
@@ -204,13 +205,37 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 		// 충돌한 액터의 hitting
 		OtherPlayerAnim->isHitting = true;
 	}
-
+	//else if (Cast<AActor>(OtherActor))
+	//{
+		//blood VFX
+		//UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
+		//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//Destroy();
+		//return;
+	//}
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 }
 
+
+void ARogueThrowingKnife::ServerRPC_WallOnOnerlapBegin_Implementation(class AActor* OtherActor)
+{
+	MultiRPC_WallOnOverlapBegin(OtherActor);
+}
+
+void ARogueThrowingKnife::MultiRPC_WallOnOverlapBegin_Implementation(class AActor* OtherActor)
+{
+	 if (Cast<AActor>(OtherActor))
+	{
+		 //blood VFX
+			 UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
+		 CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		 Destroy();
+		
+	}
+}
 
 void ARogueThrowingKnife::UpdateKnifeLocation(float DeltaTime)
 {
