@@ -106,7 +106,7 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
 	TArray<UItemObject*> old = Items;
 	Items[index] = nullptr;
-	
+
 	//destroy item begin held by player
 
 	OnRep_Items(old);
@@ -164,11 +164,14 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 
 	Items[index] = ItemObject;
 
-	//Spawn and attach to player
-	auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-	if (WeaponComp)
+	if (ItemObject->GetSlotType() == ESlotType::WEAPON)
 	{
-		WeaponComp->PassItem(ItemObject);
+		auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+		if (WeaponComp)
+		{
+			WeaponComp->hasWeapon = false;
+			WeaponComp->PassItem(ItemObject);
+		}
 	}
 
 	OnRep_Items(old);

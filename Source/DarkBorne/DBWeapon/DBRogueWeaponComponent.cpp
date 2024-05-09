@@ -82,10 +82,10 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 {
 	// ¹«±â ²¨³»°í ÀÖÀ¸¸é Àç½ÇÇà x
 	if (hasWeapon) return;
-	hasWeapon = true;
-	if (hasWeapon)
+	if (!hasWeapon)
 	{
-		if (EquipSlotArray[0]) return;
+		hasWeapon = true;
+		//if (EquipSlotArray[0]) return;
 		UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
 		UDBRogueSkillComponent* SkillComp = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
@@ -141,7 +141,7 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 		break;
 	case ESlotType::BOOTS:
 		break;
-
+		
 	}
 }
 
