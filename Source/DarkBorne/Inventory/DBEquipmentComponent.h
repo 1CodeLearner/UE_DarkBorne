@@ -50,4 +50,7 @@ protected:
 	bool bInvalidSlot;
 	UPROPERTY(BlueprintReadWrite)
 	bool bOccupiedSlot;
+
+private:
+	void ProcessActiveItem(UItemObject* ItemObject);
 };
