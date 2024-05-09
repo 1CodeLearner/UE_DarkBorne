@@ -31,6 +31,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Initialize(FItem _Item, ADBItem* _ItemActor = nullptr);
 
+	ADBItem* SpawnItem(AActor* Initiator, bool bSetOwner, FTransform Trans, float forwardOffset);
+
 	UFUNCTION(BlueprintCallable)
 	void SetItemActor(ADBItem* _ItemActor);
 	UFUNCTION(BlueprintCallable)

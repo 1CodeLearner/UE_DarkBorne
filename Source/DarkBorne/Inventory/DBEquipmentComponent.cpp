@@ -54,6 +54,10 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	}
 }
 
+void UDBEquipmentComponent::ProcessActiveItem(UItemObject* ItemObject)
+{
+}
+
 bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	if (!IsValid(ItemObject) && Items.IsEmpty())
@@ -73,6 +77,10 @@ bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryCo
 void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	if (!IsValid(ItemObject)) return;
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+	if(ItemObject != Items[index])
+		return;
+
 	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
 		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
 		return;*/
@@ -105,9 +113,24 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
 	TArray<UItemObject*> old = Items;
+	UItemObject* TempItemObj = Items[index];
 	Items[index] = nullptr;
-
+	
 	//destroy item begin held by player
+	if (TempItemObj) 
+	{
+		TempItemObj->TryDestroyItemActor();
+	}
+
+	if (ItemObject->GetSlotType() == ESlotType::WEAPON)
+	{
+		auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+		if (WeaponComp)
+		{
+			WeaponComp->hasWeapon = false;
+			WeaponComp->PassItem(ItemObject);
+		}
+	}
 
 	OnRep_Items(old);
 }
@@ -163,6 +186,8 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	}
 
 	Items[index] = ItemObject;
+
+	ItemObject->TryDestroyItemActor();
 
 	if (ItemObject->GetSlotType() == ESlotType::WEAPON)
 	{

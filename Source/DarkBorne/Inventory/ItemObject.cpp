@@ -15,6 +15,19 @@ void UItemObject::Initialize(FItem _Item, ADBItem* _ItemActor)
 	ItemData = FItemData(_Item, _ItemActor);
 }
 
+ADBItem* UItemObject::SpawnItem(AActor* Initiator, bool bSetOwner, FTransform Trans, float forwardOffset)
+{
+	if(!ensureAlways(!GetItemActor())) return nullptr;
+		
+	auto ItemSpawned = GetWorld()->SpawnActorDeferred<ADBItem>(GetItemClass(), Trans, bSetOwner ? Initiator : nullptr);
+	ItemSpawned->Initialize(this);
+	UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
+	
+	SetItemActor(ItemSpawned);
+	
+	return ItemSpawned;	
+}
+
 void UItemObject::SetItemActor(ADBItem* _ItemActor)
 {
 	if (ensureAlways(_ItemActor))
@@ -38,6 +51,7 @@ void UItemObject::TryDestroyItemActor()
 	if (IsValid(ItemActor))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Has Actor %s, Destroying.."), *ItemActor->GetName());
+		ItemData.ItemActor = nullptr;
 		ItemActor->Destroy();
 	}
 	else
