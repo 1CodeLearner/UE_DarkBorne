@@ -16,6 +16,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Public/Net/UnrealNetwork.h>
 #include "../Framework/DBPlayerController.h"
+#include "../Status/CharacterStatusComponent.h"
 
 
 
@@ -74,8 +75,7 @@ void ADBRogueCharacter::BeginPlay()
 	//get materials
 	MatArr = GetMesh()->GetMaterials();
 
-	MaxHP = 100;
-	CurrHP = MaxHP;
+	
 	// 시작 시 현재 hp 
 	OnRep_CurrHP();
 
@@ -150,8 +150,9 @@ void ADBRogueCharacter::ServerRPC_DeathProcess_Implementation()
 void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 {
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(GetMesh()->GetAnimInstance());
-	if (CurrHP <= 0 && !MyCharacterAnim->isDeath)
+	if (CharacterStatusComponent->CurrHP <= 0 && !MyCharacterAnim->isDeath)
 	{
+		UE_LOG(LogTemp,Warning,TEXT("currhp %f"),CharacterStatusComponent->CurrHP);
 		MyCharacterAnim->isDeath = true;
 		UE_LOG(LogTemp, Warning, TEXT("%s"), GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"));
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

@@ -78,6 +78,8 @@ public:
 
 	virtual bool IsPatrolPos();
 	
+	//virtual void DeathCheck();
+
 	UFUNCTION()
 	virtual void OnRep_CurrentState();
 

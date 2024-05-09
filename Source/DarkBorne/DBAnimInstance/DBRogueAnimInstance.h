@@ -4,14 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
-#include "../Status/CharacterStatusAnimInterface.h"
 #include "DBRogueAnimInstance.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DARKBORNE_API UDBRogueAnimInstance : public UAnimInstance, public ICharacterStatusAnimInterface
+class DARKBORNE_API UDBRogueAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
 

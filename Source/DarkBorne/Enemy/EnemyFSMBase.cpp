@@ -10,6 +10,9 @@
 #include "../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include <Net/UnrealNetwork.h>
 #include "../TP_ThirdPerson/TP_ThirdPersonGameMode.h"
+#include "AnimEnemyBase.h"
+#include "../Status/CharacterStatusComponent.h"
+#include "../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h"
 
 // FSM공통 부분 추가 발생시 추가할 스크립트
 //당장은 쓰이지 않음
@@ -87,6 +90,8 @@ void UEnemyFSMBase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 
 	if (myActor->HasAuthority())
 	{
+
+		
 		switch (currState)
 		{
 		case EEnemyState::IDLE:
@@ -279,7 +284,7 @@ void UEnemyFSMBase::UpdateDamaged(float deltaTime)
 
 void UEnemyFSMBase::UpdateDie()
 {
-
+	
 }
 
 void UEnemyFSMBase::EyeOnTarget()
@@ -428,7 +433,24 @@ bool UEnemyFSMBase::IsPatrolPos()
 	}
 	return false;
 }
+/*
+void UEnemyFSMBase::DeathCheck()
+{
+	UAnimEnemyBase* OtherPlayerAnim = Cast<UAnimEnemyBase>(myActor->GetMesh()->GetAnimInstance());
+	if (myActor->CharacterStatusComponent->CurrHP <= 0 && !OtherPlayerAnim->isDeath)
+	{
+		OtherPlayerAnim->isDeath = true;
+		currState = EEnemyState::DIE;
+		myActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		myActor->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		myActor->
+	}
 
+	
+	
+
+}
+*/
 void UEnemyFSMBase::OnRep_CurrentState()
 {
 	// 클라이언트에서 상태 변경 시 추가적으로 필요한 동작 구현

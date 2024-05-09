@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -25,5 +25,8 @@ public:
 	EMorigashAttackType morigeshAttackType;
 
 	
-	
+	UFUNCTION()
+	void AnimNotify_Start_Hit();
+	UFUNCTION()
+	void AnimNotify_End_Hit();
 };

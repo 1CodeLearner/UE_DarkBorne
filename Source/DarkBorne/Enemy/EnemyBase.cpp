@@ -7,6 +7,7 @@
 #include "../Enemy/EnemyFSMBase.h"
 #include <Net/UnrealNetwork.h>
 #include "GameFramework/Actor.h"
+#include "../Status/CharacterStatusComponent.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
@@ -26,17 +27,19 @@ AEnemyBase::AEnemyBase()
 	baseFSM->SetNetAddressable();
 	baseFSM->SetIsReplicated(true);
 	
+	
 
 	
 	// Capsule 컴포넌트 CollisonPreset = EnemyProfile (CPPTPS들고옴)
 	// Mesh 컴포넌트 CollisionPreset = NoCollision
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerColl"));
 	GetMesh()->SetCollisionProfileName(TEXT("PlayerMeshColl"));
-
-
+	CharacterStatusComponent = CreateDefaultSubobject<UCharacterStatusComponent>("CharacterStatusComp");
+	CharacterStatusComponent->SetNetAddressable();
+	CharacterStatusComponent ->SetIsReplicated(true);
 	//Auto Possess ai 설정 (spawn, placed 둘다 동작하게)
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
+	
 
 }
 
@@ -55,6 +58,7 @@ void AEnemyBase::Tick(float DeltaTime)
 	FString OwnerName = GetOwner() != nullptr ? GetOwner()->GetName() : TEXT("No Owner");
 	//FString FSMTypeString = EnumToString(TEXT("EVehicleType"), static_cast<int32>(baseFSM->currState));
 	//UE_LOG(LogTemp, Warning, TEXT("Owner: %s, fsmStatus: %s"), *OwnerName, FSMTypeString);
+	/*
 	UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEnemyState"), true);
 	if (enumPtr != nullptr)
 	{
@@ -62,6 +66,7 @@ void AEnemyBase::Tick(float DeltaTime)
 			*OwnerName,
 			*enumPtr->GetNameStringByIndex((int32)baseFSM->currState));
 	}
+	*/
 }
 
 // Called to bind functionality to input
@@ -86,19 +91,21 @@ void AEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 /// </summary>
 /// <param name="damage">데미지 처리 입력</param>
 /// <returns>죽었는가 리턴 받아서 FSM에서 애니메이션 처리</returns>
-void AEnemyBase::DamageProcess(int32 damage, AActor* attackSource)
+void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 {
-
+	
 	if (baseFSM != nullptr)
 	{
 		baseFSM->nowTarget = attackSource;
 		baseFSM->ChangeState(EEnemyState::MOVE);
 	}
-	currHP -= damage;
+	
+	CharacterStatusComponent->CurrHP -= damage;
+	UE_LOG(LogTemp,Warning,TEXT("enemy now Health: %f"), CharacterStatusComponent->CurrHP);
 
-	if (currHP <= 0)
+	if (CharacterStatusComponent->CurrHP <= 0)
 	{
-		currHP = 0;
+		CharacterStatusComponent->CurrHP = 0;
 		
 		baseFSM->ChangeState(EEnemyState::DIE);
 	}
@@ -108,9 +115,5 @@ void AEnemyBase::DamageProcess(int32 damage, AActor* attackSource)
 	}
 }
 
-void AEnemyBase::OnRef_CurrHP()
-{
-
-}
 
 

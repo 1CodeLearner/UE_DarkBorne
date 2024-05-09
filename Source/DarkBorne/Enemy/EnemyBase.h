@@ -39,24 +39,27 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void DamageProcess(int32 damage, AActor* attackSource);
+	void DamageProcess(float damage, AActor* attackSource);
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UEnemyFSMBase* baseFSM;
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	class UCharacterStatusComponent* CharacterStatusComponent;
 	
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 maxHP = 100;
+	float maxHP = 100;
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
-	int32 currHP = 0;
+	float currHP = 0;
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	EEnemyAttackType enemyAttackType = EEnemyAttackType::MELEE;
 
 public:
 	UFUNCTION()
-	void OnRef_CurrHP();
+	void OnRef_CurrHP() {};
 
 };

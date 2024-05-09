@@ -21,6 +21,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/Controller.h>
 #include <../../../../../../../Source/Runtime/UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
 #include "../Framework/ActorComponents/DBInteractionComponent.h"
+#include "../Status/CharacterStatusComponent.h"
 
 
 FFinalStat ADBCharacter::GetFinalStat(ACharacter* Character)
@@ -48,6 +49,8 @@ ADBCharacter::ADBCharacter()
 
 	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
+
+	CharacterStatusComponent = CreateDefaultSubobject<UCharacterStatusComponent>("CharacterStatusComp");
 
 	InteractDistance = 400.f;
 	InteractionComp = CreateDefaultSubobject<UDBInteractionComponent>("InteractionComp");
@@ -128,6 +131,7 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void ADBCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ADBCharacter, CharacterStatusComponent);
 	DOREPLIFETIME(ADBCharacter, MaxHP);
 	DOREPLIFETIME(ADBCharacter, CurrHP);
 }
@@ -170,8 +174,8 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 
 	AddControllerYawInput(dir.X);
 	AddControllerPitchInput(dir.Y);
-}
 
+}
 void ADBCharacter::ServerRPC_DoubleJump_Implementation()
 {
 	MultiRPC_DoubleJump();
@@ -213,8 +217,8 @@ void ADBCharacter::OnRep_CurrHP()
 {
 	// 플레이어 위젯이 없으면 리턴
 	if (PlayerWidget == nullptr) return;
-	PlayerWidget->UpdateHeathBar(CurrHP, MaxHP);
-	UE_LOG(LogTemp, Warning, TEXT("Testing:%f"), CurrHP);
+	PlayerWidget->UpdateHeathBar(CharacterStatusComponent->CurrHP, CharacterStatusComponent->MaxHP);
+	UE_LOG(LogTemp, Warning, TEXT("Testing:%f"), CharacterStatusComponent->CurrHP);
 }
 
 const FFinalStat& ADBCharacter::GetFinalStat() const

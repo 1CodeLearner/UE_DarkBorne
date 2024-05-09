@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "../../DBCharacters/DBCharacter.h"
+#include "DarkBorne/Status/CharacterStatusComponent.h"
 
 static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
 
@@ -65,8 +66,7 @@ void UDBInteractionComponent::OnInteract()
 bool UDBInteractionComponent::IsDead()
 {
 	if (!DBCharacter) return false;
-
-	if (DBCharacter->CurrHP <= 0.f)
+	if (DBCharacter->CharacterStatusComponent->CurrHP <= 0.f)
 		return true;
 
 	return false;
