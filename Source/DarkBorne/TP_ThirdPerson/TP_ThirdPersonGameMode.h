@@ -23,8 +23,7 @@ class ATP_ThirdPersonGameMode : public AGameMode
 public:
 	ATP_ThirdPersonGameMode();
 
-	UFUNCTION(BlueprintCallable)
-	TArray<FItem> GenerateItems(FName MonsterName);
+	void AddItemTo(AActor* Actor, FName LootName);
 
 	UFUNCTION(BlueprintCallable)
 	void OnPlayerDead(APlayerController* PlayerController);
@@ -54,6 +53,10 @@ protected:
 	virtual void HandleMatchHasStarted() override;
 	virtual void HandleLeavingMap() override;
 	virtual void HandleMatchHasEnded() override;
+	
+
+	UFUNCTION(BlueprintCallable)
+	TArray<FItem> GenerateItems(FName MonsterName);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Settings")

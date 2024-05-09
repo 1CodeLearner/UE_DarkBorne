@@ -2,7 +2,7 @@
 
 
 #include "LootChestActor.h"
-#include "../Inventory/PlayerEquipmentComponent.h"
+#include "../Inventory/LootInventoryComponent.h"
 #include "../DBCharacters/DBCharacter.h"
 #include "../Inventory/InventoryMainWidget.h"
 #include "Components/StaticMeshComponent.h"
@@ -14,7 +14,7 @@ ALootChestActor::ALootChestActor()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 
-	LootableInventoryComp = CreateDefaultSubobject<UPlayerEquipmentComponent>("LootableInventoryComp");
+	LootInventoryComp = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 	SMComp = CreateDefaultSubobject<UStaticMeshComponent>("SMComp");
 	RootComponent = SMComp;
 	SMComp->SetCollisionProfileName("Item");
@@ -23,18 +23,6 @@ ALootChestActor::ALootChestActor()
 void ALootChestActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (HasAuthority())
-	{
-		auto GameMode = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
-		TArray<FItem> Items = GameMode->GenerateItems("LootChest");
-		for (int i = 0; i < Items.Num(); ++i)
-		{
-			auto ItemObject = NewObject<UItemObject>(GameMode);
-			ItemObject->Initialize(Items[i]);
-			LootableInventoryComp->TryAddItem(ItemObject, LootableInventoryComp);
-		}
-	}
 }
 
 void ALootChestActor::BeginInteract(UDBInteractionComponent* InteractionComp)

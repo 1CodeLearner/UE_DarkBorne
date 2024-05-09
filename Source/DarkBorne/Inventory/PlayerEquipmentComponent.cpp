@@ -16,6 +16,7 @@ UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 	bIsDirty = false;
 	Columns = 8;
 	Rows = 5;
+	TileSize = 50.f;
 }
 
 void UPlayerEquipmentComponent::BeginPlay()

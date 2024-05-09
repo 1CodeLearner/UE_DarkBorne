@@ -3,18 +3,21 @@
 
 #include "../Enemy/MorigeshEnemy.h"
 #include "MorigeshEnemyFSM.h"
+#include <Components/CapsuleComponent.h>
 
 
 AMorigeshEnemy::AMorigeshEnemy()
-{	
+{
+	PrimaryActorTick.bCanEverTick = true;
+
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> characterMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/ParagonMorigesh/Characters/Heroes/Morigesh/Meshes/Morigesh.Morigesh'"));
-	if(characterMesh.Succeeded())
+	if (characterMesh.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(characterMesh.Object);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0,0,-88), FRotator(0,-90,0));
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -88), FRotator(0, -90, 0));
 		myMesh = GetMesh();
-	
-	}	
+
+	}
 
 	baseFSM = CreateDefaultSubobject<UMorigeshEnemyFSM>(TEXT("FSM"));
 	baseFSM->SetNetAddressable();
@@ -24,9 +27,6 @@ AMorigeshEnemy::AMorigeshEnemy()
 void AMorigeshEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-
-
-
 }
 
 void AMorigeshEnemy::Tick(float DeltaTime)
@@ -38,4 +38,9 @@ void AMorigeshEnemy::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+FDisplayInfo AMorigeshEnemy::GetDisplayInfo() const
+{
+	return FDisplayInfo(TEXT("Loot"), TEXT("Morigesh"));
 }

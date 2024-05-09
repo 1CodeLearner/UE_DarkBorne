@@ -8,7 +8,7 @@
 void UDBEffect::Tick(float DeltaTime)
 {
 	if (bIsTicking)
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf("Tick Effect Parent"));
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("Tick Effect Parent")));
 }
 
 void UDBEffect::Initialize(ADBCharacter* Instigator, UItemObject* Item)

@@ -72,7 +72,5 @@ public:
 	
 	
 	virtual void OnRep_CurrentState() override;
-	
-	
 
 };

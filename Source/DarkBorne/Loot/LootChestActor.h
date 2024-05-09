@@ -7,7 +7,7 @@
 #include "../Framework/Interfaces/InteractionInterface.h"
 #include "LootChestActor.generated.h"
 
-class UPlayerEquipmentComponent; 
+class ULootInventoryComponent; 
 
 UCLASS()
 class DARKBORNE_API ALootChestActor : public AActor, public IInteractionInterface
@@ -22,9 +22,9 @@ protected:
 	virtual void BeginPlay() override;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Settings")
 	TObjectPtr<UStaticMeshComponent> SMComp;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Settings")
-	TObjectPtr<UPlayerEquipmentComponent> LootableInventoryComp;
-	
+	TObjectPtr<ULootInventoryComponent> LootInventoryComp;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
 	FName ItemDropName;
 

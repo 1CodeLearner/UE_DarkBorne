@@ -17,12 +17,14 @@ class DARKBORNE_API ULootInventoryComponent : public UPlayerEquipmentComponent
 
 public:	
 	ULootInventoryComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	virtual void BeginPlay() override;
 
 protected:
-	
-		
+	/// <summary>
+	/// Set which items to create and assign to this loot-able inventory using DataTable DT_DropRate.
+	/// </summary>
+	UPROPERTY(EditDefaultsOnly, Category="Settings")
+	FName DropName;
 };

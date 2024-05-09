@@ -3,19 +3,22 @@
 
 #include "LootInventoryComponent.h"
 #include "../Framework/EntityTypes.h"
-#include "../DBCharacters/DBCharacter.h"
-#include "InventoryMainWidget.h"
+#include "../TP_ThirdPerson/TP_ThirdPersonGameMode.h"
 
 ULootInventoryComponent::ULootInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-}
-
-void ULootInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
+	SetIsReplicatedByDefault(true);
 }
 
 void ULootInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
-} 
+
+	if (GetOwner()->HasAuthority())
+	{
+		auto GameMode = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
+		if (ensureAlways(GameMode) && ensureAlways(!DropName.IsNone()))
+			GameMode->AddItemTo(GetOwner(), DropName);
+	}
+}

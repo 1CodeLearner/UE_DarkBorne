@@ -10,7 +10,7 @@ class ADBCharacter;
 class UItemObject;
 class UDBEffectComponent;
 
-DECLARE_DELEGATE(FEverytickDelegate, TotalTime, RemainingTime)
+DECLARE_DELEGATE_TwoParams(FEverytickDelegate, float /*TotalTime*/, float /*RemainingTime*/);
 DECLARE_DELEGATE(FStopDelegate);
 
 UCLASS()
