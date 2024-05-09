@@ -43,6 +43,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FText GetDisplayName() const;
 
+	UFUNCTION(BlueprintCallable)
+	UMaterialInterface* GetDisplayImage() const;
+
+	FName GetId() const;
+
 	UFUNCTION(BlueprintPure)
 	FIntPoint GetDimentions();  // Ã¶ÀÚ ¼öÁ¤
 	UFUNCTION(BlueprintPure)
