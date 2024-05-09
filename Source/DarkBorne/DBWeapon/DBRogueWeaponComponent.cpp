@@ -31,7 +31,6 @@ void UDBRogueWeaponComponent::BeginPlay()
 	//ÀåÂø ½½·Ô ¹è¿­ °¡Á®¿À±â
 	EquipSlotArray = EquipComponent->GetSlots();
 
-	hasWeapon = false;
 }
 
 

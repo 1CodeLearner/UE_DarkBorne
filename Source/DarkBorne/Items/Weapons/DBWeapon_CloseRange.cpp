@@ -14,9 +14,6 @@ ADBWeapon_CloseRange::ADBWeapon_CloseRange()
 {
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
 	CapsuleComp->SetupAttachment(SMComp);
-	CapsuleComp->SetRelativeLocation(FVector(0, 0, 25));
-	CapsuleComp->SetCapsuleHalfHeight(16);
-	CapsuleComp->SetCapsuleRadius(3);
 	CapsuleComp->SetCollisionProfileName(TEXT("WeaponCapColl"));
 }
 
@@ -42,7 +39,7 @@ void ADBWeapon_CloseRange::OnOverlapBegin(class UPrimitiveComponent* OverlappedC
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
 	//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
-	UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
+	//UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
 
 	// 캐릭터의 GetOnwer로 인스턴스를 가져와 나의 플레이어 애님 인스턴스로 가져온다
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(Cast<ACharacter>(GetOwner())->GetMesh()->GetAnimInstance());
@@ -70,6 +67,8 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 {
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
+	if (OtherPlayer)
+	{
 
 	FString Level = GetWorld()->GetMapName();
 	Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
@@ -94,6 +93,7 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 	}
 
 	MultiRPC_OnOverlapBegin(OtherActor);
+	}
 }
 
 // 클라에서 충돌처리...

@@ -9,6 +9,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/CharacterMovementComponent.h>
 #include "Net/UnrealNetwork.h"
 #include "../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
+#include "../DBCharacters/DBCharacterAttack/DBRogueAttackComponent.h"
 void UDBRogueAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
@@ -65,12 +66,14 @@ void UDBRogueAnimInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 	DOREPLIFETIME(UDBRogueAnimInstance, isDeath);
 	DOREPLIFETIME(UDBRogueAnimInstance, isDoubleJumping);
+	DOREPLIFETIME(UDBRogueAnimInstance, isCastingShift);
 }
 
 void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 {
 	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	UDBRogueSkillComponent* SkillComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+	UDBRogueAttackComponent* AttackComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueAttackComponent>();
 
 	// 공격중
 	// 무기슬롯에 아이템이 있고 아이템 꺼내고 있다면
@@ -81,9 +84,10 @@ void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 		WeaponComp->RogueItems->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	}
-	else if(!SkillComp->TKMagazine.IsEmpty())
+	if(!SkillComp->TKMagazine.IsEmpty())
 	{
 		isAttacking = true;
+		//SkillComp->TKMagazine[AttackComp->KnifeCount]->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
 	
 }
@@ -103,11 +107,6 @@ void UDBRogueAnimInstance::AnimNotify_End_Damage()
 void UDBRogueAnimInstance::AnimNotify_Start_Hit()
 {
 	isHitting = true;
-	/*UDBRogueSkillComponent* RogueSkillComponent = TryGetPawnOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-	if (RogueSkillComponent->isVanish)
-	{
-		RogueSkillComponent->DeactiveRogueQSkill();
-	}*/
 }
 
 void UDBRogueAnimInstance::AnimNotify_End_Hit()
