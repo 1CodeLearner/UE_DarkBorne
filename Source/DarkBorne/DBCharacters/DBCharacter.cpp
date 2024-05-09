@@ -14,8 +14,6 @@
 #include "Net/UnrealNetwork.h"
 #include "../DBPlayerWidget/DBPlayerWidget.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h>
-#include "../Inventory/LootInventoryComponent.h"
-#include "../Inventory/LootEquipmentComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 #include "DBRogueCharacter.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/Controller.h>
@@ -34,7 +32,7 @@ FFinalStat ADBCharacter::GetFinalStat(ACharacter* Character)
 
 // Sets default values
 ADBCharacter::ADBCharacter()
-{	
+{
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
@@ -47,14 +45,11 @@ ADBCharacter::ADBCharacter()
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerColl"));
 	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
 
-	LootInventoryComponent = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
-	LootEquipmentComponent = CreateDefaultSubobject<ULootEquipmentComponent>("LootEquipmentComp");
 
 	CharacterStatusComponent = CreateDefaultSubobject<UCharacterStatusComponent>("CharacterStatusComp");
 
 	InteractDistance = 400.f;
 	InteractionComp = CreateDefaultSubobject<UDBInteractionComponent>("InteractionComp");
-
 }
 
 // Called when the game starts or when spawned
@@ -73,6 +68,7 @@ void ADBCharacter::BeginPlay()
 		//get subSystem
 		UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerContoller->GetLocalPlayer());
 
+
 		//서브시스템을 가져왔다면
 		if (subSystem)
 		{
@@ -84,6 +80,7 @@ void ADBCharacter::BeginPlay()
 			CreatePlayerWidget();
 		}
 	}
+
 	// 서버라면
 	if (HasAuthority())
 	{
@@ -101,6 +98,72 @@ void ADBCharacter::BeginPlay()
 				FinalStat.Attributes[i] += CharacterBaseStat.Attributes[i];
 		}
 	}
+}
+
+void ADBCharacter::BeginInteract(UDBInteractionComponent* InteractionComponent)
+{
+}
+
+void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* OtherCharacter)
+{
+	auto OtherPlayer = Cast<ADBCharacter>(OtherCharacter);
+	if (ensureAlways(OtherPlayer) && OtherPlayer->InvMainWidget)
+	{
+		OtherPlayer->InvMainWidget->InitLootDisplay(this);
+		if (OtherPlayer->InvMainWidget->IsLootValid())
+		{
+			OtherPlayer->InvMainWidget->DisplayInventory(true);
+		}
+	}
+
+	/*if (HasNetOwner())
+		PlayerEquipmentComp->Server_AddItemAt(nullptr, 10);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("HasNetOwner"));
+
+	if(	HasLocalNetOwner())
+		PlayerEquipmentComp->Server_AddItemAt(nullptr, 10);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("HasLocalNetOwner"));*/
+}
+
+void ADBCharacter::InterruptInteract()
+{
+}
+
+void ADBCharacter::BeginTrace()
+{
+}
+
+void ADBCharacter::EndTrace()
+{
+}
+
+bool ADBCharacter::CanInteract() const
+{
+	return bCanInteract;
+}
+
+void ADBCharacter::SetCanInteract(bool bAllowInteract)
+{
+	bCanInteract = bAllowInteract;
+}
+
+void ADBCharacter::OnRep_bCanInteract()
+{
+	if (bCanInteract) {
+		GetMesh()->SetCollisionProfileName("Item");
+	}
+}
+
+FDisplayInfo ADBCharacter::GetDisplayInfo() const
+{
+	return FDisplayInfo(TEXT("Loot"), TEXT("PlaceholderName"));
+}
+
+void ADBCharacter::SetPlayerName(FString _PlayerName)
+{
+	PlayerName = _PlayerName;
 }
 
 // Called every frame
@@ -124,7 +187,8 @@ void ADBCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		enhancedInputComponent->BindAction(ia_DB_Jump, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		enhancedInputComponent->BindAction(ia_DB_Look, ETriggerEvent::Triggered, this, &ADBCharacter::EnhancedLook);
 
-		enhancedInputComponent->BindAction(ia_Interact, ETriggerEvent::Started, this, &ADBCharacter::EnhancedInteract);
+		enhancedInputComponent->BindAction(IA_Interact, ETriggerEvent::Started, this, &ADBCharacter::EnhancedInteract);
+		enhancedInputComponent->BindAction(IA_Inventory, ETriggerEvent::Started, this, &ADBCharacter::EnhancedInventory);
 	}
 }
 
@@ -134,6 +198,7 @@ void ADBCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(ADBCharacter, CharacterStatusComponent);
 	DOREPLIFETIME(ADBCharacter, MaxHP);
 	DOREPLIFETIME(ADBCharacter, CurrHP);
+	DOREPLIFETIME(ADBCharacter, bCanInteract);
 }
 
 
@@ -159,13 +224,13 @@ void ADBCharacter::EnhancedJump(const struct FInputActionValue& value)
 {
 	//Jump();
 	ServerRPC_DoubleJump();
-	
+
 }
 
 void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
 {
 	StopJumping();
-	
+
 }
 
 void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
@@ -178,6 +243,7 @@ void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
 }
 void ADBCharacter::ServerRPC_DoubleJump_Implementation()
 {
+
 	MultiRPC_DoubleJump();
 }
 
@@ -189,10 +255,11 @@ void ADBCharacter::MultiRPC_DoubleJump_Implementation()
 	if (RogueAnim->isFalling && !RogueAnim->isDoubleJumping)
 	{
 		RogueAnim->AnimNotify_DoubleJumpStart();
+		// 문제 : 공중제비를 다 돌기전에 true를 맥이면 fall loop로 넘어가지 않는다
 	}
 	// 바닥이고 덮점 했으면
 	else if (!RogueAnim->isFalling && RogueAnim->isDoubleJumping)
-	{	
+	{
 		RogueAnim->AnimNotify_DoubleJumpEnd();
 	}
 }
@@ -201,6 +268,17 @@ void ADBCharacter::EnhancedInteract(const FInputActionValue& value)
 {
 	if (ensureAlways(InteractionComp))
 		InteractionComp->OnInteract();
+}
+
+void ADBCharacter::EnhancedInventory(const FInputActionValue& value)
+{
+	if (ensureAlways(InvMainWidget))
+	{
+		if (InvMainWidget->IsInViewport())
+			InvMainWidget->DisplayInventory(false);
+		else
+			InvMainWidget->DisplayInventory(true);
+	}
 }
 
 void ADBCharacter::CreatePlayerWidget()

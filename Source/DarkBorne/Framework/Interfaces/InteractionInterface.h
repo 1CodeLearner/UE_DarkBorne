@@ -7,7 +7,6 @@
 #include "InteractionInterface.generated.h"
 
 class ACharacter;
-class UItemObject;
 class UDBInteractionComponent;
 
 USTRUCT()

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "DBRogueWeaponComponent.h"
@@ -9,6 +9,7 @@
 #include "../Inventory/DBEquipmentComponent.h"
 #include "Net/UnrealNetwork.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
+#include "../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
 
 // Sets default values for this component's properties
 UDBRogueWeaponComponent::UDBRogueWeaponComponent()
@@ -27,9 +28,8 @@ void UDBRogueWeaponComponent::BeginPlay()
 	Super::BeginPlay();
 
 	UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
-	//ÀåÂø ½½·Ô ¹è¿­ °¡Á®¿À±â
+	//Ã€Ã¥Ã‚Ã¸ Â½Â½Â·Ã” Â¹Ã¨Â¿Â­ Â°Â¡ÃÂ®Â¿Ã€Â±Ã¢
 	EquipSlotArray = EquipComponent->GetSlots();
-	// ...
 
 	hasWeapon = false;
 }
@@ -39,20 +39,32 @@ void UDBRogueWeaponComponent::BeginPlay()
 void UDBRogueWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	int32 index = 0;
+	if (GetOwner()->HasAuthority())
+	{
+		auto Equip = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
+		if (RogueItems && !RogueItems->IsPendingKill())
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf(TEXT("Testing Here: %s"), *GetNameSafe(RogueItems)));
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Testing Here: Pending Kill")));
+		}
+	}
+		
 }
 
 void UDBRogueWeaponComponent::SetupPlayerInputComponent(UEnhancedInputComponent* enhancedInputComponent)
 {
 	enhancedInputComponent->BindAction(ia_WeaponSlot, ETriggerEvent::Triggered, this, &UDBRogueWeaponComponent::AttachWeapon);
-		
+
 }
 
 void UDBRogueWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
+
 	DOREPLIFETIME(UDBRogueWeaponComponent, RogueItems);
 	DOREPLIFETIME(UDBRogueWeaponComponent, EquipSlotArray);
 	DOREPLIFETIME(UDBRogueWeaponComponent, RogueItemSMMat);
@@ -60,7 +72,7 @@ void UDBRogueWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(UDBRogueWeaponComponent, hasWeapon);
 }
 
-	
+
 void UDBRogueWeaponComponent::AttachWeapon()
 {
 	ServerRPC_AttachWeapon();
@@ -68,41 +80,42 @@ void UDBRogueWeaponComponent::AttachWeapon()
 
 void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 {
-	// ¹«±â ²¨³»°í ÀÖÀ¸¸é Àç½ÇÇà x
+	// Â¹Â«Â±Ã¢ Â²Â¨Â³Â»Â°Ã­ Ã€Ã–Ã€Â¸Â¸Ã© Ã€Ã§Â½Ã‡Ã‡Ã  x
 	if (hasWeapon) return;
-	
-	hasWeapon = true;
-	if (hasWeapon)
+	if (!hasWeapon)
 	{
-		if(EquipSlotArray[0]) return;
+		hasWeapon = true;
+		//if (EquipSlotArray[0]) return;
 		UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
-		//ÀåÂø ½½·Ô ¹è¿­ °¡Á®¿À±â
+		UDBRogueSkillComponent* SkillComp = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+
+		//Ã€Ã¥Ã‚Ã¸ Â½Â½Â·Ã” Â¹Ã¨Â¿Â­ Â°Â¡ÃÂ®Â¿Ã€Â±Ã¢
 		EquipSlotArray = EquipComponent->GetSlots();
-		
-		// ¹«±â½½·Ô¿¡ ¹«±âµ¥ÀÌÅÍ°¡ ÀÖÀ¸¸é
+
+		// Â¹Â«Â±Ã¢Â½Â½Â·Ã”Â¿Â¡ Â¹Â«Â±Ã¢ÂµÂ¥Ã€ÃŒÃ…ÃÂ°Â¡ Ã€Ã–Ã€Â¸Â¸Ã©
 		if (EquipSlotArray[0])
 		{
-			// ¹«±â ¿ùµå¿¡ ½ºÆù delay
-			// SpawnActorDeferred : BeginPlay°¡ ½ÇÇàµÇ±â Àü¿¡ ¼ÂÆÃ
+			// Â¹Â«Â±Ã¢ Â¿Ã¹ÂµÃ¥Â¿Â¡ Â½ÂºÃ†Ã¹ delay
+			// SpawnActorDeferred : BeginPlayÂ°Â¡ Â½Ã‡Ã‡Ã ÂµÃ‡Â±Ã¢ Ã€Ã¼Â¿Â¡ Â¼Ã‚Ã†Ãƒ
 			RogueItems = GetWorld()->SpawnActorDeferred<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentTransform(), GetOwner());
+			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
+			// Â¹Â«Â±Ã¢Ã€Ã‡ Â¸Ã“Ã†Â¼Â¸Â®Â¾Ã³ Â°Â¡ÃÂ®Â¿Ã€Â±Ã¢
 			//RogueItems = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
 
-			//½ºÆù ½ÃÀÛ
+			//Â½ÂºÃ†Ã¹ Â½ÃƒÃ€Ã›
 			UGameplayStatics::FinishSpawningActor(RogueItems, GetComponentTransform());
 
-			// ¹«±â¸¦ ÀÌ ÄÄÆ÷³ÍÆ®¿¡ ºÙÀÎ´Ù 
+			// Â¹Â«Â±Ã¢Â¸Â¦ Ã€ÃŒ Ã„Ã„Ã†Ã·Â³ÃÃ†Â®Â¿Â¡ ÂºÃ™Ã€ÃŽÂ´Ã™ 
 			RogueItems->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
-			// ¹«±âÀÇ ¸ÓÆ¼¸®¾ó °¡Á®¿À±â
-			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
-			// ¹«±â ¿À³Ê ¼ÂÆÃ
+			// Â¹Â«Â±Ã¢ Â¿Ã€Â³ÃŠ Â¼Ã‚Ã†Ãƒ
 			RogueItems->SetOwner(GetOwner());
 
+			//ë‹¤ë¥¸ ë¡œì§ì— í•„ìš”í•œ ì¤€ë¹„
+			EquipSlotArray[0]->SetItemActor(RogueItems);
 		}
-	
-	}
-	
 
+	}
 }
 
 
@@ -114,21 +127,21 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 		AttachWeapon();
 	}
 
-	switch (Item->GetSlotType()) 
+	switch (Item->GetSlotType())
 	{
-		case ESlotType::WEAPON:
+	case ESlotType::WEAPON:
 		break;
-		case ESlotType::HEAD:
+	case ESlotType::HEAD:
 		break;
-		case ESlotType::UPPERWEAR:
+	case ESlotType::UPPERWEAR:
 		break;
-		case ESlotType::BOTTOMWEAR:
+	case ESlotType::BOTTOMWEAR:
 		break;
-		case ESlotType::GLOVES:
+	case ESlotType::GLOVES:
 		break;
-		case ESlotType::BOOTS:
+	case ESlotType::BOOTS:
 		break;
-
+		
 	}
 }
 

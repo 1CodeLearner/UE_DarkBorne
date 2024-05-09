@@ -3,84 +3,21 @@
 
 #include "DBEquipmentComponent.h"
 #include "../ItemTypes/ItemType.h"
-
 #include "PlayerEquipmentComponent.h"
 #include "ItemObject.h"
 #include "../Framework/BFL/ItemLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
 #include "../DBWeapon/DBRogueWeaponComponent.h"
+#include "PlayerEquipmentComponent.h"
 
 UDBEquipmentComponent::UDBEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	SetIsReplicatedByDefault(true);
-	bIsDirty = false;
 	bInvalidSlot = false;
+	bOccupiedSlot = false;
 	Columns = 2;
 	Rows = 2;
-}
-
-bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject)
-{
-	if (!IsValid(ItemObject) && Slots.IsEmpty())
-		return false;
-
-	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	if (Slots[index] != nullptr)
-	{
-		return false;
-	}
-	else {
-		Server_AddItem(ItemObject);
-		return true;
-	}
-}
-
-void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObject)
-{
-	if (!ensureAlways(ItemObject))
-		return;
-
-	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	TArray<UItemObject*> old = Slots;
-	if (Slots.IsEmpty()) return;
-	Slots[index] = ItemObject;
-
-	UE_LOG(LogTemp, Warning, TEXT("Actor %s"), *GetNameSafe(ItemObject->GetItemActor()));
-
-	//auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-	//if (WeaponComp)
-	//{	
-	//	WeaponComp->PassItem(ItemObject);
-	//}
-	OnRep_What(old);
-
-	ItemObject->TryDestroyItemActor();
-}
-
-void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
-{
-	if (!ensureAlways(ItemObject))
-		return;
-
-	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	TArray<UItemObject*> old = Slots;
-	Slots[index] = nullptr;
-	OnRep_What(old);
-}
-
-
-const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const
-{
-	return Slots;
-}
-
-const UItemObject* UDBEquipmentComponent::GetSlotItem(ESlotType SlotType) const
-{
-	int32 index = UItemLibrary::GetSlotIndexByEnum(SlotType);
-	if (Slots.IsEmpty()) return nullptr;
-	return Slots[index];
 }
 
 void UDBEquipmentComponent::BeginPlay()
@@ -97,7 +34,7 @@ void UDBEquipmentComponent::BeginPlay()
 		{
 			ESlotType slotNum = ESlotType::NONE;
 			int32 size = (int32)slotNum - 1;
-			Slots.SetNum(size, false);
+			Items.SetNum(size, false);
 
 			int val = 10;
 		}
@@ -108,63 +45,156 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (bIsDirty)
-	{
-		bIsDirty = false;
-		OnEquipmentChanged.Broadcast();
-	}
-
-	if (Slots[0])
+	if (Items[0])
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
 			*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
-			*Slots[0]->GetItem().SlotHolder.DisplayName.ToString(), Slots.Num())
+			*Items[0]->GetItem().SlotHolder.DisplayName.ToString(), Items.Num())
 		);
 	}
-
 }
 
-bool UDBEquipmentComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
-	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-	for (UItemObject* ItemObject : Slots)
+	if (!IsValid(ItemObject) && Items.IsEmpty())
+		return false;
+
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+	if (Items[index] != nullptr)
 	{
-		if (ItemObject)
+		return false;
+	}
+	else {
+		AddItem(ItemObject, TaxiToServer);
+		return true;
+	}
+}
+
+void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+{
+	if (!IsValid(ItemObject)) return;
+	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
+		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
+		return;*/
+
+	if (this->GetOwner()->HasNetOwner())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
+		Server_RemoveItem(ItemObject);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
+		auto EquipCompTaxi = Cast<UDBEquipmentComponent>(TaxiToServer);
+		EquipCompTaxi->Server_TaxiForRemoveItem(ItemObject, this);
+	}
+}
+
+void UDBEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
+{
+	auto TaxiedEquipComp = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
+	if (ensureAlways(TaxiedEquipComp))
+	{
+		TaxiedEquipComp->Server_RemoveItem(ItemObject);
+	}
+}
+
+void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
+{
+	if (!ensureAlways(ItemObject))
+		return;
+
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+	TArray<UItemObject*> old = Items;
+	Items[index] = nullptr;
+
+	//destroy item begin held by player
+
+	OnRep_Items(old);
+}
+
+void UDBEquipmentComponent::AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+{
+	if (!IsValid(ItemObject)) return;
+	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
+		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
+		return;*/
+
+	if (this->GetOwner()->HasNetOwner())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
+		Server_AddItem(ItemObject);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
+		auto EquipCompTaxi = Cast<UDBEquipmentComponent>(TaxiToServer);
+		EquipCompTaxi->Server_TaxiForAddItem(ItemObject, this);
+	}
+}
+
+void UDBEquipmentComponent::Server_TaxiForAddItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
+{
+	auto TaxiedEquipComp = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
+	if (ensureAlways(TaxiedEquipComp))
+	{
+		TaxiedEquipComp->Server_AddItem(ItemObject);
+	}
+}
+
+void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObject)
+{
+	if (!ensureAlways(ItemObject))
+		return;
+
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+
+	TArray<UItemObject*> old = Items;
+	if (Items.IsEmpty())
+		return;
+
+	if (Items[index])
+	{
+		UItemObject* TempItemObj = Items[index];
+		auto PEComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
+		//Throw Item away if inventory is full
+		if (!PEComp->TryAddItem(TempItemObj, PEComp))
 		{
-			WroteSomething |= Channel->ReplicateSubobject(ItemObject, *Bunch, *RepFlags);
+			Server_SpawnItem(GetOwner(), TempItemObj);
 		}
 	}
 
-	return WroteSomething;
+	Items[index] = ItemObject;
+
+	if (ItemObject->GetSlotType() == ESlotType::WEAPON)
+	{
+		auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+		if (WeaponComp)
+		{
+			WeaponComp->hasWeapon = false;
+			WeaponComp->PassItem(ItemObject);
+		}
+	}
+
+	OnRep_Items(old);
 }
 
-void UDBEquipmentComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(UDBEquipmentComponent, Slots);
+	return Items;
 }
 
-void UDBEquipmentComponent::OnRep_What(TArray<UItemObject*> OldSlots)
+const UItemObject* UDBEquipmentComponent::GetSlotItem(ESlotType SlotType) const
 {
-	bIsDirty = true;
-	//if (!OldSlots.IsEmpty() && OldSlots[0])
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("OnRep_What Old: s%, new: s%"),
-	//		*OldSlots[0]->GetItem().SlotHolder.DisplayName.ToString(),
-	//		*Slots[0]->GetItem().SlotHolder.DisplayName.ToString()
-	//	);
-	//}
-	//else if (!Slots.IsEmpty() && Slots[0])
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("OnRep_What Old: empty, new: s%"),
-	//		*Slots[0]->GetItem().SlotHolder.DisplayName.ToString()
-	//	);
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("OnRep_What Initializing"));
-	//}
+	int32 index = UItemLibrary::GetSlotIndexByEnum(SlotType);
+	if (Items.IsEmpty()) return nullptr;
+	return Items[index];
+}
 
+bool UDBEquipmentComponent::IsSlotVacant(UItemObject* ItemObject) const
+{
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+	if (Items.IsValidIndex(index) && Items[index])
+		return false;
+
+	return true;
 }
 

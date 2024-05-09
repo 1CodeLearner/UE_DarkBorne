@@ -14,6 +14,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/ArrowComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Animation/AnimMontage.h>
 #include "../../DBPlayerWidget/DBPlayerWidget.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetMathLibrary.h>
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -101,6 +102,22 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 {
 	if (isVanish)
 	{
+		UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+		ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+
+		// 상대 입장에서만 무기를 투명화 시키자
+		if(!RoguePlayer->IsLocallyControlled())
+		{
+			// 무기 가지고 있으면
+			if (weaponComponent->EquipSlotArray[0])
+			{
+				for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
+				{
+					// 무기도 은신 머티리얼로 설정
+					weaponComponent->RogueItems->SMComp->SetMaterial(i, VanishMat);
+				}
+			}
+		}
 		// 현재 은신시간이 최대시간보다 작다면
 		if (CurrVanishTime < MaxVanishTime)
 		{
@@ -112,7 +129,6 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 			{	
 				// 은신 비활성화
 				DeactiveRogueQSkill();
-				
 			}
 		}
 	}
@@ -153,7 +169,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-
+	
 	if (RogueAnim->isCastingShift) return;
 	if(isVanish) return;
 	isVanish = true;
@@ -167,6 +183,16 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 			// 화면 회색 처리
 			RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = true;
 			RoguePlayer->camera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
+
+			RoguePlayer->camera->PostProcessSettings.bOverride_VignetteIntensity = true;
+			RoguePlayer->camera->PostProcessSettings.VignetteIntensity = 0.7f;
+
+			RoguePlayer->camera->PostProcessSettings.bOverride_SceneFringeIntensity = true;
+			RoguePlayer->camera->PostProcessSettings.SceneFringeIntensity = 5.0f;
+
+			RoguePlayer->camera->PostProcessSettings.bOverride_ChromaticAberrationStartOffset = true;
+			RoguePlayer->camera->PostProcessSettings.ChromaticAberrationStartOffset = 0;
+
 		}
 		// 다른 캐릭터들한텐
 		else
@@ -187,6 +213,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 					// 무기를 은신 머티리얼로 설정
 					weaponComponent->RogueItems->SMComp->SetMaterial(i, VanishMat);
 				}
+				
 			}
 		}
 	}
@@ -210,6 +237,9 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 		{
 			//화면 원래대로
 			RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = false;
+			RoguePlayer->camera->PostProcessSettings.bOverride_VignetteIntensity = false;
+			RoguePlayer->camera->PostProcessSettings.bOverride_SceneFringeIntensity = false;
+			RoguePlayer->camera->PostProcessSettings.bOverride_ChromaticAberrationStartOffset = false;
 		}
 		else
 		{
@@ -293,7 +323,7 @@ void UDBRogueSkillComponent::UpdateRogueESkill(float DeltaTime)
 			E_CurrCoolTime += DeltaTime;
 			//서버 플레이어를 위한 호출
 			OnRep_CurrESkill();
-			UE_LOG(LogTemp, Warning, TEXT("throw skill cool is : %.f"), E_CurrCoolTime);
+			//UE_LOG(LogTemp, Warning, TEXT("throw skill cool is : %.f"), E_CurrCoolTime);
 		}
 	}
 }

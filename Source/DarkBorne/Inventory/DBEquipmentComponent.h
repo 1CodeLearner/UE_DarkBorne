@@ -3,60 +3,51 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "BaseInventoryComponent.h"
 #include "DBEquipmentComponent.generated.h"
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEquipmentChangedDelegate);
 
 class UItemObject;
 class UPlayerEquipmentComponent;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent), Blueprintable)
-class DARKBORNE_API UDBEquipmentComponent : public UActorComponent
+class DARKBORNE_API UDBEquipmentComponent : public UBaseInventoryComponent
 {
 	GENERATED_BODY()
 	friend class ULootInventoryComponent;
 public:
 	UDBEquipmentComponent();
+		
+	UFUNCTION(BlueprintCallable)
+	void AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
+	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
+	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
 
-	bool TryAddItem(UItemObject* ItemObject);
-	UFUNCTION(Server, Reliable, BlueprintCallable)
+	UFUNCTION(Server, Reliable)
+	void Server_TaxiForAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
+	UFUNCTION(Server, Reliable)
+	void Server_TaxiForRemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
+
+	UFUNCTION(Server, Reliable)
 	void Server_AddItem(UItemObject* ItemObject);
-	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void Server_RemoveItem(UItemObject* ItemObject);
+	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject) override;
+
 	UFUNCTION(BlueprintCallable)
 	const TArray<UItemObject*> GetSlots() const;
 
 	UFUNCTION(BlueprintCallable)
 	const UItemObject* GetSlotItem(ESlotType SlotType) const;
 
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
-	FOnEquipmentChangedDelegate OnEquipmentChanged;
+	UFUNCTION(BlueprintCallable)
+	bool IsSlotVacant(UItemObject* ItemObject) const;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction);
 
-	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
-
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	UPROPERTY(ReplicatedUsing = OnRep_What, VisibleAnywhere, BlueprintReadWrite, Category = "Settings")
-	TArray<UItemObject*> Slots;
-
-	UFUNCTION()
-	void OnRep_What(TArray<UItemObject*> OldSlots);
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Settings")
 	TObjectPtr<UPlayerEquipmentComponent> PlayerEquipComp;
-
-	UPROPERTY(BlueprintReadWrite)
-	bool bIsDirty;
 	UPROPERTY(BlueprintReadWrite)
 	bool bInvalidSlot;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Settings")
-	int Columns;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
-	int Rows;
-
-
+	UPROPERTY(BlueprintReadWrite)
+	bool bOccupiedSlot;
 };

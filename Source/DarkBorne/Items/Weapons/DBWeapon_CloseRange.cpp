@@ -11,6 +11,7 @@
 #include "DarkBorne/Status/CharacterStatusComponent.h"
 #include "DarkBorne/Enemy/EnemyBase.h"
 #include "DarkBorne/Enemy/AnimEnemyBase.h"
+#include "../../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
 
 ADBWeapon_CloseRange::ADBWeapon_CloseRange()
 {
@@ -74,7 +75,7 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 {
 	FString Level = GetWorld()->GetMapName();
 	Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
-	if (Level != TEXT("Level_Lobby"))
+	if (Level != TEXT("ThirdPersonMap"))
 	{
 	UCharacterStatusComponent* StatusComponent = OtherActor->GetComponentByClass<UCharacterStatusComponent>();
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
@@ -117,6 +118,14 @@ void ADBWeapon_CloseRange::MultiRPC_OnOverlapBegin_Implementation(class AActor* 
 
 		// 충돌한 액터의 hitting
 		OtherPlayerAnim->isHitting = true;
+		if (OtherPlayerAnim->isHitting)
+		{
+			UDBRogueSkillComponent* RogueSkillComponent = OtherPlayer->GetComponentByClass<UDBRogueSkillComponent>();
+			if (RogueSkillComponent->isVanish)
+			{
+				RogueSkillComponent->DeactiveRogueQSkill();
+			}
+		}
 	}
 	else if (Cast<AEnemyBase>(OtherActor))
 	{
@@ -128,6 +137,7 @@ void ADBWeapon_CloseRange::MultiRPC_OnOverlapBegin_Implementation(class AActor* 
 		OtherPlayerAnim->isHitting = true;
 		UE_LOG(LogTemp,Warning,TEXT("enemyhit"));
 	}
+	
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);

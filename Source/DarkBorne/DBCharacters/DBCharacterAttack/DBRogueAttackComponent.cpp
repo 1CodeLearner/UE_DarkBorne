@@ -157,6 +157,7 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 	RogueSkillComponent->TKMagazine[KnifeCount]->MultiRPC_RogueThrowKnifeAttack();
 	KnifeCount++;
 
+	
 	if(KnifeCount == RogueSkillComponent->magazineCnt)
 	{
 		// 탄창 초기화
@@ -167,8 +168,9 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 		// 스킬 끄기
 		RogueSkillComponent->isSpawnKnife = false;
 		RogueSkillComponent->E_CurrCoolTime = 0;
-		return;
+		
 	}
+	MultiRPC_RogueThrowKnifeAttack();
 	// 전부 던지기
 	//for (int32 i = 0; i < RogueSkillComponent->magazineCnt; i++)
 	//{
@@ -179,5 +181,14 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 	//}
 }
 
+void UDBRogueAttackComponent::MultiRPC_RogueThrowKnifeAttack_Implementation()
+{
+	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+	// 은신 상태면 은신 풀어주자
+	if (RogueSkillComponent->isVanish)
+	{
+		RogueSkillComponent->DeactiveRogueQSkill();
+	}
+}
 
 

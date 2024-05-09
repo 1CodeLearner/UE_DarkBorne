@@ -4,18 +4,43 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "PlayerEquipmentComponent.h"
 #include "InventoryGridWidget.generated.h"
 
 /**
  * 
  */
 
- class UPlayerEquipmentComponent;
-
+ class UCanvasPanel;
+ class UBorder;
 UCLASS()
 class DARKBORNE_API UInventoryGridWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+	UFUNCTION(BlueprintCallable)
+	void StartInit(UPlayerEquipmentComponent* InventoryComp);
+
+	void Reset();
+
 protected:
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UPlayerEquipmentComponent> InventoryComponent;
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UPlayerEquipmentComponent> TaxiToServer;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FLine> Lines;
+
+	UPROPERTY(BlueprintReadOnly)
+	float TileSize;
+
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	TObjectPtr<UBorder> GridBorder;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void Refresh();
+private:
+	void CreateLineSegments();
 };

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "../ItemTypes/ItemType.h"
-//#include "../Framework/Interfaces/InteractionInterface.h"
+#include "../Framework/Interfaces/InteractionInterface.h"
 #include "DBCharacter.generated.h"
 
 class UDataTable;
@@ -15,13 +15,11 @@ class ULootDisplayWidget;
 
 class UDBEquipmentComponent;
 class UPlayerEquipmentComponent;
-class ULootInventoryComponent;
-class ULootEquipmentComponent;
 
 class UDBInteractionComponent;
 
 UCLASS()
-class DARKBORNE_API ADBCharacter : public ACharacter//, public IInteractionInterface
+class DARKBORNE_API ADBCharacter : public ACharacter, public IInteractionInterface
 {
 	GENERATED_BODY()
 public:
@@ -36,7 +34,23 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	
+	virtual void BeginInteract(UDBInteractionComponent* InteractionComponent) override;
+	virtual void ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* OtherCharacter) override;
+	virtual void InterruptInteract() override;
+
+	virtual void BeginTrace() override;
+	virtual void EndTrace() override;
+
+	virtual bool CanInteract() const override;
+	virtual void SetCanInteract(bool bAllowInteract) override;
+	UPROPERTY(ReplicatedUsing = "OnRep_bCanInteract")
+	bool bCanInteract;
+	UFUNCTION()
+	void OnRep_bCanInteract();
+
+	virtual FDisplayInfo GetDisplayInfo() const override;
+	FString PlayerName;
+	void SetPlayerName(FString _PlayerName);
 
 public:
 	// Called every frame
@@ -64,10 +78,6 @@ public:
 	UDBEquipmentComponent* EquipmentComponent;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
-	ULootInventoryComponent* LootInventoryComponent;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
-	ULootEquipmentComponent* LootEquipmentComponent;
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	class UCharacterStatusComponent* CharacterStatusComponent;
@@ -104,8 +114,10 @@ public:
 	class UInputAction* ia_DB_Look;
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_DB_Jump;
-	UPROPERTY(EditAnywhere)
-	class UInputAction* ia_Interact;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UInputAction> IA_Interact;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UInputAction> IA_Inventory;
 
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
@@ -128,6 +140,7 @@ public:
 	void MultiRPC_DoubleJump();
 
 	void EnhancedInteract(const struct FInputActionValue& value);
+	void EnhancedInventory(const struct FInputActionValue& value);
 public:
 	void CreatePlayerWidget();
 

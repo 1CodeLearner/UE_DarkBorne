@@ -103,6 +103,11 @@ void UDBRogueAnimInstance::AnimNotify_End_Damage()
 void UDBRogueAnimInstance::AnimNotify_Start_Hit()
 {
 	isHitting = true;
+	/*UDBRogueSkillComponent* RogueSkillComponent = TryGetPawnOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+	if (RogueSkillComponent->isVanish)
+	{
+		RogueSkillComponent->DeactiveRogueQSkill();
+	}*/
 }
 
 void UDBRogueAnimInstance::AnimNotify_End_Hit()

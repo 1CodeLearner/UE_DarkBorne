@@ -8,7 +8,7 @@
 #include "DBRogueWeaponComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class DARKBORNE_API UDBRogueWeaponComponent : public USceneComponent
 {
 	GENERATED_BODY()
@@ -55,7 +55,7 @@ public:
 	bool hasWeapon = false;
 public:
 	void AttachWeapon();
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void ServerRPC_AttachWeapon();
 
 public:
