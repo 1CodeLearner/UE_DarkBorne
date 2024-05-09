@@ -23,9 +23,8 @@ AEnemyBase::AEnemyBase()
 	GetCharacterMovement()->SetNetAddressable();
 	GetCharacterMovement()->SetIsReplicated(true);
 
-	baseFSM = CreateDefaultSubobject<UEnemyFSMBase>(TEXT("BaseFSM"));
-	baseFSM->SetNetAddressable();
-	baseFSM->SetIsReplicated(true);
+	//baseFSM = CreateDefaultSubobject<UEnemyFSMBase>(TEXT("BaseFSM"));
+	
 	
 	
 
@@ -101,7 +100,7 @@ void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 	}
 	
 	CharacterStatusComponent->CurrHP -= damage;
-	UE_LOG(LogTemp,Warning,TEXT("enemy now Health: %f"), CharacterStatusComponent->CurrHP);
+	
 
 	if (CharacterStatusComponent->CurrHP <= 0)
 	{
@@ -111,6 +110,7 @@ void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("enemy now Health: %f"), CharacterStatusComponent->CurrHP);
 		baseFSM->ChangeState(EEnemyState::DAMAGE);
 	}
 }

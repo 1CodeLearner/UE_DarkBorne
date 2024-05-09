@@ -154,7 +154,7 @@ void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* 
 
 	
 	auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
-	if (ensure(GM) && StatusComponent->CurrHP <= 0.f)
+	if (ensure(GM) && StatusComponent->CurrHP <= 0.f && OtherPlayer != nullptr)
 	{
 		auto PC = OtherPlayer->GetOwner<APlayerController>();
 		if (PC)

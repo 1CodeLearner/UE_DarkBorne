@@ -23,6 +23,20 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION()
+	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_OnOverlapBegin(class AActor* OtherActor);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_OnOverlapBegin(class AActor* OtherActor);
+public:
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* BloodVFX;
+
+	UPROPERTY(Replicated,EditAnywhere, BlueprintReadWrite)
+	AActor* myActor;
 	UPROPERTY(EditAnywhere)
 	class USphereComponent* compSphere;
 
@@ -31,6 +45,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UProjectileMovementComponent* compProjectile;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float weaponDamage = 5;
 
 
 public:

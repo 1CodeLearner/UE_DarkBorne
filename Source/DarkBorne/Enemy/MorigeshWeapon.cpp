@@ -5,6 +5,14 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include <Net/UnrealNetwork.h>
+#include "../Status/CharacterStatusComponent.h"
+#include "../DBCharacters/DBRogueCharacter.h"
+#include "../TP_ThirdPerson/TP_ThirdPersonGameMode.h"
+#include "../DBAnimInstance/DBRogueAnimInstance.h"
+#include "../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
+#include "EnemyBase.h"
+#include "AnimEnemyBase.h"
+#include "../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 
 // Sets default values
 AMorigeshWeapon::AMorigeshWeapon()
@@ -19,7 +27,7 @@ AMorigeshWeapon::AMorigeshWeapon()
 	SetRootComponent(compSphere);
 	compSphere->SetSphereRadius(13);
 	compSphere->SetRelativeLocation(FVector(10,0,0));
-	compSphere->SetCollisionProfileName(TEXT("BlockAll"));
+	compSphere->SetCollisionProfileName(TEXT("WeaponCapColl"));
 
 	compMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MESH"));
 	compMesh->SetupAttachment(RootComponent);
@@ -37,7 +45,7 @@ AMorigeshWeapon::AMorigeshWeapon()
 	// 움직일 콤포넌트 설정
 	compProjectile->SetUpdatedComponent(compSphere);
 	// 초기 속력, 최대 속력
-	compProjectile->InitialSpeed = 1500;
+	compProjectile->InitialSpeed = 800;
 	compProjectile->MaxSpeed = 3000;
 	// 튕기게 할것인
 	compProjectile->bShouldBounce = false;
@@ -50,6 +58,7 @@ void AMorigeshWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
+	compSphere->OnComponentBeginOverlap.AddDynamic(this,&AMorigeshWeapon::OnOverlapBegin);
 	SetLifeSpan(4);
 }
 
@@ -58,6 +67,92 @@ void AMorigeshWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AMorigeshWeapon::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{	
+	if (myActor == nullptr)
+	{
+		if (GetOwner() != nullptr)
+		{
+			myActor = Cast<AActor>(GetOwner());
+		}
+	}
+	// 만약 내 자신이 부딫혔다면
+	if (OtherActor == myActor)
+	{
+		return;
+	}
+	ServerRPC_OnOverlapBegin(OtherActor);
+}
+
+void AMorigeshWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AMorigeshWeapon, myActor);
+}
+
+void AMorigeshWeapon::ServerRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
+{
+	FString Level = GetWorld()->GetMapName();
+	Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+	if (Level != TEXT("Level_Lobby"))
+	{
+		UCharacterStatusComponent* StatusComponent = OtherActor->GetComponentByClass<UCharacterStatusComponent>();
+		ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
+		StatusComponent->DamageProcess(weaponDamage, this);
+		StatusComponent->OnRep_CurrHP();
+
+
+		auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
+		if (ensure(GM) && StatusComponent->CurrHP <= 0.f)
+		{
+			auto PC = OtherPlayer->GetOwner<APlayerController>();
+			if (PC)
+			{
+				GM->OnPlayerDead(PC);
+			}
+		}
+
+	}
+	MultiRPC_OnOverlapBegin(OtherActor);
+	Destroy();
+}
+
+void AMorigeshWeapon::MultiRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
+{
+	if (Cast<ADBCharacter>(OtherActor))
+	{
+		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
+		ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
+		//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
+		UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
+
+		// 충돌한 액터의 hitting
+		OtherPlayerAnim->isHitting = true;
+		if (OtherPlayerAnim->isHitting)
+		{
+			UDBRogueSkillComponent* RogueSkillComponent = OtherPlayer->GetComponentByClass<UDBRogueSkillComponent>();
+			if (RogueSkillComponent->isVanish)
+			{
+				RogueSkillComponent->DeactiveRogueQSkill();
+			}
+		}
+
+	}
+	else if (Cast<AEnemyBase>(OtherActor))
+	{
+		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
+		AEnemyBase* OtherPlayer = Cast<AEnemyBase>(OtherActor);
+		//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
+		UAnimEnemyBase* OtherPlayerAnim = Cast<UAnimEnemyBase>(OtherPlayer->GetMesh()->GetAnimInstance());
+		// 충돌한 액터의 hitting
+		OtherPlayerAnim->isHitting = true;
+	}
+
+	//blood VFX
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
+	compSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AMorigeshWeapon::AutoDestroy()
