@@ -32,6 +32,12 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_OnOverlapBegin(class AActor* OtherActor);
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_WallOnOnerlapBegin(class AActor* OtherActor);
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_WallOnOverlapBegin(class AActor* OtherActor);
+
+
 public:
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* BloodVFX;

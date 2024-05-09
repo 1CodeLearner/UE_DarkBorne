@@ -51,6 +51,7 @@ void UCharacterStatusComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 {
+	if(CurrHP <= 0) return;
 	UE_LOG(LogTemp, Warning, TEXT("DamageProcess"));
 	if (!MyActor->HasAuthority() || MyActor == nullptr)
 	{
