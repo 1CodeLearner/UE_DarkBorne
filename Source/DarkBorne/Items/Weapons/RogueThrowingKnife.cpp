@@ -14,6 +14,10 @@
 #include "../../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
 #include <../../../../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
+#include "DarkBorne/Status/CharacterStatusComponent.h"
+#include "DarkBorne/Enemy/EnemyBase.h"
+#include "DarkBorne/Enemy/AnimEnemyBase.h"
+#include "DarkBorne/TP_ThirdPerson/TP_ThirdPersonGameMode.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetMathLibrary.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Components/TimelineComponent.h>
 
@@ -111,8 +115,11 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 {
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
-	UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
+
+	//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
 	//UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
+
+
 	// 캐릭터의 GetOnwer로 인스턴스를 가져와 나의 플레이어 애님 인스턴스로 가져온다
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(Cast<ACharacter>(GetOwner())->GetMesh()->GetAnimInstance());
 
@@ -139,46 +146,67 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 
 void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
 {
-	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
 	if (OtherPlayer)
 	{
 
-		//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
-		OtherPlayer->CurrHP = OtherPlayer->CurrHP - WeaponDamage;
-		//onRep 함수는 클라에서만 호출되어서 서버에서도 한번 호출해줘야한다
-		OtherPlayer->OnRep_CurrHP();
+	FString Level = GetWorld()->GetMapName();
+	Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+	if (Level != TEXT("Level_Lobby"))
+	{
+		UCharacterStatusComponent* StatusComponent = OtherActor->GetComponentByClass<UCharacterStatusComponent>();
 
-		UE_LOG(LogTemp, Warning, TEXT("%s : %.f"),
-			GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"), OtherPlayer->CurrHP);
+		StatusComponent->DamageProcess(WeaponDamage, this);
+		StatusComponent->OnRep_CurrHP();
 
-		MultiRPC_OnOverlapBegin(OtherActor);
+		auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
+		if (ensure(GM) && StatusComponent->CurrHP <= 0.f)
+		{
+			auto PC = OtherPlayer->GetOwner<APlayerController>();
+			if (PC)
+			{
+				GM->OnPlayerDead(PC);
+			}
+		}
 	}
+	MultiRPC_OnOverlapBegin(OtherActor);
 	Destroy();
+	}
 }
 
 void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
 {
-	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
-	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
-	//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
-	UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
-	// 캐릭터의 GetOnwer로 인스턴스를 가져와 나의 플레이어 애님 인스턴스로 가져온다
-	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(Cast<ACharacter>(GetOwner())->GetMesh()->GetAnimInstance());
-
-	// 충돌한 액터의 hitting
-	OtherPlayerAnim->isHitting = true;
-	if (OtherPlayerAnim->isHitting)
+	if (Cast<ADBCharacter>(OtherActor))
 	{
-		UDBRogueSkillComponent* RogueSkillComponent = OtherPlayer->GetComponentByClass<UDBRogueSkillComponent>();
-		if (RogueSkillComponent->isVanish)
+		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
+		ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
+		//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
+		UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
+
+		// 충돌한 액터의 hitting
+		OtherPlayerAnim->isHitting = true;
+		if (OtherPlayerAnim->isHitting)
 		{
-			RogueSkillComponent->DeactiveRogueQSkill();
+			UDBRogueSkillComponent* RogueSkillComponent = OtherPlayer->GetComponentByClass<UDBRogueSkillComponent>();
+			if (RogueSkillComponent->isVanish)
+			{
+				RogueSkillComponent->DeactiveRogueQSkill();
+			}
 		}
+
+	}
+	else if (Cast<AEnemyBase>(OtherActor))
+	{
+		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
+		AEnemyBase* OtherPlayer = Cast<AEnemyBase>(OtherActor);
+		//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
+		UAnimEnemyBase* OtherPlayerAnim = Cast<UAnimEnemyBase>(OtherPlayer->GetMesh()->GetAnimInstance());
+		// 충돌한 액터의 hitting
+		OtherPlayerAnim->isHitting = true;
 	}
 
 	//blood VFX
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherPlayer->GetActorRotation() - GetActorRotation());
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 }

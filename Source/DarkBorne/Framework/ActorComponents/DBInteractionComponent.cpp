@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "../../DBCharacters/DBCharacter.h"
+#include "DarkBorne/Status/CharacterStatusComponent.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "../../Inventory/InventoryMainWidget.h"
 
@@ -67,8 +68,7 @@ void UDBInteractionComponent::OnInteract()
 bool UDBInteractionComponent::IsDead()
 {
 	if (!DBCharacter) return false;
-
-	if (DBCharacter->CurrHP <= 0.f)
+	if (DBCharacter->CharacterStatusComponent->CurrHP <= 0.f)
 		return true;
 
 	return false;

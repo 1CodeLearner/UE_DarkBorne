@@ -19,6 +19,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EEnemyState state;
 	
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isHitting = false;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isDeath = false;	
 };

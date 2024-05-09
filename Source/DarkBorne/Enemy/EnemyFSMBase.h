@@ -17,7 +17,8 @@ enum class EEnemyState : uint8
 	ATTACK,
 	ATTACK_DELAY,
 	DAMAGE,
-	DIE
+	DIE,
+	CHILD_STATE // 파생 클래스 state 접근용
 };
 
 
@@ -40,14 +41,68 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	//AIController
-	UPROPERTY(EditAnywhere)
-	class AAIController* ai;
-	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	virtual void ChangeState(EEnemyState e);
 
 
+public:
+
+	
+	virtual void UpdateIdle();
+
+	virtual void UpdateMove();
+
+	virtual void UpdatePatrol();
+
+	virtual void UpdateAttack();
+
+	virtual void UpdateAttackDelay();
+
+	virtual void UpdateDamaged(float deltaTime);
+
+	virtual void UpdateDie();
+
+	void EyeOnTarget();
+
+	virtual bool IsWaitComplete(float delay);
+
+	//거리 내에 있는지 체크 해서 끝까지 쫒아갈 용도
+	virtual bool IsEngageRangeCheck();
+	//거리 벗어 났는지 체크해서 안쫒아갈 용도
+	virtual bool IsOutRangeCheck();
+	//처음에 시야 에 들어와서 추적 체크 할 용도
+	virtual bool IsVisibleCheck();
+	//원거리 사격 가능 하게끔 시야에 보이는지
+	virtual bool CanVisibleAttack();
+
+	virtual bool IsPatrolPos();
+	
+	//virtual void DeathCheck();
+
+	UFUNCTION()
+	virtual void OnRep_CurrentState();
+
+	void OnPlayerStatus(class ADBPlayerController* temp,bool temp2);
+	
+
+
+public:
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class ATP_ThirdPersonGameMode* tpsgamemode;
+
+	//AIController
+	UPROPERTY(EditAnywhere)
+	class AAIController* ai;
+
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
+	TArray<class ADBCharacter*> enemyTargetList;
+
+	//UPROPERTY( EditAnywhere, BlueprintReadWrite)
+	//TMap<class ADBPlayerController*, bool>* ActivePlayers;
+
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_CurrentState, BlueprintReadWrite, EditAnywhere)
 	EEnemyState currState = EEnemyState::IDLE;
 
 	UPROPERTY(EditInstanceOnly,BlueprintReadOnly)
@@ -56,6 +111,53 @@ public:
 	UPROPERTY(EditInstanceOnly,BlueprintReadOnly)
 	class AEnemyBase* myActor;
 
+	UPROPERTY(EditAnywhere)
+	class UNavigationSystemV1* ns;
+
+	//시간 관련
+
+	//시간 체크용
+	float currTime = 0;
+
+	UPROPERTY(EditAnywhere)
+	float idleDelayTime = 2;
+
+	UPROPERTY(EditAnywhere)
+	float damageDelayTime = 2;
+
+	UPROPERTY(EditAnywhere)
+	float preAttackDelayTime = 1;
+
+	UPROPERTY(EditAnywhere)
+	float attackDelayTime = 2;
+
+
+	//거리 관련
+	//처음 탐지 보이는 거리
+	UPROPERTY(EditAnywhere)
+	float visibleRange = 500;
+
+	UPROPERTY(EditAnywhere)
+	float engageRange= 100;
+
+	UPROPERTY(EditAnywhere)
+	float traceOutRange = 2000;
+
+	//패트롤 거리
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float randMaxMovementRange = 500;
+
+	//탐지 시야
+	float viewAngle = 180;
+
+	FVector patrolPos;
+
+	//공격 거리 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float rangedWeaponAttackRange = 800;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float closedWeaponAttackRange = 30;
 
 
 	

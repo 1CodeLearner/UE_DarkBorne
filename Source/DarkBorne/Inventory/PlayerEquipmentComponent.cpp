@@ -81,7 +81,7 @@ void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 index, 
 	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
 		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
 		return;*/
-	
+
 	if (this->GetOwner()->HasNetOwner() && this->GetOwner()->GetIsReplicated())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
@@ -205,28 +205,35 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 			if (IsTileValid(newTile))
 			{
 				int32 num = TileToIndex(newTile);
+				//if(Items.IsValidIndex(num))
+				//	return false;
+
 				TTuple<bool, UItemObject*> output = GetItematIndex(num);
-				bool valid = output.Get<0>();
-				UItemObject* outItemObject = output.Get<1>();
-				if (valid)
+				bool bHasItem = output.Get<0>();
+				UItemObject* ExistingItemObject = output.Get<1>();
+				if (bHasItem)
 				{
-					if (IsValid(outItemObject))
+					if (IsValid(ExistingItemObject))
 					{
+						GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Invalid222")));
 						return false;
 					}
 				}
-				//else return false;
 			}
-			else return false;
+			else {
+				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Invalid111")));
+				return false;
+			}
+
 		}
 	}
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Valid")));
 	return true;
-
 }
 
 inline TTuple<bool, UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index) const
 {
-	if (Items.IsValidIndex(Index))
+	if (ensureAlways(Items.IsValidIndex(Index)))
 		return MakeTuple(IsValid(Items[Index]), Items[Index]);
 	else
 	{
@@ -237,7 +244,7 @@ inline TTuple<bool, UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int3
 
 bool UPlayerEquipmentComponent::IsTileValid(FTile tile) const
 {
-	if (tile.X >= 0 && tile.Y >= 0 && tile.X < Columns && tile.Y < Columns)
+	if (tile.X >= 0 && tile.Y >= 0 && tile.X < Columns && tile.Y < Rows)
 	{
 		return true;
 	}

@@ -4,6 +4,7 @@
 #include "../Enemy/MorigeshEnemy.h"
 #include "MorigeshEnemyFSM.h"
 
+
 AMorigeshEnemy::AMorigeshEnemy()
 {	
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> characterMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/Assets/ParagonMorigesh/Characters/Heroes/Morigesh/Meshes/Morigesh.Morigesh'"));
@@ -11,21 +12,20 @@ AMorigeshEnemy::AMorigeshEnemy()
 	{
 		GetMesh()->SetSkeletalMesh(characterMesh.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0,0,-88), FRotator(0,-90,0));
+		myMesh = GetMesh();
+	
 	}	
 
 	baseFSM = CreateDefaultSubobject<UMorigeshEnemyFSM>(TEXT("FSM"));
-
-
 	
-
-	
-
-
 }
 
 void AMorigeshEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+
+
 }
 
 void AMorigeshEnemy::Tick(float DeltaTime)

@@ -76,14 +76,8 @@ void UBaseInventoryComponent::Server_SpawnItem_Implementation(AActor* Initiator,
 	);
 	if (Initiator && ItemObject) {
 		FTransform Trans = GetNewTransform(Initiator, forwardOffset);
-
-		auto ItemSpawned = GetWorld()->SpawnActorDeferred<ADBItem>(ItemObject->GetItemClass(), Trans, bSetOwner ? Initiator : nullptr);
-
-		ItemSpawned->Initialize(ItemObject);
-
-		ItemObject->SetItemActor(ItemSpawned);
-
-		UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
+		ItemObject->TryDestroyItemActor();
+		ItemObject->SpawnItem(Initiator, bSetOwner, Trans, forwardOffset);
 	}
 	else
 	{

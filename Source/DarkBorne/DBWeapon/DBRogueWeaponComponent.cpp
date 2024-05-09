@@ -42,7 +42,7 @@ void UDBRogueWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	if (GetOwner()->HasAuthority())
 	{
 		auto Equip = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
-		if (RogueItems && !RogueItems->IsPendingKill())
+		if (RogueItems && IsValid(RogueItems))
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf(TEXT("Testing Here: %s"), *GetNameSafe(RogueItems)));
 		}
@@ -112,6 +112,9 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 
 			//다른 로직에 필요한 준비
 			EquipSlotArray[0]->SetItemActor(RogueItems);
+		}
+		else {
+			RogueItems = nullptr;
 		}
 
 	}

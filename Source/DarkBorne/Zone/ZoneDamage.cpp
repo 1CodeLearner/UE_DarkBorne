@@ -6,6 +6,7 @@
 #include "../DBCharacters/DBCharacter.h"
 #include "../Framework/BFL/DarkBorneLibrary.h"
 #include "DarkBorne/TP_ThirdPerson/TP_ThirdPersonGameMode.h"
+#include "DarkBorne/Status/CharacterStatusComponent.h"
 
 static TAutoConsoleVariable<bool> cVarDisplayZoneDamageDebugMsg(TEXT("su.DisplayZoneDamageDebugMsg"), false, TEXT("Display Zone Damage Debug info"), ECVF_Cheat);
 
@@ -72,12 +73,12 @@ void UZoneDamage::Tick(float DeltaTime)
 		currTime += DeltaTime;
 		if (currTime >= totalTime)
 		{
-			if (IsValid(Character) && Character->CurrHP > 0.f)
+			if (IsValid(Character) && Character->CharacterStatusComponent->CurrHP > 0.f)
 			{
 				if (UDarkBorneLibrary::ApplyDamageAmount(Character, damageAmt))
 				{
 					auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
-					if (ensure(GM) && Character->CurrHP <= 0.f)
+					if (ensure(GM) && Character->CharacterStatusComponent->CurrHP <= 0.f)
 					{
 						auto PC = Character->GetOwner<APlayerController>();
 						if (PC)

@@ -79,6 +79,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	UPlayerEquipmentComponent* PlayerEquipmentComp;
 
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	class UCharacterStatusComponent* CharacterStatusComponent;
+
+
 	//Inventory UI
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TSubclassOf<UInventoryMainWidget> InvMainWidgetClass;
@@ -119,7 +123,7 @@ public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	float MaxHP;
 	// 현재 체력을 계속 업뎃시키는 함수를 replicate 이거는 클라에서만 호출됨
-	UPROPERTY(ReplicatedUsing = OnRep_CurrHP, EditAnywhere)
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_CurrHP, EditAnywhere)
 	float CurrHP = MaxHP;
 
 public:
