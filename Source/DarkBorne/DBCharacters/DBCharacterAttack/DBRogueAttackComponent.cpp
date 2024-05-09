@@ -42,8 +42,6 @@ void UDBRogueAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType
 void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent* enhancedInputComponent)
 {
 	enhancedInputComponent->BindAction(ia_DB_Attack, ETriggerEvent::Triggered, this, &UDBRogueAttackComponent::RogueAttack);
-	//enhancedInputComponent->BindAction(ia_DB_Attack, ETriggerEvent::Triggered, this, &UDBRogueAttackComponent::RogueAttack);
-
 }
 
 void UDBRogueAttackComponent::RogueAttack()

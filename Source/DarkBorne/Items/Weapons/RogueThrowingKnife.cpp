@@ -115,8 +115,10 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 {
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
+
 	//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
 	//UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
+
 
 	// 캐릭터의 GetOnwer로 인스턴스를 가져와 나의 플레이어 애님 인스턴스로 가져온다
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(Cast<ACharacter>(GetOwner())->GetMesh()->GetAnimInstance());
@@ -124,10 +126,7 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *OtherActor->GetActorNameOrLabel(), *OtherComp->GetFName().ToString());
 
 	// 만약 내 자신이 부딫혔다면
-	if (OtherActor == GetOwner())
-	{
-		return;
-	}
+	if (OtherActor == GetOwner()) return;
 	// 만약 내 자신이 아닌 액터가 부딫혔다면
 	else if (OtherActor != GetOwner())
 	{
@@ -137,50 +136,48 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 			ServerRPC_OnOverlapBegin(OtherActor);
 
 		}
+		//else
+		//{
+		//	ServerRPC_WallOnOnerlapBegin(OtherActor);
+		//}
 	}
+	
 }
 
 void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
 {
-
-	FString Level = GetWorld()->GetMapName();
-	Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
-	if (Level != TEXT("Level_Lobby"))
-	{
-	UCharacterStatusComponent* StatusComponent = OtherActor->GetComponentByClass<UCharacterStatusComponent>();
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
-	StatusComponent->DamageProcess(WeaponDamage, this);
-	StatusComponent->OnRep_CurrHP();
 
 	
-	auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
-	if (ensure(GM) && StatusComponent->CurrHP <= 0.f && OtherPlayer != nullptr)
+	if(OtherPlayer)
 	{
-		auto PC = OtherPlayer->GetOwner<APlayerController>();
-		if (PC)
+		FString Level = GetWorld()->GetMapName();
+		Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+		if (Level != TEXT("Level_Lobby"))
 		{
-			GM->OnPlayerDead(PC);
+			UCharacterStatusComponent* StatusComponent = OtherActor->GetComponentByClass<UCharacterStatusComponent>();
+
+			StatusComponent->DamageProcess(WeaponDamage, this);
+			StatusComponent->OnRep_CurrHP();
+
+			auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
+			if (ensure(GM) && StatusComponent->CurrHP <= 0.f)
+			{
+				auto PC = OtherPlayer->GetOwner<APlayerController>();
+				if (PC)
+				{
+					GM->OnPlayerDead(PC);
+				}
+			}
 		}
-	}
-	
-	/*
-	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
-	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
-
-	//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
-	OtherPlayer->CurrHP = OtherPlayer->CurrHP - WeaponDamage;
-	//onRep 함수는 클라에서만 호출되어서 서버에서도 한번 호출해줘야한다
-	OtherPlayer->OnRep_CurrHP();*/
-
-	//UE_LOG(LogTemp, Warning, TEXT("%s : %.f"),
-	//	GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"), OtherPlayer->CurrHP);
-	}
 	MultiRPC_OnOverlapBegin(OtherActor);
 	Destroy();
+	}
 }
 
 void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
-{
+{	
+	
 	if (Cast<ADBCharacter>(OtherActor))
 	{
 		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
@@ -209,13 +206,37 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 		// 충돌한 액터의 hitting
 		OtherPlayerAnim->isHitting = true;
 	}
-	
+	//else if (Cast<AActor>(OtherActor))
+	//{
+		//blood VFX
+		//UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
+		//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//Destroy();
+		//return;
+	//}
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 }
 
+
+void ARogueThrowingKnife::ServerRPC_WallOnOnerlapBegin_Implementation(class AActor* OtherActor)
+{
+	MultiRPC_WallOnOverlapBegin(OtherActor);
+}
+
+void ARogueThrowingKnife::MultiRPC_WallOnOverlapBegin_Implementation(class AActor* OtherActor)
+{
+	 if (Cast<AActor>(OtherActor))
+	{
+		 //blood VFX
+			 UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
+		 CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		 Destroy();
+		
+	}
+}
 
 void ARogueThrowingKnife::UpdateKnifeLocation(float DeltaTime)
 {
