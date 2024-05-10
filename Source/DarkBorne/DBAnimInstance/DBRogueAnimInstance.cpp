@@ -84,10 +84,9 @@ void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 		WeaponComp->RogueItems->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	}
-	if(!SkillComp->TKMagazine.IsEmpty())
+	if(SkillComp->isSpawnKnife)//!SkillComp->TKMagazine.IsEmpty())
 	{
 		isAttacking = true;
-		//SkillComp->TKMagazine[AttackComp->KnifeCount]->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
 	
 }

@@ -26,7 +26,7 @@ public:
 
 	void SetupPlayerInputComponent(class UEnhancedInputComponent* enhancedInputComponent);
 
-
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_DB_Attack;
@@ -40,6 +40,7 @@ public:
 	float comboCurrTime = 0;
 
 public:
+	UPROPERTY(Replicated)
 	int32 KnifeCount = 0;
 
 public:

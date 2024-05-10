@@ -54,14 +54,14 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 void ARogueThrowingKnife::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("Owner in thisKnife: %s"), *GetNameSafe(GetOwner()));
+	//UE_LOG(LogTemp, Warning, TEXT("Owner in thisKnife: %s"), *GetNameSafe(GetOwner()));
 	//서버에서 충돌판정을 하고싶다면 여기서부터 손보자
 	if (!GetOwner()) return;
 
 	if (GetOwner<ACharacter>()->IsLocallyControlled())
 	{
 		CapsuleComp->OnComponentBeginOverlap.AddDynamic(this, &ARogueThrowingKnife::OnOverlapBegin);
-		//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 	//Timeline
 	//커브가 있다면
@@ -117,30 +117,35 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
 
 	//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
-	//UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
-
-
+	
 	// 캐릭터의 GetOnwer로 인스턴스를 가져와 나의 플레이어 애님 인스턴스로 가져온다
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(Cast<ACharacter>(GetOwner())->GetMesh()->GetAnimInstance());
 
-	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *OtherActor->GetActorNameOrLabel(), *OtherComp->GetFName().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("--- %s %s"), *OtherActor->GetActorNameOrLabel(), *OtherComp->GetFName().ToString());
 
 	// 만약 내 자신이 부딫혔다면
-	if (OtherActor == GetOwner()) return;
-	// 만약 내 자신이 아닌 액터가 부딫혔다면
-	else if (OtherActor != GetOwner())
+	if (OtherActor == GetOwner())
 	{
+		return;
+	}
+
+	// 만약 내 자신이 아닌 액터가 부딫혔다면
+	if (OtherActor != GetOwner())
+	{
+
 		// 공격중이면
 		if (MyCharacterAnim->isAttacking)
 		{
 			ServerRPC_OnOverlapBegin(OtherActor);
 
 		}
-		//else
-		//{
-		//	ServerRPC_WallOnOnerlapBegin(OtherActor);
-		//}
+		
+		ServerRPC_WallOnOnerlapBegin(OtherActor);
+		
 	}
+	
+	
+	
 	
 }
 
@@ -189,6 +194,7 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 		OtherPlayerAnim->isHitting = true;
 		if (OtherPlayerAnim->isHitting)
 		{
+			// 다른 캐릭터가 은신상태일때 맞았다면 은신 풀어주기
 			UDBRogueSkillComponent* RogueSkillComponent = OtherPlayer->GetComponentByClass<UDBRogueSkillComponent>();
 			if (RogueSkillComponent->isVanish)
 			{
@@ -206,17 +212,10 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 		// 충돌한 액터의 hitting
 		OtherPlayerAnim->isHitting = true;
 	}
-	//else if (Cast<AActor>(OtherActor))
-	//{
-		//blood VFX
-		//UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
-		//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		//Destroy();
-		//return;
-	//}
+	
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
-	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 }
 
@@ -231,8 +230,7 @@ void ARogueThrowingKnife::MultiRPC_WallOnOverlapBegin_Implementation(class AActo
 	 if (Cast<AActor>(OtherActor))
 	{
 		 //blood VFX
-			 UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
-		 CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			 UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitWallVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
 		 Destroy();
 		
 	}
@@ -288,6 +286,9 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 	FRotator TKRotation = RogueCharacter->camera->GetForwardVector().Rotation();
 	TKRotation.Normalize();
 	SetActorRotation(TKRotation);
+
+	RogueSkillComponent->TKMagazine[KnifeNumber]->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	UE_LOG(LogTemp, Warning, TEXT("Owner :%s , knifeCount : %d"), *GetNameSafe(GetOwner()), KnifeNumber);
 
 	projectileComponent->ProjectileGravityScale = 0.0f;
 	//projectileComponent->InitialSpeed = 3000;

@@ -24,7 +24,7 @@ void ADBWeapon_CloseRange::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("Owner in CloseWeapon: %s"), *GetNameSafe(GetOwner()));
+	//UE_LOG(LogTemp, Warning, TEXT("Owner in CloseWeapon: %s"), *GetNameSafe(GetOwner()));
 	//서버에서 충돌판정을 하고싶다면 여기서부터 손보자
 
 	if(!GetOwner()) return;
@@ -39,7 +39,7 @@ void ADBWeapon_CloseRange::BeginPlay()
 
 void ADBWeapon_CloseRange::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp,Warning,TEXT("HERE2"));
+	//UE_LOG(LogTemp,Warning,TEXT("HERE2"));
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ACharacter* OtherPlayer = Cast<ACharacter>(OtherActor);
 	//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
@@ -48,7 +48,7 @@ void ADBWeapon_CloseRange::OnOverlapBegin(class UPrimitiveComponent* OverlappedC
 	// 캐릭터의 GetOnwer로 인스턴스를 가져와 나의 플레이어 애님 인스턴스로 가져온다
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(Cast<ACharacter>(GetOwner())->GetMesh()->GetAnimInstance());
 
-	UE_LOG(LogTemp, Warning, TEXT("%s %s"), *OtherActor->GetActorNameOrLabel(), *OtherComp->GetFName().ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("%s %s"), *OtherActor->GetActorNameOrLabel(), *OtherComp->GetFName().ToString());
 
 	// 만약 내 자신이 부딫혔다면
 	if (OtherActor == GetOwner()) 
@@ -62,7 +62,7 @@ void ADBWeapon_CloseRange::OnOverlapBegin(class UPrimitiveComponent* OverlappedC
 		if (MyCharacterAnim->isAttacking)
 		{
 			ServerRPC_OnOverlapBegin(OtherActor);
-			UE_LOG(LogTemp,Warning,TEXT("hitting: %s"), *OtherActor->GetName());
+			//UE_LOG(LogTemp,Warning,TEXT("hitting: %s"), *OtherActor->GetName());
 		}
 	}
 }
