@@ -88,6 +88,7 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
 	// 단검을 들고 있으면 
 
+	if(RoguePlayer->RogueWeaponComp->RogueItems == nullptr) return;
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0])
 	{
 		// 은신 상태면 은신 풀어주자
