@@ -52,7 +52,7 @@ void UCharacterStatusComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 {
 	if(CurrHP <= 0) return;
-	UE_LOG(LogTemp, Warning, TEXT("DamageProcess"));
+	UE_LOG(LogTemp, Warning, TEXT("DamageProcess %f"), damage);
 	if (!MyActor->HasAuthority() || MyActor == nullptr)
 	{
 		return;
@@ -60,7 +60,7 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 	
 	if (AEnemyBase* enemy = Cast<AEnemyBase>(MyActor))
 	{
-
+		
 		UE_LOG(LogTemp, Warning, TEXT("EnemyHit"));
 		enemy->DamageProcess(damage, From);
 
@@ -72,6 +72,9 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 		if (CurrHP < 0)
 		{
 			CurrHP = 0;
+		}
+		else if (CurrHP > MaxHP) {
+			CurrHP = MaxHP;
 		}
 	}
 	

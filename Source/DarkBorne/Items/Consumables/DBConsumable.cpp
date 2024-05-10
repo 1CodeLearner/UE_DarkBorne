@@ -5,6 +5,7 @@
 #include "../../DBCharacters/DBCharacter.h"
 #include "Animation/AnimInstance.h"
 #include "../../Status/DBEffectComponent.h"
+#include "../../Inventory/ItemObject.h"
 
 bool ADBConsumable::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
 {
@@ -43,4 +44,6 @@ void ADBConsumable::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	}
 	UE_LOG(LogTemp, Warning, TEXT("OnMontageEnded in consumable invoked"));
 	OwningCharacter->GetMesh()->GetAnimInstance()->OnMontageEnded.Remove(Delegate);
+
+	GetItemObject()->TryDestroyItemActor();
 }

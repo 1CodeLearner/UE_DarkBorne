@@ -22,6 +22,7 @@ void UDBEffectComponent::BeginPlay()
 void UDBEffectComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("Effects:%d"),Effects.Num()));
 }
 
 void UDBEffectComponent::AddEffect(ADBCharacter* Instigated, ADBConsumable* ItemToActivate)
@@ -29,7 +30,7 @@ void UDBEffectComponent::AddEffect(ADBCharacter* Instigated, ADBConsumable* Item
 	if (ItemToActivate) 
 	{
 		auto NewEffect = NewObject<UDBEffect>(Instigated, ItemToActivate->GetEffectClass());
-		NewEffect->Initialize(Instigated, ItemToActivate->GetItemObject());
+		NewEffect->Initialize(Instigated, ItemToActivate->GetItemObject(), this);
 		Effects.Add(NewEffect);
 
 		OnInitStart.ExecuteIfBound(NewEffect, ItemToActivate->GetItemObject()->GetIcon());

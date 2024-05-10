@@ -37,7 +37,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-private:	
-	TArray<UDBEffect*> Effects;
-		
+private:
+	UPROPERTY(VisibleAnywhere, Category="Settings")
+	TArray<UDBEffect*> Effects;		
 };

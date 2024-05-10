@@ -18,7 +18,7 @@ class DARKBORNE_API UDBEffect : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
 public:
-	virtual void Initialize(ADBCharacter* Instigator, UItemObject* Item);
+	virtual void Initialize(ADBCharacter* Instigator, UItemObject* Item, UDBEffectComponent* EffectComp);
 	void StartTick();
 	void StopTick();
 	bool IsTicking();

@@ -4,18 +4,20 @@
 #include "DBEffect.h"
 #include "../Inventory/ItemObject.h"
 #include "../DBCharacters/DBCharacter.h"
+#include "DBEffectComponent.h"
 
 void UDBEffect::Tick(float DeltaTime)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("Tick Effect Parent")));
 }
 
-void UDBEffect::Initialize(ADBCharacter* Instigator, UItemObject* Item)
+void UDBEffect::Initialize(ADBCharacter* Instigator, UItemObject* Item, UDBEffectComponent* EffectComp)
 {
-	if (Instigator && Item)
+	if (Instigator && Item && EffectComp)
 	{
 		AffectedCharacter = Instigator;
 		Id = Item->GetId();
+		EffectComponent = EffectComp;
 	}
 }
 
