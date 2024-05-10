@@ -26,6 +26,11 @@ bool ADBConsumable::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
 	return false;
 }
 
+TSubclassOf<UDBEffect> ADBConsumable::GetEffectClass() const
+{
+	return EffectClass;
+}
+
 void ADBConsumable::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (!bInterrupted) 
@@ -33,7 +38,7 @@ void ADBConsumable::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 		auto EffectComp = OwningCharacter->GetComponentByClass<UDBEffectComponent>();
 		if (ensureAlways(EffectComp)) 
 		{
-			EffectComp->AddEffect(OwningCharacter, EffectClass, ItemObj);
+			EffectComp->AddEffect(OwningCharacter,this);
 		}
 	}
 	UE_LOG(LogTemp, Warning, TEXT("OnMontageEnded in consumable invoked"));

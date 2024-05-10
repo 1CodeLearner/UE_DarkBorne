@@ -44,3 +44,13 @@ const ESlotType FItem::GetSlotType() const
 	else
 		return SlotHolder.SlotType;
 }
+
+float FItem::GetDefaultValue() const
+{
+	if (bIsValid && ensureAlways(Rarities.Num() == 1))
+	{
+		return Rarities[0].Range.min;
+	}
+
+	return -1.f;
+}

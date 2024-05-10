@@ -20,7 +20,8 @@ public:
 	ADBItem();
 	virtual void Tick(float DeltaTime) override;
 	void Initialize(UItemObject* ItemObject);
-	
+	UItemObject* GetItemObject() const;
+
 	//ÄÝ¸®Àü Ä¸½¶ ÄÄÆ÷³ÍÆ®
 	UPROPERTY(EditAnywhere)
 	class UCapsuleComponent* CapsuleComp;
@@ -69,7 +70,6 @@ protected:
 	void OnRep_bCanInteract();
 
 private:
-	FName Id;
 	UPROPERTY(ReplicatedUsing = "OnRep_bCanInteract")
 	bool bCanInteract;
 };

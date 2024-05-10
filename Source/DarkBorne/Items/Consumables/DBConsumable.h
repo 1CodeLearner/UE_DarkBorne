@@ -7,7 +7,7 @@
 #include "DBConsumable.generated.h"
 
 class UDBEffect;
-
+class ADBCharacter;
 /**
  *
  */
@@ -18,6 +18,7 @@ class DARKBORNE_API ADBConsumable : public ADBItem
 
 public:
 	virtual bool PlayMontage(ACharacter* PlayerCharacter, FName SectionName) override;
+	TSubclassOf<UDBEffect> GetEffectClass() const;
 
 protected:
 	UFUNCTION()
@@ -25,7 +26,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Settings")
 	TSubclassOf<UDBEffect> EffectClass;
-
+	
 private:
 	UPROPERTY()
 	TObjectPtr<ADBCharacter> OwningCharacter;

@@ -11,6 +11,7 @@
 class UDBEffect;
 class ADBCharacter;
 class UMaterialInterface; 
+class ADBConsumable;
 
 DECLARE_DELEGATE_TwoParams(FInitStartDelegate, UDBEffect* /*effect*/, UMaterialInterface* /*IconDisplay*/);
 
@@ -24,11 +25,12 @@ public:
 	UDBEffectComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void AddEffect(ADBCharacter* Instigated, TSubclassOf<UDBEffect> EffectClass, UItemObject* ItemObject);
+	void AddEffect(ADBCharacter* Instigated, ADBConsumable* ItemToActivate);
 
 	void RemoveEffect(UDBEffect* Effect);
 
-	bool CanStartEffect(UDBEffect* Effect);
+	UFUNCTION(BlueprintCallable)
+	bool CanStartEffect(ADBConsumable* ItemToActivate);
 	
 	FInitStartDelegate OnInitStart;
 

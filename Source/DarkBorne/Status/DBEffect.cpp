@@ -7,8 +7,7 @@
 
 void UDBEffect::Tick(float DeltaTime)
 {
-	if (bIsTicking)
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("Tick Effect Parent")));
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("Tick Effect Parent")));
 }
 
 void UDBEffect::Initialize(ADBCharacter* Instigator, UItemObject* Item)
@@ -49,6 +48,11 @@ bool UDBEffect::IsTicking()
 bool UDBEffect::IsSame(UDBEffect* OtherEffect) const
 {
 	return OtherEffect->GetId() == OtherEffect->GetId();
+}
+
+bool UDBEffect::IsSame(FName OtherId) const
+{
+	return Id == OtherId;
 }
 
 FName UDBEffect::GetId() const

@@ -13,17 +13,18 @@ class UDBEffectComponent;
 DECLARE_DELEGATE_TwoParams(FEverytickDelegate, float /*TotalTime*/, float /*RemainingTime*/);
 DECLARE_DELEGATE(FStopDelegate);
 
-UCLASS()
+UCLASS(Blueprintable)
 class DARKBORNE_API UDBEffect : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
 public:
-	void Initialize(ADBCharacter* Instigator, UItemObject* Item);
+	virtual void Initialize(ADBCharacter* Instigator, UItemObject* Item);
 	void StartTick();
 	void StopTick();
 	bool IsTicking();
 
 	bool IsSame(UDBEffect* OtherEffect) const;
+	bool IsSame(FName OtherId) const;
 	FName GetId() const;
 	 
 	FEverytickDelegate OnEveryTick;
@@ -34,6 +35,7 @@ protected:
 
 	virtual TStatId GetStatId() const override;
 	virtual void Tick(float DeltaTime) override;
+	virtual bool IsAllowedToTick() const override { return bIsTicking; }
 
 	TObjectPtr<ADBCharacter> AffectedCharacter;
 

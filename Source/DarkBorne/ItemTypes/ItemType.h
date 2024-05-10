@@ -109,7 +109,9 @@ public:
 	void Initialize();
 	const TArray<FRarity>& GetRarities() const;
 	const ESlotType GetSlotType() const;
-		
+	float GetDefaultValue() const;
+
+
 	UPROPERTY(BlueprintReadOnly)
 	FSlotHolder SlotHolder;
 

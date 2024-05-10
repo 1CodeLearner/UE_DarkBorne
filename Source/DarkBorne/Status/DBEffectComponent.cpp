@@ -5,6 +5,7 @@
 #include "DBEffect.h"
 #include "../DBCharacters/DBCharacter.h"
 #include "../Inventory/ItemObject.h"
+#include "../Items/Consumables/DBConsumable.h"
 
 UDBEffectComponent::UDBEffectComponent()
 {
@@ -15,7 +16,7 @@ UDBEffectComponent::UDBEffectComponent()
 void UDBEffectComponent::BeginPlay()
 {
 	Super::BeginPlay();
-		
+	
 }
 
 void UDBEffectComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -23,15 +24,18 @@ void UDBEffectComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UDBEffectComponent::AddEffect(ADBCharacter* Instigated, TSubclassOf<UDBEffect> EffectClass, UItemObject* ItemObject)
+void UDBEffectComponent::AddEffect(ADBCharacter* Instigated, ADBConsumable* ItemToActivate)
 {
-	auto NewEffect = NewObject<UDBEffect>(Instigated, EffectClass);
-	NewEffect->Initialize(Instigated, ItemObject);
-	Effects.Add(NewEffect);
+	if (ItemToActivate) 
+	{
+		auto NewEffect = NewObject<UDBEffect>(Instigated, ItemToActivate->GetEffectClass());
+		NewEffect->Initialize(Instigated, ItemToActivate->GetItemObject());
+		Effects.Add(NewEffect);
 
-	OnInitStart.ExecuteIfBound(NewEffect, ItemObject->GetIcon());
-	
-	NewEffect->StartTick();
+		OnInitStart.ExecuteIfBound(NewEffect, ItemToActivate->GetItemObject()->GetIcon());
+
+		NewEffect->StartTick();
+	}
 }
 
 void UDBEffectComponent::RemoveEffect(UDBEffect* Effect)
@@ -40,11 +44,15 @@ void UDBEffectComponent::RemoveEffect(UDBEffect* Effect)
 	Effects.RemoveSingle(Effect);
 }
 
-bool UDBEffectComponent::CanStartEffect(UDBEffect* Effect)
+bool UDBEffectComponent::CanStartEffect(ADBConsumable* ItemToActivate)
 {
-	for (int32 i = 0; i < Effects.Num(); ++i) 
+	if (!ItemToActivate) return false;
+
+	UItemObject* ItemObject = ItemToActivate->GetItemObject();
+	
+	for (int32 i = 0; i < Effects.Num(); ++i)
 	{
-		if(Effects[i]->IsSame(Effect))
+		if (Effects[i]->IsSame(ItemObject->GetId()))
 			return false;
 	}
 
