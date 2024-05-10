@@ -54,22 +54,22 @@ public:
 	if montage successfully plays, returns true. Returns false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable)
-	bool PlayMontage(ACharacter* PlayerCharacter, FName SectionName);
+	virtual bool PlayMontage(ACharacter* PlayerCharacter, FName SectionName);
 
 	void Pickup(AActor* InteractingActor);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TObjectPtr<UAnimMontage> AnimMontage;
-
-private:
-	FName Id;
 	
 	UPROPERTY(Replicated)
 	TObjectPtr<UItemObject> ItemObj;
-	UPROPERTY(ReplicatedUsing = "OnRep_bCanInteract")
-	bool bCanInteract;
 
 	UFUNCTION()
 	void OnRep_bCanInteract();
+
+private:
+	FName Id;
+	UPROPERTY(ReplicatedUsing = "OnRep_bCanInteract")
+	bool bCanInteract;
 };
