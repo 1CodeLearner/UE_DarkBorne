@@ -25,8 +25,5 @@ public:
 	EMorigashAttackType morigeshAttackType;
 
 	
-	UFUNCTION()
-	void AnimNotify_Start_Hit();
-	UFUNCTION()
-	void AnimNotify_End_Hit();
+
 };

@@ -3,3 +3,8 @@
 
 #include "../Enemy/AnimEnemyBase.h"
 
+
+void UAnimEnemyBase::AnimNotify_End_Hit()
+{
+	isHitting = false;
+}

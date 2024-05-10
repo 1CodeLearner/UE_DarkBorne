@@ -13,6 +13,7 @@
 #include "AnimEnemyBase.h"
 #include "../Status/CharacterStatusComponent.h"
 #include "../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h"
+#include "AnimMorigeshEnemy.h"
 
 // FSM공통 부분 추가 발생시 추가할 스크립트
 //당장은 쓰이지 않음
@@ -275,11 +276,8 @@ void UEnemyFSMBase::UpdateAttackDelay()
 
 void UEnemyFSMBase::UpdateDamaged(float deltaTime)
 {
-	if (IsWaitComplete(damageDelayTime))
-	{
-		// IDLE 상태로 전환
-		ChangeState(EEnemyState::IDLE);
-	}
+	
+	
 }
 
 void UEnemyFSMBase::UpdateDie()

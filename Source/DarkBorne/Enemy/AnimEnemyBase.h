@@ -24,4 +24,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isDeath = false;	
+
+	UFUNCTION()
+	void AnimNotify_End_Hit();
 };

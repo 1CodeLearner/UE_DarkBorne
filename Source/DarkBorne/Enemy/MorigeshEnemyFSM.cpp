@@ -72,6 +72,15 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 	anim->state = currState;
 	currTime = 0;
 
+	if (anim->isHitting)
+	{
+		//1. 랜덤한 값을 뽑는다. (1, 2)
+		int32 rand = FMath::RandRange(1, 4);
+		//2. Damage01, Damage02 란 문자열을 만든다.
+		FString sectionName = FString::Printf(TEXT("Damage0%d"), rand);
+		//3. Montage 플레이
+		myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName));
+	}
 	switch (currState)
 	{
 		case EEnemyState::ATTACK:
@@ -79,21 +88,16 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 		break;
 		case EEnemyState::DAMAGE:
 		{
-			//1. 랜덤한 값을 뽑는다. (1, 2)
-			int32 rand = FMath::RandRange(1, 4);
-			//2. Damage01, Damage02 란 문자열을 만든다.
-			FString sectionName = FString::Printf(TEXT("Damage0%d"), rand);
-			//3. Montage 플레이
-			myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName));
+			
 		}
 			break;
-		case EEnemyState::DIE:
-		{
-			// 죽는 애니메이션 플레이
-			myActor->PlayAnimMontage(montage, 1.0f, TEXT("Die"));
-			// 충돌 처리 되지 않게 하자		
-			myActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		}
+		//case EEnemyState::DIE:
+		//{
+		//	// 죽는 애니메이션 플레이
+		//	myActor->PlayAnimMontage(montage, 1.0f, TEXT("Die"));
+		//	// 충돌 처리 되지 않게 하자		
+		//	myActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//}
 			break;
 		default:
 			break;
@@ -125,5 +129,15 @@ void UMorigeshEnemyFSM::OnRep_CurrentState()
 	{
 		anim->state = currState;
 
+	}
+}
+
+void UMorigeshEnemyFSM::UpdateDamaged(float deltaTime)
+{
+	Super::UpdateDamaged(deltaTime);
+	if (!anim->isHitting)
+	{
+		// IDLE 상태로 전환
+		ChangeState(EEnemyState::IDLE);
 	}
 }
