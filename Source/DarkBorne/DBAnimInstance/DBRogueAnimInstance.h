@@ -89,4 +89,5 @@ public:
 	void AnimNotify_Start_Shift();
 	UFUNCTION()
 	void AnimNotify_End_Shift();
+
 };

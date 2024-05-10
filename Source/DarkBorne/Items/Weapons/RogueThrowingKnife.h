@@ -41,6 +41,9 @@ public:
 public:
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* BloodVFX;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* HitWallVFX;
 public:
 	UPROPERTY(Replicated)
 

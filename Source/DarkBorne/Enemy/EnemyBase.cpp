@@ -9,10 +9,15 @@
 #include "GameFramework/Actor.h"
 #include "../Status/CharacterStatusComponent.h"
 
+#include "../Inventory/LootInventoryComponent.h"
+#include "../DBCharacters/DBCharacter.h"
+#include "../Inventory/InventoryMainWidget.h"
+
+
 // Sets default values
 AEnemyBase::AEnemyBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	SetReplicates(true);
 
@@ -24,36 +29,39 @@ AEnemyBase::AEnemyBase()
 	GetCharacterMovement()->SetIsReplicated(true);
 
 	//baseFSM = CreateDefaultSubobject<UEnemyFSMBase>(TEXT("BaseFSM"));
-	
-	
-	
 
-	
+
+
+
+
 	// Capsule 컴포넌트 CollisonPreset = EnemyProfile (CPPTPS들고옴)
 	// Mesh 컴포넌트 CollisionPreset = NoCollision
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerColl"));
 	GetMesh()->SetCollisionProfileName(TEXT("PlayerMeshColl"));
 	CharacterStatusComponent = CreateDefaultSubobject<UCharacterStatusComponent>("CharacterStatusComp");
 	CharacterStatusComponent->SetNetAddressable();
-	CharacterStatusComponent ->SetIsReplicated(true);
+	CharacterStatusComponent->SetIsReplicated(true);
 	//Auto Possess ai 설정 (spawn, placed 둘다 동작하게)
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-	
 
+
+	LootInventoryComp = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
 }
 
 // Called when the game starts or when spawned
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	//Remove this after testing
+	GetCapsuleComponent()->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel3);
 }
 
 // Called every frame
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	FString OwnerName = GetOwner() != nullptr ? GetOwner()->GetName() : TEXT("No Owner");
 	//FString FSMTypeString = EnumToString(TEXT("EVehicleType"), static_cast<int32>(baseFSM->currState));
 	//UE_LOG(LogTemp, Warning, TEXT("Owner: %s, fsmStatus: %s"), *OwnerName, FSMTypeString);
@@ -92,20 +100,20 @@ void AEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 /// <returns>죽었는가 리턴 받아서 FSM에서 애니메이션 처리</returns>
 void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 {
-	
+
 	if (baseFSM != nullptr)
 	{
 		baseFSM->nowTarget = attackSource;
 		baseFSM->ChangeState(EEnemyState::MOVE);
 	}
-	
+
 	CharacterStatusComponent->CurrHP -= damage;
-	
+
 
 	if (CharacterStatusComponent->CurrHP <= 0)
 	{
 		CharacterStatusComponent->CurrHP = 0;
-		
+
 		baseFSM->ChangeState(EEnemyState::DIE);
 	}
 	else
@@ -113,6 +121,51 @@ void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 		UE_LOG(LogTemp, Warning, TEXT("enemy now Health: %f"), CharacterStatusComponent->CurrHP);
 		baseFSM->ChangeState(EEnemyState::DAMAGE);
 	}
+}
+
+void AEnemyBase::BeginInteract(UDBInteractionComponent* InteractionComp)
+{
+}
+
+void AEnemyBase::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* OtherCharacter)
+{
+	auto OtherPlayer = Cast<ADBCharacter>(OtherCharacter);
+	if (ensureAlways(OtherPlayer) && OtherPlayer->InvMainWidget)
+	{
+		OtherPlayer->InvMainWidget->InitLootDisplay(this);
+		if (OtherPlayer->InvMainWidget->IsLootValid())
+		{
+			OtherPlayer->InvMainWidget->DisplayInventory(true);
+		}
+	}
+}
+
+void AEnemyBase::InterruptInteract()
+{
+}
+
+void AEnemyBase::BeginTrace()
+{
+}
+
+void AEnemyBase::EndTrace()
+{
+}
+
+bool AEnemyBase::CanInteract() const
+{
+	return true;
+	//return (baseFSM && baseFSM->currState == EEnemyState::DIE);
+}
+
+void AEnemyBase::SetCanInteract(bool bAllowInteract)
+{
+	UE_LOG(LogTemp, Warning, TEXT("SetCanInteract in EnemyBase"));
+}
+
+FDisplayInfo AEnemyBase::GetDisplayInfo() const
+{
+	return FDisplayInfo(TEXT("Default"), TEXT("Default"));
 }
 
 

@@ -9,6 +9,7 @@
 #include "../DBCharacterSkill/DBRogueSkillComponent.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/ProjectileMovementComponent.h>
 #include "../../DBAnimInstance/DBRogueAnimInstance.h"
+#include <../../../../../../../Source/Runtime/Engine/Public/Net/UnrealNetwork.h>
 
 
 
@@ -42,6 +43,11 @@ void UDBRogueAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType
 void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent* enhancedInputComponent)
 {
 	enhancedInputComponent->BindAction(ia_DB_Attack, ETriggerEvent::Triggered, this, &UDBRogueAttackComponent::RogueAttack);
+}
+
+void UDBRogueAttackComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	DOREPLIFETIME(UDBRogueAttackComponent, KnifeCount);
 }
 
 void UDBRogueAttackComponent::RogueAttack()

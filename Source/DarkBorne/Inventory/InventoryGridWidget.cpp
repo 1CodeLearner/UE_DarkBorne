@@ -18,10 +18,14 @@ void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp)
 	CreateLineSegments();
 	Refresh();
 
-	InventoryComponent->OnInventoryChanged.AddDynamic(this, &UInventoryGridWidget::Refresh);
+	auto nice = Cast<UBaseInventoryComponent>(InventoryComponent);
+	if (nice)
+		InventoryComponent->OnInventoryChanged.AddDynamic(this, &UInventoryGridWidget::Refresh);
+	else
+		UE_LOG(LogTemp,Warning,TEXT("WHOSDJFLSDKJF"));
 
 	auto Taxi = GetOwningPlayerPawn()->GetComponentByClass<UPlayerEquipmentComponent>();
-	if(ensureAlways(Taxi))
+	if (ensureAlways(Taxi))
 	{
 		TaxiToServer = Taxi;
 	}
@@ -29,7 +33,7 @@ void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp)
 
 void UInventoryGridWidget::Reset()
 {
-	if(InventoryComponent && InventoryComponent->OnInventoryChanged.IsBound())
+	if (InventoryComponent && InventoryComponent->OnInventoryChanged.IsBound())
 	{
 		InventoryComponent->OnInventoryChanged.Clear();
 	}
@@ -40,21 +44,21 @@ void UInventoryGridWidget::CreateLineSegments()
 {
 	Lines.Empty();
 
-	for(int32 i = 0; i < InventoryComponent->GetColumn() + 1; ++i)
+	for (int32 i = 0; i < InventoryComponent->GetColumn() + 1; ++i)
 	{
 		int32 x = i * TileSize;
 		FVector2D Start(x, 0);
 		FVector2D End(x, InventoryComponent->GetRow() * TileSize);
-		
-		Lines.Add(FLine(Start,End));
+
+		Lines.Add(FLine(Start, End));
 	}
-	
-	for(int32 i = 0; i < InventoryComponent->GetRow() + 1; ++i)
+
+	for (int32 i = 0; i < InventoryComponent->GetRow() + 1; ++i)
 	{
 		int32 y = i * TileSize;
 		FVector2D Start(0, y);
-		FVector2D End(InventoryComponent->GetColumn() * TileSize, y );
-		
-		Lines.Add(FLine(Start,End));
+		FVector2D End(InventoryComponent->GetColumn() * TileSize, y);
+
+		Lines.Add(FLine(Start, End));
 	}
 }
