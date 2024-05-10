@@ -147,9 +147,10 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
 {
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
+	AEnemyBase* OtherEnemy = Cast<AEnemyBase>(OtherActor);
 
 	
-	if(OtherPlayer)
+	if(OtherPlayer|| OtherEnemy)
 	{
 		FString Level = GetWorld()->GetMapName();
 		Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);

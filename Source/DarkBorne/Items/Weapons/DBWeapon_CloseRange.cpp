@@ -73,7 +73,8 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
-	if (OtherPlayer)
+	AEnemyBase* OtherEnemy = Cast<AEnemyBase>(OtherActor);
+	if (OtherPlayer|| OtherEnemy)
 	{
 		FString Level = GetWorld()->GetMapName();
 		Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);

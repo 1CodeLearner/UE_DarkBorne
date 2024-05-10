@@ -187,6 +187,8 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 		case EEnemyState::DAMAGE:
 			break;
 		case EEnemyState::DIE:
+			//myActor->GetMesh()->SetSimulatePhysics(true);
+			//myActor->GetCapsuleComponent()->SetSimulatePhysics(true);
 			break;
 		default:
 			break;
