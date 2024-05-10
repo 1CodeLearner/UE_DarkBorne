@@ -6,5 +6,6 @@
 
 void UAnimEnemyBase::AnimNotify_End_Hit()
 {
+	UE_LOG(LogTemp,Warning,TEXT("is end hit"));
 	isHitting = false;
 }

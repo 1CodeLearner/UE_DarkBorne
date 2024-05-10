@@ -72,15 +72,7 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 	anim->state = currState;
 	currTime = 0;
 
-	if (anim->isHitting)
-	{
-		//1. 랜덤한 값을 뽑는다. (1, 2)
-		int32 rand = FMath::RandRange(1, 4);
-		//2. Damage01, Damage02 란 문자열을 만든다.
-		FString sectionName = FString::Printf(TEXT("Damage0%d"), rand);
-		//3. Montage 플레이
-		myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName));
-	}
+	
 	switch (currState)
 	{
 		case EEnemyState::ATTACK:
@@ -88,7 +80,12 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 		break;
 		case EEnemyState::DAMAGE:
 		{
-			
+			//1. 랜덤한 값을 뽑는다. (1, 2)
+			int32 rand = FMath::RandRange(1, 4);
+			//2. Damage01, Damage02 란 문자열을 만든다.
+			FString sectionName = FString::Printf(TEXT("Damage0%d"), rand);
+			//3. Montage 플레이
+			myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName));
 		}
 			break;
 		//case EEnemyState::DIE:
