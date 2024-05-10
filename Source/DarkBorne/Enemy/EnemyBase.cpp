@@ -52,9 +52,6 @@ AEnemyBase::AEnemyBase()
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//Remove this after testing
-	GetCapsuleComponent()->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel3);
 }
 
 // Called every frame
@@ -155,7 +152,6 @@ void AEnemyBase::EndTrace()
 bool AEnemyBase::CanInteract() const
 {
 	return true;
-	//return (baseFSM && baseFSM->currState == EEnemyState::DIE);
 }
 
 void AEnemyBase::SetCanInteract(bool bAllowInteract)
