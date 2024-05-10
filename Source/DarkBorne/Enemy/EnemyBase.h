@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "../Framework/Interfaces/InteractionInterface.h"
 #include "EnemyBase.generated.h"
 
 
@@ -14,9 +15,10 @@ enum class EEnemyAttackType : uint8
 	RANGED 
 };
 
+class ULootInventoryComponent;
 
 UCLASS()
-class DARKBORNE_API AEnemyBase : public ACharacter
+class DARKBORNE_API AEnemyBase : public ACharacter, public IInteractionInterface
 {
 	GENERATED_BODY()
 
@@ -47,6 +49,8 @@ public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	class UCharacterStatusComponent* CharacterStatusComponent;
 	
+	UPROPERTY(EditAnywhere, Category="Settings")
+	TObjectPtr<ULootInventoryComponent> LootInventoryComp;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -61,5 +65,23 @@ public:
 public:
 	UFUNCTION()
 	void OnRef_CurrHP() {};
+
+
+	// Inherited via IInteractionInterface
+	virtual void BeginInteract(UDBInteractionComponent* InteractionComp) override;
+
+	virtual void ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* OtherCharacter) override;
+
+	virtual void InterruptInteract() override;
+
+	virtual void BeginTrace() override;
+
+	virtual void EndTrace() override;
+
+	virtual bool CanInteract() const override;
+
+	virtual void SetCanInteract(bool bAllowInteract) override;
+
+	virtual FDisplayInfo GetDisplayInfo() const override;
 
 };

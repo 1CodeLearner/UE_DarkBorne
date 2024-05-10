@@ -31,4 +31,6 @@ public:
 
 public:
 	class USkeletalMeshComponent* myMesh;
+
+	virtual FDisplayInfo GetDisplayInfo() const override;
 };

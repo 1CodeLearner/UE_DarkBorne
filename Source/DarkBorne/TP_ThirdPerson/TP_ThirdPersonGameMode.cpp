@@ -8,6 +8,8 @@
 #include "../ItemTypes/EnchantmentTypes.h"
 #include "../Framework/DBPlayerController.h"
 #include "../DBCharacters/DBCharacter.h"
+#include "../Inventory/ItemObject.h"
+#include "../Inventory/BaseInventoryComponent.h"
 
 ATP_ThirdPersonGameMode::ATP_ThirdPersonGameMode()
 {
@@ -18,6 +20,23 @@ ATP_ThirdPersonGameMode::ATP_ThirdPersonGameMode()
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
+	}
+}
+
+void ATP_ThirdPersonGameMode::AddItemTo(AActor* Actor, FName LootName)
+{
+	auto InventoryComp = Actor->GetComponentByClass<UBaseInventoryComponent>();
+	if (InventoryComp)
+	{
+		TArray<FItem> Items = GenerateItems("LootChest");
+		for (int i = 0; i < Items.Num(); ++i)
+		{
+			auto ItemObject = NewObject<UItemObject>(this);
+			ItemObject->Initialize(Items[i]);
+
+			UE_LOG(LogTemp, Warning, TEXT("Yes it works"));
+			InventoryComp->TryAddItem(ItemObject, InventoryComp);
+		}
 	}
 }
 
@@ -37,10 +56,10 @@ void ATP_ThirdPersonGameMode::OnPlayerDead(APlayerController* PlayerController)
 		//declare dead
 		ActivePlayers[DBPC] = false;
 		WonPlayer = CheckIfPlayerWon();
-		if(WonPlayer)
+		if (WonPlayer)
 		{
 			OnGameEnd.Broadcast(WonPlayer);
-			EndMatch(); 
+			EndMatch();
 		}
 	}
 }
@@ -50,7 +69,7 @@ TArray<ADBPlayerController*> ATP_ThirdPersonGameMode::GetConnectedPlayers() cons
 	return ConnectedPlayers;
 }
 
-TArray<class ADBCharacter*> ATP_ThirdPersonGameMode::GetPlayerCharacters() 
+TArray<class ADBCharacter*> ATP_ThirdPersonGameMode::GetPlayerCharacters()
 {
 	// 플레이어 캐릭터를 저장할 배열
 	TArray<class ADBCharacter*> PlayerCharacters;
@@ -85,7 +104,7 @@ void ATP_ThirdPersonGameMode::InitGame(const FString& MapName, const FString& Op
 
 void ATP_ThirdPersonGameMode::Tick(float DeltaSeconds)
 {
-	Super::Tick(DeltaSeconds);	
+	Super::Tick(DeltaSeconds);
 }
 
 void ATP_ThirdPersonGameMode::BeginPlay()
@@ -109,7 +128,7 @@ void ATP_ThirdPersonGameMode::Logout(AController* Exiting)
 	Super::Logout(Exiting);
 
 	auto PC = Cast<ADBPlayerController>(Exiting);
-	if (PC) 
+	if (PC)
 	{
 		ActivePlayers.Remove(PC);
 		ConnectedPlayers.Add(PC);
@@ -141,7 +160,7 @@ void ATP_ThirdPersonGameMode::HandleMatchHasEnded()
 {
 	Super::HandleMatchHasEnded();
 	UE_LOG(LogTemp, Warning, TEXT("Player won : %s"), *WonPlayer->GetName());
-	
+
 	for (const auto& what : ActivePlayers)
 	{
 		//Tell each controller to display their match state.
@@ -162,7 +181,7 @@ ADBPlayerController* ATP_ThirdPersonGameMode::CheckIfPlayerWon()
 		}
 	}
 	if (PlayerWon && count == 1) return PlayerWon;
-	
+
 	return nullptr;
 }
 

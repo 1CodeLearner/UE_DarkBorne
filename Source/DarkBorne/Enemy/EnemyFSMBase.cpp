@@ -28,7 +28,7 @@ UEnemyFSMBase::UEnemyFSMBase()
 	// ...
 	// 
 	// 
-	
+
 }
 
 
@@ -39,7 +39,7 @@ void UEnemyFSMBase::BeginPlay()
 
 	myActor = Cast<AEnemyBase>(GetOwner());
 
-	if(myActor->HasAuthority())
+	if (myActor->HasAuthority())
 	{
 		AGameModeBase* GameMode = UGameplayStatics::GetGameMode(GetWorld());
 		if (GameMode)
@@ -57,7 +57,7 @@ void UEnemyFSMBase::BeginPlay()
 			}
 		}
 
-		
+
 
 		ai = Cast<AAIController>(myActor->GetController());
 
@@ -76,8 +76,8 @@ void UEnemyFSMBase::BeginPlay()
 
 		ns = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 	}
-	
-	
+
+
 }
 
 
@@ -85,13 +85,13 @@ void UEnemyFSMBase::BeginPlay()
 void UEnemyFSMBase::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	 
+
 	// ...
 
 	if (myActor->HasAuthority())
 	{
 
-		
+
 		switch (currState)
 		{
 		case EEnemyState::IDLE:
@@ -121,7 +121,7 @@ void UEnemyFSMBase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 			break;
 		}
 	}
-	
+
 }
 
 void UEnemyFSMBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -133,8 +133,8 @@ void UEnemyFSMBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
 void UEnemyFSMBase::ChangeState(EEnemyState e)
 {
-	
-	
+
+
 
 	// 바뀌는 상태를 출력하자
 	/*
@@ -147,6 +147,8 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 	}
 	*/
 	currState = e;
+	//???? ????? ?? ??
+	OnRep_CurrentState();
 	currTime = 0;
 	if (myActor->HasAuthority())
 	{
@@ -192,12 +194,12 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 
 		}
 	}
-	
+
 }
 
 void UEnemyFSMBase::UpdateIdle()
 {
-	
+
 	// 만약에 플레이어를 쫓아갈 수 있다면
 	if (IsVisibleCheck())
 	{
@@ -219,7 +221,7 @@ void UEnemyFSMBase::UpdateMove()
 		ChangeState(EEnemyState::IDLE);
 		return;
 	}
-	else if(IsEngageRangeCheck() && CanVisibleAttack())
+	else if (IsEngageRangeCheck() && CanVisibleAttack())
 	{
 		ChangeState(EEnemyState::ATTACK);
 	}
@@ -243,7 +245,7 @@ void UEnemyFSMBase::UpdatePatrol()
 
 void UEnemyFSMBase::UpdateAttack()
 {
-	
+
 	ChangeState(EEnemyState::ATTACK_DELAY);
 }
 
@@ -252,7 +254,7 @@ void UEnemyFSMBase::UpdateAttackDelay()
 	if (IsWaitComplete(attackDelayTime))
 	{
 		//교전거리 0, 보임 0
-		if (IsEngageRangeCheck()&& CanVisibleAttack())
+		if (IsEngageRangeCheck() && CanVisibleAttack())
 		{
 			ChangeState(EEnemyState::ATTACK);
 		}
@@ -284,7 +286,7 @@ void UEnemyFSMBase::UpdateDamaged(float deltaTime)
 
 void UEnemyFSMBase::UpdateDie()
 {
-	
+
 }
 
 void UEnemyFSMBase::EyeOnTarget()
@@ -333,7 +335,7 @@ bool UEnemyFSMBase::IsEngageRangeCheck()
 /// <returns>true면 범위 벗어남, false면 내부</returns>
 bool UEnemyFSMBase::IsOutRangeCheck()
 {
-	if(nowTarget == nullptr) return false;
+	if (nowTarget == nullptr) return false;
 
 	FVector dir = nowTarget->GetActorLocation() - myActor->GetActorLocation();
 	float dist = dir.Length();
@@ -378,16 +380,16 @@ bool UEnemyFSMBase::IsVisibleCheck()
 			bool hit = GetWorld()->LineTraceSingleByChannel(hitInfo, start, end, ECC_PhysicsBody, param);
 			if (hit && (Cast<ADBCharacter>(hitInfo.GetActor()) != nullptr))
 			{
-				if(distance <= 0 || distance > dist)
-				selectTarget = tempTarget;
+				if (distance <= 0 || distance > dist)
+					selectTarget = tempTarget;
 				distance = dist;
 			}
 
 		}
-		
+
 	}
-	if(selectTarget == nullptr)
-	{ 
+	if (selectTarget == nullptr)
+	{
 		return false;
 	}
 	else
@@ -395,8 +397,8 @@ bool UEnemyFSMBase::IsVisibleCheck()
 		nowTarget = selectTarget;
 		return true;
 	}
-	
-	
+
+
 }
 
 bool UEnemyFSMBase::CanVisibleAttack()
@@ -446,22 +448,25 @@ void UEnemyFSMBase::DeathCheck()
 		myActor->
 	}
 
-	
-	
+
+
 
 }
 */
 void UEnemyFSMBase::OnRep_CurrentState()
 {
 	// 클라이언트에서 상태 변경 시 추가적으로 필요한 동작 구현
-
-
+	if (ensureAlways(myActor) && currState == EEnemyState::DIE)
+	{
+		//???? "Item" collision object type ? ??
+		myActor->GetCapsuleComponent()->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel3);
+	}
 }
 
-void UEnemyFSMBase::OnPlayerStatus(class ADBPlayerController* temp, bool temp2) 
+void UEnemyFSMBase::OnPlayerStatus(class ADBPlayerController* temp, bool temp2)
 {
 	TArray<class ADBCharacter*> list;
-	
+
 	enemyTargetList = tpsgamemode->GetPlayerCharacters();
 
 	//UE_LOG(LogTemp,Warning,TEXT("this"));
