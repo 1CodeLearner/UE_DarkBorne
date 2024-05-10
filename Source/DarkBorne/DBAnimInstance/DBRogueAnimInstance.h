@@ -55,7 +55,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isAttacking;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	bool isCastingShift = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
