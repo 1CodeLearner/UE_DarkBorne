@@ -29,9 +29,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	FItem GenerateItemByName(FName ItemName, EItemType Type);
 
-	UFUNCTION(BlueprintCallable)
-	static void AdjustFinalStat(AActor* Instigated, const FItem& item, bool bIsAdd);
-
 protected:
 	virtual void BeginPlay() override;
 

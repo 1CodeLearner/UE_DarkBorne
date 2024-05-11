@@ -37,6 +37,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION(Server,Reliable)
+	void Server_AddEffect(ADBCharacter* Instigated, ADBConsumable* ItemToActivate);
+
 private:
 	UPROPERTY(VisibleAnywhere, Category="Settings")
 	TArray<UDBEffect*> Effects;		

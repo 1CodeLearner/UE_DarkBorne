@@ -27,6 +27,11 @@ void UDBEffectComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 void UDBEffectComponent::AddEffect(ADBCharacter* Instigated, ADBConsumable* ItemToActivate)
 {
+	Server_AddEffect(Instigated, ItemToActivate);
+}
+
+void UDBEffectComponent::Server_AddEffect_Implementation(ADBCharacter* Instigated, ADBConsumable* ItemToActivate)
+{
 	if (ItemToActivate) 
 	{
 		auto NewEffect = NewObject<UDBEffect>(Instigated, ItemToActivate->GetEffectClass());
