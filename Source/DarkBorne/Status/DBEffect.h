@@ -52,6 +52,8 @@ protected:
 	}
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	virtual UWorld* GetWorld() const override;
+
 protected:
 	UDBEffectComponent* GetEffectComponent() const;
 

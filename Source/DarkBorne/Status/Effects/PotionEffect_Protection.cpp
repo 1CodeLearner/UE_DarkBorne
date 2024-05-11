@@ -6,6 +6,8 @@
 #include "../../DBCharacters/DBCharacter.h"
 #include "../DBEffectComponent.h"
 #include "../CharacterStatusComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
 
 UPotionEffect_Protection::UPotionEffect_Protection()
 {
@@ -28,8 +30,19 @@ void UPotionEffect_Protection::StartTick()
 	if (StatusComp)
 	{
 		StatusComp->AddBlockAmount(Amount);
+		if(ensure(ShieldClass))
+		{
+			FTransform Trans; 
+			Trans.SetLocation(FVector::Zero());
+			Trans.SetRotation(FQuat::Identity);
+			Trans.SetScale3D(FVector::One());
+			ShieldActor = GetWorld()->SpawnActor<AActor>(ShieldClass, Trans);
+			if(ShieldActor)
+			{
+				AffectedCharacter->GetMesh()->GetSocketByName("ShieldSocket")->AttachActor(ShieldActor,AffectedCharacter->GetMesh());
+			}
+		}
 	}
-
 }
 
 void UPotionEffect_Protection::StopTick()
@@ -40,5 +53,6 @@ void UPotionEffect_Protection::StopTick()
 	if (StatusComp)
 	{
 		StatusComp->RemoveBlockAmount(Amount);
+		ShieldActor->Destroy();
 	}
 }

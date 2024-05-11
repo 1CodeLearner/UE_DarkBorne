@@ -54,6 +54,19 @@ void UDBEffect::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(UDBEffect, IconDisplay);
 }
 
+UWorld* UDBEffect::GetWorld() const
+{
+	auto Actor = Cast<AActor>(GetOuter());
+	if (ensureAlways(Actor))
+	{
+		return Actor->GetWorld();
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("Outer for UDBEffect is not an AActor type. Returning nullptr for GetWorld()"));
+		return nullptr;
+	}
+}
+
 UDBEffectComponent* UDBEffect::GetEffectComponent() const
 {
 	return EffectComponent;
