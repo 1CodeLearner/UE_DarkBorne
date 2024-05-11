@@ -11,10 +11,17 @@
  */
 class UEffectIconWidget;
 class UHorizontalBox;
+class UDBEffect;
 UCLASS()
 class DARKBORNE_API UEffectDisplayWidget : public UUserWidget
 {
 	GENERATED_BODY()
+public:
+	void RemoveEffectIcon(UEffectIconWidget* IconWidget);
+
+protected:
+	virtual void NativeOnInitialized() override;
+
 
 protected:
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
@@ -22,4 +29,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TSubclassOf<UEffectIconWidget> EffectIconWidget;
+
+	void OnEffectStart(UDBEffect* effect, UMaterialInterface* IconDisplay);
 };

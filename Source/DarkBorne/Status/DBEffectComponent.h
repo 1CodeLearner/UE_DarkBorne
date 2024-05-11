@@ -13,7 +13,7 @@ class ADBCharacter;
 class UMaterialInterface; 
 class ADBConsumable;
 
-DECLARE_DELEGATE_TwoParams(FInitStartDelegate, UDBEffect* /*effect*/, UMaterialInterface* /*IconDisplay*/);
+DECLARE_DELEGATE_TwoParams(FEffectStartDelegate, UDBEffect* /*effect*/, UMaterialInterface* /*IconDisplay*/);
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -34,7 +34,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool CanStartEffect(ADBConsumable* ItemToActivate);
 	
-	FInitStartDelegate OnInitStart;
+	FEffectStartDelegate OnEffectStart;
 
 protected:
 	virtual void BeginPlay() override;

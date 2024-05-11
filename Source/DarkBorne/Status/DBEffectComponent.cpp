@@ -38,7 +38,7 @@ void UDBEffectComponent::Server_AddEffect_Implementation(ADBCharacter* Instigate
 		NewEffect->Initialize(Instigated, ItemToActivate->GetItemObject(), this);
 		Effects.Add(NewEffect);
 
-		OnInitStart.ExecuteIfBound(NewEffect, ItemToActivate->GetItemObject()->GetIcon());
+		OnEffectStart.ExecuteIfBound(NewEffect, ItemToActivate->GetItemObject()->GetIcon());
 
 		NewEffect->StartTick();
 	}

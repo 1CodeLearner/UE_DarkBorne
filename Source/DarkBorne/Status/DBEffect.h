@@ -38,7 +38,7 @@ protected:
 	virtual bool IsAllowedToTick() const override { return bIsTicking; }
 
 	TObjectPtr<ADBCharacter> AffectedCharacter;
-
+	
 	float TotalTime;
 	float currTime;
 private:
