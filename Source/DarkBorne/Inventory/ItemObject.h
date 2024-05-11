@@ -31,6 +31,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Initialize(FItem _Item, ADBItem* _ItemActor = nullptr);
 
+	UFUNCTION(BlueprintCallable)
 	ADBItem* SpawnItem(AActor* Initiator, bool bSetOwner, FTransform Trans, float forwardOffset);
 
 	UFUNCTION(BlueprintCallable)
@@ -44,6 +45,9 @@ public:
 	FText GetDisplayName() const;
 
 	FName GetId() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetRarityValue() const;
 
 	UFUNCTION(BlueprintPure)
 	FIntPoint GetDimentions();  // Ã¶ÀÚ ¼öÁ¤

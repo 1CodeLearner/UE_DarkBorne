@@ -6,13 +6,29 @@
 #include "../DBItem.h"
 #include "DBConsumable.generated.h"
 
+class UDBEffect;
+class ADBCharacter;
 /**
- * 
+ *
  */
 UCLASS()
 class DARKBORNE_API ADBConsumable : public ADBItem
 {
 	GENERATED_BODY()
-	
 
+public:
+	virtual bool PlayMontage(ACharacter* PlayerCharacter, FName SectionName) override;
+	TSubclassOf<UDBEffect> GetEffectClass() const;
+
+protected:
+	UFUNCTION()
+	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UPROPERTY(EditDefaultsOnly, Category="Settings")
+	TSubclassOf<UDBEffect> EffectClass;
+	
+private:
+	UPROPERTY()
+	TObjectPtr<ADBCharacter> OwningCharacter;
+	FScriptDelegate Delegate;
 };

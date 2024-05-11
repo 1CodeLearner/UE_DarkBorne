@@ -10,32 +10,46 @@
 
 class UDBEffect;
 class ADBCharacter;
-class UMaterialInterface; 
+class UMaterialInterface;
+class ADBConsumable;
 
-DECLARE_DELEGATE_TwoParams(FInitStartDelegate, UDBEffect* /*effect*/, UMaterialInterface* /*IconDisplay*/);
+//DECLARE_DELEGATE_TwoParams(FEffectStartDelegate, UDBEffect* /*effect*/, UMaterialInterface* /*IconDisplay*/);
 
+DECLARE_DELEGATE_OneParam(EffectUpdateDelegate, TArray<UDBEffect*> UpdatedEffects);
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DARKBORNE_API UDBEffectComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	UDBEffectComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void AddEffect(ADBCharacter* Instigated, TSubclassOf<UDBEffect> EffectClass, UItemObject* ItemObject);
+	void AddEffect(ADBCharacter* Instigated, ADBConsumable* ItemToActivate);
 
 	void RemoveEffect(UDBEffect* Effect);
 
-	bool CanStartEffect(UDBEffect* Effect);
-	
-	FInitStartDelegate OnInitStart;
+	void RemoveAllEffects();
+
+	UFUNCTION(BlueprintCallable)
+	bool CanStartEffect(ADBConsumable* ItemToActivate);
+
+	//FEffectStartDelegate OnEffectStart;
+	EffectUpdateDelegate OnEffectUpdate;
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
-private:	
+
+	UFUNCTION(Server, Reliable)
+	void Server_AddEffect(ADBCharacter* Instigated, ADBConsumable* ItemToActivate);
+
+private:
+	UPROPERTY(ReplicatedUsing = "OnRep_Effects", VisibleAnywhere, Category = "Settings")
 	TArray<UDBEffect*> Effects;
-		
+	UFUNCTION()
+	void OnRep_Effects();
 };

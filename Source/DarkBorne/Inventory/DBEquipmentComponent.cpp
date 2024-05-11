@@ -78,7 +78,7 @@ void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryCo
 {
 	if (!IsValid(ItemObject)) return;
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	if(ItemObject != Items[index])
+	if (ItemObject != Items[index])
 		return;
 
 	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
@@ -115,21 +115,17 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 	TArray<UItemObject*> old = Items;
 	UItemObject* TempItemObj = Items[index];
 	Items[index] = nullptr;
-	
+
 	//destroy item begin held by player
-	if (TempItemObj) 
+	if (TempItemObj)
 	{
 		TempItemObj->TryDestroyItemActor();
 	}
 
-	if (ItemObject->GetSlotType() == ESlotType::WEAPON)
+	auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	if (WeaponComp)
 	{
-		auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-		if (WeaponComp)
-		{
-			WeaponComp->hasWeapon = false;
-			WeaponComp->PassItem(ItemObject);
-		}
+		WeaponComp->PassItem(ItemObject);
 	}
 
 	OnRep_Items(old);
@@ -189,14 +185,10 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 
 	ItemObject->TryDestroyItemActor();
 
-	if (ItemObject->GetSlotType() == ESlotType::WEAPON)
+	auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	if (WeaponComp)
 	{
-		auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
-		if (WeaponComp)
-		{
-			WeaponComp->hasWeapon = false;
-			WeaponComp->PassItem(ItemObject);
-		}
+		WeaponComp->PassItem(ItemObject);
 	}
 
 	OnRep_Items(old);

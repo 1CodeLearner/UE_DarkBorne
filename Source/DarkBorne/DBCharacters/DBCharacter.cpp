@@ -22,14 +22,6 @@
 #include "../Status/CharacterStatusComponent.h"
 
 
-FFinalStat ADBCharacter::GetFinalStat(ACharacter* Character)
-{
-	if (Character->IsA<ADBCharacter>()) {
-		return Cast<ADBCharacter>(Character)->GetFinalStat();
-	}
-	return FFinalStat();
-}
-
 // Sets default values
 ADBCharacter::ADBCharacter()
 {
@@ -80,23 +72,14 @@ void ADBCharacter::BeginPlay()
 			CreatePlayerWidget();
 		}
 	}
+}
 
-	// 서버라면
-	if (HasAuthority())
+void ADBCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if(CharacterStatusComponent)
 	{
-		//CreatePlayerWidget();
-		if (ensureAlways(DT_CharacterStats))
-			CharacterBaseStat = *DT_CharacterStats->FindRow<FCharacterBaseStat>
-			(
-				RowName,
-				FString::Printf(TEXT("Getting CharacterBaseStat"))
-			);
-
-		if (ensure(CharacterBaseStat.Attributes.Num() == FinalStat.Attributes.Num()))
-		{
-			for (int32 i = 0; i < CharacterBaseStat.Attributes.Num(); ++i)
-				FinalStat.Attributes[i] += CharacterBaseStat.Attributes[i];
-		}
+		CharacterStatusComponent->Initialize();
 	}
 }
 
@@ -297,11 +280,6 @@ void ADBCharacter::OnRep_CurrHP()
 	if (PlayerWidget == nullptr) return;
 	PlayerWidget->UpdateHeathBar(CharacterStatusComponent->CurrHP, CharacterStatusComponent->MaxHP);
 	UE_LOG(LogTemp, Warning, TEXT("Testing:%f"), CharacterStatusComponent->CurrHP);
-}
-
-const FFinalStat& ADBCharacter::GetFinalStat() const
-{
-	return FinalStat;
 }
 
 

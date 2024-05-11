@@ -20,7 +20,8 @@ public:
 	ADBItem();
 	virtual void Tick(float DeltaTime) override;
 	void Initialize(UItemObject* ItemObject);
-	
+	UItemObject* GetItemObject() const;
+
 	//ÄÝ¸®Àü Ä¸½¶ ÄÄÆ÷³ÍÆ®
 	UPROPERTY(EditAnywhere)
 	class UCapsuleComponent* CapsuleComp;
@@ -54,22 +55,21 @@ public:
 	if montage successfully plays, returns true. Returns false otherwise.
 	*/
 	UFUNCTION(BlueprintCallable)
-	bool PlayMontage(ACharacter* PlayerCharacter, FName SectionName);
+	virtual bool PlayMontage(ACharacter* PlayerCharacter, FName SectionName);
 
 	void Pickup(AActor* InteractingActor);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TObjectPtr<UAnimMontage> AnimMontage;
-
-private:
-	FName Id;
 	
 	UPROPERTY(Replicated)
 	TObjectPtr<UItemObject> ItemObj;
-	UPROPERTY(ReplicatedUsing = "OnRep_bCanInteract")
-	bool bCanInteract;
 
 	UFUNCTION()
 	void OnRep_bCanInteract();
+
+private:
+	UPROPERTY(ReplicatedUsing = "OnRep_bCanInteract")
+	bool bCanInteract;
 };

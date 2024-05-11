@@ -55,6 +55,11 @@ void ADBItem::Initialize(UItemObject* ItemObject)
 		ItemObj = ItemObject;
 }
 
+UItemObject* ADBItem::GetItemObject() const
+{
+	return ItemObj;
+}
+
 void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp)
 {
 	InteractionComp->ExecuteInteraction();

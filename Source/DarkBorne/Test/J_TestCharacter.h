@@ -27,7 +27,7 @@ protected:
 public:
 
 	UFUNCTION(BlueprintCallable)
-	const FFinalStat& GetFinalStat() const;
+	const FAddedStat& GetFinalStat() const;
 
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	UDataTable* DT_CharacterStats;
@@ -39,7 +39,7 @@ public:
 	FCharacterBaseStat CharacterBaseStat;
 
 	UPROPERTY(VisibleAnywhere, Category = "Settings")
-	FFinalStat FinalStat;
+	FAddedStat AddedStat;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")

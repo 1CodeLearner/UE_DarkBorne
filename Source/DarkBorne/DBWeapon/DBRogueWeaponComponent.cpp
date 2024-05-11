@@ -124,8 +124,10 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 
 void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 {
+	UE_LOG(LogTemp,Warning,TEXT("Passing Item to DBRogueWeaponComponent: %s"),*GetNameSafe(Item));
 	if (Item->GetSlotType() == ESlotType::WEAPON)
 	{
+		hasWeapon = false;
 		AttachWeapon();
 	}
 

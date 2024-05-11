@@ -6,17 +6,6 @@
 #include "EnchantmentTypes.generated.h"
 
 USTRUCT(Blueprintable)
-struct FDimension
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float X = 0.f;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float Y = 0.f;
-};
-
-USTRUCT(Blueprintable)
 struct FRange
 {
 	GENERATED_USTRUCT_BODY()
@@ -78,38 +67,6 @@ enum class EItemType : uint8
 	MAX UMETA(DisplayName = "Max")
 };
 
-UENUM(BlueprintType)
-enum class ERarityType : uint8
-{
-	NONE UMETA(DisplayName = "None"),
-	COMMON UMETA(DisplayName = "Common"),
-	RARE UMETA(DisplayName = "Rare"),
-	EPIC UMETA(DisplayName = "Epic"),
-	MAX UMETA(DisplayName = "Max")
-};
-
-USTRUCT(Blueprintable)
-struct FRarity
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	ERarityType RarityType = ERarityType::NONE;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FRange Range;
-};
-
-//Defines rarity & rarity value for items, excluding enchantments.
-USTRUCT(Blueprintable)
-struct FRarityHolder
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<FRarity> Rarity;
-};
-
 /// <summary>
 /// Each element represents an index of Attribute arrays in FCharacterStat. DO NOT change the orders of the elements
 /// </summary>
@@ -149,7 +106,6 @@ struct FAttribute
 		Range -= other.Range;
 		return *this;
 	}
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EAttributeType AttributeType = EAttributeType::MAX;
@@ -220,28 +176,6 @@ struct FPhysicalDamageHolder : public FTableRowBase
 	TArray<FPhysicalDamage> PhysicalDamages;
 };
 
-/// <summary>
-/// Character's stats without any equipments
-/// </summary>
-USTRUCT(Blueprintable)
-struct FCharacterBaseStat : public FTableRowBase
-{
-	GENERATED_USTRUCT_BODY()
-
-	FCharacterBaseStat()
-	{
-		Attributes.Add({ EAttributeType::STRENGTH, {0.f, 0.f} });
-		Attributes.Add({ EAttributeType::DEXTERITY, {0.f, 0.f} });
-		Attributes.Add({ EAttributeType::KNOWLEDGE, {0.f, 0.f} });
-	}
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TArray<FAttribute> Attributes;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float health = 0.f;
-};
-
 UENUM()
 enum class EDarkBornStatType : uint8
 {
@@ -249,7 +183,6 @@ enum class EDarkBornStatType : uint8
 	PHYSICALDAMAGE UMETA(DisplayName = "PhysicalDamage"),
 	MAX UMETA(DisplayName = "MAX")
 };
-
 
 /// <summary>
 /// Stats pulled from Data Table and assigned to items. These stats are not sorted. They are later added to FFinalStat for damage calculations
@@ -285,16 +218,16 @@ struct FDarkBorneStats
 //};
 
 /// <summary>
-/// Stats used for damage calculation and UI display. TArrays are sorted by their enum types
+/// Stats used for damage calculation and UI display. Elements of each Array are sorted by their enum types
 /// </summary>
 USTRUCT(Blueprintable)
-struct FFinalStat
+struct FAddedStat
 {
 	GENERATED_USTRUCT_BODY()
 
 	float health = 0.f;
 
-	FFinalStat()
+	FAddedStat()
 	{
 		health = 0.f;
 
@@ -311,6 +244,47 @@ struct FFinalStat
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<FPhysicalDamage> PhysDamages;
 
+	UPROPERTY(VisibleAnywhere)
+	float DamageBlockAmt;
+};
+
+USTRUCT(BlueprintType)
+struct FBaseStat
+{
+	GENERATED_USTRUCT_BODY()
+	
+	FBaseStat()
+	{
+		Attributes.Add({ EAttributeType::STRENGTH, {0.f, 0.f} });
+		Attributes.Add({ EAttributeType::DEXTERITY, {0.f, 0.f} });
+		Attributes.Add({ EAttributeType::KNOWLEDGE, {0.f, 0.f} });
+	}
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<float> DamageBlocks;
+	TArray<FAttribute> Attributes;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float health = 0.f;
+};
+
+/// <summary>
+/// Character's stats without any equipment
+/// </summary>
+USTRUCT(Blueprintable)
+struct FCharacterBaseStat : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+	FCharacterBaseStat()
+	{
+		Attributes.Add({ EAttributeType::STRENGTH, {0.f, 0.f} });
+		Attributes.Add({ EAttributeType::DEXTERITY, {0.f, 0.f} });
+		Attributes.Add({ EAttributeType::KNOWLEDGE, {0.f, 0.f} });
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FAttribute> Attributes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float health = 0.f;
 };
