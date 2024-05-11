@@ -30,6 +30,7 @@ public:
 	UFUNCTION()
 	void DamageProcess(float damage, AActor* From = nullptr);
 
+	bool IsAlive() const;
 
 	UFUNCTION()
 	void OnRep_CurrHP();

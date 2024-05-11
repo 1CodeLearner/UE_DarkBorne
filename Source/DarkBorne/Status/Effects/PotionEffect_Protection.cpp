@@ -5,6 +5,7 @@
 #include "../../Inventory/ItemObject.h"
 #include "../../DBCharacters/DBCharacter.h"
 #include "../DBEffectComponent.h"
+#include "../CharacterStatusComponent.h"
 
 UPotionEffect_Protection::UPotionEffect_Protection()
 {
@@ -17,6 +18,27 @@ void UPotionEffect_Protection::Initialize(ADBCharacter* Instigator, UItemObject*
 
 	float RarityValue = Item->GetRarityValue();
 	Amount = RarityValue;
-	
+}
 
+void UPotionEffect_Protection::StartTick()
+{
+	Super::StartTick();
+
+	auto StatusComp = UCharacterStatusComponent::Get(AffectedCharacter);
+	if (StatusComp)
+	{
+		StatusComp->AddBlockAmount(Amount);
+	}
+
+}
+
+void UPotionEffect_Protection::StopTick()
+{
+	Super::StopTick();
+
+	auto StatusComp = UCharacterStatusComponent::Get(AffectedCharacter);
+	if (StatusComp)
+	{
+		StatusComp->RemoveBlockAmount(Amount);
+	}
 }

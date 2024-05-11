@@ -50,6 +50,15 @@ void UDBEffectComponent::RemoveEffect(UDBEffect* Effect)
 	Effects.RemoveSingle(Effect);
 }
 
+void UDBEffectComponent::RemoveAllEffects()
+{
+	for(auto Effect : Effects)
+	{
+		Effect->StopTick();
+	}
+	Effects.Empty();
+}
+
 bool UDBEffectComponent::CanStartEffect(ADBConsumable* ItemToActivate)
 {
 	if (!ItemToActivate) return false;

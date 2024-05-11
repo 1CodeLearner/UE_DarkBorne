@@ -29,6 +29,8 @@ public:
 
 	void RemoveEffect(UDBEffect* Effect);
 
+	void RemoveAllEffects();
+
 	UFUNCTION(BlueprintCallable)
 	bool CanStartEffect(ADBConsumable* ItemToActivate);
 	

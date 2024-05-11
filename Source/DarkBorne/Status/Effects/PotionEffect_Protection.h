@@ -16,7 +16,8 @@ class DARKBORNE_API UPotionEffect_Protection : public UPotionEffect
 public:
 	UPotionEffect_Protection();
 	virtual void Initialize(ADBCharacter* Instigator, UItemObject* Item, UDBEffectComponent* EffectComp) override;
-
+	virtual void StartTick() override;
+	virtual void StopTick() override;
 protected:
 	
 };

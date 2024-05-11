@@ -8,7 +8,19 @@
 
 void UDBEffect::Tick(float DeltaTime)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("Tick Effect Parent")));
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("Parent's Tick is in effect")));
+	currTime += DeltaTime;
+	if (currTime >= TotalTime)
+	{
+		//Update UI
+		OnEveryTick.ExecuteIfBound(TotalTime, currTime);
+		currTime = 0.f;
+		GetEffectComponent()->RemoveEffect(this);
+	}
+	else
+	{
+		OnEveryTick.ExecuteIfBound(TotalTime, currTime);
+	}
 }
 
 void UDBEffect::Initialize(ADBCharacter* Instigator, UItemObject* Item, UDBEffectComponent* EffectComp)
@@ -39,6 +51,7 @@ void UDBEffect::StartTick()
 void UDBEffect::StopTick()
 {
 	bIsTicking = false;
+	//Remove Effect Icon from UI
 	OnStop.ExecuteIfBound();
 }
 

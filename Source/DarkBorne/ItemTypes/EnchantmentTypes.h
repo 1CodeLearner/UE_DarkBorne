@@ -244,11 +244,8 @@ struct FAddedStat
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<FPhysicalDamage> PhysDamages;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<float> DamageBlocks;
-
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TMultiMap<float, bool> TestDamageBlock;
+	UPROPERTY(VisibleAnywhere)
+	float DamageBlockAmt;
 };
 
 USTRUCT(BlueprintType)

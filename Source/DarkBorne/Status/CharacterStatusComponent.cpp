@@ -82,6 +82,11 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 
 }
 
+bool UCharacterStatusComponent::IsAlive() const
+{
+	return CurrHP > 0.f;
+}
+
 void UCharacterStatusComponent::OnRep_CurrHP()
 {
 	if (GetOwner())
@@ -193,13 +198,14 @@ void UCharacterStatusComponent::RemoveStats(const UItemObject* ItemObject)
 void UCharacterStatusComponent::AddBlockAmount(float Amount)
 {
 	//FinalStat.DamageBlocks.Add(Amount);
-	AddedStat.TestDamageBlock.Add(Amount, true);
-	UE_LOG(LogTemp, Warning, TEXT("TestDamageBlock Num: %d"), AddedStat.TestDamageBlock.Num());
+	AddedStat.DamageBlockAmt += Amount;
+	UE_LOG(LogTemp, Warning, TEXT("DamageBlockAmt amount: %f"), AddedStat.DamageBlockAmt);
 }
 
 void UCharacterStatusComponent::RemoveBlockAmount(float Amount)
 {
-	AddedStat.DamageBlocks.RemoveSingle(Amount);
+	AddedStat.DamageBlockAmt -= Amount;
+	UE_LOG(LogTemp, Warning, TEXT("DamageBlockAmt Num: %d"), AddedStat.DamageBlockAmt);
 }
 
 void UCharacterStatusComponent::PrintStats()

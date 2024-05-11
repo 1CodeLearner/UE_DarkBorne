@@ -24,11 +24,16 @@ void UPotionEffect_Healing::Initialize(ADBCharacter* Instigator, UItemObject* It
 	healAmount = Amount / numOfTicks;
 }
 
+void UPotionEffect_Healing::StartTick()
+{
+	Super::StartTick();
+	UE_LOG(LogTemp,Error,TEXT("StartingTick"));
+}
+
 void UPotionEffect_Healing::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
 	currTime += DeltaTime;
+
 	if (currTime >= nextHealTick)
 	{
 		nextHealTick += healTickRate;
@@ -44,17 +49,8 @@ void UPotionEffect_Healing::Tick(float DeltaTime)
 
 	if (currTime >= TotalTime)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("TotalHealed:%f, Amount:%f"), totalHealed, Amount);
-		//if (totalHealed < Amount) {
-		//	auto StatusComp = AffectedCharacter->GetComponentByClass<UCharacterStatusComponent>();
-		//	if (ensureAlways(StatusComp))
-		//	{
-		//		totalHealed += healAmount;
-		//		UE_LOG(LogTemp, Warning, TEXT("TotalHealed:%f"), totalHealed);
-		//		StatusComp->DamageProcess(-healAmount);
-		//	}
-		//}
 		OnEveryTick.ExecuteIfBound(TotalTime, currTime);
+		currTime = 0.f;
 		GetEffectComponent()->RemoveEffect(this);
 	}
 	else

@@ -22,7 +22,7 @@ public:
 
 protected:
 	virtual void Initialize(ADBCharacter* Instigator, UItemObject* Item, UDBEffectComponent* EffectComp) override;
-
+	virtual void StartTick() override;
 	virtual void Tick(float DeltaTime) override;
 
 private:
