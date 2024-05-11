@@ -9,7 +9,7 @@
 
 UPotionEffect_Protection::UPotionEffect_Protection()
 {
-	TotalTime = 24.f;
+	Time.TotalTime = 24.f;
 }
 
 void UPotionEffect_Protection::Initialize(ADBCharacter* Instigator, UItemObject* Item, UDBEffectComponent* EffectComp)

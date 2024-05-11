@@ -6,6 +6,7 @@
 #include "../../DBCharacters/DBCharacter.h"
 #include "EffectIconWidget.h"
 #include "Components/HorizontalBox.h"
+#include "../DBEffect.h"
 
 void UEffectDisplayWidget::RemoveEffectIcon(UEffectIconWidget* IconWidget)
 {
@@ -20,15 +21,31 @@ void UEffectDisplayWidget::NativeOnInitialized()
 
 	if(EffectComp)
 	{
-		EffectComp->OnEffectStart.BindUObject(this, &UEffectDisplayWidget::OnEffectStart);
+		//EffectComp->OnEffectStart.BindUObject(this, &UEffectDisplayWidget::OnEffectStart);
+		EffectComp->OnEffectUpdate.BindUObject(this, &UEffectDisplayWidget::OnEffectUpdate);
 	}
 }
 
-void UEffectDisplayWidget::OnEffectStart(UDBEffect* effect, UMaterialInterface* IconDisplay)
+void UEffectDisplayWidget::OnEffectUpdate(TArray<UDBEffect*> UpdatedEffects)
 {
-	auto IconWidget = CreateWidget<UEffectIconWidget>(GetOwningPlayer(), EffectIconWidget);
-	if(IconWidget)
+	HoriBox_EffectIcons->ClearChildren();
+
+	for(int32 i = 0; i < UpdatedEffects.Num(); ++i)
 	{
-		IconWidget->StartInit(this, effect, IconDisplay);
+		auto IconWidget = CreateWidget<UEffectIconWidget>(GetOwningPlayer(), EffectIconWidget);
+		if(IconWidget)
+		{
+			IconWidget->StartInit(this, UpdatedEffects[i], UpdatedEffects[i]->GetIcon());
+			HoriBox_EffectIcons->AddChild(IconWidget);
+		}
 	}
 }
+
+//void UEffectDisplayWidget::OnEffectStart(UDBEffect* effect, UMaterialInterface* IconDisplay)
+//{
+//	auto IconWidget = CreateWidget<UEffectIconWidget>(GetOwningPlayer(), EffectIconWidget);
+//	if(IconWidget)
+//	{
+//		IconWidget->StartInit(this, effect, IconDisplay);
+//	}
+//}

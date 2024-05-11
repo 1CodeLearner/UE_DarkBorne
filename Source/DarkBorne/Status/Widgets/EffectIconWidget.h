@@ -32,7 +32,7 @@ protected:
 
 protected:
 	void OnEveryTick(float TotalTime, float RemainingTime);
-	void OnStop();
+	//void OnStop();
 
 private:
 	TObjectPtr<UEffectDisplayWidget> EffectDisplayWidget;

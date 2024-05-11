@@ -9,9 +9,22 @@
 class ADBCharacter;
 class UItemObject;
 class UDBEffectComponent;
+class UMaterialInterface;
+
+USTRUCT()
+struct FTime
+{
+	GENERATED_BODY()
+	
+	UPROPERTY()
+	float TotalTime = 0.f;
+	UPROPERTY()
+	float currTime = 0.f;
+};
+
 
 DECLARE_DELEGATE_TwoParams(FEverytickDelegate, float /*TotalTime*/, float /*RemainingTime*/);
-DECLARE_DELEGATE(FStopDelegate);
+//DECLARE_DELEGATE(FStopDelegate);
 
 UCLASS(Blueprintable)
 class DARKBORNE_API UDBEffect : public UObject, public FTickableGameObject
@@ -26,9 +39,18 @@ public:
 	bool IsSame(UDBEffect* OtherEffect) const;
 	bool IsSame(FName OtherId) const;
 	FName GetId() const;
-	 
+	
+	UMaterialInterface* GetIcon() const;
+
 	FEverytickDelegate OnEveryTick;
-	FStopDelegate OnStop;
+	//FStopDelegate OnStop;
+
+protected:
+	virtual bool IsSupportedForNetworking() const override
+	{
+		return true;
+	}
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	UDBEffectComponent* GetEffectComponent() const;
@@ -38,9 +60,14 @@ protected:
 	virtual bool IsAllowedToTick() const override { return bIsTicking; }
 
 	TObjectPtr<ADBCharacter> AffectedCharacter;
-	
-	float TotalTime;
-	float currTime;
+
+	UPROPERTY(ReplicatedUsing = "OnRep_Time")
+	FTime Time;
+	UFUNCTION()
+	void OnRep_Time();
+	UPROPERTY(Replicated)
+	TObjectPtr<UMaterialInterface> IconDisplay;
+
 private:
 	bool bIsTicking;
 

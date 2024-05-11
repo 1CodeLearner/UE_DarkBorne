@@ -30,5 +30,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TSubclassOf<UEffectIconWidget> EffectIconWidget;
 
-	void OnEffectStart(UDBEffect* effect, UMaterialInterface* IconDisplay);
+	//void OnEffectStart(UDBEffect* effect, UMaterialInterface* IconDisplay);
+	void OnEffectUpdate(TArray<UDBEffect*> UpdatedEffects);
+		
+
 };

@@ -5,22 +5,32 @@
 #include "../Inventory/ItemObject.h"
 #include "../DBCharacters/DBCharacter.h"
 #include "DBEffectComponent.h"
+#include "Net/UnrealNetwork.h"
 
 void UDBEffect::Tick(float DeltaTime)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("Parent's Tick is in effect")));
-	currTime += DeltaTime;
-	if (currTime >= TotalTime)
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("Parent's Tick is in effect %s"),
+		GetWorld()->GetNetMode() == NM_Client ? TEXT("CLIENT") : TEXT("SERVER")
+	));
+
+	//Only ticks on server
+	Time.currTime += DeltaTime;
+	if (Time.currTime >= Time.TotalTime)
 	{
 		//Update UI
-		OnEveryTick.ExecuteIfBound(TotalTime, currTime);
-		currTime = 0.f;
+		OnRep_Time();
+		Time.currTime = 0.f;
 		GetEffectComponent()->RemoveEffect(this);
 	}
 	else
 	{
-		OnEveryTick.ExecuteIfBound(TotalTime, currTime);
+		OnRep_Time();
 	}
+}
+
+void UDBEffect::OnRep_Time()
+{
+	OnEveryTick.ExecuteIfBound(Time.TotalTime, Time.currTime);
 }
 
 void UDBEffect::Initialize(ADBCharacter* Instigator, UItemObject* Item, UDBEffectComponent* EffectComp)
@@ -30,7 +40,18 @@ void UDBEffect::Initialize(ADBCharacter* Instigator, UItemObject* Item, UDBEffec
 		AffectedCharacter = Instigator;
 		Id = Item->GetId();
 		EffectComponent = EffectComp;
+		IconDisplay = Item->GetIcon();
 	}
+}
+
+void UDBEffect::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//DOREPLIFETIME_CONDITION(UDBEffect, Time, COND_OwnerOnly);
+	//DOREPLIFETIME_CONDITION(UDBEffect, IconDisplay, COND_OwnerOnly);
+	DOREPLIFETIME(UDBEffect, Time);
+	DOREPLIFETIME(UDBEffect, IconDisplay);
 }
 
 UDBEffectComponent* UDBEffect::GetEffectComponent() const
@@ -52,7 +73,7 @@ void UDBEffect::StopTick()
 {
 	bIsTicking = false;
 	//Remove Effect Icon from UI
-	OnStop.ExecuteIfBound();
+	//OnStop.ExecuteIfBound();
 }
 
 bool UDBEffect::IsTicking()
@@ -73,4 +94,9 @@ bool UDBEffect::IsSame(FName OtherId) const
 FName UDBEffect::GetId() const
 {
 	return Id;
+}
+
+UMaterialInterface* UDBEffect::GetIcon() const
+{
+	return IconDisplay;
 }

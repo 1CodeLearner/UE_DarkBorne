@@ -18,9 +18,9 @@ UPotionEffect_Healing::UPotionEffect_Healing()
 void UPotionEffect_Healing::Initialize(ADBCharacter* Instigator, UItemObject* Item, UDBEffectComponent* EffectComp)
 {
 	Super::Initialize(Instigator, Item, EffectComp);
-	TotalTime = Item->GetRarityValue();
+	Time.TotalTime = Item->GetRarityValue();
 
-	float numOfTicks = TotalTime / healTickRate;
+	float numOfTicks = Time.TotalTime / healTickRate;
 	healAmount = Amount / numOfTicks;
 }
 
@@ -32,9 +32,9 @@ void UPotionEffect_Healing::StartTick()
 
 void UPotionEffect_Healing::Tick(float DeltaTime)
 {
-	currTime += DeltaTime;
+	Time.currTime += DeltaTime;
 
-	if (currTime >= nextHealTick)
+	if (Time.currTime >= nextHealTick)
 	{
 		nextHealTick += healTickRate;
 		auto StatusComp = AffectedCharacter->GetComponentByClass<UCharacterStatusComponent>();
@@ -47,14 +47,14 @@ void UPotionEffect_Healing::Tick(float DeltaTime)
 		}
 	}
 
-	if (currTime >= TotalTime)
+	if (Time.currTime >= Time.TotalTime)
 	{
-		OnEveryTick.ExecuteIfBound(TotalTime, currTime);
-		currTime = 0.f;
+		OnRep_Time();
+		Time.currTime = 0.f;
 		GetEffectComponent()->RemoveEffect(this);
 	}
 	else
 	{
-		OnEveryTick.ExecuteIfBound(TotalTime, currTime);
+		OnRep_Time();
 	}
 }

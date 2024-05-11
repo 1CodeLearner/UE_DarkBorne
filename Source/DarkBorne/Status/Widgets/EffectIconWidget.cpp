@@ -12,7 +12,7 @@ void UEffectIconWidget::StartInit(UEffectDisplayWidget* ParentWidget, UDBEffect*
 	EffectDisplayWidget = ParentWidget;
 
 	Effect->OnEveryTick.BindUObject(this, &UEffectIconWidget::OnEveryTick);
-	Effect->OnStop.BindUObject(this, &UEffectIconWidget::OnStop);
+	//Effect->OnStop.BindUObject(this, &UEffectIconWidget::OnStop);
 
 	Image_EffectIcon->SetBrushFromMaterial(Icon);
 }
@@ -23,7 +23,7 @@ void UEffectIconWidget::OnEveryTick(float TotalTime, float RemainingTime)
 	ProgressBar_TimeRemaining->SetPercent(Remaining / TotalTime);
 }
 
-void UEffectIconWidget::OnStop()
-{
-	EffectDisplayWidget->RemoveEffectIcon(this);
-}
+//void UEffectIconWidget::OnStop()
+//{
+//	EffectDisplayWidget->RemoveEffectIcon(this);
+//}
