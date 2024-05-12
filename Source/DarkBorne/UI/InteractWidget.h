@@ -34,6 +34,8 @@ protected:
 	void OnBeginItemAction();
 	void OnEndItemAction();
 
+	void OnPlayerDead();
+
 protected:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* Text_Name;

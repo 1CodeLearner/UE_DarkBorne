@@ -12,6 +12,7 @@
 #include "../DBWeapon/DBRogueWeaponComponent.h"
 #include "../Framework/Interfaces/ItemInterface.h"
 #include "../Items/DBItem.h"
+#include "../Status/CharacterStatusComponent.h"
 
 void UInteractWidget::NativeOnInitialized()
 {
@@ -32,9 +33,14 @@ void UInteractWidget::NativeOnInitialized()
 		AttackComp->OnBeginItemAction.BindUObject(this, &UInteractWidget::OnBeginItemAction);
 		AttackComp->OnEndItemAction.BindUObject(this, &UInteractWidget::OnEndItemAction);
 		AttackComp->OnItemActionUpdate.BindUObject(this, &UInteractWidget::OnInteractTimeUpdate);
-
 	}
 
+	auto StatusComp = Player->GetComponentByClass<UCharacterStatusComponent>();
+	if(StatusComp)
+	{
+		StatusComp->OnPlayerDead.BindUObject(this, &UInteractWidget::OnPlayerDead);
+	}
+		
 
 	SetVisibility(ESlateVisibility::Collapsed);
 }
@@ -136,5 +142,11 @@ void UInteractWidget::OnBeginItemAction()
 void UInteractWidget::OnEndItemAction()
 {
 	DisplayBeginInteract(false);
+}
+
+void UInteractWidget::OnPlayerDead()
+{
+	DisplayBeginInteract(false);
+	DisplayBeginTrace(false);
 }
 

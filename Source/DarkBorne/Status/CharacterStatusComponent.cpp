@@ -73,6 +73,7 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 		if (CurrHP < 0)
 		{
 			CurrHP = 0;
+			OnPlayerDead.ExecuteIfBound();
 		}
 		else if (CurrHP > MaxHP) {
 			CurrHP = MaxHP;

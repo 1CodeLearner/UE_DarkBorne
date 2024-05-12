@@ -8,6 +8,8 @@
 #include "CharacterStatusComponent.generated.h"
 
 
+DECLARE_DELEGATE(FPlayerDeadDelegate);
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DARKBORNE_API UCharacterStatusComponent : public UActorComponent
 {
@@ -16,6 +18,8 @@ class DARKBORNE_API UCharacterStatusComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UCharacterStatusComponent();
+
+	FPlayerDeadDelegate OnPlayerDead;
 
 protected:
 	// Called when the game starts

@@ -17,7 +17,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Public/Net/UnrealNetwork.h>
 #include "../Framework/DBPlayerController.h"
 #include "../Status/CharacterStatusComponent.h"
-
+#include "../Status/DBEffectComponent.h"
 
 
 ADBRogueCharacter::ADBRogueCharacter()
@@ -158,6 +158,12 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 			GetMesh()->SetCollisionProfileName("Item");
 			//set bCanInteract to true
 			SetCanInteract(true);
+
+			EffectComp->RemoveAllEffects();
+			if(RogueAttackComponent->IsInItemAction())
+			{
+				RogueAttackComponent->StopItemAction();
+			}
 		}
 
 		MyCharacterAnim->isDeath = true;
