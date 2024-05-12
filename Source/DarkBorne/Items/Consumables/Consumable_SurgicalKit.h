@@ -27,10 +27,13 @@ protected:
 	UFUNCTION()
 	void StopMontage();
 
+	virtual void OnRep_Owner() override;
+
 protected:
 	//UPROPERTY(ReplicatedUsing = "OnRep_currTime")
 	float currTime;
 	//void OnRep_currTime();
 	//UPROPERTY(Replicated)
 	float totalTime;
+	bool bMontageStart;
 };

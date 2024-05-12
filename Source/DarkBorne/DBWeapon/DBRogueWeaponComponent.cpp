@@ -99,22 +99,25 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 		AttachWeapon();
 	}
 
-	//switch (Item->GetSlotType())
-	//{
-	//case ESlotType::WEAPON:
-	//	break;
-	//case ESlotType::HEAD:
-	//	break;
-	//case ESlotType::UPPERWEAR:
-	//	break;
-	//case ESlotType::BOTTOMWEAR:
-	//	break;
-	//case ESlotType::GLOVES:
-	//	break;
-	//case ESlotType::BOOTS:
-	//	break;
-
-	//}
+	switch (Item->GetSlotType())
+	{
+	case ESlotType::WEAPON:
+		break;
+	case ESlotType::HEAD:
+		break;
+	case ESlotType::UPPERWEAR:
+		break;
+	case ESlotType::BOTTOMWEAR:
+		break;
+	case ESlotType::GLOVES:
+		break;
+	case ESlotType::BOOTS:
+		break;
+	case ESlotType::CONSUMABLE:
+		if(RogueItems && RogueItems->GetItemObject()->GetSlotType() == Item->GetSlotType())
+			AttachConsumable();
+		break;
+	}
 }
 
 

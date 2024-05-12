@@ -8,9 +8,9 @@
 
 AConsumable_SurgicalKit::AConsumable_SurgicalKit()
 {
-	SetActorTickEnabled(false);
 	currTime = 0.f;
 	totalTime = 0.f;
+	bMontageStart = false;
 }
 
 bool AConsumable_SurgicalKit::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
@@ -20,7 +20,7 @@ bool AConsumable_SurgicalKit::PlayMontage(ACharacter* PlayerCharacter, FName Sec
 		if (OwningCharacter && OwningCharacter->IsLocallyControlled())
 		{
 			totalTime = ItemObj->GetRarityValue();
-			SetActorTickEnabled(true);
+			bMontageStart = true;
 		}
 		return true;
 	}
@@ -31,16 +31,24 @@ void AConsumable_SurgicalKit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	currTime += DeltaTime;
-	//OnRep_currTime();
-	OnInteractTimeUpdate.ExecuteIfBound(currTime, totalTime);
-
-	if (currTime >= totalTime)
+	if (HasAuthority())
 	{
-		currTime = 0.f;
-		StopMontage();
-		OnInteractFinished.ExecuteIfBound();
-		SetActorTickEnabled(false);
+		OnRep_Owner();
+	}
+	if (bMontageStart)
+	{
+		currTime += DeltaTime;
+		//OnRep_currTime();
+		OnInteractTimeUpdate.ExecuteIfBound(currTime, totalTime);
+
+		if (currTime >= totalTime)
+		{
+			bMontageStart = false;
+			currTime = 0.f;
+			StopMontage();
+			OnInteractFinished.ExecuteIfBound();
+			SetActorTickEnabled(false);
+		}
 	}
 }
 
@@ -56,6 +64,17 @@ void AConsumable_SurgicalKit::StopMontage()
 {
 	if (OwningCharacter)
 		OwningCharacter->GetMesh()->GetAnimInstance()->Montage_JumpToSection("StopMontage", AnimMontage);
+}
+
+void AConsumable_SurgicalKit::OnRep_Owner()
+{
+	if (Owner)
+	{
+		SMComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+	}
+	else {
+		SMComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	}
 }
 
 //void AConsumable_SurgicalKit::OnRep_currTime()
