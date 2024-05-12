@@ -132,6 +132,16 @@ void ADBRogueCharacter::DeathProcess()
 	ServerRPC_DeathProcess();
 }
 
+void ADBRogueCharacter::EnhancedInteract(const FInputActionValue& Value)
+{
+	Super::EnhancedInteract(Value);
+
+	if(RogueAttackComponent->IsInItemAction())
+	{
+		RogueAttackComponent->StopItemAction();
+	}
+}
+
 void ADBRogueCharacter::ServerRPC_DeathProcess_Implementation()
 {
 	MultiRPC_DeathProcess();

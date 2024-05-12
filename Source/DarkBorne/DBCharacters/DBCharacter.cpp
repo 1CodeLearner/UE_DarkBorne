@@ -20,7 +20,7 @@
 #include <../../../../../../../Source/Runtime/UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
 #include "../Framework/ActorComponents/DBInteractionComponent.h"
 #include "../Status/CharacterStatusComponent.h"
-
+#include "../Status/DBEffectComponent.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -42,6 +42,8 @@ ADBCharacter::ADBCharacter()
 
 	InteractDistance = 400.f;
 	InteractionComp = CreateDefaultSubobject<UDBInteractionComponent>("InteractionComp");
+
+	EffectComp = CreateDefaultSubobject<UDBEffectComponent>("EffectComp");
 }
 
 // Called when the game starts or when spawned

@@ -73,7 +73,7 @@ void UInteractWidget::DisplayBeginInteract(bool bDisplay)
 		if (Canvas_BeginTrace->IsVisible())
 			Canvas_BeginTrace->SetVisibility(ESlateVisibility::Collapsed);
 
-		Canvas_BeginInteract->SetVisibility(ESlateVisibility::HitTestInvisible);
+		Canvas_BeginInteract->SetVisibility(ESlateVisibility::Visible);
 	}
 	else {
 		Canvas_BeginInteract->SetVisibility(ESlateVisibility::Collapsed);

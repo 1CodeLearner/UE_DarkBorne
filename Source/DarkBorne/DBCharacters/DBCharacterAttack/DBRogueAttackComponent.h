@@ -49,10 +49,15 @@ public:
 	FEndItemActionDelegate OnEndItemAction;
 	FItemActionUpdateDelegate OnItemActionUpdate;
 
+	UFUNCTION()
+	bool IsUsingItem() const;
+	bool IsInItemAction() const;
+	void StopItemAction();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-		
+
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -94,13 +99,13 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_RogueThrowKnifeAttack();
 
-	UFUNCTION()
-	bool IsUsingItem() const;
-
 protected:
 	void UseItem();
 	UFUNCTION(Server, Reliable)
 	void Server_UseItem();
+
+	UFUNCTION(Server, Reliable)
+	void Server_StopItemAction();
 
 	//Only runs on server
 	UFUNCTION()
@@ -115,12 +120,13 @@ private:
 	FScriptDelegate Delegate;
 
 	UFUNCTION()
-	void OnRep_bUsingItem();
-	UPROPERTY(ReplicatedUsing = "OnRep_bUsingItem")
+	void OnRep_bItemActionStarted();
+	UPROPERTY(Replicated)
 	bool bUsingItem;
-	
+
+	UPROPERTY(ReplicatedUsing = "OnRep_bItemActionStarted")
 	bool bItemActionStarted;
-	
+
 	void ItemActionUpdate(float DeltaTime);
 
 	UFUNCTION()

@@ -54,8 +54,10 @@ void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent*
 void UDBRogueAttackComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	DOREPLIFETIME(UDBRogueAttackComponent, KnifeCount);
-	DOREPLIFETIME(UDBRogueAttackComponent, bUsingItem);
-	DOREPLIFETIME(UDBRogueAttackComponent, ItemActionTime);
+
+	DOREPLIFETIME_CONDITION(UDBRogueAttackComponent, bUsingItem, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(UDBRogueAttackComponent, bItemActionStarted, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(UDBRogueAttackComponent, ItemActionTime, COND_OwnerOnly);
 }
 
 void UDBRogueAttackComponent::RogueAttack()
@@ -93,6 +95,11 @@ bool UDBRogueAttackComponent::IsUsingItem() const
 	return bUsingItem;
 }
 
+bool UDBRogueAttackComponent::IsInItemAction() const
+{
+	return bItemActionStarted;
+}
+
 void UDBRogueAttackComponent::UseItem()
 {
 	Server_UseItem();
@@ -116,7 +123,9 @@ void UDBRogueAttackComponent::Server_UseItem_Implementation()
 			if (RogueWeaponComponent->RogueItems->Implements<UItemInterface>())
 			{
 				ItemActionTime.TotalTime = RogueWeaponComponent->RogueItems->GetItemObject()->GetRarityValue();
+
 				bItemActionStarted = true;
+				OnRep_bItemActionStarted();
 			}
 
 			Multicast_StartMontage();
@@ -161,35 +170,47 @@ void UDBRogueAttackComponent::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Not Interrupted"));
 
-		auto EffectComp = DBCharacter->GetComponentByClass<UDBEffectComponent>();
-		if (ensureAlways(EffectComp))
+		if (!bItemActionStarted)
 		{
-			auto ConsumableItem = Cast<ADBConsumable>(RogueWeaponComponent->RogueItems);
-			if (ConsumableItem)
+			auto EffectComp = DBCharacter->GetComponentByClass<UDBEffectComponent>();
+			if (ensureAlways(EffectComp))
 			{
-				EffectComp->AddEffect(DBCharacter, ConsumableItem);
+				auto ConsumableItem = Cast<ADBConsumable>(RogueWeaponComponent->RogueItems);
+				if (ConsumableItem)
+				{
+					EffectComp->AddEffect(DBCharacter, ConsumableItem);
+				}
 			}
-		}
 
-		auto EquipmentComp = DBCharacter->GetComponentByClass<UDBEquipmentComponent>();
-		if (EquipmentComp)
+			auto EquipmentComp = DBCharacter->GetComponentByClass<UDBEquipmentComponent>();
+			if (EquipmentComp)
+			{
+				EquipmentComp->RemoveItem(RogueWeaponComponent->RogueItems->GetItemObject(), EquipmentComp);
+			}
+
+			RogueWeaponComponent->RemoveRogueItems();
+
+			RogueWeaponComponent->AttachWeapon();
+		}
+		else
 		{
-			EquipmentComp->RemoveItem(RogueWeaponComponent->RogueItems->GetItemObject(), EquipmentComp);
+			UE_LOG(LogTemp, Warning, TEXT("Item action on %s was stopped by player"), *GetNameSafe(RogueWeaponComponent->RogueItems));
+			bItemActionStarted = false;
+			OnRep_bItemActionStarted();
 		}
 	}
 	else
-		UE_LOG(LogTemp, Warning, TEXT("Interrupted"));
+		UE_LOG(LogTemp, Warning, TEXT("Item Montage on %s Interrupted"), *GetNameSafe(RogueWeaponComponent->RogueItems));
 
 	bUsingItem = false;
-	RogueWeaponComponent->RemoveRogueItems();
 }
 
-void UDBRogueAttackComponent::OnRep_bUsingItem()
+void UDBRogueAttackComponent::OnRep_bItemActionStarted()
 {
 	auto Character = Cast<ACharacter>(GetOwner());
 	if (Character && Character->IsLocallyControlled())
 	{
-		bUsingItem ? OnBeginItemAction.ExecuteIfBound() : OnEndItemAction.ExecuteIfBound();
+		bItemActionStarted ? OnBeginItemAction.ExecuteIfBound() : OnEndItemAction.ExecuteIfBound();
 	}
 }
 
@@ -200,6 +221,8 @@ void UDBRogueAttackComponent::ItemActionUpdate(float DeltaTime)
 	if (ItemActionTime.CurrTime >= ItemActionTime.TotalTime)
 	{
 		bItemActionStarted = false;
+		OnRep_bItemActionStarted();
+
 		ItemActionTime.CurrTime = 0.f;
 		Multicast_StopMontage();
 	}
@@ -208,6 +231,21 @@ void UDBRogueAttackComponent::ItemActionUpdate(float DeltaTime)
 void UDBRogueAttackComponent::OnRep_ItemActionTime()
 {
 	OnItemActionUpdate.ExecuteIfBound(ItemActionTime.CurrTime, ItemActionTime.TotalTime);
+}
+
+void UDBRogueAttackComponent::StopItemAction()
+{
+	if (ensureAlways(bUsingItem) && ensureAlways(bItemActionStarted))
+		Server_StopItemAction();
+}
+
+void UDBRogueAttackComponent::Server_StopItemAction_Implementation()
+{
+	if (bUsingItem)
+	{
+		ItemActionTime.CurrTime = 0.f;
+		Multicast_StopMontage();
+	}
 }
 
 void UDBRogueAttackComponent::ServerRPC_RogueAttack_Implementation()

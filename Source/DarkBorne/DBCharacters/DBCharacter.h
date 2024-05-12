@@ -18,6 +18,8 @@ class UPlayerEquipmentComponent;
 
 class UDBInteractionComponent;
 
+class UDBEffectComponent;
+
 UCLASS()
 class DARKBORNE_API ADBCharacter : public ACharacter, public IInteractionInterface
 {
@@ -83,6 +85,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TObjectPtr<UDBInteractionComponent> InteractionComp;
 
+	//Item Effects
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UDBEffectComponent> EffectComp;
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UDBPlayerWidget* PlayerWidget;
@@ -129,7 +135,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_DoubleJump();
 
-	void EnhancedInteract(const struct FInputActionValue& value);
+	virtual void EnhancedInteract(const struct FInputActionValue& value);
 	void EnhancedInventory(const struct FInputActionValue& value);
 public:
 	void CreatePlayerWidget();
