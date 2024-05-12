@@ -14,6 +14,17 @@ struct FItemData
 {
 	GENERATED_BODY()
 
+	FItemData()
+	{
+		ItemActor = nullptr;
+	}
+
+	FItemData(FItem _Item, ADBItem* _ItemActor)
+	{
+		Item = _Item;
+		ItemActor = _ItemActor;
+	}
+
 	UPROPERTY()
 	FItem Item = FItem();
 

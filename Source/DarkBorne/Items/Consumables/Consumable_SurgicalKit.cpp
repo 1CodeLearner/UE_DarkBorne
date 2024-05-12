@@ -3,48 +3,61 @@
 
 #include "Consumable_SurgicalKit.h"
 #include "../../DBCharacters/DBCharacter.h"
+#include "../../Inventory/ItemObject.h"
+#include "Net/UnrealNetwork.h"
+
+AConsumable_SurgicalKit::AConsumable_SurgicalKit()
+{
+	SetActorTickEnabled(false);
+	currTime = 0.f;
+	totalTime = 0.f;
+}
 
 bool AConsumable_SurgicalKit::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
 {
 	if (Super::PlayMontage(PlayerCharacter, SectionName))
 	{
-		if (OwningCharacter->HasAuthority())
+		if (OwningCharacter && OwningCharacter->IsLocallyControlled())
 		{
-			FTimerHandle Handle;
-			GetWorld()->GetTimerManager().SetTimer(Handle, this, &AConsumable_SurgicalKit::Testing, 10.f, false);
+			totalTime = ItemObj->GetRarityValue();
+			SetActorTickEnabled(true);
 		}
 		return true;
 	}
 	return false;
 }
 
-//void AConsumable_SurgicalKit::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-//{
-//	if (!bInterrupted)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("Not Interrupted"));
-//
-//		auto EffectComp = OwningCharacter->GetComponentByClass<UDBEffectComponent>();
-//		if (ensureAlways(EffectComp))
-//		{
-//			EffectComp->AddEffect(OwningCharacter, this);
-//		}
-//
-//		auto EquipmentComp = OwningCharacter->GetComponentByClass<UDBEquipmentComponent>();
-//		if (EquipmentComp)
-//		{
-//			EquipmentComp->RemoveItem(GetItemObject(), EquipmentComp);
-//		}
-//	}
-//	else{
-//		UE_LOG(LogTemp, Warning, TEXT("Interrupted"));
-//	}
-//
-//	OwningCharacter->GetMesh()->GetAnimInstance()->OnMontageEnded.Remove(Delegate);
-//	GetItemObject()->TryDestroyItemActor();
-//}
-
-void AConsumable_SurgicalKit::Testing()
+void AConsumable_SurgicalKit::Tick(float DeltaTime)
 {
-	OwningCharacter->GetMesh()->GetAnimInstance()->Montage_JumpToSection("StopMontage", AnimMontage);
+	Super::Tick(DeltaTime);
+
+	currTime += DeltaTime;
+	//OnRep_currTime();
+	OnInteractTimeUpdate.ExecuteIfBound(currTime, totalTime);
+
+	if (currTime >= totalTime)
+	{
+		currTime = 0.f;
+		StopMontage();
+		OnInteractFinished.ExecuteIfBound();
+		SetActorTickEnabled(false);
+	}
 }
+
+void AConsumable_SurgicalKit::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//DOREPLIFETIME_CONDITION(AConsumable_SurgicalKit, currTime, COND_OwnerOnly);
+	//DOREPLIFETIME_CONDITION(AConsumable_SurgicalKit, totalTime, COND_OwnerOnly);
+}
+
+void AConsumable_SurgicalKit::StopMontage()
+{
+	if (OwningCharacter)
+		OwningCharacter->GetMesh()->GetAnimInstance()->Montage_JumpToSection("StopMontage", AnimMontage);
+}
+
+//void AConsumable_SurgicalKit::OnRep_currTime()
+//{
+//}

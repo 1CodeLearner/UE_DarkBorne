@@ -47,7 +47,11 @@ bool UItemObject::HasItemActor() const
 
 ADBItem* UItemObject::GetItemActor() const
 {
-	return ItemData.ItemActor;
+	if(IsValid(ItemData.ItemActor))
+	{
+		return ItemData.ItemActor;
+	}
+	return nullptr;
 }
 
 void UItemObject::TryDestroyItemActor()

@@ -82,14 +82,19 @@ void UDBRogueAttackComponent::ServerRPC_RogueAttack_Implementation()
 
 void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 {
+
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+	
+	//if item that's being held is not a weapon, return
+	if(RoguePlayer->RogueWeaponComp->EquipSlotArray[0] && RoguePlayer->RogueWeaponComp->EquipSlotArray[0]->GetItemActor() != RoguePlayer->RogueWeaponComp->RogueItems)
+		return;
 	
 	if (RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
 	// 단검을 들고 있으면 
 
 	if(RoguePlayer->RogueWeaponComp->RogueItems == nullptr) return;
-	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0])
+	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0] && RoguePlayer->RogueWeaponComp->EquipSlotArray[0]->GetItemActor() == RoguePlayer->RogueWeaponComp->RogueItems)
 	{
 		// 은신 상태면 은신 풀어주자
 		if (RogueSkillComponent->isVanish)

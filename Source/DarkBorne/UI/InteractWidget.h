@@ -31,6 +31,7 @@ protected:
 	void OnInteractActorUpdate(AActor* ActorFound, EInteractState InteractState);
 	void OnInteractTimeUpdate(float CurrentTime, float MaxTime);
 	void OnBeginItemAction(ADBItem* ItemInAction);
+	void OnInteractFinished();
 
 protected:
 	UPROPERTY(meta=(BindWidget))

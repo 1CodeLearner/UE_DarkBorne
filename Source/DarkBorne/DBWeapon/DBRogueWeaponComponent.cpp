@@ -10,6 +10,10 @@
 #include "Net/UnrealNetwork.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/GameplayStatics.h>
 #include "../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
+#include "../DBCharacters/DBCharacterAttack/DBRogueAttackComponent.h"
+
+#include "../Framework/Interfaces/ItemInterface.h"
+#include "../Framework/BFL/ItemLibrary.h"
 
 // Sets default values for this component's properties
 UDBRogueWeaponComponent::UDBRogueWeaponComponent()
@@ -51,13 +55,13 @@ void UDBRogueWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType
 			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Testing Here: Pending Kill")));
 		}
 	}
-		
+
 }
 
 void UDBRogueWeaponComponent::SetupPlayerInputComponent(UEnhancedInputComponent* enhancedInputComponent)
 {
 	enhancedInputComponent->BindAction(ia_WeaponSlot, ETriggerEvent::Triggered, this, &UDBRogueWeaponComponent::AttachWeapon);
-
+	enhancedInputComponent->BindAction(ia_ConsumableSlot, ETriggerEvent::Triggered, this, &UDBRogueWeaponComponent::AttachConsumable);
 }
 
 void UDBRogueWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -71,7 +75,6 @@ void UDBRogueWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(UDBRogueWeaponComponent, hasWeapon);
 }
 
-
 void UDBRogueWeaponComponent::AttachWeapon()
 {
 	ServerRPC_AttachWeapon();
@@ -83,21 +86,89 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 	if (hasWeapon) return;
 	if (!hasWeapon)
 	{
-		hasWeapon = true;
-		//if (EquipSlotArray[0]) return;
-		UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
-		UDBRogueSkillComponent* SkillComp = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+		hasWeapon = HandleAttach(UItemLibrary::GetSlotIndexByEnum(ESlotType::WEAPON));
+	}
+}
 
-		//ÀåÂø ½½·Ô ¹è¿­ °¡Á®¿À±â
-		EquipSlotArray = EquipComponent->GetSlots();
+void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Passing Item to DBRogueWeaponComponent: %s"), *GetNameSafe(Item));
+	if (Item->GetSlotType() == ESlotType::WEAPON)
+	{
+		hasWeapon = false;
+		AttachWeapon();
+	}
 
-		// ¹«±â½½·Ô¿¡ ¹«±âµ¥ÀÌÅÍ°¡ ÀÖÀ¸¸é
-		if (EquipSlotArray[0])
+	//switch (Item->GetSlotType())
+	//{
+	//case ESlotType::WEAPON:
+	//	break;
+	//case ESlotType::HEAD:
+	//	break;
+	//case ESlotType::UPPERWEAR:
+	//	break;
+	//case ESlotType::BOTTOMWEAR:
+	//	break;
+	//case ESlotType::GLOVES:
+	//	break;
+	//case ESlotType::BOOTS:
+	//	break;
+
+	//}
+}
+
+
+
+void UDBRogueWeaponComponent::AttachConsumable()
+{
+	Server_AttachConsumable();
+}
+
+void UDBRogueWeaponComponent::Server_AttachConsumable_Implementation()
+{
+	UDBRogueAttackComponent* AttackComp = GetOwner()->GetComponentByClass<UDBRogueAttackComponent>();
+	//if player is not in a middle of an attack sequence, switch to consumable item.
+	if (AttackComp && AttackComp->comboCnt == 0)
+	{
+		if (HandleAttach(UItemLibrary::GetSlotIndexByEnum(ESlotType::CONSUMABLE)))
 		{
+			hasWeapon = false;
+		}
+	}
+}
+
+//void UDBRogueWeaponComponent::OnRep_RogueItems()
+//{
+//	if (Cast<ACharacter>(GetOwner())->IsLocallyControlled() && RogueItems && RogueItems->Implements<UItemInterface>())
+//	{
+//		OnBeginItemAction.ExecuteIfBound(RogueItems);
+//	}
+//}
+
+//Return true if either item attachment is successful or player is already holding the same item. Returns false if EquipSlotArray is invalid, or slot is empty
+bool UDBRogueWeaponComponent::HandleAttach(int32 SlotIndex)
+{
+	UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
+	UDBRogueSkillComponent* SkillComp = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+
+	//ÀåÂø ½½·Ô ¹è¿­ °¡Á®¿À±â
+	EquipSlotArray = EquipComponent->GetSlots();
+
+	// ¹«±â½½·Ô¿¡ ¹«±âµ¥ÀÌÅÍ°¡ ÀÖÀ¸¸é
+	if (ensureAlways(!EquipSlotArray.IsEmpty()) && EquipSlotArray[SlotIndex])
+	{
+		if (EquipSlotArray[SlotIndex]->GetItemActor() == nullptr)
+		{
+			if (RogueItems)
+			{
+				RogueItems->GetItemObject()->TryDestroyItemActor();
+			}
+
 			// ¹«±â ¿ùµå¿¡ ½ºÆù delay
 			// SpawnActorDeferred : BeginPlay°¡ ½ÇÇàµÇ±â Àü¿¡ ¼ÂÆÃ
-			RogueItems = GetWorld()->SpawnActorDeferred<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentTransform(), GetOwner());
+			RogueItems = GetWorld()->SpawnActorDeferred<ADBItem>(EquipSlotArray[SlotIndex]->GetItemClass(), GetComponentTransform(), GetOwner());
 			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
+			RogueItems->Initialize(EquipSlotArray[SlotIndex]);
 			// ¹«±âÀÇ ¸ÓÆ¼¸®¾ó °¡Á®¿À±â
 			//RogueItems = GetWorld()->SpawnActor<ADBItem>(EquipSlotArray[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
 
@@ -111,41 +182,13 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 			RogueItems->SetOwner(GetOwner());
 
 			//다른 로직에 필요한 준비
-			EquipSlotArray[0]->SetItemActor(RogueItems);
+			EquipSlotArray[SlotIndex]->SetItemActor(RogueItems);
+
+			//OnRep_RogueItems();
 		}
-		else {
-			RogueItems = nullptr;
-		}
 
+		return true;
 	}
+
+	return false;
 }
-
-
-
-void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
-{
-	UE_LOG(LogTemp,Warning,TEXT("Passing Item to DBRogueWeaponComponent: %s"),*GetNameSafe(Item));
-	if (Item->GetSlotType() == ESlotType::WEAPON)
-	{
-		hasWeapon = false;
-		AttachWeapon();
-	}
-
-	switch (Item->GetSlotType())
-	{
-	case ESlotType::WEAPON:
-		break;
-	case ESlotType::HEAD:
-		break;
-	case ESlotType::UPPERWEAR:
-		break;
-	case ESlotType::BOTTOMWEAR:
-		break;
-	case ESlotType::GLOVES:
-		break;
-	case ESlotType::BOOTS:
-		break;
-		
-	}
-}
-

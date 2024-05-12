@@ -16,11 +16,21 @@ class DARKBORNE_API AConsumable_SurgicalKit : public ADBConsumable, public IItem
 {
 	GENERATED_BODY()
 public:
+	AConsumable_SurgicalKit();
 	virtual bool PlayMontage(ACharacter* PlayerCharacter, FName SectionName) override;
 
 protected:
-	//virtual void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 
 	UFUNCTION()
-	void Testing();
+	void StopMontage();
+
+protected:
+	//UPROPERTY(ReplicatedUsing = "OnRep_currTime")
+	float currTime;
+	//void OnRep_currTime();
+	//UPROPERTY(Replicated)
+	float totalTime;
 };

@@ -35,12 +35,16 @@ public:
 public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_WeaponSlot;
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_ConsumableSlot;
 
 	UPROPERTY(Replicated)
 	class ADBWeapon_CloseRange* Dagger;
 
 	UPROPERTY(Replicated)
 	class ADBItem* RogueItems;
+	//UFUNCTION()
+	//void OnRep_RogueItems();
 
 	UPROPERTY(Replicated, VisibleAnywhere)
 	TArray<UItemObject*> EquipSlotArray;
@@ -62,4 +66,16 @@ public:
 
 public:
 	void PassItem(UItemObject* Item);
+
+
+
+protected:
+	//????
+	void AttachConsumable();
+	UFUNCTION(Server, Reliable)
+	void Server_AttachConsumable();
+	/*UFUNCTION(NetMulticast, Reliable)
+	void Multicast_TestAttachItem(ADBItem* Test);*/
+private:
+	bool HandleAttach(int32 index);
 };

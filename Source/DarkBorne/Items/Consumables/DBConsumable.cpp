@@ -20,7 +20,7 @@ bool ADBConsumable::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
 			AnimInstance->OnMontageEnded.AddDynamic(this, &ADBConsumable::OnMontageEnded);
 
 			Delegate.BindUFunction(this, "OnMontageEnded");
-			AnimInstance->OnMontageEnded.AddUnique(Delegate);
+			AnimInstance->OnMontageEnded.AddUnique(Delegate);     
 
 			return true;
 		}

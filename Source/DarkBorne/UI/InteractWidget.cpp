@@ -133,7 +133,13 @@ void UInteractWidget::OnBeginItemAction(ADBItem* ItemInAction)
 			DisplayBeginTrace(false);
 			DisplayBeginInteract(true);
 			ItemInterface->OnInteractTimeUpdate.BindUObject(this, &UInteractWidget::OnInteractTimeUpdate);
+			ItemInterface->OnInteractFinished.BindUObject(this, &UInteractWidget::OnInteractFinished);
 		}
 	}
+}
+
+void UInteractWidget::OnInteractFinished()
+{
+	DisplayBeginInteract(false);
 }
 
