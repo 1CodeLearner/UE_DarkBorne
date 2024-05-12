@@ -9,6 +9,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "../Items/DBItem.h"
+#include "../Framework/Interfaces/ItemInterface.h"
 
 void UItemObject::Initialize(FItem _Item, ADBItem* _ItemActor)
 {
@@ -26,6 +27,11 @@ ADBItem* UItemObject::SpawnItem(AActor* Initiator, bool bSetOwner, FTransform Tr
 	SetItemActor(ItemSpawned);
 	
 	return ItemSpawned;	
+}
+
+bool UItemObject::ImplementsItemInterface() const
+{
+	return GetItemClass()->ImplementsInterface(UItemInterface::StaticClass());
 }
 
 void UItemObject::SetItemActor(ADBItem* _ItemActor)
@@ -89,6 +95,11 @@ UMaterialInterface* UItemObject::GetIcon()
 }
 
 TSubclassOf<AActor> UItemObject::GetItemClass()
+{
+	return ItemData.Item.SlotHolder.ItemClass;
+}
+
+const TSubclassOf<AActor> UItemObject::GetItemClass() const
 {
 	return ItemData.Item.SlotHolder.ItemClass;
 }

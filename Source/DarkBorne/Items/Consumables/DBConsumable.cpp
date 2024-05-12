@@ -36,8 +36,12 @@ TSubclassOf<UDBEffect> ADBConsumable::GetEffectClass() const
 
 void ADBConsumable::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnMontageEnded in consumable invoked"));
+
 	if (!bInterrupted)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Not Interrupted"));
+
 		auto EffectComp = OwningCharacter->GetComponentByClass<UDBEffectComponent>();
 		if (ensureAlways(EffectComp))
 		{
@@ -50,8 +54,10 @@ void ADBConsumable::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 			EquipmentComp->RemoveItem(GetItemObject(), EquipmentComp);
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("OnMontageEnded in consumable invoked"));
-	OwningCharacter->GetMesh()->GetAnimInstance()->OnMontageEnded.Remove(Delegate);
+	else{
+		UE_LOG(LogTemp, Warning, TEXT("Interrupted"));
+	}
 
+	OwningCharacter->GetMesh()->GetAnimInstance()->OnMontageEnded.Remove(Delegate);
 	GetItemObject()->TryDestroyItemActor();
 }

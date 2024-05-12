@@ -20,22 +20,28 @@ class UItemInterface : public UInterface
 /**
  *
  */
+
+DECLARE_DELEGATE_TwoParams(FInteractTimeUpdateDelegate, float /*CurrentTime*/, float /*MaxTime*/);
+
 class DARKBORNE_API IItemInterface
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	FDarkBorneStats GetDBStats() const;
+	FInteractTimeUpdateDelegate OnInteractTimeUpdate;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	ESlotType GetSlotType() const; 
 
-	//figure out why this causes compile error
+	//UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	//FDarkBorneStats GetDBStats() const;
+
+	//UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	//ESlotType GetSlotType() const; 
+
+	////figure out why this causes compile error
+	////UFUNCTION(BlueprintNativeEvent)
+	////FRarity GetRarity() const;
+
 	//UFUNCTION(BlueprintNativeEvent)
-	//FRarity GetRarity() const;
-
-	UFUNCTION(BlueprintNativeEvent)
-	void AssignStats(const FItem& _Item);
+	//void AssignStats(const FItem& _Item);
 };

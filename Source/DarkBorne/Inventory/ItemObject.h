@@ -33,6 +33,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	ADBItem* SpawnItem(AActor* Initiator, bool bSetOwner, FTransform Trans, float forwardOffset);
+	UFUNCTION(BlueprintCallable)
+	bool ImplementsItemInterface() const;
 
 	UFUNCTION(BlueprintCallable)
 	void SetItemActor(ADBItem* _ItemActor);
@@ -55,6 +57,7 @@ public:
 	class UMaterialInterface* GetIcon();
 	UFUNCTION(BlueprintPure)
 	TSubclassOf<AActor> GetItemClass();
+	const TSubclassOf<AActor> GetItemClass() const;
 	UFUNCTION(BlueprintCallable)
 	ESlotType GetSlotType() const;
 

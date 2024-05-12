@@ -7,13 +7,15 @@
 #include "../Inventory/ItemObject.h"
 #include "DBRogueWeaponComponent.generated.h"
 
+//Invokes when player is using an item begin held
+DECLARE_DELEGATE_OneParam(FBeginItemActionDelegate, ADBItem* /*ItemInAction*/)
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DARKBORNE_API UDBRogueWeaponComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UDBRogueWeaponComponent();
 
@@ -21,7 +23,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -36,15 +38,15 @@ public:
 
 	UPROPERTY(Replicated)
 	class ADBWeapon_CloseRange* Dagger;
-	
+
 	UPROPERTY(Replicated)
 	class ADBItem* RogueItems;
 
 	UPROPERTY(Replicated, VisibleAnywhere)
 	TArray<UItemObject*> EquipSlotArray;
 
-
-	
+	//Invokes when player is using an item begin held
+	FBeginItemActionDelegate OnBeginItemAction;
 
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)

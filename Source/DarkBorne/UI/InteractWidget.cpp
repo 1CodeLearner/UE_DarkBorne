@@ -8,16 +8,42 @@
 #include "../Inventory/ItemObject.h"
 #include "Components/CanvasPanel.h"
 #include "Components/ProgressBar.h"
+#include "../DBWeapon/DBRogueWeaponComponent.h"
+#include "../Framework/Interfaces/ItemInterface.h"
+#include "../Items/DBItem.h"
+
+void UInteractWidget::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
+	APawn* Player = GetOwningPlayerPawn();
+
+	auto InteractionComp = Player->GetComponentByClass<UDBInteractionComponent>();
+	if (InteractionComp)
+	{
+		InteractionComp->OnInteractActorUpdate.BindUObject(this, &UInteractWidget::OnInteractActorUpdate);
+		InteractionComp->OnInteractTimeUpdate.BindUObject(this, &UInteractWidget::OnInteractTimeUpdate);
+	}
+
+	auto RogueWeaponComp = Player->GetComponentByClass<UDBRogueWeaponComponent>();
+	if (RogueWeaponComp)
+	{
+		RogueWeaponComp->OnBeginItemAction.BindUObject(this, &UInteractWidget::OnBeginItemAction);
+	}
+
+
+	SetVisibility(ESlateVisibility::Collapsed);
+}
 
 void UInteractWidget::DisplayBeginTrace(bool bDisplay, AActor* ActorFound)
 {
-	if (bDisplay) 
+	if (bDisplay)
 	{
 		if (Canvas_BeginInteract->IsVisible())
 			Canvas_BeginInteract->SetVisibility(ESlateVisibility::Collapsed);
-		
+
 		auto Interact = Cast<IInteractionInterface>(ActorFound);
-		if (Interact) 
+		if (Interact)
 		{
 			FDisplayInfo displayInfo = Interact->GetDisplayInfo();
 			SetNameText(displayInfo.Name);
@@ -27,18 +53,18 @@ void UInteractWidget::DisplayBeginTrace(bool bDisplay, AActor* ActorFound)
 			SetNameText(FString::Printf(TEXT("None")));
 			SetActionText(FString::Printf(TEXT("Error")));
 		}
-			
+
 		Canvas_BeginTrace->SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
 	else {
 		Canvas_BeginTrace->SetVisibility(ESlateVisibility::Collapsed);
 	}
-	
+
 }
 
 void UInteractWidget::DisplayBeginInteract(bool bDisplay)
 {
-	if (bDisplay) 
+	if (bDisplay)
 	{
 		if (Canvas_BeginTrace->IsVisible())
 			Canvas_BeginTrace->SetVisibility(ESlateVisibility::Collapsed);
@@ -48,19 +74,6 @@ void UInteractWidget::DisplayBeginInteract(bool bDisplay)
 	else {
 		Canvas_BeginInteract->SetVisibility(ESlateVisibility::Collapsed);
 	}
-}
-
-void UInteractWidget::NativeOnInitialized()
-{
-	Super::NativeOnInitialized();
-
-	APawn* Player = GetOwningPlayerPawn();
-
-	auto Comp = Player->GetComponentByClass<UDBInteractionComponent>();
-
-	Comp->OnInteractActorUpdate.BindUObject(this, &UInteractWidget::OnInteractActorUpdate);
-	Comp->OnInteractTimeUpdate.BindUObject(this, &UInteractWidget::OnInteractTimeUpdate);
-	SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UInteractWidget::SetNameText(FString NameStr)
@@ -106,7 +119,21 @@ void UInteractWidget::OnInteractTimeUpdate(float CurrentTime, float MaxTime)
 {
 	if (ensureAlways(Canvas_BeginInteract->IsVisible()))
 	{
-		ProgressBar_Interact->SetPercent(CurrentTime/MaxTime);
+		ProgressBar_Interact->SetPercent(CurrentTime / MaxTime);
+	}
+}
+
+void UInteractWidget::OnBeginItemAction(ADBItem* ItemInAction)
+{
+	if (ItemInAction)
+	{
+		auto ItemInterface = Cast<IItemInterface>(ItemInAction);
+		if (ItemInterface)
+		{
+			DisplayBeginTrace(false);
+			DisplayBeginInteract(true);
+			ItemInterface->OnInteractTimeUpdate.BindUObject(this, &UInteractWidget::OnInteractTimeUpdate);
+		}
 	}
 }
 

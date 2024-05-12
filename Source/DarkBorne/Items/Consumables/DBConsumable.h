@@ -22,13 +22,14 @@ public:
 
 protected:
 	UFUNCTION()
-	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	virtual void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	UPROPERTY(EditDefaultsOnly, Category="Settings")
 	TSubclassOf<UDBEffect> EffectClass;
 	
-private:
 	UPROPERTY()
 	TObjectPtr<ADBCharacter> OwningCharacter;
+
+private:
 	FScriptDelegate Delegate;
 };

@@ -9,6 +9,7 @@
 class UTextBlock;
 class UCanvasPanel;
 class UProgressBar;
+class ADBItem;
 enum class EInteractState : uint8;
 /**
  *
@@ -29,6 +30,8 @@ protected:
 
 	void OnInteractActorUpdate(AActor* ActorFound, EInteractState InteractState);
 	void OnInteractTimeUpdate(float CurrentTime, float MaxTime);
+	void OnBeginItemAction(ADBItem* ItemInAction);
+
 protected:
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* Text_Name;
