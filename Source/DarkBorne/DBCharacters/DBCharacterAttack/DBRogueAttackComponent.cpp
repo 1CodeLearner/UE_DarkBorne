@@ -165,6 +165,7 @@ void UDBRogueAttackComponent::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 		return;
 
 	DBCharacter->GetMesh()->GetAnimInstance()->OnMontageEnded.Remove(Delegate);
+	bUsingItem = false;
 
 	if (!bInterrupted)
 	{
@@ -188,8 +189,6 @@ void UDBRogueAttackComponent::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 				EquipmentComp->RemoveItem(RogueWeaponComponent->RogueItems->GetItemObject(), EquipmentComp);
 			}
 
-			RogueWeaponComponent->RemoveRogueItems();
-
 			RogueWeaponComponent->AttachWeapon();
 		}
 		else
@@ -201,8 +200,6 @@ void UDBRogueAttackComponent::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Item Montage on %s Interrupted"), *GetNameSafe(RogueWeaponComponent->RogueItems));
-
-	bUsingItem = false;
 }
 
 void UDBRogueAttackComponent::OnRep_bItemActionStarted()

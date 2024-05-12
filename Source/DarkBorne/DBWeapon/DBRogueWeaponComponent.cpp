@@ -127,12 +127,15 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 	}
 }
 
-void UDBRogueWeaponComponent::RemoveRogueItems()
+void UDBRogueWeaponComponent::TryRemoveRogueItem(UItemObject* Item)
 {
-	if (RogueItems)
+	if (Item && Item->GetItemActor() == RogueItems)
 	{
 		RogueItems->GetItemObject()->TryDestroyItemActor();
 		RogueItems = nullptr;
+
+		if (Item->GetSlotType() == ESlotType::WEAPON)
+			hasWeapon = false;
 	}
 }
 

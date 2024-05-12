@@ -116,17 +116,11 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 	UItemObject* TempItemObj = Items[index];
 	Items[index] = nullptr;
 
-	//destroy item begin held by player
-	if (TempItemObj)
-	{
-		TempItemObj->TryDestroyItemActor();
-	}
-
-	/*auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	if (WeaponComp)
 	{
-		WeaponComp->RemoveItem(ItemObject);
-	}*/
+		WeaponComp->TryRemoveRogueItem(ItemObject);
+	}
 
 	OnRep_Items(old);
 }

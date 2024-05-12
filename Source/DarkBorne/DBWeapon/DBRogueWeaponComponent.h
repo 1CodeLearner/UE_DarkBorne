@@ -62,7 +62,7 @@ public:
 
 public:
 	void PassItem(UItemObject* Item);
-	void RemoveRogueItems();
+	void TryRemoveRogueItem(UItemObject* Item);
 
 
 

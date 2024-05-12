@@ -15,6 +15,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Animation/AnimMontage.h>
 #include "../../DBPlayerWidget/DBPlayerWidget.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetMathLibrary.h>
+#include "../DBCharacterAttack/DBRogueAttackComponent.h"
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -110,7 +111,7 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 		if (!RoguePlayer->IsLocallyControlled())
 		{
 			// 무기 가지고 있으면
-			if (weaponComponent->EquipSlotArray[0])
+			if (weaponComponent->EquipSlotArray[0] && weaponComponent->RogueItems)
 			{
 				for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
 				{
@@ -166,6 +167,12 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueQSkill_Implementation()
 
 void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 {
+	UDBRogueAttackComponent* AttackComponent = GetOwner()->GetComponentByClass<UDBRogueAttackComponent>();
+	if (AttackComponent && AttackComponent->IsInItemAction())
+	{
+		return;
+	}
+
 	//로그 캐릭터 가져오기 
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
@@ -206,7 +213,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 				RoguePlayer->GetMesh()->SetMaterial(i, VanishMat);
 			}
 			// 무기 가지고 있으면
-			if (weaponComponent->EquipSlotArray[0])
+			if (weaponComponent->EquipSlotArray[0] && weaponComponent->RogueItems)
 			{
 				// 무기 머티리얼 인덱스 가져와서
 				for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
@@ -252,7 +259,7 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 				RoguePlayer->GetMesh()->SetMaterial(i, RoguePlayer->MatArr[i]);
 			}
 			// 무기 가지고 있으면
-			if (weaponComponent->EquipSlotArray[0])
+			if (weaponComponent->EquipSlotArray[0] && weaponComponent->RogueItems)
 			{
 				for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
 				{
@@ -277,6 +284,12 @@ void UDBRogueSkillComponent::ActiveRogueESkill()
 // 서버에서 수리검 스폰한다
 void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 {
+	UDBRogueAttackComponent* AttackComponent = GetOwner()->GetComponentByClass<UDBRogueAttackComponent>();
+	if (AttackComponent && AttackComponent->IsInItemAction())
+	{
+		return;
+	}
+
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 
@@ -342,13 +355,19 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueShiftSkill_Implementation()
 
 void UDBRogueSkillComponent::MultiRPC_ActiveRogueShiftSkill_Implementation()
 {
+	UDBRogueAttackComponent* AttackComponent = GetOwner()->GetComponentByClass<UDBRogueAttackComponent>();
+	if (AttackComponent && AttackComponent->IsInItemAction())
+	{
+		return;
+	}
+
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 
 	if (RogueAnim->isCastingShift)return;
 	if (!weaponComponent->hasWeapon) return;
-	
+
 	RogueAnim->isCastingShift = true;
 
 	// 은신 상태면 은신 풀어주자
