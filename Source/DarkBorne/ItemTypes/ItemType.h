@@ -103,7 +103,7 @@ struct FSlotHolder
 	TSubclassOf<ADBItem> ItemClass;
 };
 
-UENUM(BlueprintType)
+UENUM(Blueprintable)
 enum class ERarityType : uint8
 {
 	NONE UMETA(DisplayName = "None"),
@@ -116,7 +116,12 @@ enum class ERarityType : uint8
 USTRUCT(Blueprintable)
 struct FRarity
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
+
+	void GetRarityType(uint8& Type) const
+	{
+		Type = (uint8)RarityType;
+	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ERarityType RarityType = ERarityType::NONE;

@@ -16,7 +16,7 @@ class DARKBORNE_API ADBWeapon : public ADBItem
 
 public:
 	ADBWeapon();
-
+	virtual void Initialize(UItemObject* ItemObject) override;
 	//Delete this later
 	UPROPERTY(EditAnywhere)
 	int WeaponDamage = 10;

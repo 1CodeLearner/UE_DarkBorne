@@ -8,7 +8,6 @@
 #include "Net/UnrealNetwork.h"
 #include "../Inventory/ItemObject.h"
 
-
 // Sets default values for this component's properties
 UCharacterStatusComponent::UCharacterStatusComponent()
 {
@@ -29,7 +28,6 @@ void UCharacterStatusComponent::BeginPlay()
 	// ...
 	MaxHP = 100;
 	CurrHP = MaxHP;
-
 }
 
 

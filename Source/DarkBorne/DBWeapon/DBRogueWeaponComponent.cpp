@@ -15,7 +15,7 @@
 #include "../Framework/Interfaces/ItemInterface.h"
 #include "../Framework/BFL/ItemLibrary.h"
 #include "../DBCharacters/DBCharacterAttack/DBRogueAttackComponent.h"
-
+#include "../Status/CharacterStatusComponent.h"
 
 // Sets default values for this component's properties
 UDBRogueWeaponComponent::UDBRogueWeaponComponent()
@@ -88,11 +88,12 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 	// ¹«±â ²¨³»°í ÀÖÀ¸¸é Àç½ÇÇà x
 	if (hasWeapon) return;
 
-	if(AttackComp && AttackComp->IsUsingItem()) return;
+	if (AttackComp && AttackComp->IsUsingItem()) return;
 
 	if (!hasWeapon)
 	{
 		hasWeapon = HandleAttach(UItemLibrary::GetSlotIndexByEnum(ESlotType::WEAPON));
+		UCharacterStatusComponent::AdjustAddedStats(GetOwner(), RogueItems->GetItemObject(), true);
 	}
 }
 
@@ -178,6 +179,11 @@ bool UDBRogueWeaponComponent::HandleAttach(int32 SlotIndex)
 		{
 			if (RogueItems)
 			{
+				if (RogueItems->GetItemObject()->GetSlotType() == ESlotType::WEAPON)
+				{
+					UCharacterStatusComponent::AdjustAddedStats(GetOwner(), RogueItems->GetItemObject(), false);
+				}
+
 				RogueItems->GetItemObject()->TryDestroyItemActor();
 			}
 

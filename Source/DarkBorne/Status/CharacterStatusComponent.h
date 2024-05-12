@@ -7,6 +7,7 @@
 #include "../ItemTypes/EnchantmentTypes.h"
 #include "CharacterStatusComponent.generated.h"
 
+class UDBEquipmentComponent;
 
 DECLARE_DELEGATE(FPlayerDeadDelegate);
 

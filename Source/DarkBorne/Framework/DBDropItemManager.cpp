@@ -151,7 +151,7 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 {
 	if (!ensureAlways(!Item.IsValid())) return;
 
-	if (!ensureAlwaysMsgf(Item.Rarities.Num() > 0, TEXT("Ensure AssignEffect() is called before AssignEnhancement()")))
+	if (!ensureAlwaysMsgf(Item.Rarities.Num() > 0, TEXT("Ensure AssignRarity() is called before AssignEnhancement()")))
 		return;
 
 	if (!ensureAlways(!Enchantments.IsEmpty()))
@@ -160,9 +160,9 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 	if ((int)Item.GetSlotType() >= (int)ESlotType::_ENCHANTMENTMARK_)
 		return;
 
-	ERarityType rarityType = Item.GetRarities()[0].RarityType;
-	int EnchantmentNum = int(rarityType);
-
+	uint8 EnchantmentNum = 0;
+	Item.GetRarities()[0].GetRarityType(EnchantmentNum);
+		
 	std::vector<bool> attributeCheck;
 	TArray<FAttribute> AttributesGenerated;
 

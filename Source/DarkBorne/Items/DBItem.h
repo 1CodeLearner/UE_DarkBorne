@@ -19,7 +19,7 @@ class DARKBORNE_API ADBItem : public AActor, public IInteractionInterface
 public:
 	ADBItem();
 	virtual void Tick(float DeltaTime) override;
-	void Initialize(UItemObject* ItemObject);
+	virtual void Initialize(UItemObject* ItemObject);
 	UItemObject* GetItemObject() const;
 
 	//ÄÝ¸®Àü Ä¸½¶ ÄÄÆ÷³ÍÆ®
