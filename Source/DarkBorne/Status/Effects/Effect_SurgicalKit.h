@@ -13,5 +13,8 @@ UCLASS()
 class DARKBORNE_API UEffect_SurgicalKit : public UDBEffect
 {
 	GENERATED_BODY()
-	
+public:
+	virtual void StartTick() override;
+
+
 };
