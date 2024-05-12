@@ -67,7 +67,11 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 	}
 	else if (ADBCharacter* player = Cast<ADBCharacter>(MyActor))
 	{
-		CurrHP -= damage;
+		float finalDamage = damage;
+		if (From)
+			finalDamage -= GetAddedStat().DamageBlockAmt;
+
+		CurrHP -= finalDamage;
 		if (CurrHP < 0)
 		{
 			CurrHP = 0;
