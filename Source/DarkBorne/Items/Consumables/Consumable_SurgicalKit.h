@@ -1,4 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -23,17 +24,22 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-
-	UFUNCTION()
-	void StopMontage();
-
 	virtual void OnRep_Owner() override;
 
 protected:
-	//UPROPERTY(ReplicatedUsing = "OnRep_currTime")
+	
+	UFUNCTION()
+	void OnRep_currTime();
+	UPROPERTY(ReplicatedUsing = "OnRep_currTime")
 	float currTime;
-	//void OnRep_currTime();
-	//UPROPERTY(Replicated)
+
+	UPROPERTY(Replicated)
 	float totalTime;
+				
+	UFUNCTION()
+	void OnRep_bTimeElapsed();
+	UPROPERTY(ReplicatedUsing = "OnRep_bTimeElapsed")
+	bool bTimeElapsed;
+
 	bool bMontageStart;
 };

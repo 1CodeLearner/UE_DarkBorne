@@ -7,12 +7,17 @@
 #include "DBRogueAttackComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class ADBRogueCharacter;
+class UDBRogueAnimInstance;
+class UDBRogueSkillComponent;
+class UDBRogueWeaponComponent;
+
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DARKBORNE_API UDBRogueAttackComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UDBRogueAttackComponent();
 
@@ -20,7 +25,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -60,5 +65,27 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_RogueThrowKnifeAttack();
+
+	UFUNCTION()
+	bool IsUsingItem() const;
+
+protected:
+	void UseItem();
+	UFUNCTION(Server, Reliable)
+	void Server_UseItem();
 	
+	UFUNCTION()
+	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_StartMontage();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_StopMontage();
+	
+private:
+	FScriptDelegate Delegate;
+	UPROPERTY(Replicated)
+	bool bUsingItem;
 };
+
+

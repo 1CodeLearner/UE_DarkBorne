@@ -7,6 +7,8 @@
 #include "../Inventory/ItemObject.h"
 #include "DBRogueWeaponComponent.generated.h"
 
+class UDBRogueAttackComponent;
+
 //Invokes when player is using an item begin held
 DECLARE_DELEGATE_OneParam(FBeginItemActionDelegate, ADBItem* /*ItemInAction*/)
 
@@ -66,6 +68,7 @@ public:
 
 public:
 	void PassItem(UItemObject* Item);
+	void RemoveRogueItems();
 
 
 
@@ -78,4 +81,6 @@ protected:
 	void Multicast_TestAttachItem(ADBItem* Test);*/
 private:
 	bool HandleAttach(int32 index);
+	UPROPERTY()
+	TObjectPtr<UDBRogueAttackComponent> AttackComp;
 };

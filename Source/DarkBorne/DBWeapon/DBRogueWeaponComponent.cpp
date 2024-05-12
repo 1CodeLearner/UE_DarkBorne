@@ -14,6 +14,8 @@
 
 #include "../Framework/Interfaces/ItemInterface.h"
 #include "../Framework/BFL/ItemLibrary.h"
+#include "../DBCharacters/DBCharacterAttack/DBRogueAttackComponent.h"
+
 
 // Sets default values for this component's properties
 UDBRogueWeaponComponent::UDBRogueWeaponComponent()
@@ -35,6 +37,7 @@ void UDBRogueWeaponComponent::BeginPlay()
 	//ÀåÂø ½½·Ô ¹è¿­ °¡Á®¿À±â
 	EquipSlotArray = EquipComponent->GetSlots();
 
+	AttackComp = GetOwner()->GetComponentByClass<UDBRogueAttackComponent>();
 }
 
 
@@ -84,6 +87,9 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 {
 	// ¹«±â ²¨³»°í ÀÖÀ¸¸é Àç½ÇÇà x
 	if (hasWeapon) return;
+
+	if(AttackComp && AttackComp->IsUsingItem()) return;
+
 	if (!hasWeapon)
 	{
 		hasWeapon = HandleAttach(UItemLibrary::GetSlotIndexByEnum(ESlotType::WEAPON));
@@ -114,9 +120,18 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 	case ESlotType::BOOTS:
 		break;
 	case ESlotType::CONSUMABLE:
-		if(RogueItems && RogueItems->GetItemObject()->GetSlotType() == Item->GetSlotType())
+		if (RogueItems && RogueItems->GetItemObject()->GetSlotType() == Item->GetSlotType())
 			AttachConsumable();
 		break;
+	}
+}
+
+void UDBRogueWeaponComponent::RemoveRogueItems()
+{
+	if (RogueItems)
+	{
+		RogueItems->GetItemObject()->TryDestroyItemActor();
+		RogueItems = nullptr;
 	}
 }
 
@@ -129,7 +144,6 @@ void UDBRogueWeaponComponent::AttachConsumable()
 
 void UDBRogueWeaponComponent::Server_AttachConsumable_Implementation()
 {
-	UDBRogueAttackComponent* AttackComp = GetOwner()->GetComponentByClass<UDBRogueAttackComponent>();
 	//if player is not in a middle of an attack sequence, switch to consumable item.
 	if (AttackComp && AttackComp->comboCnt == 0)
 	{

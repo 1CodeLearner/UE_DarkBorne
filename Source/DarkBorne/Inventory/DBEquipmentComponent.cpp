@@ -122,11 +122,11 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 		TempItemObj->TryDestroyItemActor();
 	}
 
-	auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	/*auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	if (WeaponComp)
 	{
-		WeaponComp->PassItem(ItemObject);
-	}
+		WeaponComp->RemoveItem(ItemObject);
+	}*/
 
 	OnRep_Items(old);
 }
