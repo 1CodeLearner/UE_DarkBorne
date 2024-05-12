@@ -25,6 +25,7 @@ UDBRogueAttackComponent::UDBRogueAttackComponent()
 
 	SetIsReplicatedByDefault(true);
 	bUsingItem = false;
+	bItemActionStarted = false;
 }
 
 
@@ -40,6 +41,9 @@ void UDBRogueAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	UpdateComboCount(DeltaTime);
+
+	if (bItemActionStarted)
+		ItemActionUpdate(DeltaTime);
 }
 
 void UDBRogueAttackComponent::SetupPlayerInputComponent(UEnhancedInputComponent* enhancedInputComponent)
@@ -51,6 +55,7 @@ void UDBRogueAttackComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 {
 	DOREPLIFETIME(UDBRogueAttackComponent, KnifeCount);
 	DOREPLIFETIME(UDBRogueAttackComponent, bUsingItem);
+	DOREPLIFETIME(UDBRogueAttackComponent, ItemActionTime);
 }
 
 void UDBRogueAttackComponent::RogueAttack()
@@ -61,8 +66,8 @@ void UDBRogueAttackComponent::RogueAttack()
 	UDBRogueWeaponComponent* RogueWeaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	// shift 쓰고있으면 리턴
 	if (RogueAnim->isCastingShift) return;
-	
-	if(bUsingItem) return;
+
+	if (IsUsingItem()) return;
 
 	// 수리검 스킬 수리검 남아있으면 
 	if (RogueSkillComponent->isSpawnKnife)
@@ -102,17 +107,19 @@ void UDBRogueAttackComponent::Server_UseItem_Implementation()
 		ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 		if (RogueWeaponComponent && RogueWeaponComponent->RogueItems && RoguePlayer)
 		{
+			bUsingItem = true;
+
 			UAnimInstance* AnimInstance = RoguePlayer->GetMesh()->GetAnimInstance();
 			Delegate.BindUFunction(this, "OnMontageEnded");
 			AnimInstance->OnMontageEnded.AddUnique(Delegate);
 
 			if (RogueWeaponComponent->RogueItems->Implements<UItemInterface>())
 			{
-				auto Interface = Cast<IItemInterface>(RogueWeaponComponent->RogueItems);
+				ItemActionTime.TotalTime = RogueWeaponComponent->RogueItems->GetItemObject()->GetRarityValue();
+				bItemActionStarted = true;
 			}
 
 			Multicast_StartMontage();
-			bUsingItem = true;
 		}
 	}
 }
@@ -175,6 +182,32 @@ void UDBRogueAttackComponent::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 
 	bUsingItem = false;
 	RogueWeaponComponent->RemoveRogueItems();
+}
+
+void UDBRogueAttackComponent::OnRep_bUsingItem()
+{
+	auto Character = Cast<ACharacter>(GetOwner());
+	if (Character && Character->IsLocallyControlled())
+	{
+		bUsingItem ? OnBeginItemAction.ExecuteIfBound() : OnEndItemAction.ExecuteIfBound();
+	}
+}
+
+void UDBRogueAttackComponent::ItemActionUpdate(float DeltaTime)
+{
+	ItemActionTime.CurrTime += DeltaTime;
+	OnRep_ItemActionTime();
+	if (ItemActionTime.CurrTime >= ItemActionTime.TotalTime)
+	{
+		bItemActionStarted = false;
+		ItemActionTime.CurrTime = 0.f;
+		Multicast_StopMontage();
+	}
+}
+
+void UDBRogueAttackComponent::OnRep_ItemActionTime()
+{
+	OnItemActionUpdate.ExecuteIfBound(ItemActionTime.CurrTime, ItemActionTime.TotalTime);
 }
 
 void UDBRogueAttackComponent::ServerRPC_RogueAttack_Implementation()

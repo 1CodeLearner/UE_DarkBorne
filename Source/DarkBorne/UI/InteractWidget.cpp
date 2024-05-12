@@ -8,6 +8,7 @@
 #include "../Inventory/ItemObject.h"
 #include "Components/CanvasPanel.h"
 #include "Components/ProgressBar.h"
+#include "../DBCharacters/DBCharacterAttack/DBRogueAttackComponent.h"
 #include "../DBWeapon/DBRogueWeaponComponent.h"
 #include "../Framework/Interfaces/ItemInterface.h"
 #include "../Items/DBItem.h"
@@ -25,10 +26,13 @@ void UInteractWidget::NativeOnInitialized()
 		InteractionComp->OnInteractTimeUpdate.BindUObject(this, &UInteractWidget::OnInteractTimeUpdate);
 	}
 
-	auto RogueWeaponComp = Player->GetComponentByClass<UDBRogueWeaponComponent>();
-	if (RogueWeaponComp)
+	auto AttackComp = Player->GetComponentByClass<UDBRogueAttackComponent>();
+	if (AttackComp)
 	{
-		RogueWeaponComp->OnBeginItemAction.BindUObject(this, &UInteractWidget::OnBeginItemAction);
+		AttackComp->OnBeginItemAction.BindUObject(this, &UInteractWidget::OnBeginItemAction);
+		AttackComp->OnEndItemAction.BindUObject(this, &UInteractWidget::OnEndItemAction);
+		AttackComp->OnItemActionUpdate.BindUObject(this, &UInteractWidget::OnInteractTimeUpdate);
+
 	}
 
 
@@ -117,28 +121,19 @@ void UInteractWidget::OnInteractActorUpdate(AActor* ActorFound, EInteractState I
 
 void UInteractWidget::OnInteractTimeUpdate(float CurrentTime, float MaxTime)
 {
-	if (ensureAlways(Canvas_BeginInteract->IsVisible()))
-	{
-		ProgressBar_Interact->SetPercent(CurrentTime / MaxTime);
-	}
+	ProgressBar_Interact->SetPercent(CurrentTime / MaxTime);
 }
 
-void UInteractWidget::OnBeginItemAction(ADBItem* ItemInAction)
+void UInteractWidget::OnBeginItemAction()
 {
-	if (ItemInAction)
+	auto WeaponComp = GetOwningPlayerPawn()->GetComponentByClass<UDBRogueWeaponComponent>();
+	if (WeaponComp && ensureAlways(WeaponComp->RogueItems))
 	{
-		auto ItemInterface = Cast<IItemInterface>(ItemInAction);
-		if (ItemInterface)
-		{
-			DisplayBeginTrace(false);
-			DisplayBeginInteract(true);
-			ItemInterface->OnInteractTimeUpdate.BindUObject(this, &UInteractWidget::OnInteractTimeUpdate);
-			ItemInterface->OnInteractFinished.BindUObject(this, &UInteractWidget::OnInteractFinished);
-		}
+		DisplayBeginInteract(true);
 	}
 }
 
-void UInteractWidget::OnInteractFinished()
+void UInteractWidget::OnEndItemAction()
 {
 	DisplayBeginInteract(false);
 }

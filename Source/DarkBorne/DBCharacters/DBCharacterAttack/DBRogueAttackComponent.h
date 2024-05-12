@@ -12,6 +12,30 @@ class UDBRogueAnimInstance;
 class UDBRogueSkillComponent;
 class UDBRogueWeaponComponent;
 
+USTRUCT()
+struct FItemActionTime
+{
+	GENERATED_BODY()
+
+	FItemActionTime()
+	{
+		CurrTime = 0.f;
+		TotalTime = 0.f;
+	}
+
+	UPROPERTY()
+	float CurrTime;
+
+	UPROPERTY()
+	float TotalTime;
+};
+
+//Invokes when player is using an item begin held
+DECLARE_DELEGATE(FBeginItemActionDelegate);
+DECLARE_DELEGATE(FEndItemActionDelegate);
+DECLARE_DELEGATE_TwoParams(FItemActionUpdateDelegate, float /*CurrentTime*/, float /*MaxTime*/);
+
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DARKBORNE_API UDBRogueAttackComponent : public UActorComponent
 {
@@ -21,10 +45,14 @@ public:
 	// Sets default values for this component's properties
 	UDBRogueAttackComponent();
 
+	FBeginItemActionDelegate OnBeginItemAction;
+	FEndItemActionDelegate OnEndItemAction;
+	FItemActionUpdateDelegate OnItemActionUpdate;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
+		
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -73,7 +101,8 @@ protected:
 	void UseItem();
 	UFUNCTION(Server, Reliable)
 	void Server_UseItem();
-	
+
+	//Only runs on server
 	UFUNCTION()
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
@@ -81,11 +110,23 @@ protected:
 	void Multicast_StartMontage();
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_StopMontage();
-	
+
 private:
 	FScriptDelegate Delegate;
-	UPROPERTY(Replicated)
+
+	UFUNCTION()
+	void OnRep_bUsingItem();
+	UPROPERTY(ReplicatedUsing = "OnRep_bUsingItem")
 	bool bUsingItem;
+	
+	bool bItemActionStarted;
+	
+	void ItemActionUpdate(float DeltaTime);
+
+	UFUNCTION()
+	void OnRep_ItemActionTime();
+	UPROPERTY(ReplicatedUsing = "OnRep_ItemActionTime")
+	FItemActionTime ItemActionTime;
 };
 
 

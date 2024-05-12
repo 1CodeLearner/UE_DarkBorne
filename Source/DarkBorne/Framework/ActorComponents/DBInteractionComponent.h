@@ -25,6 +25,7 @@ DECLARE_DELEGATE_TwoParams(FInteractTimeUpdateDelegate, float /*CurrentTime*/, f
 
 class ACharacter;
 class ADBCharacter;
+class UDBRogueAttackComponent;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DARKBORNE_API UDBInteractionComponent : public UActorComponent
@@ -64,6 +65,9 @@ private:
 	ADBCharacter* DBCharacter;
 	UPROPERTY()
 	TObjectPtr<AActor> OverlappingActor;
+	UPROPERTY()
+	TObjectPtr<UDBRogueAttackComponent> RogueAttackComp;
+
 
 	bool bInteracting;
 	bool bIsUpdating;

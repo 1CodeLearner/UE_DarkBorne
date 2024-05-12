@@ -21,8 +21,8 @@ class UItemInterface : public UInterface
  *
  */
 
-DECLARE_DELEGATE_TwoParams(FInteractTimeUpdateDelegate, float /*CurrentTime*/, float /*MaxTime*/);
-DECLARE_DELEGATE(FInteractFinishedDelegate);
+//DECLARE_DELEGATE_TwoParams(FInteractTimeUpdateDelegate, float /*CurrentTime*/, float /*MaxTime*/);
+//DECLARE_DELEGATE(FInteractFinishedDelegate);
 
 
 class DARKBORNE_API IItemInterface
@@ -31,8 +31,8 @@ class DARKBORNE_API IItemInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	FInteractTimeUpdateDelegate OnInteractTimeUpdate;
-	FInteractFinishedDelegate OnInteractFinished;
+	//FInteractTimeUpdateDelegate OnInteractTimeUpdate;
+	//FInteractFinishedDelegate OnInteractFinished;
 
 	//UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	//FDarkBorneStats GetDBStats() const;
