@@ -60,19 +60,17 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float spawnBorder = 100;
+	float spawnBorder = 70;
 
 
 public:
 	
-
 	virtual void ChangeState(EEnemyState s) override;
-
+	UFUNCTION()
 	void FireWeapon(FVector targetPos);
 	
-	
 	virtual void OnRep_CurrentState() override;
-
+	UFUNCTION()
 	virtual void UpdateDamaged(float deltaTime);
 	
 	

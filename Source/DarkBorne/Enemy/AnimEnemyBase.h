@@ -17,7 +17,7 @@ class DARKBORNE_API UAnimEnemyBase : public UAnimInstance
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	EEnemyState state;
+	EEnemyState state = EEnemyState::IDLE;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool isHitting = false;

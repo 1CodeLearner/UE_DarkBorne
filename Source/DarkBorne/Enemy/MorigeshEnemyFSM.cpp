@@ -18,11 +18,11 @@
 UMorigeshEnemyFSM::UMorigeshEnemyFSM()
 {
 
-	ConstructorHelpers::FObjectFinder<UAnimMontage> tempMontage(TEXT("/Script/Engine.AnimMontage'/Game/Blueprints/Enemy/Morigesh/BP_AIMorigeshEnemyMontage.BP_AIMorigeshEnemyMontage'"));
+	/*ConstructorHelpers::FObjectFinder<UAnimMontage> tempMontage(TEXT("/Script/Engine.AnimMontage'/Game/Blueprints/Enemy/Morigesh/BP_AIMorigeshEnemyMontage.BP_AIMorigeshEnemyMontage'"));
 	if (tempMontage.Succeeded())
 	{
 		montage = tempMontage.Object;
-	}
+	}*/
 
 	
 
@@ -69,6 +69,14 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 	//currState 한번 더 초기화(부모단에서 안되는듯)
 	currState = s;
 
+	UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEnemyState"), true);
+	if (enumPtr != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s -------> %s"),
+			*enumPtr->GetNameStringByIndex((int32)currState),
+			*enumPtr->GetNameStringByIndex((int32)s));
+	}
+	
 	anim->state = currState;
 	currTime = 0;
 
@@ -114,8 +122,8 @@ void UMorigeshEnemyFSM::FireWeapon(FVector targetPos)
 	FRotator rot = UKismetMathLibrary::MakeRotFromXZ(spawnForward, spawnUp);
 
 	AMorigeshWeapon* weapon = GetWorld()->SpawnActor<AMorigeshWeapon>(weaponFactory, spawnPos, rot);
-	FVector tempPos = weapon->GetActorLocation();
-	UE_LOG(LogTemp, Warning, TEXT("SpawnWeaponPos : %s"), *tempPos.ToString());
+	//FVector tempPos = weapon->GetActorLocation();
+	//UE_LOG(LogTemp, Warning, TEXT("SpawnWeaponPos : %s"), *tempPos.ToString());
 	
 }
 
