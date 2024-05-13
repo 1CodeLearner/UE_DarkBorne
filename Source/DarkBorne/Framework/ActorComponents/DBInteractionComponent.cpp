@@ -10,6 +10,7 @@
 #include "DarkBorne/Status/CharacterStatusComponent.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "../../Inventory/InventoryMainWidget.h"
+#include "../../DBCharacters/DBCharacterAttack/DBRogueAttackComponent.h"
 
 static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
 
@@ -33,6 +34,8 @@ void UDBInteractionComponent::BeginPlay()
 	{
 		Character = TempCharacter;
 		DBCharacter = Cast<ADBCharacter>(Character);
+		if (DBCharacter)
+			RogueAttackComp = DBCharacter->GetComponentByClass<UDBRogueAttackComponent>();
 	}
 }
 
@@ -181,6 +184,9 @@ bool UDBInteractionComponent::CanTrace(bool bDebugDraw)
 	if (Widgets.Num() > 0)
 		bCanTrace = false;
 
+	if (RogueAttackComp && RogueAttackComp->IsUsingItem())
+		bCanTrace = false;
+
 	if (!bCanTrace)
 	{
 		if (OverlappingActor)
@@ -190,10 +196,9 @@ bool UDBInteractionComponent::CanTrace(bool bDebugDraw)
 			Interface->EndTrace();
 			OverlappingActor = nullptr;
 		}
-		return false;
 	}
 
-	return true;
+	return bCanTrace;
 }
 
 void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)

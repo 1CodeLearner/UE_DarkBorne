@@ -16,7 +16,7 @@ class DARKBORNE_API UDarkBorneLibrary : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintCallable)
-	static float CalculateDamage(AActor* Instigated, const TArray<FItem>& Items);
+	static float CalculateDamage(AActor* Instigated);
 
 	//returns true if damage was applied
 	UFUNCTION(BlueprintCallable)

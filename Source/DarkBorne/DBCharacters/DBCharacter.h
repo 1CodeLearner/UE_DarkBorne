@@ -18,12 +18,12 @@ class UPlayerEquipmentComponent;
 
 class UDBInteractionComponent;
 
+class UDBEffectComponent;
+
 UCLASS()
 class DARKBORNE_API ADBCharacter : public ACharacter, public IInteractionInterface
 {
 	GENERATED_BODY()
-public:
-	static FFinalStat GetFinalStat(ACharacter* Character);
 
 public:
 	// Sets default values for this character's properties
@@ -32,6 +32,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 
 public:
 	virtual void BeginInteract(UDBInteractionComponent* InteractionComponent) override;
@@ -62,16 +63,8 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void PossessedBy(AController* NewController) override;
-public:
-	UFUNCTION(BlueprintCallable)
-	const FFinalStat& GetFinalStat() const;
 
-	UPROPERTY(EditAnywhere, Category = "Settings")
-	UDataTable* DT_CharacterStats;
-	UPROPERTY(EditAnywhere, Category = "Settings")
-	FName RowName;
-	UPROPERTY(BlueprintReadOnly)
-	FCharacterBaseStat CharacterBaseStat;
+public:
 
 	//Inventory Components
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
@@ -82,7 +75,6 @@ public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	class UCharacterStatusComponent* CharacterStatusComponent;
 
-
 	//Inventory UI
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TSubclassOf<UInventoryMainWidget> InvMainWidgetClass;
@@ -92,6 +84,10 @@ public:
 	//Interaction
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TObjectPtr<UDBInteractionComponent> InteractionComp;
+
+	//Item Effects
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UDBEffectComponent> EffectComp;
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -139,7 +135,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_DoubleJump();
 
-	void EnhancedInteract(const struct FInputActionValue& value);
+	virtual void EnhancedInteract(const struct FInputActionValue& value);
 	void EnhancedInventory(const struct FInputActionValue& value);
 public:
 	void CreatePlayerWidget();
@@ -150,7 +146,4 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	float InteractDistance;
-		
-	UPROPERTY(VisibleAnywhere, Category = "Settings")
-	FFinalStat FinalStat;
 };

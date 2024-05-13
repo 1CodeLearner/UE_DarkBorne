@@ -6,7 +6,7 @@
 #include "Components/Border.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
-
+#include "InventoryGridWidget.h"
 
 void UEquipmentGridWidget::StartInit(UDBEquipmentComponent* EquipmentComp, ESlotType _SlotType)
 {
@@ -28,6 +28,7 @@ void UEquipmentGridWidget::StartInit(UDBEquipmentComponent* EquipmentComp, ESlot
 	{
 		TaxiToServer = Taxi;
 	}
+
 }
 
 void UEquipmentGridWidget::Reset()

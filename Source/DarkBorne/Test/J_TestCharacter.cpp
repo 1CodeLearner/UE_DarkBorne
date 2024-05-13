@@ -24,12 +24,6 @@ void AJ_TestCharacter::BeginPlay()
 				RowName,
 				FString::Printf(TEXT("Getting CharacterBaseStat"))
 			);
-
-		if (ensure(CharacterBaseStat.Attributes.Num() == FinalStat.Attributes.Num()))
-		{
-			for (int32 i = 0; i < CharacterBaseStat.Attributes.Num(); ++i)
-				FinalStat.Attributes[i] += CharacterBaseStat.Attributes[i];
-		}
 	}
 	
 	if (!HasAuthority() && IsLocallyControlled()) 
@@ -39,7 +33,7 @@ void AJ_TestCharacter::BeginPlay()
 	}
 }
 
-const FFinalStat& AJ_TestCharacter::GetFinalStat() const
+const FAddedStat& AJ_TestCharacter::GetFinalStat() const
 {
-	return FinalStat;
+	return AddedStat;
 }

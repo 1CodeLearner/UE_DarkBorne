@@ -9,6 +9,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "../Items/DBItem.h"
+#include "../Framework/Interfaces/ItemInterface.h"
 
 void UItemObject::Initialize(FItem _Item, ADBItem* _ItemActor)
 {
@@ -28,6 +29,11 @@ ADBItem* UItemObject::SpawnItem(AActor* Initiator, bool bSetOwner, FTransform Tr
 	return ItemSpawned;	
 }
 
+bool UItemObject::ImplementsItemInterface() const
+{
+	return GetItemClass()->ImplementsInterface(UItemInterface::StaticClass());
+}
+
 void UItemObject::SetItemActor(ADBItem* _ItemActor)
 {
 	if (ensureAlways(_ItemActor))
@@ -41,7 +47,11 @@ bool UItemObject::HasItemActor() const
 
 ADBItem* UItemObject::GetItemActor() const
 {
-	return ItemData.ItemActor;
+	if(IsValid(ItemData.ItemActor))
+	{
+		return ItemData.ItemActor;
+	}
+	return nullptr;
 }
 
 void UItemObject::TryDestroyItemActor()
@@ -70,6 +80,11 @@ FName UItemObject::GetId() const
 	return ItemData.Item.SlotHolder.Id;
 }
 
+float UItemObject::GetRarityValue() const
+{
+	return ItemData.Item.GetDefaultValue();
+}
+
 FIntPoint UItemObject::GetDimentions()
 {
 	//FIntPoint TempDimensions(100, 100);  // 예제 값으로 100x100 설정
@@ -84,6 +99,11 @@ UMaterialInterface* UItemObject::GetIcon()
 }
 
 TSubclassOf<AActor> UItemObject::GetItemClass()
+{
+	return ItemData.Item.SlotHolder.ItemClass;
+}
+
+const TSubclassOf<AActor> UItemObject::GetItemClass() const
 {
 	return ItemData.Item.SlotHolder.ItemClass;
 }

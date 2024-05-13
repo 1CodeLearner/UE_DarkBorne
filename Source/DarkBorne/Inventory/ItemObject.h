@@ -14,6 +14,17 @@ struct FItemData
 {
 	GENERATED_BODY()
 
+	FItemData()
+	{
+		ItemActor = nullptr;
+	}
+
+	FItemData(FItem _Item, ADBItem* _ItemActor)
+	{
+		Item = _Item;
+		ItemActor = _ItemActor;
+	}
+
 	UPROPERTY()
 	FItem Item = FItem();
 
@@ -31,7 +42,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Initialize(FItem _Item, ADBItem* _ItemActor = nullptr);
 
+	UFUNCTION(BlueprintCallable)
 	ADBItem* SpawnItem(AActor* Initiator, bool bSetOwner, FTransform Trans, float forwardOffset);
+	UFUNCTION(BlueprintCallable)
+	bool ImplementsItemInterface() const;
 
 	UFUNCTION(BlueprintCallable)
 	void SetItemActor(ADBItem* _ItemActor);
@@ -45,12 +59,16 @@ public:
 
 	FName GetId() const;
 
+	UFUNCTION(BlueprintCallable)
+	float GetRarityValue() const;
+
 	UFUNCTION(BlueprintPure)
 	FIntPoint GetDimentions();  // Ã¶ÀÚ ¼öÁ¤
 	UFUNCTION(BlueprintPure)
 	class UMaterialInterface* GetIcon();
 	UFUNCTION(BlueprintPure)
 	TSubclassOf<AActor> GetItemClass();
+	const TSubclassOf<AActor> GetItemClass() const;
 	UFUNCTION(BlueprintCallable)
 	ESlotType GetSlotType() const;
 

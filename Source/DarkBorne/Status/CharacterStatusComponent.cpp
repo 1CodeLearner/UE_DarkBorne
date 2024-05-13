@@ -6,7 +6,7 @@
 #include "../Enemy/EnemyBase.h"
 #include "../Enemy/EnemyFSMBase.h"
 #include "Net/UnrealNetwork.h"
-
+#include "../Inventory/ItemObject.h"
 
 // Sets default values for this component's properties
 UCharacterStatusComponent::UCharacterStatusComponent()
@@ -16,7 +16,7 @@ UCharacterStatusComponent::UCharacterStatusComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 	// ...
-	
+	bInitialized = false;
 }
 
 // Called when the game starts
@@ -27,7 +27,6 @@ void UCharacterStatusComponent::BeginPlay()
 
 	// ...
 	CurrHP = MaxHP;
-	
 }
 
 
@@ -43,41 +42,52 @@ void UCharacterStatusComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 void UCharacterStatusComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
+
 
 	// ...
 }
 
 void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 {
-	if(CurrHP <= 0) return;
-	UE_LOG(LogTemp, Warning, TEXT("DamageProcess"));
+	if (CurrHP <= 0) return;
+	UE_LOG(LogTemp, Warning, TEXT("DamageProcess %f"), damage);
 	if (!MyActor->HasAuthority() || MyActor == nullptr)
 	{
 		return;
 	}
-	
+
 	if (AEnemyBase* enemy = Cast<AEnemyBase>(MyActor))
 	{
 
 		UE_LOG(LogTemp, Warning, TEXT("EnemyHit"));
 		enemy->DamageProcess(damage, From);
 
-		
+
 	}
 	else if (ADBCharacter* player = Cast<ADBCharacter>(MyActor))
 	{
-		CurrHP -= damage;
+		float finalDamage = damage;
+		if (From)
+			finalDamage -= GetAddedStat().DamageBlockAmt;
+
+		CurrHP -= finalDamage;
 		if (CurrHP < 0)
 		{
 			CurrHP = 0;
+			OnPlayerDead.ExecuteIfBound();
+		}
+		else if (CurrHP > MaxHP) {
+			CurrHP = MaxHP;
 		}
 	}
-	
-	
+
+
 }
 
-
+bool UCharacterStatusComponent::IsAlive() const
+{
+	return CurrHP > 0.f;
+}
 
 void UCharacterStatusComponent::OnRep_CurrHP()
 {
@@ -90,3 +100,126 @@ void UCharacterStatusComponent::OnRep_CurrHP()
 	}
 }
 
+void UCharacterStatusComponent::Initialize()
+{
+	// 서버라면
+	if (!bInitialized && GetOwner()->HasAuthority())
+	{
+		if (ensureAlways(DT_CharacterStats))
+		{
+			FCharacterBaseStat* CharacterBaseStat = DT_CharacterStats->FindRow<FCharacterBaseStat>
+				(
+					RowName,
+					FString::Printf(TEXT("Getting CharacterBaseStat"))
+				);
+
+			if (ensureAlways(CharacterBaseStat != nullptr) &&
+				ensureAlways(CharacterBaseStat->Attributes.Num() == BaseStat.Attributes.Num()))
+			{
+				for (int32 i = 0; i < CharacterBaseStat->Attributes.Num(); ++i)
+					BaseStat.Attributes[i] += CharacterBaseStat->Attributes[i];
+			}
+		}
+
+		bInitialized = true;
+	}
+}
+
+const FAddedStat& UCharacterStatusComponent::GetAddedStat() const
+{
+	return AddedStat;
+}
+
+const FBaseStat& UCharacterStatusComponent::GetBaseStat() const
+{
+	return BaseStat;
+}
+
+UCharacterStatusComponent* UCharacterStatusComponent::Get(ADBCharacter* Character)
+{
+	if (Character)
+	{
+		auto StatusComp = Character->GetComponentByClass<UCharacterStatusComponent>();
+		if (StatusComp)
+			return StatusComp;
+	}
+
+	return nullptr;
+}
+
+void UCharacterStatusComponent::AdjustAddedStats(AActor* Instigated, const UItemObject* ItemObject, bool bIsAdd)
+{
+	ADBCharacter* Character = Cast<ADBCharacter>(Instigated);
+	if (Character)
+	{
+		UCharacterStatusComponent* StatusComp = UCharacterStatusComponent::Get(Character);
+
+		if (StatusComp)
+		{
+			StatusComp->PrintStats();
+
+			if (bIsAdd)
+				StatusComp->AddStats(ItemObject);
+			else
+				StatusComp->RemoveStats(ItemObject);
+
+			StatusComp->PrintStats();
+		}
+	}
+}
+
+void UCharacterStatusComponent::AddStats(const UItemObject* ItemObject)
+{
+	const FItem& Item = ItemObject->GetItem();
+
+	for (int i = 0; i < Item.Enchantments.Attributes.Num(); ++i) {
+		int32 index = (int32)Item.Enchantments.Attributes[i].AttributeType;
+		AddedStat.Attributes[index] += Item.Enchantments.Attributes[i];
+	}
+	for (int i = 0; i < Item.Enchantments.PhysicalDamages.Num(); ++i) {
+		int32 index = (int32)Item.Enchantments.PhysicalDamages[i].PhysicalDamageType;
+		AddedStat.PhysDamages[index] += Item.Enchantments.PhysicalDamages[i];
+	}
+}
+
+void UCharacterStatusComponent::RemoveStats(const UItemObject* ItemObject)
+{
+	const FItem& Item = ItemObject->GetItem();
+
+	for (int i = 0; i < Item.Enchantments.Attributes.Num(); ++i) {
+		int32 index = (int32)Item.Enchantments.Attributes[i].AttributeType;
+		AddedStat.Attributes[index] -= Item.Enchantments.Attributes[i];
+	}
+
+	for (int i = 0; i < Item.Enchantments.PhysicalDamages.Num(); ++i) {
+		int32 index = (int32)Item.Enchantments.PhysicalDamages[i].PhysicalDamageType;
+		AddedStat.PhysDamages[index] -= Item.Enchantments.PhysicalDamages[i];
+	}
+}
+
+void UCharacterStatusComponent::AddBlockAmount(float Amount)
+{
+	//FinalStat.DamageBlocks.Add(Amount);
+	AddedStat.DamageBlockAmt += Amount;
+	UE_LOG(LogTemp, Warning, TEXT("DamageBlockAmt amount: %f"), AddedStat.DamageBlockAmt);
+}
+
+void UCharacterStatusComponent::RemoveBlockAmount(float Amount)
+{
+	AddedStat.DamageBlockAmt -= Amount;
+	UE_LOG(LogTemp, Warning, TEXT("DamageBlockAmt Num: %d"), AddedStat.DamageBlockAmt);
+}
+
+void UCharacterStatusComponent::PrintStats()
+{
+	for (int i = 0; i < GetAddedStat().Attributes.Num(); ++i) {
+		UE_LOG(LogTemp, Warning, TEXT("%s: %f"),
+			*UEnum::GetValueAsString(GetAddedStat().Attributes[i].AttributeType),
+			GetAddedStat().Attributes[i].Range.max);
+	}
+	for (int i = 0; i < GetAddedStat().PhysDamages.Num(); ++i) {
+		UE_LOG(LogTemp, Warning, TEXT("%s: %f"),
+			*UEnum::GetValueAsString(GetAddedStat().PhysDamages[i].PhysicalDamageType),
+			GetAddedStat().PhysDamages[i].Range.max);
+	}
+}

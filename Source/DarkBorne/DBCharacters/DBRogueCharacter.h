@@ -69,4 +69,7 @@ public:
 	UPROPERTY(Replicated)
 	FVector knifePos;
 
+protected:
+	virtual void EnhancedInteract(const struct FInputActionValue& Value) override;
+
 };

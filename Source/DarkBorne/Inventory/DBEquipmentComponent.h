@@ -16,7 +16,7 @@ class DARKBORNE_API UDBEquipmentComponent : public UBaseInventoryComponent
 	friend class ULootInventoryComponent;
 public:
 	UDBEquipmentComponent();
-		
+
 	UFUNCTION(BlueprintCallable)
 	void AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
 	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;

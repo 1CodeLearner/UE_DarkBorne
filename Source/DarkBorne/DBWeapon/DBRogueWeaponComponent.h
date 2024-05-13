@@ -7,13 +7,14 @@
 #include "../Inventory/ItemObject.h"
 #include "DBRogueWeaponComponent.generated.h"
 
+class UDBRogueAttackComponent;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DARKBORNE_API UDBRogueWeaponComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UDBRogueWeaponComponent();
 
@@ -21,7 +22,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -33,18 +34,19 @@ public:
 public:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_WeaponSlot;
+	UPROPERTY(EditAnywhere)
+	class UInputAction* ia_ConsumableSlot;
 
 	UPROPERTY(Replicated)
 	class ADBWeapon_CloseRange* Dagger;
-	
+
 	UPROPERTY(Replicated)
 	class ADBItem* RogueItems;
+	//UFUNCTION()
+	//void OnRep_RogueItems();
 
 	UPROPERTY(Replicated, VisibleAnywhere)
 	TArray<UItemObject*> EquipSlotArray;
-
-
-	
 
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
@@ -60,4 +62,19 @@ public:
 
 public:
 	void PassItem(UItemObject* Item);
+	void TryRemoveRogueItem(UItemObject* Item);
+
+
+
+protected:
+	//????
+	void AttachConsumable();
+	UFUNCTION(Server, Reliable)
+	void Server_AttachConsumable();
+	/*UFUNCTION(NetMulticast, Reliable)
+	void Multicast_TestAttachItem(ADBItem* Test);*/
+private:
+	bool HandleAttach(int32 index);
+	UPROPERTY()
+	TObjectPtr<UDBRogueAttackComponent> AttackComp;
 };

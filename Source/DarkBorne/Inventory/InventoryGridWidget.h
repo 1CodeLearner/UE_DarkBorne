@@ -23,12 +23,13 @@ public:
 	void StartInit(UPlayerEquipmentComponent* InventoryComp);
 
 	void Reset();
-
-protected:
+		
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UPlayerEquipmentComponent> InventoryComponent;
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UPlayerEquipmentComponent> TaxiToServer;
+
+protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<FLine> Lines;

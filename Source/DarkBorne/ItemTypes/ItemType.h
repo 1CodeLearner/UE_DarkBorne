@@ -54,6 +54,17 @@ public:
 };
 
 USTRUCT(Blueprintable)
+struct FDimension
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float X = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Y = 0.f;
+};
+
+USTRUCT(Blueprintable)
 struct FSlotHolder
 {
 	GENERATED_BODY()
@@ -92,6 +103,43 @@ struct FSlotHolder
 	TSubclassOf<ADBItem> ItemClass;
 };
 
+UENUM(Blueprintable)
+enum class ERarityType : uint8
+{
+	NONE UMETA(DisplayName = "None"),
+	COMMON UMETA(DisplayName = "Common"),
+	RARE UMETA(DisplayName = "Rare"),
+	EPIC UMETA(DisplayName = "Epic"),
+	MAX UMETA(DisplayName = "Max")
+};
+
+USTRUCT(Blueprintable)
+struct FRarity
+{
+	GENERATED_BODY()
+
+	void GetRarityType(uint8& Type) const
+	{
+		Type = (uint8)RarityType;
+	}
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	ERarityType RarityType = ERarityType::NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FRange Range;
+};
+
+//Defines rarity & rarity value for items, excluding enchantments.
+USTRUCT(Blueprintable)
+struct FRarityHolder
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<FRarity> Rarity;
+};
+
 /// <summary>
 /// Item data stored in UItemObject, Do not modify anything in SlotHolder during runtime. 
 /// Must call Initialize function for FItem to be valid.
@@ -109,7 +157,9 @@ public:
 	void Initialize();
 	const TArray<FRarity>& GetRarities() const;
 	const ESlotType GetSlotType() const;
-		
+	float GetDefaultValue() const;
+
+
 	UPROPERTY(BlueprintReadOnly)
 	FSlotHolder SlotHolder;
 
