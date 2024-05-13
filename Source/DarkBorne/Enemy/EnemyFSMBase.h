@@ -84,6 +84,8 @@ public:
 	virtual void OnRep_CurrentState();
 
 	void OnPlayerStatus(class ADBPlayerController* temp,bool temp2);
+
+	bool IsTargetDeath(AActor* target);
 	
 
 

@@ -97,12 +97,8 @@ void AEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 /// <returns>죽었는가 리턴 받아서 FSM에서 애니메이션 처리</returns>
 void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 {
-
-	if (baseFSM != nullptr)
-	{
-		baseFSM->nowTarget = attackSource;
-		baseFSM->ChangeState(EEnemyState::MOVE);
-	}
+	
+	baseFSM->nowTarget = attackSource;
 
 	CharacterStatusComponent->CurrHP -= damage;
 

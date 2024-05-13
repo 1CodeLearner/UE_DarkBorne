@@ -69,13 +69,13 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 	//currState 한번 더 초기화(부모단에서 안되는듯)
 	currState = s;
 
-	UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEnemyState"), true);
+	/*UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEnemyState"), true);
 	if (enumPtr != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s -------> %s"),
 			*enumPtr->GetNameStringByIndex((int32)currState),
 			*enumPtr->GetNameStringByIndex((int32)s));
-	}
+	}*/
 	
 	anim->state = currState;
 	currTime = 0;

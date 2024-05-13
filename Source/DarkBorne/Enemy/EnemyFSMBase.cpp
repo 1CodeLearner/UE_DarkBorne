@@ -14,6 +14,8 @@
 #include "../Status/CharacterStatusComponent.h"
 #include "../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h"
 #include "AnimMorigeshEnemy.h"
+#include "DarkBorne/DBCharacters/DBRogueCharacter.h"
+#include "DarkBorne/DBAnimInstance/DBRogueAnimInstance.h"
 
 // FSM공통 부분 추가 발생시 추가할 스크립트
 //당장은 쓰이지 않음
@@ -90,9 +92,11 @@ void UEnemyFSMBase::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	// ...
 
 	if (myActor->HasAuthority())
-	{
-
-
+	{	
+		if (IsTargetDeath(nowTarget))
+		{
+			ChangeState(EEnemyState::IDLE);
+		}
 		switch (currState)
 		{
 		case EEnemyState::IDLE:
@@ -256,8 +260,13 @@ void UEnemyFSMBase::UpdateAttackDelay()
 {
 	if (IsWaitComplete(attackDelayTime))
 	{
+		if (IsTargetDeath(nowTarget))
+		{
+			ChangeState(EEnemyState::IDLE);
+		}
+		
 		//교전거리 0, 보임 0
-		if (IsEngageRangeCheck() && CanVisibleAttack())
+		else if (IsEngageRangeCheck() && CanVisibleAttack())
 		{
 			ChangeState(EEnemyState::ATTACK);
 		}
@@ -268,7 +277,8 @@ void UEnemyFSMBase::UpdateAttackDelay()
 			ChangeState(EEnemyState::MOVE);
 		}
 		// 그 외는 -> 대기
-		else
+		
+		else 
 		{
 			ChangeState(EEnemyState::IDLE);
 		}
@@ -471,5 +481,25 @@ void UEnemyFSMBase::OnPlayerStatus(class ADBPlayerController* temp, bool temp2)
 
 	//UE_LOG(LogTemp,Warning,TEXT("this"));
 	return;
+}
+
+bool UEnemyFSMBase::IsTargetDeath(class AActor* target)
+{
+	if(nowTarget == nullptr) return false;
+	if (Cast<ADBCharacter>(target))
+	{
+		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
+		ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(target);
+		//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
+		UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
+
+		// 충돌한 액터의 hitting
+		if (OtherPlayerAnim->isDeath)
+		{
+			nowTarget = nullptr;
+			return true;
+		}
+	}
+	return false;
 }
 

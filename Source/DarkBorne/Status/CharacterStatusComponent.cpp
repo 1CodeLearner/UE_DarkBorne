@@ -26,7 +26,6 @@ void UCharacterStatusComponent::BeginPlay()
 	MyActor = Cast<ACharacter>(GetOwner());
 
 	// ...
-	MaxHP = 100;
 	CurrHP = MaxHP;
 	
 }

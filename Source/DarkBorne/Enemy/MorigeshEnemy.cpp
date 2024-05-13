@@ -22,6 +22,7 @@ AMorigeshEnemy::AMorigeshEnemy()
 	baseFSM = CreateDefaultSubobject<UMorigeshEnemyFSM>(TEXT("FSM"));
 	baseFSM->SetNetAddressable();
 	baseFSM->SetIsReplicated(true);
+
 }
 
 void AMorigeshEnemy::BeginPlay()
