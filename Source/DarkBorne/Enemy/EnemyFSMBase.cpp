@@ -494,7 +494,7 @@ bool UEnemyFSMBase::IsTargetDeath(class AActor* target)
 		UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
 
 		// 충돌한 액터의 hitting
-		if (OtherPlayerAnim->isDeath)
+		if (OtherPlayerAnim != nullptr && OtherPlayerAnim->isDeath)
 		{
 			nowTarget = nullptr;
 			return true;

@@ -157,6 +157,7 @@ void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* 
 	
 	if(OtherPlayer|| OtherEnemy)
 	{
+		
 		FString Level = GetWorld()->GetMapName();
 		Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
 		if (Level != TEXT("Level_Lobby"))
@@ -165,9 +166,8 @@ void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* 
 
 			StatusComponent->DamageProcess(WeaponDamage, GetOwner());
 			StatusComponent->OnRep_CurrHP();
-
 			auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
-			if (ensure(GM) && StatusComponent->CurrHP <= 0.f)
+			if (ensure(GM) && StatusComponent->CurrHP <= 0.f && OtherPlayer != nullptr)
 			{
 				auto PC = OtherPlayer->GetOwner<APlayerController>();
 				if (PC)
