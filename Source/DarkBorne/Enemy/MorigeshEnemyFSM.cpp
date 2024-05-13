@@ -143,6 +143,6 @@ void UMorigeshEnemyFSM::UpdateDamaged(float deltaTime)
 	if (!anim->isHitting)
 	{
 		// IDLE 상태로 전환
-		ChangeState(EEnemyState::IDLE);
+		ChangeState(EEnemyState::MOVE);
 	}
 }

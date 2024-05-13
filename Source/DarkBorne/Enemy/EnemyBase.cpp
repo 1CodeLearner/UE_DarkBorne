@@ -99,6 +99,7 @@ void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 {
 	
 	baseFSM->nowTarget = attackSource;
+	UE_LOG(LogTemp,Warning,TEXT("nowTargetDam : %s"), *baseFSM->nowTarget->GetActorNameOrLabel());
 
 	CharacterStatusComponent->CurrHP -= damage;
 
