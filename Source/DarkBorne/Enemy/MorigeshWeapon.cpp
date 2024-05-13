@@ -97,8 +97,7 @@ void AMorigeshWeapon::ServerRPC_OnOverlapBegin_Implementation(class AActor* Othe
 
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
-	AEnemyBase* OtherEnemy = Cast<AEnemyBase>(OtherActor);
-	if (OtherPlayer || OtherEnemy)
+	if (OtherPlayer)
 	{
 		FString Level = GetWorld()->GetMapName();
 		Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);

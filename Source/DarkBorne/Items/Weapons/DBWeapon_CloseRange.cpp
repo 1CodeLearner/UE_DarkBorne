@@ -91,7 +91,6 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 
 			//UE_LOG(LogTemp, Warning, TEXT("%s : %.f"),
 			//	GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"), OtherPlayer->CurrHP);
-
 			auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
 			if (ensure(GM) && StatusComponent->CurrHP <= 0.f && OtherPlayer!= nullptr)
 			{

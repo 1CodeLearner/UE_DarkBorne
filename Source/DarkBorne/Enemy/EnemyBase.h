@@ -46,7 +46,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UEnemyFSMBase* baseFSM;
 
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	class UCharacterStatusComponent* CharacterStatusComponent;
 	
 	UPROPERTY(EditAnywhere, Category="Settings")

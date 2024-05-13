@@ -87,6 +87,7 @@ void AEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AEnemyBase, currHP);
 	DOREPLIFETIME(AEnemyBase, enemyAttackType);
+
 	//DOREPLIFETIME(AEnemyBase, baseFSM);
 }
 
@@ -106,12 +107,14 @@ void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 
 	if (CharacterStatusComponent->CurrHP <= 0)
 	{
+		baseFSM->nowTarget = nullptr;
 		CharacterStatusComponent->CurrHP = 0;
 
 		baseFSM->ChangeState(EEnemyState::DIE);
 	}
 	else
 	{
+		baseFSM->nowTarget = attackSource;
 		UE_LOG(LogTemp, Warning, TEXT("enemy now Health: %f"), CharacterStatusComponent->CurrHP);
 		baseFSM->ChangeState(EEnemyState::DAMAGE);
 	}
