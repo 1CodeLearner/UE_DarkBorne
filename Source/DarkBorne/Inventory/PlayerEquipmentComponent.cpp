@@ -141,6 +141,9 @@ int32 UPlayerEquipmentComponent::GetRow() const
 void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* ItemObject, int32 TopLeftIndex)
 {
 	////ForEachIndex
+	if (!ItemObject)
+		return;
+
 	FTile refTile = IndexToTile(TopLeftIndex);
 	FIntPoint dimentions = ItemObject->GetDimentions();
 	FTile newTile;
