@@ -41,12 +41,12 @@ protected:
 
 public:
 	
-	UPROPERTY(Replicated, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UAnimMorigeshEnemy* anim;
 
 
 
-	UPROPERTY(Replicated,EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UAnimMontage* montage;
 
 	//UPROPERTY(EditAnywhere)
