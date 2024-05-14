@@ -58,7 +58,7 @@ protected:
 	TArray<UItemObject*> Items;
 
 	UFUNCTION()
-	void OnRep_Items(TArray<UItemObject*> OldItemArray);
+	virtual void OnRep_Items(TArray<UItemObject*> OldItemArray);
 
 	bool bIsDirty;
 
