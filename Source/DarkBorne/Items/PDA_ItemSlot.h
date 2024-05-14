@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include "../ItemTypes/EnchantmentTypes.h"
+#include "../ItemTypes/ItemType.h"
 #include "Materials/MaterialInterface.h"
 #include "PDA_ItemSlot.generated.h"
 
@@ -13,6 +13,7 @@
  */
 
  class ADBItem;
+ class UTexture2D;
 
 UCLASS()
 class DARKBORNE_API UPDA_ItemSlot : public UPrimaryDataAsset
@@ -35,6 +36,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	UMaterialInterface* DisplayMaterial;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	UTexture2D* IconTexture; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FText DisplayName;

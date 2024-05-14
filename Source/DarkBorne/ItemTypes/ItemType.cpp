@@ -15,6 +15,7 @@ void FItem::Initialize()
 	{
 		SlotHolder.Id = ItemSlot->Id;
 		SlotHolder.DisplayMaterial = ItemSlot->DisplayMaterial;
+		SlotHolder.IconTexture = ItemSlot->IconTexture;
 		SlotHolder.DisplayName = ItemSlot->DisplayName;
 		SlotHolder.LoreText = ItemSlot->LoreText;
 		SlotHolder.InventorySound = ItemSlot->InventorySound;

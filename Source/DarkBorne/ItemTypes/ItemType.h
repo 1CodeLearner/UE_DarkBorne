@@ -8,6 +8,7 @@
 
 class UPDA_ItemSlot;
 class ADBItem;
+class UTexture2D;
 
 USTRUCT(Blueprintable)
 struct FDroppedItem
@@ -74,6 +75,9 @@ struct FSlotHolder
 
 	UPROPERTY(BlueprintReadOnly)
 	UMaterialInterface* DisplayMaterial;
+
+	UPROPERTY(BlueprintReadOnly)
+	UTexture2D* IconTexture; 
 
 	UPROPERTY(BlueprintReadOnly)
 	FText DisplayName;
