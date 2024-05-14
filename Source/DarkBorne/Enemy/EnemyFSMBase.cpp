@@ -466,7 +466,7 @@ void UEnemyFSMBase::DeathCheck()
 void UEnemyFSMBase::OnRep_CurrentState()
 {
 	// 클라이언트에서 상태 변경 시 추가적으로 필요한 동작 구현
-	if (ensureAlways(myActor) && currState == EEnemyState::DIE)
+	if (myActor != nullptr && currState == EEnemyState::DIE)
 	{
 		//???? "Item" collision object type ? ??
 		myActor->GetCapsuleComponent()->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel3);

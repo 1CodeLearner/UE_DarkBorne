@@ -41,6 +41,13 @@ void AMorigeshEnemy::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 
 }
 
+void AMorigeshEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+
+}
+
 FDisplayInfo AMorigeshEnemy::GetDisplayInfo() const
 {
 	return FDisplayInfo(TEXT("Loot"), TEXT("Morigesh"));

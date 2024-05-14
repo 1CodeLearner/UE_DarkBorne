@@ -58,8 +58,8 @@ void UMorigeshEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 void UMorigeshEnemyFSM::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(UMorigeshEnemyFSM, anim);
-	DOREPLIFETIME(UMorigeshEnemyFSM, montage);
+	//DOREPLIFETIME(UMorigeshEnemyFSM, anim);
+	//DOREPLIFETIME(UMorigeshEnemyFSM, montage);
 }
 
 //트랜지션 과정 + 변환
@@ -75,17 +75,43 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 		UE_LOG(LogTemp, Warning, TEXT("%s -------> %s"),
 			*enumPtr->GetNameStringByIndex((int32)currState),
 			*enumPtr->GetNameStringByIndex((int32)s));
+	}
+	if (myActor->HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Running on the Server"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Running on the Client"));
 	}*/
 	
 	anim->state = currState;
 	currTime = 0;
+	if (myActor->HasAuthority())
+	{
+		
 
+
+		switch (currState)
+		{
+			case EEnemyState::ATTACK:
+				FireWeapon(nowTarget->GetActorLocation());
+				break;
+		//case EEnemyState::DIE:
+		//{
+		//	// 죽는 애니메이션 플레이
+		//	myActor->PlayAnimMontage(montage, 1.0f, TEXT("Die"));
+		//	// 충돌 처리 되지 않게 하자		
+		//	myActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//}
+			default:
+				break;
+		}
+	}
 	
 	switch (currState)
 	{
-		case EEnemyState::ATTACK:
-			FireWeapon(nowTarget->GetActorLocation());
-		break;
+		
 		case EEnemyState::DAMAGE:
 		{
 			//1. 랜덤한 값을 뽑는다. (1, 2)
@@ -95,19 +121,8 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 			//3. Montage 플레이
 			myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName));
 		}
-			break;
-		//case EEnemyState::DIE:
-		//{
-		//	// 죽는 애니메이션 플레이
-		//	myActor->PlayAnimMontage(montage, 1.0f, TEXT("Die"));
-		//	// 충돌 처리 되지 않게 하자		
-		//	myActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		//}
-			break;
-		default:
-			break;
+		break;
 	}
-
 
 }
 
@@ -140,6 +155,9 @@ void UMorigeshEnemyFSM::OnRep_CurrentState()
 void UMorigeshEnemyFSM::UpdateDamaged(float deltaTime)
 {
 	Super::UpdateDamaged(deltaTime);
+
+	
+
 	if (!anim->isHitting)
 	{
 		// IDLE 상태로 전환
