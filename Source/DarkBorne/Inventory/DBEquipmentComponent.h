@@ -35,7 +35,7 @@ public:
 	const TArray<UItemObject*> GetSlots() const;
 
 	UFUNCTION(BlueprintCallable)
-	const UItemObject* GetSlotItem(ESlotType SlotType) const;
+	UItemObject* GetSlotItem(ESlotType SlotType) const;
 
 	UFUNCTION(BlueprintCallable)
 	bool IsSlotVacant(UItemObject* ItemObject) const;
@@ -50,6 +50,8 @@ protected:
 	bool bInvalidSlot;
 	UPROPERTY(BlueprintReadWrite)
 	bool bOccupiedSlot;
+
+	virtual bool HasItem(UItemObject* ItemObject) const override;
 
 private:
 	void ProcessActiveItem(UItemObject* ItemObject);

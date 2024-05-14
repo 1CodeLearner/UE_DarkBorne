@@ -64,14 +64,15 @@ bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryCo
 		return false;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	if (Items[index] != nullptr)
+	if (Items[index])
 	{
-		return false;
+		auto PlayerInventoryComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
+		if (PlayerInventoryComp && !PlayerInventoryComp->HasRoomFor(Items[index]))
+			return false;
 	}
-	else {
-		AddItem(ItemObject, TaxiToServer);
-		return true;
-	}
+
+	AddItem(ItemObject, TaxiToServer);
+	return true;
 }
 
 void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
@@ -112,7 +113,6 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 		return;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	TArray<UItemObject*> old = Items;
 	UItemObject* TempItemObj = Items[index];
 	Items[index] = nullptr;
 
@@ -122,15 +122,22 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 		WeaponComp->TryRemoveRogueItem(ItemObject);
 	}
 
-	OnRep_Items(old);
+	OnRep_Items();
+}
+
+bool UDBEquipmentComponent::HasItem(UItemObject* ItemObject) const
+{
+	for (int32 i = 0; i < Items.Num(); ++i)
+	{
+		if (ItemObject == Items[i])
+			return true;
+	}
+	return false;
 }
 
 void UDBEquipmentComponent::AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	if (!IsValid(ItemObject)) return;
-	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
-		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
-		return;*/
 
 	if (this->GetOwner()->HasNetOwner())
 	{
@@ -158,21 +165,35 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	if (!ensureAlways(ItemObject))
 		return;
 
-	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
 
-	TArray<UItemObject*> old = Items;
 	if (Items.IsEmpty())
 		return;
 
-	if (Items[index])
+	auto PlayerInventoryComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
+	bool bInventoryHasItemObject = false;
+
+	//if ItemObject is in inventory, remove ItemObject from inventory.
+	if (PlayerInventoryComp->HasItem(ItemObject))
 	{
-		UItemObject* TempItemObj = Items[index];
-		auto PEComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
-		//Throw Item away if inventory is full
-		if (!PEComp->TryAddItem(TempItemObj, PEComp))
+		bInventoryHasItemObject = true;
+		PlayerInventoryComp->RemoveItem(ItemObject, PlayerInventoryComp);
+	}
+
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+	UItemObject* EquippedItem = Items[index];
+	if (EquippedItem)
+	{
+		if (PlayerInventoryComp && !PlayerInventoryComp->HasRoomFor(EquippedItem))
 		{
-			Server_SpawnItem(GetOwner(), TempItemObj);
+			//Place back ItemObject into inventory
+			if (bInventoryHasItemObject)
+			{
+				PlayerInventoryComp->TryAddItem(ItemObject, PlayerInventoryComp);
+			}
+			return;
 		}
+
+		PlayerInventoryComp->TryAddItem(EquippedItem, PlayerInventoryComp);
 	}
 
 	Items[index] = ItemObject;
@@ -185,7 +206,7 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 		WeaponComp->PassItem(ItemObject);
 	}
 
-	OnRep_Items(old);
+	OnRep_Items();
 }
 
 const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const
@@ -193,7 +214,7 @@ const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const
 	return Items;
 }
 
-const UItemObject* UDBEquipmentComponent::GetSlotItem(ESlotType SlotType) const
+UItemObject* UDBEquipmentComponent::GetSlotItem(ESlotType SlotType) const
 {
 	int32 index = UItemLibrary::GetSlotIndexByEnum(SlotType);
 	if (Items.IsEmpty()) return nullptr;

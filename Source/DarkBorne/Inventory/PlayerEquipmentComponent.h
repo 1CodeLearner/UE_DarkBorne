@@ -31,7 +31,7 @@ struct FLine
 		Start = _Start;
 		End = _End;
 	}
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FVector2D Start = FVector2D::Zero();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
@@ -46,6 +46,9 @@ class DARKBORNE_API UPlayerEquipmentComponent : public UBaseInventoryComponent
 
 public:
 	UPlayerEquipmentComponent();
+
+	bool HasRoomFor(UItemObject* ItemObject) const;
+	virtual bool HasItem(UItemObject* ItemObject) const override;
 
 	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
 	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
@@ -85,11 +88,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 TileToIndex(FTile Tile) const;
 
-	UFUNCTION(BlueprintCallable)
-	bool IsRoomAvailable(UItemObject* ItemObject, int32 TopLeftIndex) const;
-
 	TTuple<bool, UItemObject*> GetItematIndex(int32 Index) const;
 
 	UFUNCTION(BlueprintCallable)
 	bool IsTileValid(FTile tile) const;
+
+private:
+	UFUNCTION(BlueprintCallable)
+	bool IsRoomAvailable(UItemObject* ItemObject, int32 TopLeftIndex) const;
 };

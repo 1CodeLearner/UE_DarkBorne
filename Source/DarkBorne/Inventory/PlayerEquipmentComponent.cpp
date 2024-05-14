@@ -19,6 +19,40 @@ UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 	TileSize = 50.f;
 }
 
+bool UPlayerEquipmentComponent::HasRoomFor(UItemObject* ItemObject) const
+{
+	if (!IsValid(ItemObject)) return false;
+
+	for (int i = 0; i < Items.Num(); i++)
+	{
+		//		UE_LOG(LogTemp, Warning, TEXT("TaxiToServer and this are diff"));
+		if (IsRoomAvailable(ItemObject, i))
+		{
+			return true;
+		}
+		else continue;
+	}
+
+	return false;
+}
+
+bool UPlayerEquipmentComponent::HasItem(UItemObject* ItemObject) const
+{
+	FIntPoint dim = ItemObject->GetDimentions();
+	int32 total = dim.X * dim.Y;
+
+	int32 count = 0;
+	for (int32 i = 0; i < Items.Num(); i++)
+	{
+		if (Items[i] == ItemObject)
+		{
+			count++;
+		}
+	}
+
+	return total == count;
+}
+
 void UPlayerEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -62,18 +96,20 @@ void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInvento
 	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
 		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
 		return;*/
-
-	if (this->GetOwner()->HasNetOwner())
+	
+	if (HasItem(ItemObject)) 
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
-		Server_RemoveItem(ItemObject);
+		if (this->GetOwner()->HasNetOwner())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
+			Server_RemoveItem(ItemObject);
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
+			auto PEComp = Cast<UPlayerEquipmentComponent>(TaxiToServer);
+			PEComp->Server_TaxiForRemoveItem(ItemObject, this);
+		}
 	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
-		auto PEComp = Cast<UPlayerEquipmentComponent>(TaxiToServer);
-		PEComp->Server_TaxiForRemoveItem(ItemObject, this);
-	}
-
 }
 
 void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 index, UBaseInventoryComponent* TaxiToServer)
@@ -117,15 +153,17 @@ void UPlayerEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UItemObj
 void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
 {
 	if (!IsValid(ItemObject)) return;
-	TArray<UItemObject*> old = Items;
-	for (int32 i = 0; i < Items.Num(); i++)
+	if (HasItem(ItemObject)) 
 	{
-		if (Items[i] == ItemObject)
+		for (int32 i = 0; i < Items.Num(); i++)
 		{
-			Items[i] = nullptr;
+			if (Items[i] == ItemObject)
+			{
+				Items[i] = nullptr;
+			}
 		}
-	}
-	OnRep_Items(old);
+		OnRep_Items();
+	}	
 }
 
 int32 UPlayerEquipmentComponent::GetColumn() const
@@ -144,22 +182,38 @@ void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* Ite
 	if (!ItemObject)
 		return;
 
-	FTile refTile = IndexToTile(TopLeftIndex);
-	FIntPoint dimentions = ItemObject->GetDimentions();
-	FTile newTile;
-	TArray<UItemObject*> old = Items;
-	for (int32 i = refTile.X; i < refTile.X + (dimentions.X); i++)
+	//If inventory already has ItemObject, remove it from inventory.
+	if (HasItem(ItemObject)) 
 	{
-		for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y); j++)
+		RemoveItem(ItemObject, this);
+	}
+	
+	if (IsRoomAvailable(ItemObject, TopLeftIndex)) 
+	{
+		FTile refTile = IndexToTile(TopLeftIndex);
+		FIntPoint dimentions = ItemObject->GetDimentions();
+		FTile newTile;
+
+		for (int32 i = refTile.X; i < refTile.X + (dimentions.X); i++)
 		{
-			newTile.X = i;
-			newTile.Y = j;
-			Items[TileToIndex(newTile)] = ItemObject;
+			for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y); j++)
+			{
+				newTile.X = i;
+				newTile.Y = j;
+				Items[TileToIndex(newTile)] = ItemObject;
+			}
 		}
+
+		ItemObject->TryDestroyItemActor();
+		OnRep_Items();
+	}
+	else 
+	{
+		//Re-add it back to inventory.
+		TryAddItem(ItemObject, this);
 	}
 
-	ItemObject->TryDestroyItemActor();
-	OnRep_Items(old);
+
 }
 
 TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems() const
@@ -219,13 +273,11 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 				{
 					if (IsValid(ExistingItemObject))
 					{
-						GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Invalid222")));
 						return false;
 					}
 				}
 			}
 			else {
-				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Invalid111")));
 				return false;
 			}
 

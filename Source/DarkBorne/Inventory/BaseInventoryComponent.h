@@ -38,7 +38,11 @@ public:
 			
 	UFUNCTION(BlueprintCallable)
 	FVector2D GetSize() const;
+
 protected:
+	UFUNCTION(BlueprintCallable)
+	virtual bool HasItem(UItemObject* ItemObject) const;
+
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
 
@@ -58,7 +62,7 @@ protected:
 	TArray<UItemObject*> Items;
 
 	UFUNCTION()
-	void OnRep_Items(TArray<UItemObject*> OldItemArray);
+	void OnRep_Items();
 
 	bool bIsDirty;
 

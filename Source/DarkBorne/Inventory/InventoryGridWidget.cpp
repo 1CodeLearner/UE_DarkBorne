@@ -6,7 +6,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 
-void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp)
+void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp, EGridWidgetType _GridWidgetType)
 {
 	InventoryComponent = InventoryComp;
 	TileSize = InventoryComponent->GetTileSize();
@@ -29,6 +29,8 @@ void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp)
 	{
 		TaxiToServer = Taxi;
 	}
+
+	GridWidgetType = _GridWidgetType;
 }
 
 void UInventoryGridWidget::Reset()

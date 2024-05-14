@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "Widgets/BaseGridWidget.h"
 #include "PlayerEquipmentComponent.h"
 #include "InventoryGridWidget.generated.h"
 
@@ -14,13 +14,13 @@
  class UCanvasPanel;
  class UBorder;
 UCLASS()
-class DARKBORNE_API UInventoryGridWidget : public UUserWidget
+class DARKBORNE_API UInventoryGridWidget : public UBaseGridWidget
 {
 	GENERATED_BODY()
 	
 public:
 	UFUNCTION(BlueprintCallable)
-	void StartInit(UPlayerEquipmentComponent* InventoryComp);
+	void StartInit(UPlayerEquipmentComponent* InventoryComp, EGridWidgetType _GridWidgetType);
 
 	void Reset();
 		

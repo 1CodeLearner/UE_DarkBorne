@@ -43,6 +43,11 @@ bool UBaseInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBu
 	return WroteSomething;
 }
 
+bool UBaseInventoryComponent::HasItem(UItemObject* ItemObject) const
+{
+	return false;
+}
+
 bool UBaseInventoryComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	return false;
@@ -101,7 +106,7 @@ FTransform UBaseInventoryComponent::GetNewTransform(AActor* Instigator, float of
 	return Trans;
 }
 
-void UBaseInventoryComponent::OnRep_Items(TArray<UItemObject*> OldItemArray)
+void UBaseInventoryComponent::OnRep_Items()
 {
 	bIsDirty = true;
 }
