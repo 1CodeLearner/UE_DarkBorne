@@ -18,7 +18,7 @@ class DARKBORNE_API UEquipmentGridWidget : public UBaseGridWidget
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable)
-	void StartInit(UDBEquipmentComponent* EquipmentComp, ESlotType _SlotType, EGridWidgetType _GridWidgetType);
+	void StartInit(UDBEquipmentComponent* EquipmentComp, ESlotType _SlotType/*, EGridWidgetType _GridWidgetType*/);
 
 	void Reset();
 

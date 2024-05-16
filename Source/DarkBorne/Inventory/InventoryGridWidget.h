@@ -20,7 +20,7 @@ class DARKBORNE_API UInventoryGridWidget : public UBaseGridWidget
 	
 public:
 	UFUNCTION(BlueprintCallable)
-	void StartInit(UPlayerEquipmentComponent* InventoryComp, EGridWidgetType _GridWidgetType);
+	void StartInit(UPlayerEquipmentComponent* InventoryComp/*, EGridWidgetType _GridWidgetType*/);
 
 	void Reset();
 		

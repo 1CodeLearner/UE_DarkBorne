@@ -8,7 +8,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "InventoryGridWidget.h"
 
-void UEquipmentGridWidget::StartInit(UDBEquipmentComponent* EquipmentComp, ESlotType _SlotType, EGridWidgetType _GridWidgetType)
+void UEquipmentGridWidget::StartInit(UDBEquipmentComponent* EquipmentComp, ESlotType _SlotType/*, EGridWidgetType _GridWidgetType*/)
 {
 	bIsBeingHeld = false;
 	EquipmentComponent = EquipmentComp;
@@ -29,7 +29,7 @@ void UEquipmentGridWidget::StartInit(UDBEquipmentComponent* EquipmentComp, ESlot
 		TaxiToServer = Taxi;
 	}
 
-	GridWidgetType = _GridWidgetType;
+	//GridWidgetType = _GridWidgetType;
 }
 
 void UEquipmentGridWidget::Reset()

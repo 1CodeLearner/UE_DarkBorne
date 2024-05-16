@@ -11,16 +11,16 @@
  */
 
 
-UENUM(BlueprintType)
-enum class EGridWidgetType : uint8
-{
-	PLAYERINVENTORY UMETA(DisplayName = "PlayerInventory"),
-	PLAYEREQUIPMENT UMETA(DisplayName = "PlayerEquipment"),
-	LOOTINVENTORY UMETA(DisplayName = "LootInventory"),
-	LOOTEQUIPMENT UMETA(DisplayName = "LootEquipment")
-};
+//UENUM(BlueprintType)
+//enum class EGridWidgetType : uint8
+//{
+//	PLAYERINVENTORY UMETA(DisplayName = "PlayerInventory"),
+//	PLAYEREQUIPMENT UMETA(DisplayName = "PlayerEquipment"),
+//	LOOTINVENTORY UMETA(DisplayName = "LootInventory"),
+//	LOOTEQUIPMENT UMETA(DisplayName = "LootEquipment")
+//};
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FItemClickedDelegate, UBaseItemWidget*, ItemWidgetClicked, EGridWidgetType, GridWidgetType, bool, bIsRightClick);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FItemClickedDelegate, UBaseItemWidget*, ItemWidgetClicked, EGridWidgetType, GridWidgetType, bool, bIsRightClick);
 
 UCLASS()
 class DARKBORNE_API UBaseGridWidget : public UUserWidget
@@ -28,9 +28,9 @@ class DARKBORNE_API UBaseGridWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(BlueprintCallable)
-	FItemClickedDelegate OnItemClicked;
+	/*UPROPERTY(BlueprintCallable)
+	FItemClickedDelegate OnItemClicked;*/
 protected:
-	UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn))
-	EGridWidgetType GridWidgetType;
+	/*UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn))
+	EGridWidgetType GridWidgetType;*/
 };
