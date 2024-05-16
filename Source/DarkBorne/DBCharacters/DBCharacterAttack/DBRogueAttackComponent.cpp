@@ -255,12 +255,15 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-
-	if (RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
+	UDBEquipmentComponent* RogueEquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
+	// equipcomp -> getslots.isempty
+	//if (RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
+	if(RogueEquipComponent->GetSlots().IsEmpty()) return;
 	// 단검을 들고 있으면 
 
 	if (RoguePlayer->RogueWeaponComp->RogueItems == nullptr) return;
-	if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0] && RoguePlayer->RogueWeaponComp->EquipSlotArray[0]->GetItemActor() == RoguePlayer->RogueWeaponComp->RogueItems)
+	//if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0] && RoguePlayer->RogueWeaponComp->EquipSlotArray[0]->GetItemActor() == RoguePlayer->RogueWeaponComp->RogueItems)
+	if(RogueEquipComponent->GetSlots()[0] && (RogueEquipComponent->GetSlots()[0]->GetItemActor() == RoguePlayer->RogueWeaponComp->RogueItems))
 	{
 		// 은신 상태면 은신 풀어주자
 		if (RogueSkillComponent->isVanish)
