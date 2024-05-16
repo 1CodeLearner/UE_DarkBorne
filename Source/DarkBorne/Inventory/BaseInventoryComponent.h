@@ -59,10 +59,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FVector2D GetSize() const;
-
-protected:
+	
 	UFUNCTION(BlueprintCallable)
 	virtual bool HasItem(UItemObject* ItemObject) const;
+protected:
 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);

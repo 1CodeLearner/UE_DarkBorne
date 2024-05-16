@@ -61,7 +61,7 @@ void UDBEquipmentComponent::OnRep_Items()
 	Super::OnRep_Items();
 
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
-	if(RoguePlayer->PlayerWidget)
+	if (RoguePlayer->PlayerWidget)
 		RoguePlayer->PlayerWidget->UpdateSlot(GetSlots());
 }
 
@@ -119,7 +119,7 @@ bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, AActor* Initiate
 {
 	if (!IsValid(ItemObject) && Items.IsEmpty())
 		return false;
-	if(!InitiatedActor)
+	if (!InitiatedActor)
 		return false;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
@@ -213,18 +213,18 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 
 void UDBEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
-	if(!ItemObject)
+	if (!ItemObject)
 		return;
-	if(!(InitiatedActor && InitiatedActor->HasNetOwner()))
+	if (!(InitiatedActor && InitiatedActor->HasNetOwner()))
 		return;
-	if(!HasItem(ItemObject))
+	if (!HasItem(ItemObject))
 		return;
 
 	if (GetOwner()->HasNetOwner())
 	{
 		Server_ProcessPressInput(ItemObject, InitiatedActor, InventoryInput);
 	}
-	else 
+	else
 	{
 		auto TaxiToServer = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
 		TaxiToServer->Server_TaxiForProcessPressInput(this, ItemObject, InitiatedActor, InventoryInput);
@@ -237,9 +237,9 @@ void UDBEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, AActor* I
 void UDBEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
 	auto Taxied = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
-	if (Taxied && ensureAlways(Taxied != this)) 
+	if (Taxied && ensureAlways(Taxied != this))
 	{
-		UE_LOG(LogTemp,Warning,TEXT("Taxied"));
+		UE_LOG(LogTemp, Warning, TEXT("Taxied"));
 		Taxied->Server_ProcessPressInput(ItemObject, InitiatedActor, InventoryInput);
 	}
 }
@@ -247,6 +247,48 @@ void UDBEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UBase
 void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
 	UE_LOG(LogTemp, Warning, TEXT("ProcessPressInput"));
+
+	if (!ItemObject)
+		return;
+	if (!InitiatedActor)
+		return;
+	if (!HasItem(ItemObject))
+		return;
+
+	UPlayerEquipmentComponent* PlayerInventory = InitiatedActor->GetComponentByClass<UPlayerEquipmentComponent>();
+	if (!PlayerInventory)
+		return;
+
+	UDBEquipmentComponent* From = this;
+
+	if (InventoryInput.bHasRightClicked)
+	{
+		UDBEquipmentComponent* PlayerEquipment = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+
+		if (PlayerEquipment && PlayerEquipment != From) //If InitiatedActor is looting ItemObject
+		{
+			UItemObject* EquippedItem = PlayerEquipment->GetSlotItem(ItemObject->GetSlotType());
+						
+			if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor)) //if adding equipped item to player's inventory was successful
+			{
+				PlayerEquipment->RemoveItem(EquippedItem, InitiatedActor);
+				From->RemoveItem(ItemObject, InitiatedActor); 
+				PlayerEquipment->AddItem(ItemObject, InitiatedActor); //Equip ItemObject 
+			}
+			else
+			{
+				From->TryAddItem(ItemObject, InitiatedActor); //Put ItemObject back
+			}
+		}
+	}
+	else
+	{
+		UItemObject* EquippedItem = GetSlotItem(ItemObject->GetSlotType());
+		if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor))
+		{
+			From->RemoveItem(EquippedItem, InitiatedActor);
+		}
+	}
 }
 
 const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const

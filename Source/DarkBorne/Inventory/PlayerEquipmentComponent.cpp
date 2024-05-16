@@ -11,6 +11,7 @@
 #include "../DBCharacters/DBCharacter.h"
 #include "DBEquipmentComponent.h"
 
+
 UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -209,19 +210,60 @@ void UPlayerEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObj
 	if (!HasItem(ItemObject))
 		return;
 
-	UPlayerEquipmentComponent* From = this;
-	UBaseInventoryComponent* To;
-
 	UPlayerEquipmentComponent* PlayerInventory = InitiatedActor->GetComponentByClass<UPlayerEquipmentComponent>();
 	if (!PlayerInventory)
 		return;
 
+	UPlayerEquipmentComponent* From = this;
+
 	if (InventoryInput.bHasRightClicked)
+	{
+		UDBEquipmentComponent* To;
 		To = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+		if (To)
+		{
+			UItemObject* EquippedItem = nullptr;
+			if (!To->IsSlotVacant(ItemObject)) //If Player is already equipping an item
+			{
+				EquippedItem = To->GetSlotItem(ItemObject->GetSlotType());
+			}
+
+			From->RemoveItem(ItemObject, InitiatedActor);
+			
+			if (EquippedItem)
+			{
+
+				if(PlayerInventory->TryAddItem(EquippedItem, InitiatedActor)) //if adding equipped item to player's inventory was successful
+				{
+					To->RemoveItem(EquippedItem,InitiatedActor);
+					To->AddItem(ItemObject, InitiatedActor); //Equip ItemObject 
+				}
+				else 
+				{
+					From->TryAddItem(ItemObject, InitiatedActor); //Put ItemObject back
+				}
+			}
+			else 
+			{
+				To->AddItem(ItemObject, InitiatedActor); //Equip Item
+			}
+		}
+	}
 	else
+	{
+		UPlayerEquipmentComponent* To;
 		To = PlayerInventory;
 
-	
+		if (To) 
+		{
+			From->RemoveItem(ItemObject, InitiatedActor);
+
+			if (!To->TryAddItem(ItemObject, InitiatedActor)) // if adding ItemObject was unsuccessful
+			{
+				From->TryAddItem(ItemObject, InitiatedActor); // Put ItemObject back
+			}
+		}
+	}
 }
 
 int32 UPlayerEquipmentComponent::GetColumn() const
