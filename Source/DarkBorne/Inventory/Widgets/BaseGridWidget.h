@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "../BaseInventoryComponent.h"
 #include "BaseGridWidget.generated.h"
 
 /**
@@ -21,6 +22,9 @@
 //};
 
 //DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FItemClickedDelegate, UBaseItemWidget*, ItemWidgetClicked, EGridWidgetType, GridWidgetType, bool, bIsRightClick);
+
+class UItemObject;
+class ADBCharacter;
 
 UCLASS()
 class DARKBORNE_API UBaseGridWidget : public UUserWidget

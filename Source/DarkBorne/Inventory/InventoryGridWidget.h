@@ -42,6 +42,7 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void Refresh();
+
 private:
 	void CreateLineSegments();
 };
