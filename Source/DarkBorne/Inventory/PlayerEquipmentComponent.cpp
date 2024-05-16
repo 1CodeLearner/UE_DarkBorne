@@ -170,7 +170,7 @@ void UPlayerEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, ADBCh
 {
 }
 
-void UPlayerEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UPlayerEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
 {
 }
 

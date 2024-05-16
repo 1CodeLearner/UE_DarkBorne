@@ -49,27 +49,23 @@ public:
 
 	bool HasRoomFor(UItemObject* ItemObject) const;
 	virtual bool HasItem(UItemObject* ItemObject) const override;
-
+		
 	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
-	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
-	virtual void ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput) override;
-
 	UFUNCTION(BlueprintCallable)
 	void AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex, UBaseInventoryComponent* TaxiToServer);
-
-	UFUNCTION(Server, Reliable)
-	void Server_TaxiForAddItemAt(UItemObject* ItemObject, int32 TopLeftIndex, UBaseInventoryComponent* TaxiedInventoryComp);
-	UFUNCTION(Server, Reliable)
-	void Server_TaxiForRemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
-	virtual void Server_TaxiForProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput) override;
-
 	UFUNCTION(Server, Reliable)
 	void Server_AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex);
+	UFUNCTION(Server, Reliable)
+	void Server_TaxiForAddItemAt(UItemObject* ItemObject, int32 TopLeftIndex, UBaseInventoryComponent* TaxiedInventoryComp);
+
+	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
+	UFUNCTION(Server, Reliable)
+	void Server_TaxiForRemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
 	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject) override;
+
+	virtual void ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput) override;
 	virtual void Server_ProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput) override;
-
-
-
+	virtual void Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput) override;
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetColumn() const;

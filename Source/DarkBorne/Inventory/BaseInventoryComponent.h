@@ -41,9 +41,10 @@ protected:
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
 public:
+	UFUNCTION(BlueprintCallable)
 	virtual void ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput);
 	UFUNCTION(Server, Reliable)
-	virtual void Server_TaxiForProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput);
+	virtual void Server_TaxiForProcessPressInput(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput);
 	UFUNCTION(Server, Reliable)
 	virtual void Server_ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput);
 	

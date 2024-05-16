@@ -209,11 +209,11 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 
 void UDBEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
 {
-
+	
 }
 
 
-void UDBEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UDBEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
 {
 
 }

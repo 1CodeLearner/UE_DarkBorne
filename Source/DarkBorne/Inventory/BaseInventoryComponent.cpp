@@ -58,7 +58,7 @@ void UBaseInventoryComponent::Server_ProcessPressInput_Implementation(UItemObjec
 	return;
 }
 
-void UBaseInventoryComponent::Server_TaxiForProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UBaseInventoryComponent::Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
 {
 	return;
 }
