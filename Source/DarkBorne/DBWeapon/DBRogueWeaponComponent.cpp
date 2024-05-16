@@ -70,7 +70,6 @@ void UDBRogueWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UDBRogueWeaponComponent, RogueItems);
-	//DOREPLIFETIME(UDBRogueWeaponComponent, EquipSlotArray);
 	DOREPLIFETIME(UDBRogueWeaponComponent, RogueItemSMMat);
 	DOREPLIFETIME(UDBRogueWeaponComponent, Dagger);
 	DOREPLIFETIME(UDBRogueWeaponComponent, hasWeapon);
@@ -93,9 +92,17 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 	if (!hasWeapon)
 	{
 		hasWeapon = HandleAttach(UItemLibrary::GetSlotIndexByEnum(ESlotType::WEAPON));
-		UCharacterStatusComponent::AdjustAddedStats(GetOwner(), RogueItems->GetItemObject(), hasWeapon);
-
+		if (RogueItems != nullptr)
+		{
 		hasWeapon = true;
+		UCharacterStatusComponent::AdjustAddedStats(GetOwner(), RogueItems->GetItemObject(), hasWeapon);
+		
+		}
+		else
+		{
+		hasWeapon = false;
+
+		}
 		// 서버 플레이어를 위한 호출
 		//OnRep_hasWeapon();
 
