@@ -10,6 +10,7 @@
 #include "Net/UnrealNetwork.h"
 #include "../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
 #include "../DBCharacters/DBCharacterAttack/DBRogueAttackComponent.h"
+#include "../Inventory/DBEquipmentComponent.h"
 void UDBRogueAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
@@ -74,10 +75,10 @@ void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	UDBRogueSkillComponent* SkillComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 	UDBRogueAttackComponent* AttackComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueAttackComponent>();
-
+	UDBEquipmentComponent* RogueEquipComponent = TryGetPawnOwner()->GetComponentByClass<UDBEquipmentComponent>();
 	// 공격중
 	// 무기슬롯에 아이템이 있고 아이템 꺼내고 있다면
-	if (WeaponComp->EquipSlotArray[0] && WeaponComp->hasWeapon)
+	if (RogueEquipComponent->GetSlots()[0] && WeaponComp->hasWeapon)
 	{
 		isAttacking = true;
 		//무기의 콜리전 켜주기
@@ -95,8 +96,9 @@ void UDBRogueAnimInstance::AnimNotify_End_Damage()
 {
 	UDBRogueWeaponComponent* WeaponComp = TryGetPawnOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	ADBWeapon_CloseRange* WeaponComponentDagger = Cast<ADBWeapon_CloseRange>(WeaponComp->Dagger);
+	UDBEquipmentComponent* RogueEquipComponent = TryGetPawnOwner()->GetComponentByClass<UDBEquipmentComponent>();
 	// 공격중이 아님
-	if (WeaponComp->EquipSlotArray[0] && WeaponComp->hasWeapon)
+	if (RogueEquipComponent->GetSlots()[0] && WeaponComp->hasWeapon)
 	{
 	isAttacking = false;
 	WeaponComp->RogueItems->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);

@@ -193,7 +193,10 @@ void ADBCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	//서버 플레이어의 위젯 생성
-	CreatePlayerWidget();
+	if (HasAuthority()) 
+	{
+		CreatePlayerWidget();
+	}
 }
 
 void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)

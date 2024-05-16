@@ -8,6 +8,7 @@
 #include "ItemObject.generated.h"
 
 class ADBItem;
+class UMaterialInterface;
 
 USTRUCT()
 struct FItemData
@@ -62,13 +63,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetRarityValue() const;
 
-	UFUNCTION(BlueprintPure)
-	FIntPoint GetDimentions();  // Ã¶ÀÚ ¼öÁ¤
-	UFUNCTION(BlueprintPure)
-	class UMaterialInterface* GetIcon();
-	UFUNCTION(BlueprintPure)
-	TSubclassOf<AActor> GetItemClass();
-	const TSubclassOf<AActor> GetItemClass() const;
+	UFUNCTION(BlueprintCallable)
+	FIntPoint GetDimentions() const;  // Ã¶ÀÚ ¼öÁ¤
+	UFUNCTION(BlueprintCallable)
+	UMaterialInterface* GetIcon() const;
+	UFUNCTION(BlueprintCallable)
+	UTexture2D* GetIconTexture() const;
+
+	UFUNCTION(BlueprintCallable)
+	TSubclassOf<AActor> GetItemClass() const;
 	UFUNCTION(BlueprintCallable)
 	ESlotType GetSlotType() const;
 

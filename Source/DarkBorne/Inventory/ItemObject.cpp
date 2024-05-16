@@ -85,7 +85,7 @@ float UItemObject::GetRarityValue() const
 	return ItemData.Item.GetDefaultValue();
 }
 
-FIntPoint UItemObject::GetDimentions()
+FIntPoint UItemObject::GetDimentions() const
 {
 	//FIntPoint TempDimensions(100, 100);  // 예제 값으로 100x100 설정
 	//return _dimentions;
@@ -93,17 +93,17 @@ FIntPoint UItemObject::GetDimentions()
 	return Temp;
 }
 
-UMaterialInterface* UItemObject::GetIcon()
+UMaterialInterface* UItemObject::GetIcon() const
 {
 	return ItemData.Item.SlotHolder.DisplayMaterial;
 }
 
-TSubclassOf<AActor> UItemObject::GetItemClass()
+UTexture2D* UItemObject::GetIconTexture() const
 {
-	return ItemData.Item.SlotHolder.ItemClass;
+	return ItemData.Item.SlotHolder.IconTexture;
 }
 
-const TSubclassOf<AActor> UItemObject::GetItemClass() const
+TSubclassOf<AActor> UItemObject::GetItemClass() const
 {
 	return ItemData.Item.SlotHolder.ItemClass;
 }

@@ -16,6 +16,7 @@
 #include "../../DBPlayerWidget/DBPlayerWidget.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetMathLibrary.h>
 #include "../DBCharacterAttack/DBRogueAttackComponent.h"
+#include "../../Inventory/DBEquipmentComponent.h"
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -106,12 +107,13 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 	{
 		UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 		ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+		UDBEquipmentComponent* RogueEquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
 
 		// 상대 입장에서만 무기를 투명화 시키자
 		if (!RoguePlayer->IsLocallyControlled())
 		{
 			// 무기 가지고 있으면
-			if (weaponComponent->EquipSlotArray[0] && weaponComponent->RogueItems)
+			if (RogueEquipComponent->GetSlots()[0] && weaponComponent->RogueItems)
 			{
 				for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
 				{
@@ -177,6 +179,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	UDBEquipmentComponent* RogueEquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
 
 	if (RogueAnim->isCastingShift) return;
 	if (isVanish) return;
@@ -213,7 +216,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 				RoguePlayer->GetMesh()->SetMaterial(i, VanishMat);
 			}
 			// 무기 가지고 있으면
-			if (weaponComponent->EquipSlotArray[0] && weaponComponent->RogueItems)
+			if (RogueEquipComponent->GetSlots()[0] && weaponComponent->RogueItems)
 			{
 				// 무기 머티리얼 인덱스 가져와서
 				for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
@@ -231,6 +234,7 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 {
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	UDBEquipmentComponent* RogueEquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
 
 	isVanish = false;
 
@@ -259,7 +263,7 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 				RoguePlayer->GetMesh()->SetMaterial(i, RoguePlayer->MatArr[i]);
 			}
 			// 무기 가지고 있으면
-			if (weaponComponent->EquipSlotArray[0] && weaponComponent->RogueItems)
+			if (RogueEquipComponent->GetSlots()[0] && weaponComponent->RogueItems)
 			{
 				for (int32 i = 0; i < weaponComponent->RogueItemSMMat.Num(); i++)
 				{

@@ -45,8 +45,10 @@ public:
 	//UFUNCTION()
 	//void OnRep_RogueItems();
 
-	UPROPERTY(Replicated, VisibleAnywhere)
-	TArray<UItemObject*> EquipSlotArray;
+	//UPROPERTY(Replicated, VisibleAnywhere)
+	//TArray<UItemObject*> EquipSlotArray;
+
+	
 
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
@@ -55,6 +57,7 @@ public:
 public:
 	UPROPERTY(Replicated)
 	bool hasWeapon = false;
+
 public:
 	void AttachWeapon();
 	UFUNCTION(Server, Reliable, BlueprintCallable)
@@ -71,10 +74,12 @@ protected:
 	void AttachConsumable();
 	UFUNCTION(Server, Reliable)
 	void Server_AttachConsumable();
-	/*UFUNCTION(NetMulticast, Reliable)
-	void Multicast_TestAttachItem(ADBItem* Test);*/
+
+	
+	
 private:
 	bool HandleAttach(int32 index);
+
 	UPROPERTY()
 	TObjectPtr<UDBRogueAttackComponent> AttackComp;
 };
