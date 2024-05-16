@@ -24,6 +24,4 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EMorigashAttackType morigeshAttackType;
 
-	
-
 };

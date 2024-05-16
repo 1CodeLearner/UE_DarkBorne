@@ -151,6 +151,7 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 			*enumPtr->GetNameStringByIndex((int32)e));
 	}
 	*/
+	
 	currState = e;
 	//???? ????? ?? ??
 	OnRep_CurrentState();
@@ -193,8 +194,8 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 		case EEnemyState::DAMAGE:
 			break;
 		case EEnemyState::DIE:
-			//myActor->GetMesh()->SetSimulatePhysics(true);
-			//myActor->GetCapsuleComponent()->SetSimulatePhysics(true);
+
+			// 위치 고정
 			break;
 		default:
 			break;
@@ -252,8 +253,9 @@ void UEnemyFSMBase::UpdatePatrol()
 
 void UEnemyFSMBase::UpdateAttack()
 {
-
-	ChangeState(EEnemyState::ATTACK_DELAY);
+		ChangeState(EEnemyState::ATTACK_DELAY);
+	
+	
 }
 
 void UEnemyFSMBase::UpdateAttackDelay()
@@ -469,7 +471,7 @@ void UEnemyFSMBase::OnRep_CurrentState()
 	if (myActor != nullptr && currState == EEnemyState::DIE)
 	{
 		//???? "Item" collision object type ? ??
-		myActor->GetCapsuleComponent()->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel3);
+		myActor->GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel3);
 	}
 }
 
