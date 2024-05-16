@@ -166,6 +166,18 @@ void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* It
 	}	
 }
 
+void UPlayerEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+{
+}
+
+void UPlayerEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+{
+}
+
+void UPlayerEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+{
+}
+
 int32 UPlayerEquipmentComponent::GetColumn() const
 {
 	return Columns;

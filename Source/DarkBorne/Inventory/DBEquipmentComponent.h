@@ -21,15 +21,18 @@ public:
 	void AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
 	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
 	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
+	virtual void ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput) override;
 
 	UFUNCTION(Server, Reliable)
 	void Server_TaxiForAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
 	UFUNCTION(Server, Reliable)
 	void Server_TaxiForRemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
+	virtual void Server_TaxiForProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput) override;
 
 	UFUNCTION(Server, Reliable)
 	void Server_AddItem(UItemObject* ItemObject);
 	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject) override;
+	virtual void Server_ProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput) override;
 
 	UFUNCTION(BlueprintCallable)
 	const TArray<UItemObject*> GetSlots() const;
@@ -54,7 +57,5 @@ protected:
 	virtual bool HasItem(UItemObject* ItemObject) const override;
 
 private:
-	void ProcessActiveItem(UItemObject* ItemObject);
-
 	virtual void OnRep_Items() override;
 };

@@ -48,6 +48,21 @@ bool UBaseInventoryComponent::HasItem(UItemObject* ItemObject) const
 	return false;
 }
 
+void UBaseInventoryComponent::ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+{
+	return;
+}
+
+void UBaseInventoryComponent::Server_ProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+{
+	return;
+}
+
+void UBaseInventoryComponent::Server_TaxiForProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+{
+	return;
+}
+
 bool UBaseInventoryComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
 	return false;

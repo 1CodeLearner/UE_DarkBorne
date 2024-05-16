@@ -9,6 +9,19 @@
 class UItemObject;
 class UActorChannel;
 class FOutBunch;
+class ADBCharacter;
+
+USTRUCT(Blueprintable)
+struct FInventoryInput
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bHasRightClicked;
+	UPROPERTY(BlueprintReadWrite)
+	bool bHasShiftClicked;
+};
+
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryChangedDel);
 
@@ -28,6 +41,13 @@ protected:
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
 public:
+	virtual void ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput);
+	UFUNCTION(Server, Reliable)
+	virtual void Server_TaxiForProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput);
+	UFUNCTION(Server, Reliable)
+	virtual void Server_ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput);
+	
+	
 	UFUNCTION(BlueprintCallable)
 	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
 	UFUNCTION(BlueprintCallable)
@@ -35,7 +55,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetTileSize() const;
-			
+
 	UFUNCTION(BlueprintCallable)
 	FVector2D GetSize() const;
 

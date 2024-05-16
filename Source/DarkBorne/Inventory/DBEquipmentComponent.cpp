@@ -56,10 +56,6 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	}
 }
 
-void UDBEquipmentComponent::ProcessActiveItem(UItemObject* ItemObject)
-{
-}
-
 void UDBEquipmentComponent::OnRep_Items()
 {
 	Super::OnRep_Items();
@@ -67,23 +63,6 @@ void UDBEquipmentComponent::OnRep_Items()
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	if(RoguePlayer->PlayerWidget)
 		RoguePlayer->PlayerWidget->UpdateSlot(GetSlots());
-}
-
-bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
-{
-	if (!IsValid(ItemObject) && Items.IsEmpty())
-		return false;
-
-	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	if (Items[index])
-	{
-		auto PlayerInventoryComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
-		if (PlayerInventoryComp && !PlayerInventoryComp->HasRoomFor(Items[index]))
-			return false;
-	}
-
-	AddItem(ItemObject, TaxiToServer);
-	return true;
 }
 
 void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
@@ -136,14 +115,21 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 	OnRep_Items();
 }
 
-bool UDBEquipmentComponent::HasItem(UItemObject* ItemObject) const
+bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
 {
-	for (int32 i = 0; i < Items.Num(); ++i)
+	if (!IsValid(ItemObject) && Items.IsEmpty())
+		return false;
+
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+	if (Items[index])
 	{
-		if (ItemObject == Items[i])
-			return true;
+		auto PlayerInventoryComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
+		if (PlayerInventoryComp && !PlayerInventoryComp->HasRoomFor(Items[index]))
+			return false;
 	}
-	return false;
+
+	AddItem(ItemObject, TaxiToServer);
+	return true;
 }
 
 void UDBEquipmentComponent::AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
@@ -220,6 +206,22 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	OnRep_Items();
 }
 
+
+void UDBEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+{
+
+}
+
+
+void UDBEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+{
+
+}
+
+void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+{
+}
+
 const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const
 {
 	return Items;
@@ -241,3 +243,12 @@ bool UDBEquipmentComponent::IsSlotVacant(UItemObject* ItemObject) const
 	return true;
 }
 
+bool UDBEquipmentComponent::HasItem(UItemObject* ItemObject) const
+{
+	for (int32 i = 0; i < Items.Num(); ++i)
+	{
+		if (ItemObject == Items[i])
+			return true;
+	}
+	return false;
+}

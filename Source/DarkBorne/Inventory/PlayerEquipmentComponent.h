@@ -52,6 +52,7 @@ public:
 
 	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
 	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
+	virtual void ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput) override;
 
 	UFUNCTION(BlueprintCallable)
 	void AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex, UBaseInventoryComponent* TaxiToServer);
@@ -60,10 +61,15 @@ public:
 	void Server_TaxiForAddItemAt(UItemObject* ItemObject, int32 TopLeftIndex, UBaseInventoryComponent* TaxiedInventoryComp);
 	UFUNCTION(Server, Reliable)
 	void Server_TaxiForRemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
+	virtual void Server_TaxiForProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput) override;
 
 	UFUNCTION(Server, Reliable)
 	void Server_AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex);
 	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject) override;
+	virtual void Server_ProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput) override;
+
+
+
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetColumn() const;
