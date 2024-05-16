@@ -34,6 +34,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	class UImage* ConsumeSlot;
+
+	UPROPERTY(EditAnywhere)
+	class UTexture2D* BlankImage;
 public:
 	void UpdateHeathBar(float currHP, float maxHP);
 	void UpdateQSkillBar(float Q_CurrCoolTime, float Q_MaxCoolTime);
