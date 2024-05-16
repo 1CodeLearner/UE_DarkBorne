@@ -23,12 +23,6 @@ void UEquipmentGridWidget::StartInit(UDBEquipmentComponent* EquipmentComp, ESlot
 
 	EquipmentComponent->OnInventoryChanged.AddDynamic(this, &UEquipmentGridWidget::Refresh);
 
-	auto Taxi = GetOwningPlayerPawn()->GetComponentByClass<UDBEquipmentComponent>();
-	if (ensureAlways(Taxi))
-	{
-		TaxiToServer = Taxi;
-	}
-
 	//GridWidgetType = _GridWidgetType;
 }
 

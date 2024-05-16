@@ -42,17 +42,17 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual void ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput);
+	virtual void ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput);
 	UFUNCTION(Server, Reliable)
-	virtual void Server_TaxiForProcessPressInput(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput);
+	virtual void Server_TaxiForProcessPressInput(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput);
 	UFUNCTION(Server, Reliable)
-	virtual void Server_ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput);
+	virtual void Server_ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput);
 	
 	
 	UFUNCTION(BlueprintCallable)
-	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
+	virtual bool TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor);
 	UFUNCTION(BlueprintCallable)
-	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
+	virtual void RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor);
 
 	UFUNCTION(BlueprintCallable)
 	float GetTileSize() const;
@@ -68,7 +68,7 @@ protected:
 	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
 
 	UFUNCTION(Server, Reliable)
-	virtual void Server_RemoveItem(UItemObject* ItemObject);
+	virtual void Server_RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Columns = -1;

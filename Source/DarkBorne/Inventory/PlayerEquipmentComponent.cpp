@@ -8,6 +8,8 @@
 #include "Engine/ActorChannel.h"
 #include "../Items/DBItem.h"
 #include "Kismet/GameplayStatics.h"
+#include "../DBCharacters/DBCharacter.h"
+#include "DBEquipmentComponent.h"
 
 UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 {
@@ -59,10 +61,10 @@ void UPlayerEquipmentComponent::BeginPlay()
 	Items.SetNum(Columns * Rows);
 }
 
-bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!IsValid(ItemObject)) return false;
-	if (!TaxiToServer) return false;
+	if (!InitiatedActor) return false;
 	//if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
 	//	this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
 	//	return false;
@@ -72,15 +74,15 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInvento
 		//		UE_LOG(LogTemp, Warning, TEXT("TaxiToServer and this are diff"));
 		if (IsRoomAvailable(ItemObject, i))
 		{
-			if (this->GetOwner()->HasNetOwner())
+			if (GetOwner()->HasNetOwner())
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Has LocalNetOwner()"));
-				Server_AddItemAt(ItemObject, i);
+				Server_AddItemAt(ItemObject, i, InitiatedActor);
 			}
 			else {
 				UE_LOG(LogTemp, Warning, TEXT("Has no LocalNetOwner()"));
-				auto PEComp = Cast<UPlayerEquipmentComponent>(TaxiToServer);
-				PEComp->Server_TaxiForAddItemAt(ItemObject, i, this);
+				auto PEComp = InitiatedActor->GetComponentByClass<UPlayerEquipmentComponent>();
+				PEComp->Server_TaxiForAddItemAt(this, ItemObject, i, InitiatedActor);
 			}
 
 			return true;
@@ -90,70 +92,69 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInvento
 	return false;
 }
 
-void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
-	if (!TaxiToServer) return;
+	if (!InitiatedActor) return;
 	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
 		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
 		return;*/
-	
-	if (HasItem(ItemObject)) 
+
+	if (HasItem(ItemObject))
 	{
-		if (this->GetOwner()->HasNetOwner())
+		if (GetOwner()->HasNetOwner())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
-			Server_RemoveItem(ItemObject);
+			Server_RemoveItem(ItemObject, InitiatedActor);
 		}
 		else {
 			UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
-			auto PEComp = Cast<UPlayerEquipmentComponent>(TaxiToServer);
-			PEComp->Server_TaxiForRemoveItem(ItemObject, this);
+			auto PEComp = InitiatedActor->GetComponentByClass<UPlayerEquipmentComponent>();
+			PEComp->Server_TaxiForRemoveItem(this, ItemObject, InitiatedActor);
 		}
 	}
 }
 
-void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 index, UBaseInventoryComponent* TaxiToServer)
+void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 index, AActor* InitiatedActor)
 {
 	if (!IsValid(ItemObject)) return;
 	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
 		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
 		return;*/
 
-	if (this->GetOwner()->HasNetOwner() && this->GetOwner()->GetIsReplicated())
+	if (GetOwner()->HasNetOwner() && GetOwner()->GetIsReplicated())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
-		Server_AddItemAt(ItemObject, index);
+		Server_AddItemAt(ItemObject, index, InitiatedActor);
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
-		auto PEComp = Cast<UPlayerEquipmentComponent>(TaxiToServer);
-		PEComp->Server_TaxiForAddItemAt(ItemObject, index, this);
+		auto PEComp = InitiatedActor->GetComponentByClass<UPlayerEquipmentComponent>();
+		PEComp->Server_TaxiForAddItemAt(this, ItemObject, index, InitiatedActor);
 	}
 }
 
-void UPlayerEquipmentComponent::Server_TaxiForAddItemAt_Implementation(UItemObject* ItemObject, int32 TopLeftIndex,
-	UBaseInventoryComponent* TaxiedInventoryComp)
+void UPlayerEquipmentComponent::Server_TaxiForAddItemAt_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, int32 TopLeftIndex, AActor* InitiatedActor)
 {
 	auto TaxiedPEComp = Cast<UPlayerEquipmentComponent>(TaxiedInventoryComp);
 	if (ensureAlways(TaxiedPEComp))
 	{
-		TaxiedPEComp->Server_AddItemAt(ItemObject, TopLeftIndex);
+		TaxiedPEComp->Server_AddItemAt(ItemObject, TopLeftIndex, InitiatedActor);
 	}
 }
 
-void UPlayerEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
+void UPlayerEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	auto TaxiedPEComp = Cast<UPlayerEquipmentComponent>(TaxiedInventoryComp);
 	if (ensureAlways(TaxiedPEComp))
 	{
-		TaxiedPEComp->Server_RemoveItem(ItemObject);
+		TaxiedPEComp->Server_RemoveItem(ItemObject, InitiatedActor);
 	}
 }
 
-void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
+void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!IsValid(ItemObject)) return;
-	if (HasItem(ItemObject)) 
+	if (HasItem(ItemObject))
 	{
 		for (int32 i = 0; i < Items.Num(); i++)
 		{
@@ -163,19 +164,64 @@ void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* It
 			}
 		}
 		OnRep_Items();
-	}	
+	}
 }
 
-void UPlayerEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UPlayerEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
+	if (!ItemObject)
+		return;
+	if (!(InitiatedActor && InitiatedActor->HasNetOwner()))
+		return;
+	if (!HasItem(ItemObject))
+		return;
+
+	if (GetOwner()->HasNetOwner())
+	{
+		Server_ProcessPressInput(ItemObject, InitiatedActor, InventoryInput);
+	}
+	else
+	{
+		auto TaxiToServer = InitiatedActor->GetComponentByClass<UPlayerEquipmentComponent>();
+		TaxiToServer->Server_TaxiForProcessPressInput(this, ItemObject, InitiatedActor, InventoryInput);
+	}
+
 }
 
-void UPlayerEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UPlayerEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
+	auto Taxied = Cast<UPlayerEquipmentComponent>(TaxiedInventoryComp);
+	if (Taxied && ensureAlways(Taxied != this))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Taxied"));
+		Taxied->Server_ProcessPressInput(ItemObject, InitiatedActor, InventoryInput);
+	}
 }
 
-void UPlayerEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UPlayerEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Inventory ProcessPressInput"));
+
+	if (!ItemObject)
+		return;
+	if (!InitiatedActor)
+		return;
+	if (!HasItem(ItemObject))
+		return;
+
+	UPlayerEquipmentComponent* From = this;
+	UBaseInventoryComponent* To;
+
+	UPlayerEquipmentComponent* PlayerInventory = InitiatedActor->GetComponentByClass<UPlayerEquipmentComponent>();
+	if (!PlayerInventory)
+		return;
+
+	if (InventoryInput.bHasRightClicked)
+		To = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+	else
+		To = PlayerInventory;
+
+	
 }
 
 int32 UPlayerEquipmentComponent::GetColumn() const
@@ -188,19 +234,19 @@ int32 UPlayerEquipmentComponent::GetRow() const
 	return Rows;
 }
 
-void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* ItemObject, int32 TopLeftIndex)
+void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* ItemObject, int32 TopLeftIndex, AActor* InitiatedActor)
 {
 	////ForEachIndex
 	if (!ItemObject)
 		return;
 
 	//If inventory already has ItemObject, remove it from inventory.
-	if (HasItem(ItemObject)) 
+	if (HasItem(ItemObject))
 	{
-		RemoveItem(ItemObject, this);
+		RemoveItem(ItemObject, InitiatedActor);
 	}
-	
-	if (IsRoomAvailable(ItemObject, TopLeftIndex)) 
+
+	if (IsRoomAvailable(ItemObject, TopLeftIndex))
 	{
 		FTile refTile = IndexToTile(TopLeftIndex);
 		FIntPoint dimentions = ItemObject->GetDimentions();
@@ -219,10 +265,10 @@ void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* Ite
 		ItemObject->TryDestroyItemActor();
 		OnRep_Items();
 	}
-	else 
+	else
 	{
 		//Re-add it back to inventory.
-		TryAddItem(ItemObject, this);
+		TryAddItem(ItemObject, InitiatedActor);
 	}
 
 

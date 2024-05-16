@@ -48,26 +48,26 @@ bool UBaseInventoryComponent::HasItem(UItemObject* ItemObject) const
 	return false;
 }
 
-void UBaseInventoryComponent::ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UBaseInventoryComponent::ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
 	return;
 }
 
-void UBaseInventoryComponent::Server_ProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UBaseInventoryComponent::Server_ProcessPressInput_Implementation(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
 	return;
 }
 
-void UBaseInventoryComponent::Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UBaseInventoryComponent::Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
 	return;
 }
 
-bool UBaseInventoryComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+bool UBaseInventoryComponent::TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	return false;
 }
-void UBaseInventoryComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+void UBaseInventoryComponent::RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	return;
 }
@@ -84,7 +84,7 @@ FVector2D UBaseInventoryComponent::GetSize() const
 	return FVector2D(x, y);
 }
 
-void UBaseInventoryComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
+void UBaseInventoryComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	return;
 }

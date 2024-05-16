@@ -65,7 +65,7 @@ void UDBEquipmentComponent::OnRep_Items()
 		RoguePlayer->PlayerWidget->UpdateSlot(GetSlots());
 }
 
-void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!IsValid(ItemObject)) return;
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
@@ -79,25 +79,25 @@ void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryCo
 	if (this->GetOwner()->HasNetOwner())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
-		Server_RemoveItem(ItemObject);
+		Server_RemoveItem(ItemObject, InitiatedActor);
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
-		auto EquipCompTaxi = Cast<UDBEquipmentComponent>(TaxiToServer);
-		EquipCompTaxi->Server_TaxiForRemoveItem(ItemObject, this);
+		auto EquipCompTaxi = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+		EquipCompTaxi->Server_TaxiForRemoveItem(this, ItemObject, InitiatedActor);
 	}
 }
 
-void UDBEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
+void UDBEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	auto TaxiedEquipComp = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
 	if (ensureAlways(TaxiedEquipComp))
 	{
-		TaxiedEquipComp->Server_RemoveItem(ItemObject);
+		TaxiedEquipComp->Server_RemoveItem(ItemObject, InitiatedActor);
 	}
 }
 
-void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
+void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!ensureAlways(ItemObject))
 		return;
@@ -115,9 +115,11 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 	OnRep_Items();
 }
 
-bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!IsValid(ItemObject) && Items.IsEmpty())
+		return false;
+	if(!InitiatedActor)
 		return false;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
@@ -128,36 +130,38 @@ bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryCo
 			return false;
 	}
 
-	AddItem(ItemObject, TaxiToServer);
+	AddItem(ItemObject, InitiatedActor);
 	return true;
 }
 
-void UDBEquipmentComponent::AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+void UDBEquipmentComponent::AddItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!IsValid(ItemObject)) return;
+	if (!InitiatedActor)
+		return;
 
 	if (this->GetOwner()->HasNetOwner())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
-		Server_AddItem(ItemObject);
+		Server_AddItem(ItemObject, InitiatedActor);
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
-		auto EquipCompTaxi = Cast<UDBEquipmentComponent>(TaxiToServer);
-		EquipCompTaxi->Server_TaxiForAddItem(ItemObject, this);
+		auto EquipCompTaxi = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+		EquipCompTaxi->Server_TaxiForAddItem(this, ItemObject, InitiatedActor);
 	}
 }
 
-void UDBEquipmentComponent::Server_TaxiForAddItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
+void UDBEquipmentComponent::Server_TaxiForAddItem_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	auto TaxiedEquipComp = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
 	if (ensureAlways(TaxiedEquipComp))
 	{
-		TaxiedEquipComp->Server_AddItem(ItemObject);
+		TaxiedEquipComp->Server_AddItem(ItemObject, InitiatedActor);
 	}
 }
 
-void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObject)
+void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!ensureAlways(ItemObject))
 		return;
@@ -173,7 +177,7 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	if (PlayerInventoryComp->HasItem(ItemObject))
 	{
 		bInventoryHasItemObject = true;
-		PlayerInventoryComp->RemoveItem(ItemObject, PlayerInventoryComp);
+		PlayerInventoryComp->RemoveItem(ItemObject, InitiatedActor);
 	}
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
@@ -185,12 +189,12 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 			//Place back ItemObject into inventory
 			if (bInventoryHasItemObject)
 			{
-				PlayerInventoryComp->TryAddItem(ItemObject, PlayerInventoryComp);
+				PlayerInventoryComp->TryAddItem(ItemObject, InitiatedActor);
 			}
 			return;
 		}
 
-		PlayerInventoryComp->TryAddItem(EquippedItem, PlayerInventoryComp);
+		PlayerInventoryComp->TryAddItem(EquippedItem, InitiatedActor);
 	}
 
 	Items[index] = ItemObject;
@@ -207,19 +211,42 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 }
 
 
-void UDBEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UDBEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
-	
+	if(!ItemObject)
+		return;
+	if(!(InitiatedActor && InitiatedActor->HasNetOwner()))
+		return;
+	if(!HasItem(ItemObject))
+		return;
+
+	if (GetOwner()->HasNetOwner())
+	{
+		Server_ProcessPressInput(ItemObject, InitiatedActor, InventoryInput);
+	}
+	else 
+	{
+		auto TaxiToServer = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+		TaxiToServer->Server_TaxiForProcessPressInput(this, ItemObject, InitiatedActor, InventoryInput);
+	}
+
+
 }
 
 
-void UDBEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UDBEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
-
+	auto Taxied = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
+	if (Taxied && ensureAlways(Taxied != this)) 
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Taxied"));
+		Taxied->Server_ProcessPressInput(ItemObject, InitiatedActor, InventoryInput);
+	}
 }
 
-void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject* ItemObject, ADBCharacter* InitiatedPlayer, FInventoryInput InventoryInput)
+void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
 {
+	UE_LOG(LogTemp, Warning, TEXT("ProcessPressInput"));
 }
 
 const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const

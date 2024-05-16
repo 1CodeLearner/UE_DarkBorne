@@ -26,8 +26,6 @@ public:
 		
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UPlayerEquipmentComponent> InventoryComponent;
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<UPlayerEquipmentComponent> TaxiToServer;
 
 protected:
 

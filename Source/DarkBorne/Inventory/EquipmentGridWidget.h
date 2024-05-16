@@ -25,8 +25,6 @@ public:
 protected:		
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UDBEquipmentComponent> EquipmentComponent;
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<UDBEquipmentComponent> TaxiToServer;
 	
 	UPROPERTY(BlueprintReadOnly)
 	ESlotType SlotType;

@@ -21,14 +21,6 @@ void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp/*,
 	auto nice = Cast<UBaseInventoryComponent>(InventoryComponent);
 	if (nice)
 		InventoryComponent->OnInventoryChanged.AddDynamic(this, &UInventoryGridWidget::Refresh);
-	else
-		UE_LOG(LogTemp,Warning,TEXT("WHOSDJFLSDKJF"));
-
-	auto Taxi = GetOwningPlayerPawn()->GetComponentByClass<UPlayerEquipmentComponent>();
-	if (ensureAlways(Taxi))
-	{
-		TaxiToServer = Taxi;
-	}
 
 	//GridWidgetType = _GridWidgetType;
 }
