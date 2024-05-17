@@ -4,7 +4,7 @@
 #include "DBItem.h"
 #include "Components/StaticMeshComponent.h"
 #include "../DBAnimInstance/DBRogueAnimInstance.h"
-#include "GameFramework/Character.h"
+#include "../DBCharacters/DBCharacter.h"
 #include "../Inventory/PlayerEquipmentComponent.h"
 #include "../Inventory/ItemObject.h"
 #include "Net/UnrealNetwork.h"
@@ -67,18 +67,23 @@ void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp)
 
 void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character)
 {
-	auto Inventory = Character->GetComponentByClass<UPlayerEquipmentComponent>();
-	auto Equipment = Character->GetComponentByClass<UDBEquipmentComponent>();
+	ADBCharacter* DBCharacter = Cast<ADBCharacter>(Character);
+	if (!DBCharacter)
+		return;
 
-	if (Equipment->TryAddItem(ItemObj, Equipment))
+	auto Inventory = DBCharacter->GetComponentByClass<UPlayerEquipmentComponent>();
+	auto Equipment = DBCharacter->GetComponentByClass<UDBEquipmentComponent>();
+
+	//Replace this with server and client RPCs that call these in server
+	if (Equipment->TryAddItem(ItemObj, DBCharacter))
 	{
 
 	}
-	else if (Inventory->TryAddItem(ItemObj, Inventory))
+	else if (Inventory->TryAddItem(ItemObj, DBCharacter))
 	{
 
 	}
-	else 
+	else
 	{
 		InteractionComp->DeclareFailedInteraction();
 	}
@@ -141,10 +146,14 @@ bool ADBItem::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
 
 void ADBItem::Pickup(AActor* InteractingActor)
 {
-	auto PlayerEquipComp = InteractingActor->GetComponentByClass<UPlayerEquipmentComponent>();
+	auto DBCharacter = Cast<ADBCharacter>(InteractingActor);
+	if (!DBCharacter)
+		return;
+
+	auto PlayerEquipComp = DBCharacter->GetComponentByClass<UPlayerEquipmentComponent>();
 	if (PlayerEquipComp)
 	{
-		PlayerEquipComp->TryAddItem(ItemObj, PlayerEquipComp);
+		PlayerEquipComp->TryAddItem(ItemObj, DBCharacter);
 	}
 }
 

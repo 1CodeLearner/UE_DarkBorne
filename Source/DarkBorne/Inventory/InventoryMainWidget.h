@@ -87,6 +87,6 @@ private:
 	bool IsReadyForAssignment() const;
 	void ClearLoot();
 
-	UFUNCTION()
-	void OnItemClicked(UBaseItemWidget* ItemWidgetClicked, EGridWidgetType GridWidgetType, bool bIsRightButton);
+	//UFUNCTION()
+	//void OnItemClicked(UBaseItemWidget* ItemWidgetClicked, EGridWidgetType GridWidgetType, bool bIsRightButton);
 };

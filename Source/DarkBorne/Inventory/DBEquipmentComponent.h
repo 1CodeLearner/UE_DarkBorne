@@ -17,19 +17,24 @@ class DARKBORNE_API UDBEquipmentComponent : public UBaseInventoryComponent
 public:
 	UDBEquipmentComponent();
 
+	virtual bool TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor) override;
 	UFUNCTION(BlueprintCallable)
-	void AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
-	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
-	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer) override;
+	void AddItem(UItemObject* ItemObject, AActor* InitiatedActor);
+	UFUNCTION(Server, Reliable)
+	void Server_TaxiForAddItem(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor);
+	UFUNCTION(Server, Reliable)
+	void Server_AddItem(UItemObject* ItemObject, AActor* InitiatedActor);
+	
 
+	virtual void RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor) override;
 	UFUNCTION(Server, Reliable)
-	void Server_TaxiForAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
-	UFUNCTION(Server, Reliable)
-	void Server_TaxiForRemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp);
+	void Server_TaxiForRemoveItem(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor);
+	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject, AActor* InitiatedActor) override;
+		
+	virtual void ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput) override;
+	virtual void Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput) override;
+	virtual void Server_ProcessPressInput_Implementation(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput) override;
 
-	UFUNCTION(Server, Reliable)
-	void Server_AddItem(UItemObject* ItemObject);
-	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject) override;
 
 	UFUNCTION(BlueprintCallable)
 	const TArray<UItemObject*> GetSlots() const;
@@ -54,7 +59,5 @@ protected:
 	virtual bool HasItem(UItemObject* ItemObject) const override;
 
 private:
-	void ProcessActiveItem(UItemObject* ItemObject);
-
-	virtual void OnRep_Items(TArray<UItemObject *> OldItemArray) override;
+	virtual void OnRep_Items() override;
 };

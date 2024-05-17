@@ -24,7 +24,7 @@ ATP_ThirdPersonGameMode::ATP_ThirdPersonGameMode()
 }
 
 void ATP_ThirdPersonGameMode::AddItemTo(AActor* Actor, FName LootName)
-{
+{	
 	auto InventoryComp = Actor->GetComponentByClass<UBaseInventoryComponent>();
 	if (InventoryComp)
 	{
@@ -35,7 +35,7 @@ void ATP_ThirdPersonGameMode::AddItemTo(AActor* Actor, FName LootName)
 			ItemObject->Initialize(Items[i]);
 
 			UE_LOG(LogTemp, Warning, TEXT("Yes it works"));
-			InventoryComp->TryAddItem(ItemObject, InventoryComp);
+			InventoryComp->TryAddItem(ItemObject, Actor);
 		}
 	}
 }

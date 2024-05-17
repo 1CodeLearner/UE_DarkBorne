@@ -23,101 +23,101 @@ void UInventoryMainWidget::NativeOnInitialized()
 	SetIsFocusable(true);
 	HideLoots();
 
-	//Player inventory
-	WBP_InventoryGrid->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
+	////Player inventory
+	//WBP_InventoryGrid->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
 
-	//Player Equipment
-	EquipmentGrid_Weapon->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
-	EquipmentGrid_Consumable->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
+	////Player Equipment
+	//EquipmentGrid_Weapon->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
+	//EquipmentGrid_Consumable->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
 
-	//Loot inventory
-	InventoryLoot_Player->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
-	InventoryLoot_Other->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
+	////Loot inventory
+	//InventoryLoot_Player->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
+	//InventoryLoot_Other->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
 
-	//Loot Equipment
-	EquipmentLoot_Weapon->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
-	EquipmentLoot_Consumable->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
+	////Loot Equipment
+	//EquipmentLoot_Weapon->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
+	//EquipmentLoot_Consumable->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
 }
 
-void UInventoryMainWidget::OnItemClicked(UBaseItemWidget* ItemWidgetClicked, EGridWidgetType GridWidgetType, bool bIsRightButton)
-{
-	UItemObject* ItemObj = ItemWidgetClicked->GetItemObject();
-
-	switch (GridWidgetType)
-	{
-	case EGridWidgetType::PLAYERINVENTORY:
-	{
-		if (bIsRightButton)
-		{
-			EquipmentComp->TryAddItem(ItemObj, EquipmentComp);
-		}
-		else
-		{
-			PlayerEquipmentComp->TryAddItem(ItemObj, PlayerEquipmentComp);
-		}
-		break;
-	}
-	case EGridWidgetType::PLAYEREQUIPMENT:
-		if (bIsRightButton)
-		{
-
-		}
-		break;
-	case EGridWidgetType::LOOTINVENTORY:
-		if (ensureAlways(InventoryComp_Loot))
-		{
-			InventoryComp_Loot->RemoveItem(ItemObj, PlayerEquipmentComp);
-			if (bIsRightButton)
-			{
-				EquipmentComp->AddItem(ItemObj, EquipmentComp);
-			}
-			else
-			{
-				PlayerEquipmentComp->TryAddItem(ItemObj, PlayerEquipmentComp);
-			}
-		}
-		break;
-	case EGridWidgetType::LOOTEQUIPMENT:
-		if (ensureAlways(EquipmentComp_Loot))
-		{
-			EquipmentComp_Loot->RemoveItem(ItemObj, EquipmentComp);
-			if (bIsRightButton)
-			{
-				EquipmentComp->AddItem(ItemObj, EquipmentComp);
-			}
-			else
-			{
-				PlayerEquipmentComp->TryAddItem(ItemObj, PlayerEquipmentComp);
-			}
-		}
-		break;
-	}
-
-
-	//FString Test;
-	//switch (GridWidgetType)
-	//{
-	//case EGridWidgetType::PLAYERINVENTORY:
-	//	Test = TEXT("PlayerInventory");
-	//	break;
-	//case EGridWidgetType::PLAYEREQUIPMENT:
-	//	Test = TEXT("PlayerEquipment");
-	//	break;
-	//case EGridWidgetType::LOOTINVENTORY:
-	//	Test = TEXT("LootInventory");
-
-	//	break;
-	//case EGridWidgetType::LOOTEQUIPMENT:
-	//	Test = TEXT("LootEquipment");
-	//	break;
-	//}
-
-	//UE_LOG(LogTemp, Warning, TEXT("TestingRightClick [%s] : %s : UI Type: %s"),
-	//	*GetNameSafe(ItemWidgetClicked),
-	//	*GetNameSafe(ItemWidgetClicked->GetItemObject()),
-	//	*Test
-	//);
-}
+//void UInventoryMainWidget::OnItemClicked(UBaseItemWidget* ItemWidgetClicked, EGridWidgetType GridWidgetType, bool bIsRightButton)
+//{
+//	UItemObject* ItemObj = ItemWidgetClicked->GetItemObject();
+//
+//	switch (GridWidgetType)
+//	{
+//	case EGridWidgetType::PLAYERINVENTORY:
+//	{
+//		if (bIsRightButton)
+//		{
+//			EquipmentComp->TryAddItem(ItemObj, EquipmentComp);
+//		}
+//		else
+//		{
+//			PlayerEquipmentComp->TryAddItem(ItemObj, PlayerEquipmentComp);
+//		}
+//		break;
+//	}
+//	case EGridWidgetType::PLAYEREQUIPMENT:
+//		if (bIsRightButton)
+//		{
+//
+//		}
+//		break;
+//	case EGridWidgetType::LOOTINVENTORY:
+//		if (ensureAlways(InventoryComp_Loot))
+//		{
+//			InventoryComp_Loot->RemoveItem(ItemObj, PlayerEquipmentComp);
+//			if (bIsRightButton)
+//			{
+//				EquipmentComp->AddItem(ItemObj, EquipmentComp);
+//			}
+//			else
+//			{
+//				PlayerEquipmentComp->TryAddItem(ItemObj, PlayerEquipmentComp);
+//			}
+//		}
+//		break;
+//	case EGridWidgetType::LOOTEQUIPMENT:
+//		if (ensureAlways(EquipmentComp_Loot))
+//		{
+//			EquipmentComp_Loot->RemoveItem(ItemObj, EquipmentComp);
+//			if (bIsRightButton)
+//			{
+//				EquipmentComp->AddItem(ItemObj, EquipmentComp);
+//			}
+//			else
+//			{
+//				PlayerEquipmentComp->TryAddItem(ItemObj, PlayerEquipmentComp);
+//			}
+//		}
+//		break;
+//	}
+//
+//
+//	//FString Test;
+//	//switch (GridWidgetType)
+//	//{
+//	//case EGridWidgetType::PLAYERINVENTORY:
+//	//	Test = TEXT("PlayerInventory");
+//	//	break;
+//	//case EGridWidgetType::PLAYEREQUIPMENT:
+//	//	Test = TEXT("PlayerEquipment");
+//	//	break;
+//	//case EGridWidgetType::LOOTINVENTORY:
+//	//	Test = TEXT("LootInventory");
+//
+//	//	break;
+//	//case EGridWidgetType::LOOTEQUIPMENT:
+//	//	Test = TEXT("LootEquipment");
+//	//	break;
+//	//}
+//
+//	//UE_LOG(LogTemp, Warning, TEXT("TestingRightClick [%s] : %s : UI Type: %s"),
+//	//	*GetNameSafe(ItemWidgetClicked),
+//	//	*GetNameSafe(ItemWidgetClicked->GetItemObject()),
+//	//	*Test
+//	//);
+//}
 
 void UInventoryMainWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
@@ -272,9 +272,9 @@ void UInventoryMainWidget::ClearLoot()
 
 void UInventoryMainWidget::DisplayPlayerLoot(UPlayerEquipmentComponent* _InventoryComp, UDBEquipmentComponent* _EquipmentComp)
 {
-	InventoryLoot_Player->StartInit(_InventoryComp, EGridWidgetType::LOOTINVENTORY);
-	EquipmentLoot_Weapon->StartInit(_EquipmentComp, ESlotType::WEAPON, EGridWidgetType::LOOTEQUIPMENT);
-	EquipmentLoot_Consumable->StartInit(_EquipmentComp, ESlotType::CONSUMABLE, EGridWidgetType::LOOTEQUIPMENT);
+	InventoryLoot_Player->StartInit(_InventoryComp/*, EGridWidgetType::LOOTINVENTORY*/);
+	EquipmentLoot_Weapon->StartInit(_EquipmentComp, ESlotType::WEAPON/*, EGridWidgetType::LOOTEQUIPMENT*/);
+	EquipmentLoot_Consumable->StartInit(_EquipmentComp, ESlotType::CONSUMABLE/*, EGridWidgetType::LOOTEQUIPMENT*/);
 
 	InventoryLoot_Player->SetVisibility(ESlateVisibility::Visible);
 	EquipmentLoot_Weapon->SetVisibility(ESlateVisibility::Visible);
@@ -285,7 +285,7 @@ void UInventoryMainWidget::DisplayPlayerLoot(UPlayerEquipmentComponent* _Invento
 
 void UInventoryMainWidget::DisplayOtherLoot(UPlayerEquipmentComponent* _InventoryComp)
 {
-	InventoryLoot_Other->StartInit(_InventoryComp, EGridWidgetType::LOOTINVENTORY);
+	InventoryLoot_Other->StartInit(_InventoryComp/*, EGridWidgetType::LOOTINVENTORY*/);
 
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Visible);
 

@@ -20,14 +20,12 @@ class DARKBORNE_API UInventoryGridWidget : public UBaseGridWidget
 	
 public:
 	UFUNCTION(BlueprintCallable)
-	void StartInit(UPlayerEquipmentComponent* InventoryComp, EGridWidgetType _GridWidgetType);
+	void StartInit(UPlayerEquipmentComponent* InventoryComp/*, EGridWidgetType _GridWidgetType*/);
 
 	void Reset();
 		
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UPlayerEquipmentComponent> InventoryComponent;
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<UPlayerEquipmentComponent> TaxiToServer;
 
 protected:
 
@@ -42,6 +40,7 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void Refresh();
+
 private:
 	void CreateLineSegments();
 };
