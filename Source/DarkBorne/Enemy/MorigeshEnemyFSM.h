@@ -34,6 +34,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -52,7 +53,7 @@ public:
 	//UPROPERTY(EditAnywhere)
 	//TSubclassOf<class AActor> attackProjectileFactory;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<class AMorigeshWeapon> weaponFactory;
 
 	//UPROPERTY(EditAnywhere)
@@ -60,7 +61,10 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float spawnBorder = 70;
+	float spawnBorder = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector ThrowPos;
 
 
 public:
@@ -72,7 +76,11 @@ public:
 	virtual void OnRep_CurrentState() override;
 	UFUNCTION()
 	virtual void UpdateDamaged(float deltaTime);
-	
-	
 
+
+	
+private:
+
+	bool bIsShuttingDown = false;
+	bool IsFireTiming = false;
 };

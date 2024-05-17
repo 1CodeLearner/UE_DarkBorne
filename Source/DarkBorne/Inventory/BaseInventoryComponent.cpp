@@ -109,4 +109,5 @@ FTransform UBaseInventoryComponent::GetNewTransform(AActor* Instigator, float of
 void UBaseInventoryComponent::OnRep_Items()
 {
 	bIsDirty = true;
+
 }

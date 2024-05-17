@@ -45,7 +45,7 @@ AMorigeshWeapon::AMorigeshWeapon()
 	// 움직일 콤포넌트 설정
 	compProjectile->SetUpdatedComponent(compSphere);
 	// 초기 속력, 최대 속력
-	compProjectile->InitialSpeed = 800;
+	compProjectile->InitialSpeed = 1200;
 	compProjectile->MaxSpeed = 3000;
 	// 튕기게 할것인
 	compProjectile->bShouldBounce = false;

@@ -110,6 +110,7 @@ void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 		baseFSM->nowTarget = nullptr;
 		CharacterStatusComponent->CurrHP = 0;
 
+		
 		baseFSM->ChangeState(EEnemyState::DIE);
 	}
 	else

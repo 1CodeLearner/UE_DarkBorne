@@ -13,6 +13,7 @@
 #include "../../../../../../../Source/Runtime/Engine/Classes/Components/CapsuleComponent.h"
 #include "../Enemy/MorigeshWeapon.h"
 #include <Net/UnrealNetwork.h>
+#include "Async/Async.h"
 
 
 UMorigeshEnemyFSM::UMorigeshEnemyFSM()
@@ -48,10 +49,32 @@ void UMorigeshEnemyFSM::BeginPlay()
 	
 }
 
+void UMorigeshEnemyFSM::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	bIsShuttingDown = true;
+	Super::EndPlay(EndPlayReason);
+
+}
+
 void UMorigeshEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (IsFireTiming)
+	{
+
+		FireWeapon(ThrowPos);
+		IsFireTiming = false;
+	}
+	//타이머 on
+	//타이머 딜레이 & 중간 방해  체크
+	//발사
+	//FSM 한번 돌고
+	//공격이 안들어 왔을때
+	//타이머 동작하여
+	//공격
+
+
 	
 }
 
@@ -90,12 +113,43 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 	if (myActor->HasAuthority())
 	{
 		
-
+		FVector CapturedThrowPos;
 
 		switch (currState)
 		{
 			case EEnemyState::ATTACK:
-				FireWeapon(nowTarget->GetActorLocation());
+				if (nowTarget == nullptr) return;
+				
+				CapturedThrowPos = nowTarget->GetActorLocation();
+				// 비동기 작업 시작
+				
+				Async(EAsyncExecution::Thread, [this, CapturedThrowPos]()
+					{
+						FPlatformProcess::Sleep(0.3f); // 1초 대기
+
+						if (bIsShuttingDown)
+						{
+							return;
+						}
+
+						// 메인 스레드에서 작업 수행
+						AsyncTask(ENamedThreads::GameThread, [this, CapturedThrowPos]()
+							{
+								if (!bIsShuttingDown)
+								{
+									UE_LOG(LogTemp, Warning, TEXT("Thread Working"));
+									IsFireTiming = true;
+									ThrowPos = CapturedThrowPos;
+								}
+							});
+					});
+			
+				
+				
+				/*ThrowPos = nowTarget->GetActorLocation();
+				
+				GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &UMorigeshEnemyFSM::OnAttackNotify, 1.0f, true);*/
+					
 				break;
 		//case EEnemyState::DIE:
 		//{
@@ -129,18 +183,42 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 void UMorigeshEnemyFSM::FireWeapon(FVector targetPos)
 {
 	
-	FVector spawnForward = (nowTarget->GetActorLocation() - myActor->GetActorLocation()).GetSafeNormal();
-	FVector spawnUp = (nowTarget->GetActorLocation() - myActor->GetActorLocation()).GetSafeNormal();
+	FVector spawnForward = (targetPos - myActor->GetActorLocation()).GetSafeNormal();
+	FVector spawnUp = (targetPos - myActor->GetActorLocation()).GetSafeNormal();
 
 	FVector spawnPos = myActor->GetActorLocation() +(myActor->GetActorForwardVector() * spawnBorder) + (myActor->GetActorUpVector() * spawnBorder);
 	
 	FRotator rot = UKismetMathLibrary::MakeRotFromXZ(spawnForward, spawnUp);
-
 	AMorigeshWeapon* weapon = GetWorld()->SpawnActor<AMorigeshWeapon>(weaponFactory, spawnPos, rot);
+	if (weapon)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Weapon spawned at position: %s"), *weapon->GetActorLocation().ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to spawn weapon."));
+		UE_LOG(LogTemp, Error, TEXT("Failed Target Position: %s"), *targetPos.ToString());
+		UE_LOG(LogTemp, Error, TEXT("Failed Target Position: %s"), *myActor->GetActorLocation().ToString());
+	}
 	//FVector tempPos = weapon->GetActorLocation();
 	//UE_LOG(LogTemp, Warning, TEXT("SpawnWeaponPos : %s"), *tempPos.ToString());
 	
 }
+//void UMorigeshEnemyFSM::FireWeapon(FVector targetPos)
+//{
+//	
+//	FVector spawnForward = (nowTarget->GetActorLocation() - myActor->GetActorLocation()).GetSafeNormal();
+//	FVector spawnUp = (nowTarget->GetActorLocation() - myActor->GetActorLocation()).GetSafeNormal();
+//
+//	FVector spawnPos = myActor->GetActorLocation() +(myActor->GetActorForwardVector() * spawnBorder) + (myActor->GetActorUpVector() * spawnBorder);
+//	
+//	FRotator rot = UKismetMathLibrary::MakeRotFromXZ(spawnForward, spawnUp);
+//
+//	AMorigeshWeapon* weapon = GetWorld()->SpawnActor<AMorigeshWeapon>(weaponFactory, spawnPos, rot);
+//	//FVector tempPos = weapon->GetActorLocation();
+//	//UE_LOG(LogTemp, Warning, TEXT("SpawnWeaponPos : %s"), *tempPos.ToString());
+//	
+//}
 
 void UMorigeshEnemyFSM::OnRep_CurrentState()
 {
@@ -164,3 +242,4 @@ void UMorigeshEnemyFSM::UpdateDamaged(float deltaTime)
 		ChangeState(EEnemyState::MOVE);
 	}
 }
+

@@ -55,4 +55,6 @@ protected:
 
 private:
 	void ProcessActiveItem(UItemObject* ItemObject);
+
+	virtual void OnRep_Items(TArray<UItemObject *> OldItemArray) override;
 };
