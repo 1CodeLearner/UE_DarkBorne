@@ -117,7 +117,7 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 
 bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
-	if (!IsValid(ItemObject) && Items.IsEmpty())
+	if (!IsValid(ItemObject) || Items.IsEmpty())
 		return false;
 	if (!InitiatedActor)
 		return false;
@@ -263,21 +263,29 @@ void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject*
 
 	if (InventoryInput.bHasRightClicked)
 	{
-		UDBEquipmentComponent* PlayerEquipment = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
-
-		if (PlayerEquipment && PlayerEquipment != From) //If InitiatedActor is looting ItemObject
+		if (InventoryInput.bHasShiftClicked)
 		{
-			UItemObject* EquippedItem = PlayerEquipment->GetSlotItem(ItemObject->GetSlotType());
-						
-			if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor)) //if adding equipped item to player's inventory was successful
+			From->RemoveItem(ItemObject, InitiatedActor);
+			Server_SpawnItem(InitiatedActor, ItemObject, false);
+		}
+		else
+		{
+			UDBEquipmentComponent* PlayerEquipment = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+
+			if (PlayerEquipment && PlayerEquipment != From) //If InitiatedActor is looting ItemObject
 			{
-				PlayerEquipment->RemoveItem(EquippedItem, InitiatedActor);
-				From->RemoveItem(ItemObject, InitiatedActor); 
-				PlayerEquipment->AddItem(ItemObject, InitiatedActor); //Equip ItemObject 
-			}
-			else
-			{
-				From->TryAddItem(ItemObject, InitiatedActor); //Put ItemObject back
+				UItemObject* EquippedItem = PlayerEquipment->GetSlotItem(ItemObject->GetSlotType());
+
+				if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor)) //if adding equipped item to player's inventory was successful
+				{
+					PlayerEquipment->RemoveItem(EquippedItem, InitiatedActor);
+					From->RemoveItem(ItemObject, InitiatedActor);
+					PlayerEquipment->AddItem(ItemObject, InitiatedActor); //Equip ItemObject 
+				}
+				else
+				{
+					From->TryAddItem(ItemObject, InitiatedActor); //Put ItemObject back
+				}
 			}
 		}
 	}
