@@ -4,6 +4,7 @@
 #include "DBPlayerWidget.h"
 #include <../../../../../../../Source/Runtime/UMG/Public/Components/ProgressBar.h>
 #include <../../../../../../../Source/Runtime/UMG/Public/Components/Image.h>
+#include <../../../../../../../Source/Runtime/UMG/Public/Components/Border.h>
 
 void UDBPlayerWidget::NativeConstruct()
 {
@@ -38,6 +39,60 @@ void UDBPlayerWidget::UpdateSlot(TArray<UItemObject*> EquipSlotArray)
 {
 	UpdateWeaponSlot(EquipSlotArray);
 	UpdateConsumeSlot(EquipSlotArray);
+}
+
+void UDBPlayerWidget::UpdateQBorder(float Q_CurrCoolTime, float Q_MaxCoolTime)
+{
+	if (Q_CurrCoolTime >= Q_MaxCoolTime)
+	{
+		Q_Border->SetBrushFromMaterial(MI_Wedge);
+	}
+	else
+	{
+		Q_Border->SetBrushFromTexture(BlankImage);
+	}
+
+	
+}
+
+void UDBPlayerWidget::UpdateQBorder_Active(bool isVanish)
+{
+	if (isVanish)
+	{
+		Q_Border_Active->SetBrushFromMaterial(MI_Wedge_Active);
+
+		Q_Border->SetBrushFromTexture(BlankImage);
+	}
+	else
+	{
+		Q_Border_Active->SetBrushFromTexture(BlankImage);
+	}
+}
+
+void UDBPlayerWidget::UpdateEBorder(float E_CurrCoolTime, float E_MaxCoolTime)
+{
+	if (E_CurrCoolTime >= E_MaxCoolTime)
+	{
+		E_Border->SetBrushFromMaterial(MI_Wedge);
+	}
+	else
+	{
+		E_Border->SetBrushFromTexture(BlankImage);
+	}
+}
+
+void UDBPlayerWidget::UpdateEBorder_Active(bool isSpawnKnife)
+{
+	if (isSpawnKnife)
+	{
+		E_Border_Active->SetBrushFromMaterial(MI_Wedge_Active);
+
+		E_Border->SetBrushFromTexture(BlankImage);
+	}
+	else
+	{
+		E_Border_Active->SetBrushFromTexture(BlankImage);
+	}
 }
 
 void UDBPlayerWidget::UpdateWeaponSlot(TArray<UItemObject*> EquipSlotArray)

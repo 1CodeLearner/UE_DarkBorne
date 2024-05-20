@@ -28,6 +28,15 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* E_SkillBar;
 
+	UPROPERTY(meta = (BindWidget))
+	class UBorder* Q_Border;
+	UPROPERTY(meta = (BindWidget))
+	class UBorder* E_Border;
+
+	UPROPERTY(meta = (BindWidget))
+	class UBorder* Q_Border_Active;
+	UPROPERTY(meta = (BindWidget))
+	class UBorder* E_Border_Active;
 public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* WeaponSlot;
@@ -37,12 +46,21 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UTexture2D* BlankImage;
+
+	UPROPERTY(EditAnywhere)
+	class UMaterialInstance* MI_Wedge;
+	UPROPERTY(EditAnywhere)
+	class UMaterialInstance* MI_Wedge_Active;
 public:
 	void UpdateHeathBar(float currHP, float maxHP);
 	void UpdateQSkillBar(float Q_CurrCoolTime, float Q_MaxCoolTime);
 	void UpdateESkillBar(float E_CurrCoolTime, float E_MaxCoolTime);
 	void UpdateSlot(TArray<UItemObject*> EquipSlotArray);
 
+	void UpdateQBorder(float Q_CurrCoolTime, float Q_MaxCoolTime);
+	void UpdateQBorder_Active(bool isVanish);
+	void UpdateEBorder(float E_CurrCoolTime, float E_MaxCoolTime);
+	void UpdateEBorder_Active(bool isSpawnKnife);
 private:
 	void UpdateWeaponSlot(TArray<UItemObject*> EquipSlotArray);
 	void UpdateConsumeSlot(TArray<UItemObject*> EquipSlotArray);
