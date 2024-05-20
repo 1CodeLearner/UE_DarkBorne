@@ -182,14 +182,51 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 
 void UMorigeshEnemyFSM::FireWeapon(FVector targetPos)
 {
+	FVector spawnForward = (targetPos - myActor->GetActorLocation()).GetSafeNormal();
+	FVector spawnUp = (targetPos - myActor->GetActorLocation()).GetSafeNormal();
+
+	// spawnBorder를 벡터 값으로 정의
+	spawnBorder = FVector(100.0f, 50.0f, 75.0f); // 원하는 변위 값을 설정
+
+	// 각 방향에 대한 변위를 벡터 값으로 설정
+	FVector offset = (myActor->GetActorForwardVector() * spawnBorder.X)
+		+ (myActor->GetActorUpVector() * spawnBorder.Z)
+		+ (myActor->GetActorRightVector() * spawnBorder.Y);
+
+	FVector spawnPos = myActor->GetActorLocation() + offset;
+
+	// spawnPos가 업데이트된 후 다시 방향 벡터 계산
+	spawnForward = (targetPos - spawnPos).GetSafeNormal();
+	spawnUp = FVector::UpVector;  // 또는 원하는 Up 방향 벡터 설정
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.bNoFail = true;
+
+	FRotator rot = UKismetMathLibrary::MakeRotFromXZ(spawnForward, spawnUp);
+	AMorigeshWeapon* weapon = GetWorld()->SpawnActor<AMorigeshWeapon>(weaponFactory, spawnPos, rot, SpawnParams);
+	if (weapon)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Weapon spawned at position: %s"), *weapon->GetActorLocation().ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to spawn weapon."));
+		UE_LOG(LogTemp, Error, TEXT("Failed Target Position: %s"), *targetPos.ToString());
+		UE_LOG(LogTemp, Error, TEXT("Failed Actor Position: %s"), *myActor->GetActorLocation().ToString());
+	}
+
 	
+	/*
 	FVector spawnForward = (targetPos - myActor->GetActorLocation()).GetSafeNormal();
 	FVector spawnUp = (targetPos - myActor->GetActorLocation()).GetSafeNormal();
 
 	FVector spawnPos = myActor->GetActorLocation() +(myActor->GetActorForwardVector() * spawnBorder) + (myActor->GetActorUpVector() * spawnBorder);
 	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.bNoFail = true;
+
 	FRotator rot = UKismetMathLibrary::MakeRotFromXZ(spawnForward, spawnUp);
-	AMorigeshWeapon* weapon = GetWorld()->SpawnActor<AMorigeshWeapon>(weaponFactory, spawnPos, rot);
+	AMorigeshWeapon* weapon = GetWorld()->SpawnActor<AMorigeshWeapon>(weaponFactory, spawnPos, rot, SpawnParams);
 	if (weapon)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Weapon spawned at position: %s"), *weapon->GetActorLocation().ToString());
@@ -202,7 +239,7 @@ void UMorigeshEnemyFSM::FireWeapon(FVector targetPos)
 	}
 	//FVector tempPos = weapon->GetActorLocation();
 	//UE_LOG(LogTemp, Warning, TEXT("SpawnWeaponPos : %s"), *tempPos.ToString());
-	
+	*/
 }
 //void UMorigeshEnemyFSM::FireWeapon(FVector targetPos)
 //{
