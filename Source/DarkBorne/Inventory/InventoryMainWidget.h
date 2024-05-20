@@ -19,6 +19,8 @@ class UBaseInventoryComponent;
 class UItemObject;
 enum class EEntityType : uint8;
 
+class UInputMappingContext;
+
 UCLASS()
 class DARKBORNE_API UInventoryMainWidget : public UUserWidget
 {
@@ -32,7 +34,8 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable)
 	void DisplayInventory(bool bEnabled);
-	//Dynamically change loot display
+
+	//display loot
 	UFUNCTION(BlueprintCallable)
 	void InitLootDisplay(AActor* OtherEntity);
 	UFUNCTION(BlueprintCallable)
@@ -54,16 +57,18 @@ protected:
 	UEquipmentGridWidget* EquipmentGrid_Consumable; //Already initialized in blueprint
 
 
-	//Other Player/Entity's inventory for looting.
-	//Other player has UDBEquipmentComponent. Entity does not have UDBEquipmentComponent.
+	/*
+	Other Player/Entity's inventory for looting.
+	Other player has UDBEquipmentComponent. Entity does not have UDBEquipmentComponent.*/
 	UPROPERTY()
 	TObjectPtr<UDBEquipmentComponent> EquipmentComp_Loot;
 	//Both other player and other entity have UPlayerEquipmentComponent.
 	UPROPERTY()
 	TObjectPtr<UPlayerEquipmentComponent> InventoryComp_Loot;
 
-	//Other Player/Entity's Widgets for looting.
-	//Other Player.
+	/*
+	Other Player/Entity's Widgets for looting.
+	Other Player.*/
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryLoot_Player;
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
@@ -73,7 +78,6 @@ protected:
 	//Other Entity.
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryLoot_Other;
-
 
 	void DisplayPlayerLoot(UPlayerEquipmentComponent* _InventoryComp, UDBEquipmentComponent* _EquipmentComp);
 	void DisplayOtherLoot(UPlayerEquipmentComponent* _InventoryComp);
