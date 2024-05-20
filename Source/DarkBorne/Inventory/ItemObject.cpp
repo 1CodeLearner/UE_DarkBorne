@@ -18,15 +18,15 @@ void UItemObject::Initialize(FItem _Item, ADBItem* _ItemActor)
 
 ADBItem* UItemObject::SpawnItem(AActor* Initiator, bool bSetOwner, FTransform Trans, float forwardOffset)
 {
-	if(!ensureAlways(!GetItemActor())) return nullptr;
-		
+	if (!ensureAlways(!GetItemActor())) return nullptr;
+
 	auto ItemSpawned = GetWorld()->SpawnActorDeferred<ADBItem>(GetItemClass(), Trans, bSetOwner ? Initiator : nullptr);
 	ItemSpawned->Initialize(this);
 	UGameplayStatics::FinishSpawningActor(ItemSpawned, Trans);
-	
+
 	SetItemActor(ItemSpawned);
-	
-	return ItemSpawned;	
+
+	return ItemSpawned;
 }
 
 bool UItemObject::ImplementsItemInterface() const
@@ -47,7 +47,7 @@ bool UItemObject::HasItemActor() const
 
 ADBItem* UItemObject::GetItemActor() const
 {
-	if(IsValid(ItemData.ItemActor))
+	if (IsValid(ItemData.ItemActor))
 	{
 		return ItemData.ItemActor;
 	}
@@ -75,14 +75,147 @@ FText UItemObject::GetDisplayName() const
 	return ItemData.Item.SlotHolder.DisplayName;
 }
 
+FText UItemObject::GetLoreText() const
+{
+	return ItemData.Item.SlotHolder.LoreText;
+}
+
+EItemType UItemObject::GetItemType() const
+{
+	return ItemData.Item.SlotHolder.ItemType;
+}
+
 FName UItemObject::GetId() const
 {
 	return ItemData.Item.SlotHolder.Id;
 }
 
+FText UItemObject::GetBaseStatsText() const
+{
+	float BaseStat = GetRarityValue();
+	FText BaseStatText;
+
+	switch (GetItemType())
+	{
+	case EItemType::WEAPON:
+	{
+		BaseStatText = FText::FromString(FString::Printf(TEXT("Weapon Damage %.0f"), BaseStat));
+		break;
+	}
+	case EItemType::CONSUMABLE:
+	{
+		break;
+	}
+	}
+
+	return BaseStatText;
+}
+
+TArray<FText> UItemObject::GetEnchantmentsTexts() const
+{
+	FDarkBorneStats Enchantments = GetEnchantments();
+	TArray<FText> EnchantmentsTexts;
+
+	switch (GetItemType())
+	{
+	case EItemType::WEAPON:
+	{
+		const TArray<FAttribute> Attributes = Enchantments.Attributes;
+		for (int i = 0; i < Attributes.Num(); ++i)
+		{
+			EAttributeType AttributeType = Attributes[i].AttributeType;
+			FText AttributeTypeText;
+
+			UEnum::GetDisplayValueAsText(AttributeType, AttributeTypeText);
+			
+			EnchantmentsTexts.Add(AttributeTypeText);
+		}
+
+		const TArray<FPhysicalDamage> PhysicalDamages = Enchantments.PhysicalDamages;
+		for (int i = 0; i < PhysicalDamages.Num(); ++i)
+		{
+			EPhysicalDamageType PhysicalDamageType = PhysicalDamages[i].PhysicalDamageType;
+			FText PhysicalDamageTypeText;
+
+			UEnum::GetDisplayValueAsText(PhysicalDamageType, PhysicalDamageTypeText);
+
+			EnchantmentsTexts.Add(PhysicalDamageTypeText);
+		}
+		break;
+	}
+	case EItemType::CONSUMABLE:
+	{
+		break;
+	}
+	}
+
+	return EnchantmentsTexts;
+}
+
+FText UItemObject::GetEffectText() const
+{
+	float EffectValue = GetRarityValue();
+	FText EffectValueText;
+
+	switch (GetItemType())
+	{
+	case EItemType::WEAPON:
+	{
+		break;
+	}
+	case EItemType::CONSUMABLE:
+	{
+		FText EffectText = ItemData.Item.SlotHolder.EffectText;
+		if (!EffectText.IsEmpty()) 
+		{
+			FString EffectString = EffectText.ToString();
+			FString FindString = TEXT("%f");
+			int32 index = EffectString.Find(FindString);
+			if (index != -1) 
+			{
+				EffectString = EffectString.Replace(*FindString, *FString::SanitizeFloat(EffectValue, 0));
+				EffectValueText = FText::FromString(EffectString);
+			}
+			else 
+			{
+				EffectValueText = EffectText;
+			}
+		}
+		break;
+	}
+	}
+
+	return EffectValueText;
+}
+
+FText UItemObject::GetCategoryText() const
+{
+	ESlotType SlotType = GetSlotType();
+	FText SlotTypeText;
+	UEnum::GetDisplayValueAsText(SlotType, SlotTypeText);
+
+	FText CategoryText = FText::FromString(FString::Printf(TEXT("Slot type: %s"), *SlotTypeText.ToString()));
+	return CategoryText;
+}
+
 float UItemObject::GetRarityValue() const
 {
 	return ItemData.Item.GetDefaultValue();
+}
+
+FRarity UItemObject::GetRarity() const
+{
+	if (ensure(ItemData.Item.IsValid()))
+	{
+		TArray<FRarity> Rarities = ItemData.Item.GetRarities();
+		return Rarities[0];
+	}
+	return FRarity();
+}
+
+FDarkBorneStats UItemObject::GetEnchantments() const
+{
+	return ItemData.Item.Enchantments;
 }
 
 FIntPoint UItemObject::GetDimentions() const
