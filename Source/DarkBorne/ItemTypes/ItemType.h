@@ -158,6 +158,7 @@ struct FItem : public FTableRowBase
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UPDA_ItemSlot* ItemSlot;
+	UPROPERTY()
 	bool bIsValid = false;
 public:
 	bool IsValid() const;
