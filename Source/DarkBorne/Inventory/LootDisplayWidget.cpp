@@ -33,7 +33,7 @@ void ULootDisplayWidget::Reset()
 
 void ULootDisplayWidget::DisplayPlayerLoot(UPlayerEquipmentComponent* InventoryComp, UDBEquipmentComponent* EquipmentComp)
 {
-	InventoryLoot_Player->StartInit(InventoryComp);
+	InventoryLoot_Player->StartInit(InventoryComp/*, EGridWidgetType::LOOTINVENTORY*/);
 
 	InventoryLoot_Player->SetVisibility(ESlateVisibility::Visible);
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Collapsed);
@@ -44,7 +44,7 @@ void ULootDisplayWidget::DisplayPlayerLoot(UPlayerEquipmentComponent* InventoryC
 
 void ULootDisplayWidget::DisplayOtherLoot(UPlayerEquipmentComponent* InventoryComp, UDBEquipmentComponent* EquipmentComp)
 {
-	InventoryLoot_Other->StartInit(InventoryComp);
+	InventoryLoot_Other->StartInit(InventoryComp/*, EGridWidgetType::LOOTINVENTORY*/);
 
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Visible);
 	InventoryLoot_Player->SetVisibility(ESlateVisibility::Collapsed);

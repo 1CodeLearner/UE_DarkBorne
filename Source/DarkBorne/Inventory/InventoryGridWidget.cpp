@@ -6,7 +6,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 
-void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp)
+void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp/*, EGridWidgetType _GridWidgetType*/)
 {
 	InventoryComponent = InventoryComp;
 	TileSize = InventoryComponent->GetTileSize();
@@ -21,14 +21,8 @@ void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp)
 	auto nice = Cast<UBaseInventoryComponent>(InventoryComponent);
 	if (nice)
 		InventoryComponent->OnInventoryChanged.AddDynamic(this, &UInventoryGridWidget::Refresh);
-	else
-		UE_LOG(LogTemp,Warning,TEXT("WHOSDJFLSDKJF"));
 
-	auto Taxi = GetOwningPlayerPawn()->GetComponentByClass<UPlayerEquipmentComponent>();
-	if (ensureAlways(Taxi))
-	{
-		TaxiToServer = Taxi;
-	}
+	//GridWidgetType = _GridWidgetType;
 }
 
 void UInventoryGridWidget::Reset()

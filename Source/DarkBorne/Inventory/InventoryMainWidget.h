@@ -16,6 +16,7 @@ class UEquipmentGridWidget;
 class UPlayerEquipmentComponent;
 class UDBEquipmentComponent;
 class UBaseInventoryComponent;
+class UItemObject;
 enum class EEntityType : uint8;
 
 UCLASS()
@@ -55,10 +56,10 @@ protected:
 
 	//Other Player/Entity's inventory for looting.
 	//Other player has UDBEquipmentComponent. Entity does not have UDBEquipmentComponent.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
+	UPROPERTY()
 	TObjectPtr<UDBEquipmentComponent> EquipmentComp_Loot;
 	//Both other player and other entity have UPlayerEquipmentComponent.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn))
+	UPROPERTY()
 	TObjectPtr<UPlayerEquipmentComponent> InventoryComp_Loot;
 
 	//Other Player/Entity's Widgets for looting.
@@ -85,4 +86,7 @@ private:
 	bool IsValidNum(const TArray<UBaseInventoryComponent*>& Inventories) const;
 	bool IsReadyForAssignment() const;
 	void ClearLoot();
+
+	//UFUNCTION()
+	//void OnItemClicked(UBaseItemWidget* ItemWidgetClicked, EGridWidgetType GridWidgetType, bool bIsRightButton);
 };

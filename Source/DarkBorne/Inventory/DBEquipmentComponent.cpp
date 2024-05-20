@@ -56,37 +56,16 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	}
 }
 
-void UDBEquipmentComponent::ProcessActiveItem(UItemObject* ItemObject)
+void UDBEquipmentComponent::OnRep_Items()
 {
-}
-// EquipSlot Widget 업데이트 하는 함수
-void UDBEquipmentComponent::OnRep_Items(TArray<UItemObject*> OldItemArray)
-{
-	Super::OnRep_Items(OldItemArray);
+	Super::OnRep_Items();
 
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
-	if(RoguePlayer->PlayerWidget)
+	if (RoguePlayer->PlayerWidget)
 		RoguePlayer->PlayerWidget->UpdateSlot(GetSlots());
-
 }
 
-bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
-{
-	if (!IsValid(ItemObject) && Items.IsEmpty())
-		return false;
-
-	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	if (Items[index] != nullptr)
-	{
-		return false;
-	}
-	else {
-		AddItem(ItemObject, TaxiToServer);
-		return true;
-	}
-}
-
-void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!IsValid(ItemObject)) return;
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
@@ -100,31 +79,30 @@ void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, UBaseInventoryCo
 	if (this->GetOwner()->HasNetOwner())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
-		Server_RemoveItem(ItemObject);
+		Server_RemoveItem(ItemObject, InitiatedActor);
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
-		auto EquipCompTaxi = Cast<UDBEquipmentComponent>(TaxiToServer);
-		EquipCompTaxi->Server_TaxiForRemoveItem(ItemObject, this);
+		auto EquipCompTaxi = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+		EquipCompTaxi->Server_TaxiForRemoveItem(this, ItemObject, InitiatedActor);
 	}
 }
 
-void UDBEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
+void UDBEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	auto TaxiedEquipComp = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
 	if (ensureAlways(TaxiedEquipComp))
 	{
-		TaxiedEquipComp->Server_RemoveItem(ItemObject);
+		TaxiedEquipComp->Server_RemoveItem(ItemObject, InitiatedActor);
 	}
 }
 
-void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject)
+void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!ensureAlways(ItemObject))
 		return;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	TArray<UItemObject*> old = Items;
 	UItemObject* TempItemObj = Items[index];
 	Items[index] = nullptr;
 
@@ -134,57 +112,89 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 		WeaponComp->TryRemoveRogueItem(ItemObject);
 	}
 
-	OnRep_Items(old);
+	OnRep_Items();
 }
 
-void UDBEquipmentComponent::AddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
+bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor)
+{
+	if (!IsValid(ItemObject) && Items.IsEmpty())
+		return false;
+	if (!InitiatedActor)
+		return false;
+
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+	if (Items[index])
+	{
+		auto PlayerInventoryComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
+		if (PlayerInventoryComp && !PlayerInventoryComp->HasRoomFor(Items[index]))
+			return false;
+	}
+
+	AddItem(ItemObject, InitiatedActor);
+	return true;
+}
+
+void UDBEquipmentComponent::AddItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!IsValid(ItemObject)) return;
-	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
-		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
-		return;*/
+	if (!InitiatedActor)
+		return;
 
 	if (this->GetOwner()->HasNetOwner())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
-		Server_AddItem(ItemObject);
+		Server_AddItem(ItemObject, InitiatedActor);
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
-		auto EquipCompTaxi = Cast<UDBEquipmentComponent>(TaxiToServer);
-		EquipCompTaxi->Server_TaxiForAddItem(ItemObject, this);
+		auto EquipCompTaxi = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+		EquipCompTaxi->Server_TaxiForAddItem(this, ItemObject, InitiatedActor);
 	}
 }
 
-void UDBEquipmentComponent::Server_TaxiForAddItem_Implementation(UItemObject* ItemObject, UBaseInventoryComponent* TaxiedInventoryComp)
+void UDBEquipmentComponent::Server_TaxiForAddItem_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	auto TaxiedEquipComp = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
 	if (ensureAlways(TaxiedEquipComp))
 	{
-		TaxiedEquipComp->Server_AddItem(ItemObject);
+		TaxiedEquipComp->Server_AddItem(ItemObject, InitiatedActor);
 	}
 }
 
-void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObject)
+void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!ensureAlways(ItemObject))
 		return;
 
-	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
 
-	TArray<UItemObject*> old = Items;
 	if (Items.IsEmpty())
 		return;
 
-	if (Items[index])
+	auto PlayerInventoryComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
+	bool bInventoryHasItemObject = false;
+
+	//if ItemObject is in inventory, remove ItemObject from inventory.
+	if (PlayerInventoryComp->HasItem(ItemObject))
 	{
-		UItemObject* TempItemObj = Items[index];
-		auto PEComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
-		//Throw Item away if inventory is full
-		if (!PEComp->TryAddItem(TempItemObj, PEComp))
+		bInventoryHasItemObject = true;
+		PlayerInventoryComp->RemoveItem(ItemObject, InitiatedActor);
+	}
+
+	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
+	UItemObject* EquippedItem = Items[index];
+	if (EquippedItem)
+	{
+		if (PlayerInventoryComp && !PlayerInventoryComp->HasRoomFor(EquippedItem))
 		{
-			Server_SpawnItem(GetOwner(), TempItemObj);
+			//Place back ItemObject into inventory
+			if (bInventoryHasItemObject)
+			{
+				PlayerInventoryComp->TryAddItem(ItemObject, InitiatedActor);
+			}
+			return;
 		}
+
+		PlayerInventoryComp->TryAddItem(EquippedItem, InitiatedActor);
 	}
 
 	Items[index] = ItemObject;
@@ -197,7 +207,88 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 		WeaponComp->PassItem(ItemObject);
 	}
 
-	OnRep_Items(old);
+	OnRep_Items();
+}
+
+
+void UDBEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
+{
+	if (!ItemObject)
+		return;
+	if (!(InitiatedActor && InitiatedActor->HasNetOwner()))
+		return;
+	if (!HasItem(ItemObject))
+		return;
+
+	if (GetOwner()->HasNetOwner())
+	{
+		Server_ProcessPressInput(ItemObject, InitiatedActor, InventoryInput);
+	}
+	else
+	{
+		auto TaxiToServer = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+		TaxiToServer->Server_TaxiForProcessPressInput(this, ItemObject, InitiatedActor, InventoryInput);
+	}
+
+
+}
+
+
+void UDBEquipmentComponent::Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
+{
+	auto Taxied = Cast<UDBEquipmentComponent>(TaxiedInventoryComp);
+	if (Taxied && ensureAlways(Taxied != this))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Taxied"));
+		Taxied->Server_ProcessPressInput(ItemObject, InitiatedActor, InventoryInput);
+	}
+}
+
+void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ProcessPressInput"));
+
+	if (!ItemObject)
+		return;
+	if (!InitiatedActor)
+		return;
+	if (!HasItem(ItemObject))
+		return;
+
+	UPlayerEquipmentComponent* PlayerInventory = InitiatedActor->GetComponentByClass<UPlayerEquipmentComponent>();
+	if (!PlayerInventory)
+		return;
+
+	UDBEquipmentComponent* From = this;
+
+	if (InventoryInput.bHasRightClicked)
+	{
+		UDBEquipmentComponent* PlayerEquipment = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+
+		if (PlayerEquipment && PlayerEquipment != From) //If InitiatedActor is looting ItemObject
+		{
+			UItemObject* EquippedItem = PlayerEquipment->GetSlotItem(ItemObject->GetSlotType());
+						
+			if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor)) //if adding equipped item to player's inventory was successful
+			{
+				PlayerEquipment->RemoveItem(EquippedItem, InitiatedActor);
+				From->RemoveItem(ItemObject, InitiatedActor); 
+				PlayerEquipment->AddItem(ItemObject, InitiatedActor); //Equip ItemObject 
+			}
+			else
+			{
+				From->TryAddItem(ItemObject, InitiatedActor); //Put ItemObject back
+			}
+		}
+	}
+	else
+	{
+		UItemObject* EquippedItem = GetSlotItem(ItemObject->GetSlotType());
+		if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor))
+		{
+			From->RemoveItem(EquippedItem, InitiatedActor);
+		}
+	}
 }
 
 const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const
@@ -205,7 +296,7 @@ const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const
 	return Items;
 }
 
-const UItemObject* UDBEquipmentComponent::GetSlotItem(ESlotType SlotType) const
+UItemObject* UDBEquipmentComponent::GetSlotItem(ESlotType SlotType) const
 {
 	int32 index = UItemLibrary::GetSlotIndexByEnum(SlotType);
 	if (Items.IsEmpty()) return nullptr;
@@ -221,3 +312,12 @@ bool UDBEquipmentComponent::IsSlotVacant(UItemObject* ItemObject) const
 	return true;
 }
 
+bool UDBEquipmentComponent::HasItem(UItemObject* ItemObject) const
+{
+	for (int32 i = 0; i < Items.Num(); ++i)
+	{
+		if (ItemObject == Items[i])
+			return true;
+	}
+	return false;
+}

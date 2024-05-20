@@ -186,7 +186,7 @@ void UDBRogueAttackComponent::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 			auto EquipmentComp = DBCharacter->GetComponentByClass<UDBEquipmentComponent>();
 			if (EquipmentComp)
 			{
-				EquipmentComp->RemoveItem(RogueWeaponComponent->RogueItems->GetItemObject(), EquipmentComp);
+				EquipmentComp->RemoveItem(RogueWeaponComponent->RogueItems->GetItemObject(), DBCharacter);
 			}
 
 			RogueWeaponComponent->AttachWeapon();
