@@ -17,6 +17,9 @@ class DARKBORNE_API UItemDescriptionWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
+	void SetText(FString String);
+	void SetText(FText Text);
+protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_ItemDescription;
 };
