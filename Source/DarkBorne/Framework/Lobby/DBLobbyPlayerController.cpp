@@ -62,7 +62,7 @@ void ADBLobbyPlayerController::OnPossess(APawn* aPawn)
 		if (Charac) {
 			auto EquipComp = Charac->GetComponentByClass<UDBEquipmentComponent>();
 			if (EquipComp) {
-				EquipComp->Server_AddItem(ItemObject);
+				EquipComp->Server_AddItem(ItemObject, Charac);
 			}
 		}
 	}

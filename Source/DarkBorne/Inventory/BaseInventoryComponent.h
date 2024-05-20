@@ -9,6 +9,19 @@
 class UItemObject;
 class UActorChannel;
 class FOutBunch;
+class ADBCharacter;
+
+USTRUCT(Blueprintable)
+struct FInventoryInput
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bHasRightClicked;
+	UPROPERTY(BlueprintReadWrite)
+	bool bHasShiftClicked;
+};
+
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryChangedDel);
 
@@ -29,21 +42,33 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual bool TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
+	virtual void ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput);
+	UFUNCTION(Server, Reliable)
+	virtual void Server_TaxiForProcessPressInput(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput);
+	UFUNCTION(Server, Reliable)
+	virtual void Server_ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput);
+	
+	
 	UFUNCTION(BlueprintCallable)
-	virtual void RemoveItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer);
+	virtual bool TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor);
+	UFUNCTION(BlueprintCallable)
+	virtual void RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor);
 
 	UFUNCTION(BlueprintCallable)
 	float GetTileSize() const;
-			
+
 	UFUNCTION(BlueprintCallable)
 	FVector2D GetSize() const;
+	
+	UFUNCTION(BlueprintCallable)
+	virtual bool HasItem(UItemObject* ItemObject) const;
 protected:
+
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
 
 	UFUNCTION(Server, Reliable)
-	virtual void Server_RemoveItem(UItemObject* ItemObject);
+	virtual void Server_RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Columns = -1;
@@ -58,7 +83,7 @@ protected:
 	TArray<UItemObject*> Items;
 
 	UFUNCTION()
-	virtual void OnRep_Items(TArray<UItemObject*> OldItemArray);
+	virtual void OnRep_Items();
 
 	bool bIsDirty;
 
