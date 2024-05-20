@@ -61,7 +61,7 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float spawnBorder = 100;
+	FVector spawnBorder;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector ThrowPos;
@@ -83,4 +83,5 @@ private:
 
 	bool bIsShuttingDown = false;
 	bool IsFireTiming = false;
+	bool IsAttackTimerEnabled = false;
 };
