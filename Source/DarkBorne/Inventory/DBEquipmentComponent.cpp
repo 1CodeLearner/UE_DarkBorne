@@ -59,7 +59,7 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 void UDBEquipmentComponent::ProcessActiveItem(UItemObject* ItemObject)
 {
 }
-
+// EquipSlot Widget 업데이트 하는 함수
 void UDBEquipmentComponent::OnRep_Items(TArray<UItemObject*> OldItemArray)
 {
 	Super::OnRep_Items(OldItemArray);
@@ -67,6 +67,7 @@ void UDBEquipmentComponent::OnRep_Items(TArray<UItemObject*> OldItemArray)
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	if(RoguePlayer->PlayerWidget)
 		RoguePlayer->PlayerWidget->UpdateSlot(GetSlots());
+
 }
 
 bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, UBaseInventoryComponent* TaxiToServer)
