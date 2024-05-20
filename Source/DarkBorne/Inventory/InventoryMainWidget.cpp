@@ -16,6 +16,11 @@
 #include "ItemObject.h"
 #include "Widgets/BaseItemWidget.h"
 
+#include "EnhancedInputSubsystems.h"
+#include "InputMappingContext.h"
+
+#include "Kismet/GameplayStatics.h"
+
 
 void UInventoryMainWidget::NativeOnInitialized()
 {
@@ -155,9 +160,18 @@ void UInventoryMainWidget::DisplayInventory(bool bEnabled)
 		if (ensureAlways(!IsInViewport()))
 		{
 			AddToViewport();
-			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(
-				GetOwningPlayer(), this, EMouseLockMode::LockOnCapture);
-			GetOwningPlayer()->bShowMouseCursor = true;
+			
+			//UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(GetOwningPlayer(),this, EMouseLockMode::LockAlways, false);
+			
+			/*EMouseLockMode InMouseLockMode;
+			InMouseLockMode = EMouseLockMode::LockAlways;
+
+			FInputModeGameAndUI InputMode;
+			InputMode.SetLockMouseToViewportBehavior(InMouseLockMode);
+			InputMode.SetHideCursorDuringCapture(true);
+			InputMode.SetWidgetToFocus(TakeWidget());
+			GetOwningPlayer()->SetInputMode(InputMode);*/
+			
 		}
 	}
 	else
@@ -172,8 +186,6 @@ void UInventoryMainWidget::DisplayInventory(bool bEnabled)
 		if (ensureAlways(IsInViewport()))
 		{
 			RemoveFromParent();
-			UWidgetBlueprintLibrary::SetInputMode_GameOnly(GetOwningPlayer(), false);
-			GetOwningPlayer()->bShowMouseCursor = false;
 		}
 	}
 }

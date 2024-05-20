@@ -15,6 +15,7 @@
 #include "../../Inventory/DBEquipmentComponent.h"
 #include "../../Status/DBEffectComponent.h"
 #include "../../Items/Consumables/DBConsumable.h"
+#include "../../Framework/ActorComponents/DBInteractionComponent.h"
 
 // Sets default values for this component's properties
 UDBRogueAttackComponent::UDBRogueAttackComponent()
@@ -66,10 +67,14 @@ void UDBRogueAttackComponent::RogueAttack()
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 	UDBRogueWeaponComponent* RogueWeaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	UDBInteractionComponent* InteractionComp = GetOwner()->GetComponentByClass<UDBInteractionComponent>();
 	// shift 쓰고있으면 리턴
 	if (RogueAnim->isCastingShift) return;
 
 	if (IsUsingItem()) return;
+
+	if(InteractionComp && InteractionComp->IsInteracting())
+		return;
 
 	// 수리검 스킬 수리검 남아있으면 
 	if (RogueSkillComponent->isSpawnKnife)
