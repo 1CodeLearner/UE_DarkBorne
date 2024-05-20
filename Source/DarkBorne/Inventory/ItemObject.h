@@ -57,12 +57,32 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FText GetDisplayName() const;
+	UFUNCTION(BlueprintCallable)
+	FText GetLoreText() const;
+	UFUNCTION(BlueprintCallable)
+	EItemType GetItemType() const;
 
 	FName GetId() const;
+	
+	UFUNCTION(BlueprintCallable)
+	FText GetBaseStatsText() const;
+	UFUNCTION(BlueprintCallable)
+	TArray<FText> GetEnchantmentsTexts() const;
+	UFUNCTION(BlueprintCallable)
+	FText GetEffectText() const;
+	UFUNCTION(BlueprintCallable)
+	FText GetCategoryText() const;
+
+
+
 
 	UFUNCTION(BlueprintCallable)
 	float GetRarityValue() const;
-
+	UFUNCTION(BlueprintCallable)
+	FRarity GetRarity() const;
+	UFUNCTION(BlueprintCallable)
+	FDarkBorneStats GetEnchantments() const;
+	
 	UFUNCTION(BlueprintCallable)
 	FIntPoint GetDimentions() const;  // Ã¶ÀÚ ¼öÁ¤
 	UFUNCTION(BlueprintCallable)

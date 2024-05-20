@@ -85,6 +85,9 @@ struct FSlotHolder
 	UPROPERTY(BlueprintReadOnly)
 	FText LoreText;
 
+	UPROPERTY(BlueprintReadOnly)
+	FText EffectText;
+
 	//인벤토리 안에 아이탬 옮기는 소리
 	UPROPERTY(BlueprintReadOnly)
 	USoundBase* InventorySound;

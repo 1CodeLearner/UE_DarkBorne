@@ -12,8 +12,8 @@
  *
  */
 
- class ADBItem;
- class UTexture2D;
+class ADBItem;
+class UTexture2D;
 
 UCLASS()
 class DARKBORNE_API UPDA_ItemSlot : public UPrimaryDataAsset
@@ -22,9 +22,9 @@ class DARKBORNE_API UPDA_ItemSlot : public UPrimaryDataAsset
 public:
 	UPDA_ItemSlot()
 	{
-		Rarities.Add({ERarityType::COMMON, {0.f, 0.f}});
-		Rarities.Add({ERarityType::RARE, {0.f, 0.f}});
-		Rarities.Add({ERarityType::EPIC, {0.f, 0.f}});
+		Rarities.Add({ ERarityType::COMMON, {0.f, 0.f} });
+		Rarities.Add({ ERarityType::RARE, {0.f, 0.f} });
+		Rarities.Add({ ERarityType::EPIC, {0.f, 0.f} });
 
 		SlotDimension.X = 1.f;
 		SlotDimension.Y = 1.f;
@@ -36,15 +36,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	UMaterialInterface* DisplayMaterial;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
-	UTexture2D* IconTexture; 
+	UTexture2D* IconTexture;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FText DisplayName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FText LoreText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	FText EffectText;
 
 	//인벤토리 안에 아이탬 옮기는 소리
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
