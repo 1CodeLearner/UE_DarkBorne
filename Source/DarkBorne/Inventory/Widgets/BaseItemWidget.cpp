@@ -6,23 +6,38 @@
 #include "ToolTips/ItemToolTipWidget.h"
 #include "Components/Border.h"
 
+void UBaseItemWidget::NativeOnInitialized() 
+{
+	Super::NativeOnInitialized();
+	bInit = false;
+	
+}
+
 void UBaseItemWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+	StartInit();
+}
 
-	if(ItemToolTipWidgetClass)
+void UBaseItemWidget::StartInit()
+{
+	if (!bInit) 
 	{
-		ItemToolTipWidget = CreateWidget<UItemToolTipWidget>(GetOwningPlayer(), ItemToolTipWidgetClass);
-	}
+		if (ItemToolTipWidgetClass)
+		{
+			ItemToolTipWidget = CreateWidget<UItemToolTipWidget>(GetOwningPlayer(), ItemToolTipWidgetClass);
+		}
 
-	if (ItemObject) 
-	{
-		ItemToolTipWidget->StartInit(ItemObject);
-	}
+		if (ItemObject)
+		{
+			ItemToolTipWidget->StartInit(ItemObject);
+		}
 
-	if (BackgroundBorder) 
-	{
-		BackgroundBorder->SetToolTip(ItemToolTipWidget);
+		if (BackgroundBorder)
+		{
+			BackgroundBorder->SetToolTip(ItemToolTipWidget);
+		}
+		bInit = true;
 	}
 }
 
