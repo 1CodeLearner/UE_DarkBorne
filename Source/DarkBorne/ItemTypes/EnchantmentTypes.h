@@ -129,7 +129,7 @@ struct FAttributeHolder : public FTableRowBase
 UENUM(BlueprintType)
 enum class EPhysicalDamageType : uint8
 {
-	PHYSICALDAMAGEBONUS UMETA(DisplayName = "PhysicalDamageBonus"),
+	PHYSICALDAMAGEBONUS UMETA(DisplayName = "Physical Damage Bonus"),
 	MAX UMETA(DisplayName = "Max")
 };
 
@@ -180,7 +180,7 @@ UENUM()
 enum class EDarkBornStatType : uint8
 {
 	ATTRIBUTE UMETA(DisplayName = "Attribute"),
-	PHYSICALDAMAGE UMETA(DisplayName = "PhysicalDamage"),
+	PHYSICALDAMAGE UMETA(DisplayName = "Physical Damage"),
 	MAX UMETA(DisplayName = "MAX")
 };
 

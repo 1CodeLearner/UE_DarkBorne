@@ -79,7 +79,7 @@ void ADBCharacter::BeginPlay()
 void ADBCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	if(CharacterStatusComponent)
+	if (CharacterStatusComponent)
 	{
 		CharacterStatusComponent->Initialize();
 	}
@@ -97,7 +97,7 @@ void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent
 		OtherPlayer->InvMainWidget->InitLootDisplay(this);
 		if (OtherPlayer->InvMainWidget->IsLootValid())
 		{
-			OtherPlayer->InvMainWidget->DisplayInventory(true);
+			OtherPlayer->DisplayInventory(true);
 		}
 	}
 
@@ -193,7 +193,7 @@ void ADBCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	//서버 플레이어의 위젯 생성
-	if (HasAuthority()) 
+	if (HasAuthority())
 	{
 		CreatePlayerWidget();
 	}
@@ -204,6 +204,9 @@ void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
 	FVector2D dir = value.Get<FVector2D>();
 	FVector originVec = FVector(dir.Y, dir.X, 0);
 	FVector newVec = GetTransform().TransformVector(originVec);
+
+	if (InteractionComp && InteractionComp->IsInteracting())
+		return;
 
 	AddMovementInput(newVec);
 }
@@ -260,12 +263,53 @@ void ADBCharacter::EnhancedInteract(const FInputActionValue& value)
 
 void ADBCharacter::EnhancedInventory(const FInputActionValue& value)
 {
+	bool input = value.Get<bool>();
 	if (ensureAlways(InvMainWidget))
 	{
+		if (InteractionComp && InteractionComp->IsInteracting())
+			return;
 		if (InvMainWidget->IsInViewport())
-			InvMainWidget->DisplayInventory(false);
+		{
+			DisplayInventory(false);
+		}
 		else
-			InvMainWidget->DisplayInventory(true);
+		{
+			DisplayInventory(true);
+		}
+	}
+}
+
+void ADBCharacter::DisplayInventory(bool bEnabled)
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+
+	if (bEnabled)
+	{
+		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
+		if (EnhancedInputSubSystem)
+		{
+			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PC, InvMainWidget, EMouseLockMode::LockAlways, false);
+
+			PC->bShowMouseCursor = true;
+
+			EnhancedInputSubSystem->AddMappingContext(IMC_Inventory, 0);
+			EnhancedInputSubSystem->RemoveMappingContext(imc_DBMapping);
+		}
+		InvMainWidget->DisplayInventory(true);
+	}
+	else
+	{
+		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
+		if (EnhancedInputSubSystem)
+		{
+			UWidgetBlueprintLibrary::SetInputMode_GameOnly(PC);
+			UWidgetBlueprintLibrary::SetFocusToGameViewport();
+			PC->bShowMouseCursor = false;
+
+			EnhancedInputSubSystem->AddMappingContext(imc_DBMapping, 0);
+			EnhancedInputSubSystem->RemoveMappingContext(IMC_Inventory);
+		}
+		InvMainWidget->DisplayInventory(false);
 	}
 }
 

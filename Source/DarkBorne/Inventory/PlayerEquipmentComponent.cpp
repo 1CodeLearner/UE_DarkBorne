@@ -218,34 +218,42 @@ void UPlayerEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObj
 
 	if (InventoryInput.bHasRightClicked)
 	{
-		UDBEquipmentComponent* To;
-		To = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
-		if (To)
+		if (InventoryInput.bHasShiftClicked)
 		{
-			UItemObject* EquippedItem = nullptr;
-			if (!To->IsSlotVacant(ItemObject)) //If Player is already equipping an item
-			{
-				EquippedItem = To->GetSlotItem(ItemObject->GetSlotType());
-			}
-
 			From->RemoveItem(ItemObject, InitiatedActor);
-			
-			if (EquippedItem)
+			Server_SpawnItem(InitiatedActor, ItemObject, false);
+		}
+		else
+		{
+			UDBEquipmentComponent* To;
+			To = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+			if (To)
 			{
+				UItemObject* EquippedItem = nullptr;
+				if (!To->IsSlotVacant(ItemObject)) //If Player is already equipping an item
+				{
+					EquippedItem = To->GetSlotItem(ItemObject->GetSlotType());
+				}
 
-				if(PlayerInventory->TryAddItem(EquippedItem, InitiatedActor)) //if adding equipped item to player's inventory was successful
+				From->RemoveItem(ItemObject, InitiatedActor);
+
+				if (EquippedItem)
 				{
-					To->RemoveItem(EquippedItem,InitiatedActor);
-					To->AddItem(ItemObject, InitiatedActor); //Equip ItemObject 
+
+					if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor)) //if adding equipped item to player's inventory was successful
+					{
+						To->RemoveItem(EquippedItem, InitiatedActor);
+						To->AddItem(ItemObject, InitiatedActor); //Equip ItemObject 
+					}
+					else
+					{
+						From->TryAddItem(ItemObject, InitiatedActor); //Put ItemObject back
+					}
 				}
-				else 
+				else
 				{
-					From->TryAddItem(ItemObject, InitiatedActor); //Put ItemObject back
+					To->AddItem(ItemObject, InitiatedActor); //Equip Item
 				}
-			}
-			else 
-			{
-				To->AddItem(ItemObject, InitiatedActor); //Equip Item
 			}
 		}
 	}
@@ -254,7 +262,7 @@ void UPlayerEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObj
 		UPlayerEquipmentComponent* To;
 		To = PlayerInventory;
 
-		if (To) 
+		if (To)
 		{
 			From->RemoveItem(ItemObject, InitiatedActor);
 

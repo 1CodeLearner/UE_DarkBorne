@@ -112,6 +112,11 @@ void UDBInteractionComponent::DeclareFailedInteraction()
 	}
 }
 
+bool UDBInteractionComponent::IsInteracting() const
+{
+	return bInteracting;
+}
+
 void UDBInteractionComponent::SetCanInteract(AActor* InteractingActor, bool bCanInteract)
 {
 	IInteractionInterface* Interface = Cast<IInteractionInterface>(InteractingActor);
