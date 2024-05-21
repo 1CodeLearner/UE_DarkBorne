@@ -297,7 +297,7 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 	//projectileComponent->InitialSpeed = 3000;
 	projectileComponent->SetActive(true, true);
 	projectileComponent->SetVelocityInLocalSpace(FVector(3000, 0, 0));
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ThrowSound, RoguePlayer->GetActorLocation());
+	//UGameplayStatics::PlaySoundAtLocation(GetWorld(), ThrowSound, RogueCharacter->GetActorLocation());
 	PlayMontage(RogueCharacter, FName("ESkill_Start"));
 	SetLifeSpan(3);
 }
