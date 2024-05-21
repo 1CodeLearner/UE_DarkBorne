@@ -107,6 +107,8 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_ActiveRogueESkill();
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiRPC_ActiveRogueESkill(bool isSpawn);
 
 public:
 	void UpdateRogueESkill(float DeltaTime);

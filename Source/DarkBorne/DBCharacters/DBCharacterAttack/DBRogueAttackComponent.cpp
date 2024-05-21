@@ -15,6 +15,8 @@
 #include "../../Inventory/DBEquipmentComponent.h"
 #include "../../Status/DBEffectComponent.h"
 #include "../../Items/Consumables/DBConsumable.h"
+#include "../../Framework/ActorComponents/DBInteractionComponent.h"
+#include "../../DBPlayerWidget/DBPlayerWidget.h"
 
 // Sets default values for this component's properties
 UDBRogueAttackComponent::UDBRogueAttackComponent()
@@ -66,10 +68,14 @@ void UDBRogueAttackComponent::RogueAttack()
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 	UDBRogueWeaponComponent* RogueWeaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
+	UDBInteractionComponent* InteractionComp = GetOwner()->GetComponentByClass<UDBInteractionComponent>();
 	// shift 쓰고있으면 리턴
 	if (RogueAnim->isCastingShift) return;
 
 	if (IsUsingItem()) return;
+
+	if(InteractionComp && InteractionComp->IsInteracting())
+		return;
 
 	// 수리검 스킬 수리검 남아있으면 
 	if (RogueSkillComponent->isSpawnKnife)
@@ -347,8 +353,10 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 		RogueSkillComponent->isSpawnKnife = false;
 		RogueSkillComponent->E_CurrCoolTime = 0;
 
+		
+
 	}
-	MultiRPC_RogueThrowKnifeAttack();
+	MultiRPC_RogueThrowKnifeAttack(RogueSkillComponent->isSpawnKnife);
 	// 전부 던지기
 	//for (int32 i = 0; i < RogueSkillComponent->magazineCnt; i++)
 	//{
@@ -359,13 +367,18 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 	//}
 }
 
-void UDBRogueAttackComponent::MultiRPC_RogueThrowKnifeAttack_Implementation()
+void UDBRogueAttackComponent::MultiRPC_RogueThrowKnifeAttack_Implementation(bool isSpawn)
 {
+	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 	// 은신 상태면 은신 풀어주자
 	if (RogueSkillComponent->isVanish)
 	{
 		RogueSkillComponent->DeactiveRogueQSkill();
+	}
+	if (RoguePlayer->IsLocallyControlled())
+	{
+		RoguePlayer->PlayerWidget->UpdateEBorder_Active(isSpawn);
 	}
 }
 

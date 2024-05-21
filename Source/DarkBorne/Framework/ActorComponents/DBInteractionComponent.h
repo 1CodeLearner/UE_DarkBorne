@@ -41,6 +41,8 @@ public:
 	void ExecuteInteraction();
 	void DeclareFailedInteraction();
 
+	bool IsInteracting() const;
+
 protected:
 	virtual void BeginPlay() override;
 

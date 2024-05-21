@@ -89,7 +89,7 @@ void UDBRogueSkillComponent::OnRep_CurrQSkill()
 	// 플레이어 위젯이 없으면 리턴
 	if (RoguePlayer->PlayerWidget == nullptr) return;
 	RoguePlayer->PlayerWidget->UpdateQSkillBar(Q_CurrCoolTime, Q_MaxCoolTime);
-	//UE_LOG(LogTemp, Warning, TEXT("Testing:%f"), CurrHP);
+	RoguePlayer->PlayerWidget->UpdateQBorder(Q_CurrCoolTime, Q_MaxCoolTime);
 }
 
 void UDBRogueSkillComponent::OnRep_CurrESkill()
@@ -99,6 +99,7 @@ void UDBRogueSkillComponent::OnRep_CurrESkill()
 	// 플레이어 위젯이 없으면 리턴
 	if (RoguePlayer->PlayerWidget == nullptr) return;
 	RoguePlayer->PlayerWidget->UpdateESkillBar(E_CurrCoolTime, E_MaxCoolTime);
+	RoguePlayer->PlayerWidget->UpdateEBorder(E_CurrCoolTime, E_MaxCoolTime);
 }
 
 void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
@@ -108,6 +109,11 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 		UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 		ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 		UDBEquipmentComponent* RogueEquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
+
+		if (RoguePlayer->IsLocallyControlled())
+		{
+			RoguePlayer->PlayerWidget->UpdateQBorder_Active(isVanish);
+		}
 
 		// 상대 입장에서만 무기를 투명화 시키자
 		if (!RoguePlayer->IsLocallyControlled())
@@ -145,6 +151,12 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 		//서버 플레이어를 위한 호출
 		OnRep_CurrQSkill();
 
+		ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+
+		if (RoguePlayer->IsLocallyControlled())
+		{
+			RoguePlayer->PlayerWidget->UpdateQBorder_Active(isVanish);
+		}
 		//UE_LOG(LogTemp, Warning, TEXT("Vanish Cool Time : %.f"), Q_CurrCoolTime);
 	}
 }
@@ -203,7 +215,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 
 			RoguePlayer->camera->PostProcessSettings.bOverride_ChromaticAberrationStartOffset = true;
 			RoguePlayer->camera->PostProcessSettings.ChromaticAberrationStartOffset = 0;
-
+			
 		}
 		// 다른 캐릭터들한텐
 		else
@@ -325,6 +337,19 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 			ThrowingKnife->isThrowing = false;
 
 		}
+		MultiRPC_ActiveRogueESkill(isSpawnKnife);
+	}
+	
+
+}
+
+void UDBRogueSkillComponent::MultiRPC_ActiveRogueESkill_Implementation(bool isSpawn)
+{
+	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+	if(RoguePlayer->PlayerWidget == nullptr) return;
+	if (RoguePlayer->IsLocallyControlled())
+	{
+		RoguePlayer->PlayerWidget->UpdateEBorder_Active(isSpawn);
 
 	}
 

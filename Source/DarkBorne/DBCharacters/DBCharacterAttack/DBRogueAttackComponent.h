@@ -97,7 +97,7 @@ public:
 	void ServerRPC_RogueThrowKnifeAttack();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MultiRPC_RogueThrowKnifeAttack();
+	void MultiRPC_RogueThrowKnifeAttack(bool isSpawn);
 
 protected:
 	void UseItem();

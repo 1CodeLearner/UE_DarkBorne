@@ -52,7 +52,9 @@ public:
 	virtual FDisplayInfo GetDisplayInfo() const override;
 	FString PlayerName;
 	void SetPlayerName(FString _PlayerName);
-
+public:
+	UFUNCTION(BlueprintCallable)
+	void DisplayInventory(bool bEnabled);
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -99,9 +101,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UArrowComponent* ThrowKnifePos;
 public:
-	//player Mapping Context
+	//Input for Gameplay
 	UPROPERTY(EditAnywhere)
 	class UInputMappingContext* imc_DBMapping;
+	//Input for inventory
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UInputMappingContext> IMC_Inventory;
 
 	//player input
 	UPROPERTY(EditAnywhere)

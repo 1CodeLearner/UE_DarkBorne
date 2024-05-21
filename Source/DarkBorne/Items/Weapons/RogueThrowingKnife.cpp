@@ -289,7 +289,8 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 	TKRotation.Normalize();
 	SetActorRotation(TKRotation);
 
-	RogueSkillComponent->TKMagazine[KnifeNumber]->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//RogueSkillComponent->TKMagazine[KnifeNumber]->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	UE_LOG(LogTemp, Warning, TEXT("Owner :%s , knifeCount : %d"), *GetNameSafe(GetOwner()), KnifeNumber);
 
 	projectileComponent->ProjectileGravityScale = 0.0f;
