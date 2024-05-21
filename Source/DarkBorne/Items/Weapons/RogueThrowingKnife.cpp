@@ -289,14 +289,15 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
 	TKRotation.Normalize();
 	SetActorRotation(TKRotation);
 
-	RogueSkillComponent->TKMagazine[KnifeNumber]->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//RogueSkillComponent->TKMagazine[KnifeNumber]->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	UE_LOG(LogTemp, Warning, TEXT("Owner :%s , knifeCount : %d"), *GetNameSafe(GetOwner()), KnifeNumber);
 
 	projectileComponent->ProjectileGravityScale = 0.0f;
 	//projectileComponent->InitialSpeed = 3000;
 	projectileComponent->SetActive(true, true);
 	projectileComponent->SetVelocityInLocalSpace(FVector(3000, 0, 0));
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ThrowSound, RoguePlayer->GetActorLocation());
+	//UGameplayStatics::PlaySoundAtLocation(GetWorld(), ThrowSound, RogueCharacter->GetActorLocation());
 	PlayMontage(RogueCharacter, FName("ESkill_Start"));
 	SetLifeSpan(3);
 }

@@ -65,7 +65,7 @@ void UDBGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete Success -- %s"), *SessionName.ToString());
 		// Battle Map 으로 이동하자
-		FString Option = FString::Printf(TEXT("/Game/DBMaps/First-Person_Demo_V2?listen?MaxPlayers=%d"), maxPlayer);
+		FString Option = FString::Printf(TEXT("/Game/DBMaps/LobbyMap?listen?MaxPlayers=%d"), maxPlayer);
 		GetWorld()->ServerTravel(Option);
 	}
 	else

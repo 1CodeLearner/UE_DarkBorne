@@ -77,7 +77,7 @@ void ADBLobbyGameMode::BroadcastMessage(FString msg)
 
 void ADBLobbyGameMode::StartTravel()
 {
-	FString Option = FString::Printf(TEXT("/Game/DBMaps/Demo_01?listen?"));
+	FString Option = FString::Printf(TEXT("/Game/DBMaps/GamePlayMap?listen?"));
 	GetWorld()->ServerTravel(Option);
 }
 
