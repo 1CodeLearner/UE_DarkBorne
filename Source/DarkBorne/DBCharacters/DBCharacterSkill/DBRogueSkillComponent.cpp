@@ -337,6 +337,19 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 			ThrowingKnife->isThrowing = false;
 
 		}
+		MultiRPC_ActiveRogueESkill(isSpawnKnife);
+	}
+	
+
+}
+
+void UDBRogueSkillComponent::MultiRPC_ActiveRogueESkill_Implementation(bool isSpawn)
+{
+	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
+	if(RoguePlayer->PlayerWidget == nullptr) return;
+	if (RoguePlayer->IsLocallyControlled())
+	{
+		RoguePlayer->PlayerWidget->UpdateEBorder_Active(isSpawn);
 
 	}
 

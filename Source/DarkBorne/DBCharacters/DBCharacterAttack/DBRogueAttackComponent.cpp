@@ -16,6 +16,7 @@
 #include "../../Status/DBEffectComponent.h"
 #include "../../Items/Consumables/DBConsumable.h"
 #include "../../Framework/ActorComponents/DBInteractionComponent.h"
+#include "../../DBPlayerWidget/DBPlayerWidget.h"
 
 // Sets default values for this component's properties
 UDBRogueAttackComponent::UDBRogueAttackComponent()
@@ -352,8 +353,10 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 		RogueSkillComponent->isSpawnKnife = false;
 		RogueSkillComponent->E_CurrCoolTime = 0;
 
+		
+
 	}
-	MultiRPC_RogueThrowKnifeAttack();
+	MultiRPC_RogueThrowKnifeAttack(RogueSkillComponent->isSpawnKnife);
 	// 전부 던지기
 	//for (int32 i = 0; i < RogueSkillComponent->magazineCnt; i++)
 	//{
@@ -364,13 +367,18 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 	//}
 }
 
-void UDBRogueAttackComponent::MultiRPC_RogueThrowKnifeAttack_Implementation()
+void UDBRogueAttackComponent::MultiRPC_RogueThrowKnifeAttack_Implementation(bool isSpawn)
 {
+	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 	// 은신 상태면 은신 풀어주자
 	if (RogueSkillComponent->isVanish)
 	{
 		RogueSkillComponent->DeactiveRogueQSkill();
+	}
+	if (RoguePlayer->IsLocallyControlled())
+	{
+		RoguePlayer->PlayerWidget->UpdateEBorder_Active(isSpawn);
 	}
 }
 
