@@ -72,6 +72,9 @@ public:
 	UFUNCTION()
 	void OnRep_CurrQSkill();
 
+	UPROPERTY(EditAnywhere)
+	class USoundBase* VanishStartSFX;
+
 public:
 	UPROPERTY(Replicated, VisibleAnywhere)
 	bool isSpawnKnife = false;

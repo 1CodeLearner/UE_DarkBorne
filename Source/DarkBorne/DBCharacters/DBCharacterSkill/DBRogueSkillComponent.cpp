@@ -215,7 +215,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 
 			RoguePlayer->camera->PostProcessSettings.bOverride_ChromaticAberrationStartOffset = true;
 			RoguePlayer->camera->PostProcessSettings.ChromaticAberrationStartOffset = 0;
-			
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), VanishStartSFX, RoguePlayer->GetActorLocation());
 		}
 		// 다른 캐릭터들한텐
 		else

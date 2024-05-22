@@ -100,7 +100,7 @@ public:
 
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MultiRPC_RogueThrowKnifeAttack();
+	void MultiRPC_RogueThrowKnifeAttack(bool isLineHit, FRotator EndRotation);
 
 	
 };
