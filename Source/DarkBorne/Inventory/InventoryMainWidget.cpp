@@ -21,108 +21,15 @@
 
 #include "Kismet/GameplayStatics.h"
 
+#include "Components/TextBlock.h"
+#include "Components/Border.h"
 
 void UInventoryMainWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	SetIsFocusable(true);
 	HideLoots();
-
-	////Player inventory
-	//WBP_InventoryGrid->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
-
-	////Player Equipment
-	//EquipmentGrid_Weapon->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
-	//EquipmentGrid_Consumable->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
-
-	////Loot inventory
-	//InventoryLoot_Player->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
-	//InventoryLoot_Other->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
-
-	////Loot Equipment
-	//EquipmentLoot_Weapon->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
-	//EquipmentLoot_Consumable->OnItemClicked.AddDynamic(this, &UInventoryMainWidget::OnItemClicked);
 }
-
-//void UInventoryMainWidget::OnItemClicked(UBaseItemWidget* ItemWidgetClicked, EGridWidgetType GridWidgetType, bool bIsRightButton)
-//{
-//	UItemObject* ItemObj = ItemWidgetClicked->GetItemObject();
-//
-//	switch (GridWidgetType)
-//	{
-//	case EGridWidgetType::PLAYERINVENTORY:
-//	{
-//		if (bIsRightButton)
-//		{
-//			EquipmentComp->TryAddItem(ItemObj, EquipmentComp);
-//		}
-//		else
-//		{
-//			PlayerEquipmentComp->TryAddItem(ItemObj, PlayerEquipmentComp);
-//		}
-//		break;
-//	}
-//	case EGridWidgetType::PLAYEREQUIPMENT:
-//		if (bIsRightButton)
-//		{
-//
-//		}
-//		break;
-//	case EGridWidgetType::LOOTINVENTORY:
-//		if (ensureAlways(InventoryComp_Loot))
-//		{
-//			InventoryComp_Loot->RemoveItem(ItemObj, PlayerEquipmentComp);
-//			if (bIsRightButton)
-//			{
-//				EquipmentComp->AddItem(ItemObj, EquipmentComp);
-//			}
-//			else
-//			{
-//				PlayerEquipmentComp->TryAddItem(ItemObj, PlayerEquipmentComp);
-//			}
-//		}
-//		break;
-//	case EGridWidgetType::LOOTEQUIPMENT:
-//		if (ensureAlways(EquipmentComp_Loot))
-//		{
-//			EquipmentComp_Loot->RemoveItem(ItemObj, EquipmentComp);
-//			if (bIsRightButton)
-//			{
-//				EquipmentComp->AddItem(ItemObj, EquipmentComp);
-//			}
-//			else
-//			{
-//				PlayerEquipmentComp->TryAddItem(ItemObj, PlayerEquipmentComp);
-//			}
-//		}
-//		break;
-//	}
-//
-//
-//	//FString Test;
-//	//switch (GridWidgetType)
-//	//{
-//	//case EGridWidgetType::PLAYERINVENTORY:
-//	//	Test = TEXT("PlayerInventory");
-//	//	break;
-//	//case EGridWidgetType::PLAYEREQUIPMENT:
-//	//	Test = TEXT("PlayerEquipment");
-//	//	break;
-//	//case EGridWidgetType::LOOTINVENTORY:
-//	//	Test = TEXT("LootInventory");
-//
-//	//	break;
-//	//case EGridWidgetType::LOOTEQUIPMENT:
-//	//	Test = TEXT("LootEquipment");
-//	//	break;
-//	//}
-//
-//	//UE_LOG(LogTemp, Warning, TEXT("TestingRightClick [%s] : %s : UI Type: %s"),
-//	//	*GetNameSafe(ItemWidgetClicked),
-//	//	*GetNameSafe(ItemWidgetClicked->GetItemObject()),
-//	//	*Test
-//	//);
-//}
 
 void UInventoryMainWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
@@ -160,18 +67,6 @@ void UInventoryMainWidget::DisplayInventory(bool bEnabled)
 		if (ensureAlways(!IsInViewport()))
 		{
 			AddToViewport();
-			
-			//UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(GetOwningPlayer(),this, EMouseLockMode::LockAlways, false);
-			
-			/*EMouseLockMode InMouseLockMode;
-			InMouseLockMode = EMouseLockMode::LockAlways;
-
-			FInputModeGameAndUI InputMode;
-			InputMode.SetLockMouseToViewportBehavior(InMouseLockMode);
-			InputMode.SetHideCursorDuringCapture(true);
-			InputMode.SetWidgetToFocus(TakeWidget());
-			GetOwningPlayer()->SetInputMode(InputMode);*/
-			
 		}
 	}
 	else
@@ -292,6 +187,11 @@ void UInventoryMainWidget::DisplayPlayerLoot(UPlayerEquipmentComponent* _Invento
 	EquipmentLoot_Weapon->SetVisibility(ESlateVisibility::Visible);
 	EquipmentLoot_Consumable->SetVisibility(ESlateVisibility::Visible);
 
+	Text_WeaponLoot->SetVisibility(ESlateVisibility::Visible);
+	Text_ConsumableLoot->SetVisibility(ESlateVisibility::Visible);
+
+	LootBorder->SetVisibility(ESlateVisibility::Visible);
+
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Collapsed);
 }
 
@@ -301,9 +201,13 @@ void UInventoryMainWidget::DisplayOtherLoot(UPlayerEquipmentComponent* _Inventor
 
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Visible);
 
+	LootBorder->SetVisibility(ESlateVisibility::Visible);
+
 	InventoryLoot_Player->SetVisibility(ESlateVisibility::Collapsed);
 	EquipmentLoot_Weapon->SetVisibility(ESlateVisibility::Collapsed);
 	EquipmentLoot_Consumable->SetVisibility(ESlateVisibility::Collapsed);
+	Text_WeaponLoot->SetVisibility(ESlateVisibility::Collapsed);
+	Text_ConsumableLoot->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UInventoryMainWidget::HideLoots()
@@ -313,4 +217,8 @@ void UInventoryMainWidget::HideLoots()
 	InventoryLoot_Player->SetVisibility(ESlateVisibility::Collapsed);
 	EquipmentLoot_Weapon->SetVisibility(ESlateVisibility::Collapsed);
 	EquipmentLoot_Consumable->SetVisibility(ESlateVisibility::Collapsed);
+	
+	Text_WeaponLoot->SetVisibility(ESlateVisibility::Collapsed);
+	Text_ConsumableLoot->SetVisibility(ESlateVisibility::Collapsed);
+	LootBorder->SetVisibility(ESlateVisibility::Collapsed);
 }
