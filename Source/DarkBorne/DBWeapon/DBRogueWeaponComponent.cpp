@@ -142,7 +142,7 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 // 슬롯에서 아이템 떨어졌을때
 void UDBRogueWeaponComponent::TryRemoveRogueItem(UItemObject* Item)
 {
-	if (Item && Item->GetItemActor() == RogueItems)
+	if (Item && RogueItems && Item->GetItemActor() == RogueItems)
 	{
 		RogueItems->GetItemObject()->TryDestroyItemActor();
 		RogueItems = nullptr;

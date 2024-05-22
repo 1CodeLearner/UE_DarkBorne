@@ -21,6 +21,7 @@ enum class EEntityType : uint8;
 
 class UBorder;
 class UTextBlock;
+class UImage;
 
 class UInputMappingContext;
 
@@ -84,6 +85,8 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UBorder> LootBorder;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_Loot;
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> Text_WeaponLoot;
 	UPROPERTY(meta = (BindWidget))

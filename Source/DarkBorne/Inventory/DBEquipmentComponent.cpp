@@ -276,7 +276,12 @@ void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject*
 			{
 				UItemObject* EquippedItem = PlayerEquipment->GetSlotItem(ItemObject->GetSlotType());
 
-				if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor)) //if adding equipped item to player's inventory was successful
+				if(!EquippedItem)
+				{
+					From->RemoveItem(ItemObject, InitiatedActor);
+					PlayerEquipment->AddItem(ItemObject, InitiatedActor);
+				}
+				else if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor)) //if adding equipped item to player's inventory was successful
 				{
 					PlayerEquipment->RemoveItem(EquippedItem, InitiatedActor);
 					From->RemoveItem(ItemObject, InitiatedActor);

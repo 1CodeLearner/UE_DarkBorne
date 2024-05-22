@@ -23,6 +23,7 @@
 
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
+#include "Components/Image.h"
 
 void UInventoryMainWidget::NativeOnInitialized()
 {
@@ -191,6 +192,7 @@ void UInventoryMainWidget::DisplayPlayerLoot(UPlayerEquipmentComponent* _Invento
 	Text_ConsumableLoot->SetVisibility(ESlateVisibility::Visible);
 
 	LootBorder->SetVisibility(ESlateVisibility::Visible);
+	Image_Loot->SetVisibility(ESlateVisibility::Visible);
 
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Collapsed);
 }
@@ -201,7 +203,8 @@ void UInventoryMainWidget::DisplayOtherLoot(UPlayerEquipmentComponent* _Inventor
 
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Visible);
 
-	LootBorder->SetVisibility(ESlateVisibility::Visible);
+	LootBorder->SetVisibility(ESlateVisibility::Collapsed);
+	Image_Loot->SetVisibility(ESlateVisibility::Collapsed);
 
 	InventoryLoot_Player->SetVisibility(ESlateVisibility::Collapsed);
 	EquipmentLoot_Weapon->SetVisibility(ESlateVisibility::Collapsed);
@@ -217,8 +220,9 @@ void UInventoryMainWidget::HideLoots()
 	InventoryLoot_Player->SetVisibility(ESlateVisibility::Collapsed);
 	EquipmentLoot_Weapon->SetVisibility(ESlateVisibility::Collapsed);
 	EquipmentLoot_Consumable->SetVisibility(ESlateVisibility::Collapsed);
-	
+
 	Text_WeaponLoot->SetVisibility(ESlateVisibility::Collapsed);
 	Text_ConsumableLoot->SetVisibility(ESlateVisibility::Collapsed);
 	LootBorder->SetVisibility(ESlateVisibility::Collapsed);
+	Image_Loot->SetVisibility(ESlateVisibility::Collapsed);
 }
