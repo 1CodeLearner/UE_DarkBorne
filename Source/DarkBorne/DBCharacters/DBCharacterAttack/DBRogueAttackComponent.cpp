@@ -332,28 +332,29 @@ void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
 	FHitResult hitInfo;
-	// 카메라 현재 위치
+	// 카메라 시작 위치
 	FVector CameraStartPos = RogueCharacter->camera->GetComponentLocation();
+	// 칼 스폰 위치
 	FVector KnifeStartPos = RogueSkillComponent->TKMagazine[KnifeCount]->GetActorLocation();
-	//
+	
 	//FVector endPos = startPos + RogueCharacter->camera->GetForwardVector() * 10000;
-	FVector endPos = CameraStartPos + RogueCharacter->camera->GetForwardVector() * 10000;
+	// endPos : 트레이스 검출 지점 => 칼 스폰 위치 + 카메라의 앞벡터 * 범위
+	FVector endPos = KnifeStartPos + RogueCharacter->camera->GetForwardVector() * 10000;
 	FCollisionQueryParams params;
-	//bool isLineHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECollisionChannel::ECC_Visibility, params);
+
 	bool isLineHit = GetWorld()->LineTraceSingleByChannel(hitInfo, CameraStartPos, endPos, ECollisionChannel::ECC_Visibility, params);
 
 	// 히트 시 빨간색, 히트하지 않으면 초록색 
 	FColor LineColor = isLineHit ? FColor::Red : FColor::Green;
-	DrawDebugLine(GetWorld(), CameraStartPos, hitInfo.ImpactPoint, LineColor, false, 5.0f, 0, 1.0f);
+	DrawDebugLine(GetWorld(), KnifeStartPos, hitInfo.ImpactPoint, LineColor, false, 5.0f, 0, 1.0f);
 	DrawDebugSphere(GetWorld(), hitInfo.ImpactPoint, 12.f, 24, LineColor, false, 5.0f, 0, 1.0f);
 
 	// 트레이스 맞았다면
 	if (isLineHit)
 	{	
 		// ImpactPoint : 트레이스 충돌 된 지점
-		FVector HitLocation = hitInfo.ImpactPoint;
 		// Direction : 충돌 위치 - 현재 칼의 위치 -> 충돌 지점과 칼 위치의 거리
-		FVector Direction = (HitLocation - KnifeStartPos);
+		FVector Direction = (hitInfo.ImpactPoint - KnifeStartPos);
 		Direction.Normalize();
 		// EndRotation : Dirction 의 방향값
 		FRotator EndRotation = Direction.Rotation();
