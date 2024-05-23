@@ -56,7 +56,9 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable)
 	virtual bool PlayMontage(ACharacter* PlayerCharacter, FName SectionName);
-
+	bool IsMontagePlaying(ACharacter* PlayerCharacter) const;
+	void StopMontage(ACharacter* PlayerCharacter);
+	UAnimMontage* GetMontage() const;
 	void Pickup(AActor* InteractingActor);
 
 protected:

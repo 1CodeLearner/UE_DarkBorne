@@ -117,7 +117,8 @@ protected:
 	void Multicast_StopMontage();
 
 private:
-	FScriptDelegate Delegate;
+	FScriptDelegate MontageDelegate;
+	UAnimMontage* ActiveItemMontage;
 
 	UFUNCTION()
 	void OnRep_bItemActionStarted();

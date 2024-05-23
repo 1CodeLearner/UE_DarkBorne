@@ -123,8 +123,9 @@ void UDBRogueAttackComponent::Server_UseItem_Implementation()
 			bUsingItem = true;
 
 			UAnimInstance* AnimInstance = RoguePlayer->GetMesh()->GetAnimInstance();
-			Delegate.BindUFunction(this, "OnMontageEnded");
-			AnimInstance->OnMontageEnded.AddUnique(Delegate);
+			MontageDelegate.BindUFunction(this, "OnMontageEnded");
+			AnimInstance->OnMontageEnded.AddUnique(MontageDelegate);
+			ActiveItemMontage = RogueWeaponComponent->RogueItems->GetMontage();
 
 			if (RogueWeaponComponent->RogueItems->Implements<UItemInterface>())
 			{
@@ -160,7 +161,13 @@ void UDBRogueAttackComponent::Multicast_StopMontage_Implementation()
 
 void UDBRogueAttackComponent::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnMontageEnded in consumable invoked"));
+	UE_LOG(LogTemp, Warning, TEXT("OnMontageEnded invoked by %s"), *GetNameSafe(Montage));
+
+	if(Montage != ActiveItemMontage)
+	{
+		return;
+	}
+
 	UDBRogueWeaponComponent* RogueWeaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 
 	if (RogueWeaponComponent && !ensureAlways(RogueWeaponComponent->RogueItems))
@@ -170,7 +177,7 @@ void UDBRogueAttackComponent::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 	if (!DBCharacter)
 		return;
 
-	DBCharacter->GetMesh()->GetAnimInstance()->OnMontageEnded.Remove(Delegate);
+	DBCharacter->GetMesh()->GetAnimInstance()->OnMontageEnded.Remove(MontageDelegate);
 	bUsingItem = false;
 
 	if (!bInterrupted)
