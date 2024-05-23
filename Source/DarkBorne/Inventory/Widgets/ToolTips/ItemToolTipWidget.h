@@ -13,6 +13,7 @@
 class UVerticalBox;
 class UTextBlock;
 class UItemDescriptionWidget;
+class UToolTipSeparatorWidget;
 class UItemObject;
 
 UCLASS()
@@ -25,22 +26,16 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UItemDescriptionWidget> ItemDescriptionWidgetClass;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UItemDescriptionWidget> ItemBaseStatsWidgetClass;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UItemDescriptionWidget> ToolTipTitleWidgetClass;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UToolTipSeparatorWidget> ToolTipSeparatorWidgetClass;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_Name;
+	TObjectPtr<UVerticalBox> VerticalBox_ToolTip;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UVerticalBox> VerticalBox_BaseStats;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UVerticalBox> VerticalBox_Enchantments;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_Effect;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UVerticalBox> VerticalBox_Category;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_Lore;
+private:
+	void CreateSeparator();
 };

@@ -94,10 +94,10 @@ public:
 	void RogueThrowKnifeAttack();
 
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_RogueThrowKnifeAttack();
+	void ServerRPC_RogueThrowKnifeAttack(bool isLineHit, FRotator EndRotation);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MultiRPC_RogueThrowKnifeAttack(bool isSpawn);
+	void MultiRPC_RogueThrowKnifeAttack_Update(bool isSpawn);
 
 protected:
 	void UseItem();

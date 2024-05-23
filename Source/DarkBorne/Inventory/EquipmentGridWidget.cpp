@@ -15,10 +15,6 @@ void UEquipmentGridWidget::StartInit(UDBEquipmentComponent* EquipmentComp, ESlot
 	TileSize = EquipmentComponent->GetTileSize();
 	SlotType = _SlotType;
 
-	UCanvasPanelSlot* CanvasPanel = UWidgetLayoutLibrary::SlotAsCanvasSlot(GridBorder);
-
-	CanvasPanel->SetSize(EquipmentComponent->GetSize());
-
 	Refresh();
 
 	EquipmentComponent->OnInventoryChanged.AddDynamic(this, &UEquipmentGridWidget::Refresh);

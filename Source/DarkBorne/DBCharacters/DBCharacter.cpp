@@ -97,7 +97,7 @@ void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent
 		OtherPlayer->InvMainWidget->InitLootDisplay(this);
 		if (OtherPlayer->InvMainWidget->IsLootValid())
 		{
-			OtherPlayer->InvMainWidget->DisplayInventory(true);
+			OtherPlayer->DisplayInventory(true);
 		}
 	}
 

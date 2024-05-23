@@ -17,6 +17,7 @@
 #include "../../Items/Consumables/DBConsumable.h"
 #include "../../Framework/ActorComponents/DBInteractionComponent.h"
 #include "../../DBPlayerWidget/DBPlayerWidget.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
 
 // Sets default values for this component's properties
 UDBRogueAttackComponent::UDBRogueAttackComponent()
@@ -329,16 +330,52 @@ void UDBRogueAttackComponent::UpdateComboCount(float DeltaTime)
 	}
 }
 
+// 각자 위치값을 -> 서버 -> 멀티 순으로 넘겨준다
 void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 {
-	ServerRPC_RogueThrowKnifeAttack();
-}
-
-void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
-{
+	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
-	RogueSkillComponent->TKMagazine[KnifeCount]->MultiRPC_RogueThrowKnifeAttack();
+	FHitResult hitInfo;
+	// 카메라 현재 위치
+	FVector startPos = RogueCharacter->camera->GetComponentLocation();
+	//
+	FVector endPos = startPos + RogueCharacter->camera->GetForwardVector() * 10000;
+	FCollisionQueryParams params;
+	bool isLineHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECollisionChannel::ECC_Visibility, params);
+
+	// 히트 시 빨간색, 히트하지 않으면 초록색
+	//FColor LineColor = isLineHit ? FColor::Red : FColor::Green;
+	//DrawDebugLine(GetWorld(), startPos, endPos, LineColor, false, 5.0f, 0, 1.0f);
+
+	// 트레이스 맞았다면
+	if (isLineHit)
+	{
+		// ImpactPoint : 트레이스 충돌 된 지점
+		FVector HitLocation = hitInfo.ImpactPoint;
+		// 충돌 위치 - 현재 칼의 위치 빼고 정규화
+		FVector Direction = (HitLocation - RogueSkillComponent->TKMagazine[KnifeCount]->GetActorLocation()).GetSafeNormal();
+		// 그 값의 로테이션
+		FRotator EndRotation = Direction.Rotation();
+
+		ServerRPC_RogueThrowKnifeAttack(isLineHit, EndRotation);
+	}
+	else
+	{
+		FRotator TKRotation = RogueCharacter->camera->GetForwardVector().Rotation();
+		TKRotation.Normalize();
+
+		ServerRPC_RogueThrowKnifeAttack(isLineHit, TKRotation);
+	}
+
+}
+
+void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation(bool isLineHit, FRotator EndRotation)
+{
+	// 패키지 테스트 시에 여기서 크래쉬 현상있음
+	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+	
+	RogueSkillComponent->TKMagazine[KnifeCount]->MultiRPC_RogueThrowKnifeAttack(isLineHit, EndRotation);
 	KnifeCount++;
 
 
@@ -353,10 +390,8 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 		RogueSkillComponent->isSpawnKnife = false;
 		RogueSkillComponent->E_CurrCoolTime = 0;
 
-		
-
 	}
-	MultiRPC_RogueThrowKnifeAttack(RogueSkillComponent->isSpawnKnife);
+	MultiRPC_RogueThrowKnifeAttack_Update(RogueSkillComponent->isSpawnKnife);
 	// 전부 던지기
 	//for (int32 i = 0; i < RogueSkillComponent->magazineCnt; i++)
 	//{
@@ -367,7 +402,7 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation()
 	//}
 }
 
-void UDBRogueAttackComponent::MultiRPC_RogueThrowKnifeAttack_Implementation(bool isSpawn)
+void UDBRogueAttackComponent::MultiRPC_RogueThrowKnifeAttack_Update_Implementation(bool isSpawn)
 {
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();

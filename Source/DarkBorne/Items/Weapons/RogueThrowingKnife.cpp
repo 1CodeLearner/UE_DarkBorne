@@ -277,22 +277,25 @@ void ARogueThrowingKnife::TimelineProgress(float value)
 
 
 // 클라에서 각자 로컬 위치 계산
-void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation()
+void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation(bool isLineHit, FRotator EndRotation)
 {
-	AActor* RoguePlayer = GetOwner();
-	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(RoguePlayer);
-	// 패키지 테스트 시에 285에서 크래쉬 현상
-	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
+	//AActor* RoguePlayer = GetOwner();
+	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(GetOwner());
 
+	// 트레이스 맞았다면
+	if (isLineHit)
+	{
+		SetActorRotation(EndRotation);
+	}
+	else
+	{
+		// 천장에 맞았으면 현재 카메라의 방향으로 나가도록
+		FRotator TKRotation = RogueCharacter->camera->GetForwardVector().Rotation();
+		TKRotation.Normalize();
+		SetActorRotation(TKRotation);
+	}
 	isThrowing = true;
-	FRotator TKRotation = RogueCharacter->camera->GetForwardVector().Rotation();
-	TKRotation.Normalize();
-	SetActorRotation(TKRotation);
-
-	//RogueSkillComponent->TKMagazine[KnifeNumber]->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	UE_LOG(LogTemp, Warning, TEXT("Owner :%s , knifeCount : %d"), *GetNameSafe(GetOwner()), KnifeNumber);
-
 	projectileComponent->ProjectileGravityScale = 0.0f;
 	//projectileComponent->InitialSpeed = 3000;
 	projectileComponent->SetActive(true, true);

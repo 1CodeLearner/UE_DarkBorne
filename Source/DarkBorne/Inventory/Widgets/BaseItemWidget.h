@@ -21,8 +21,12 @@ UCLASS()
 class DARKBORNE_API UBaseItemWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
 protected:
+	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;
+	UFUNCTION(BlueprintCallable)
+	void StartInit();
 public:
 	UItemObject* GetItemObject() const;
 	UPROPERTY(BlueprintAssignable, BlueprintCallable)
@@ -33,11 +37,14 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (ExposeOnSpawn))
 	TObjectPtr<UItemObject> ItemObject;
 
-	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UBorder> BackgroundBorder;
 
-	UPROPERTY(BlueprintReadOnly, Category="Settings")
+	UPROPERTY(BlueprintReadOnly, Category = "Settings")
 	TObjectPtr<UItemToolTipWidget> ItemToolTipWidget;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	TSubclassOf<UItemToolTipWidget> ItemToolTipWidgetClass;
+
+private:
+	bool bInit;
 };
