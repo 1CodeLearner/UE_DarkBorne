@@ -30,13 +30,13 @@ ADBRogueCharacter::ADBRogueCharacter()
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -88));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
-	//SpringArm 컴포넌트 생성
+	//SpringArm 컴포넌트 생성 및 셋팅
 	springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("springArm"));
 	//springArm 을 RootComponent 의 자식 (루프 컴포넌트는 디폴트 기본 자식임)
 	springArm->SetupAttachment(RootComponent);
-	//springArm 위치를 바꾸자
+	//springArm 위치
 	springArm->SetRelativeLocation(FVector(0, 0, 0));
-	//springArm 각도 변경
+	//springArm 각도
 	springArm->SetRelativeRotation(FRotator(0, 0, 0));
 	springArm->TargetArmLength = 200;
 	springArm->ProbeChannel = ECollisionChannel::ECC_Visibility;
@@ -47,21 +47,19 @@ ADBRogueCharacter::ADBRogueCharacter()
 	camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	//camera 를 springArm 의 자식으로 셋팅
 	camera->SetupAttachment(springArm);
-	//camera->SetupAttachment(GetMesh(), FName(TEXT("headSocket")));
 	camera->SetRelativeLocation(FVector(0, 0, 0));
 	camera->SetRelativeRotation(FRotator(-20, 0, 0));
-	//(X = -10.260604, Y = 50.000000, Z = 61.809221)
-	//(Pitch = -20.000000, Yaw = 0.000000, Roll = 0.000000)
+	// RogueWeaponComp
 	RogueWeaponComp = CreateDefaultSubobject<UDBRogueWeaponComponent>(TEXT("WeaponComp"));
 	RogueWeaponComp->SetupAttachment(GetMesh(), FName(TEXT("RightHandWeapon")));
 	RogueWeaponComp->SetRelativeLocation(FVector(-10, 3, 0));
-
+	// RogueSkillComponent, RogueAttackComponent
 	RogueSkillComponent = CreateDefaultSubobject<UDBRogueSkillComponent>(TEXT("RogueSkillComp"));
 	RogueAttackComponent = CreateDefaultSubobject<UDBRogueAttackComponent>(TEXT("RogueAttackComp"));
-
+	// 마법 수리검 위치
 	ThrowKnifePos = CreateDefaultSubobject<UArrowComponent>(TEXT("ThrowKnifePos"));
 	ThrowKnifePos->SetupAttachment(camera);
-
+	// 점프 셋팅
 	JumpMaxCount = 2;
 	GetCharacterMovement()->JumpZVelocity = 500.f;
 }
@@ -70,13 +68,11 @@ void ADBRogueCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//get materials
+	//캐릭터 메쉬 머티리얼 : 은신 스킬에 사용됨
 	MatArr = GetMesh()->GetMaterials();
 
-	
 	// 시작 시 현재 hp 
 	OnRep_CurrHP();
-
 }
 
 void ADBRogueCharacter::Tick(float DeltaTime)
@@ -88,25 +84,24 @@ void ADBRogueCharacter::Tick(float DeltaTime)
 
 	//서버면
 	if (HasAuthority())
-	{
+	{	//서버에서 죽음처리
 		DeathProcess();
-
+		// 마법 수리검 위치 멀티 연동을 위한 코드
 		knifePos = ThrowKnifePos->GetComponentLocation();
 		knifeRot = ThrowKnifePos->GetComponentRotation();
 
 	}
 	else
-	{
-		//내 것이라면
-		if (IsLocallyControlled() == false)
+	{	//내 것이 아니면
+		if (!IsLocallyControlled())
 		{
+			// 마법 수리검 위치 멀티 연동을 위한 코드
 			ThrowKnifePos->SetWorldLocation(knifePos);
 			ThrowKnifePos->SetWorldRotation(knifeRot);
 		}
-
 	}
 }
-
+// 다른 컴포넌트들의 인풋
 void ADBRogueCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -169,14 +164,12 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 		MyCharacterAnim->isDeath = true;
 		UE_LOG(LogTemp, Warning, TEXT("%s"), GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"));
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		//GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetCharacterMovement()->DisableMovement();
 		bUseControllerRotationYaw = false;
 
 		if (IsLocallyControlled())
 		{
 			ADBPlayerController* pc = Cast<ADBPlayerController>(GetWorld()->GetFirstPlayerController());
-			//APlayerController* pc = GetWorld()->GetFirstPlayerController();
 			//pc->SetShowMouseCursor(true);
 			DisableInput(pc);
 

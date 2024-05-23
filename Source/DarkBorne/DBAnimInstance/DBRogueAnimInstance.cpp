@@ -15,15 +15,13 @@ void UDBRogueAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	// Player 가져오자
-	RoguePlayer = Cast<ADBRogueCharacter>(TryGetPawnOwner());
-	
 }
 
 void UDBRogueAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
+	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(TryGetPawnOwner());
 	if (RoguePlayer)
 	{
 		// 앞 뒤 (dirV)
@@ -82,6 +80,7 @@ void UDBRogueAnimInstance::AnimNotify_Start_Damage()
 	{
 		isAttacking = true;
 		//무기의 콜리전 켜주기
+		if(WeaponComp->RogueItems == nullptr) return;
 		WeaponComp->RogueItems->CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	}

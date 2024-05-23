@@ -4,11 +4,9 @@
 #include "DBCharacter.h"
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h>
 #include <../../../../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h>
-
 #include "../Inventory/InventoryMainWidget.h"
 #include "../DBAnimInstance/DBRogueAnimInstance.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/NavMovementComponent.h>
-
 #include "../Inventory/PlayerEquipmentComponent.h"
 #include "../Inventory/DBEquipmentComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -30,19 +28,18 @@ ADBCharacter::ADBCharacter()
 	bReplicates = true;
 	EquipmentComponent = CreateDefaultSubobject<UDBEquipmentComponent>("EquipmentComp");
 	PlayerEquipmentComp = CreateDefaultSubobject<UPlayerEquipmentComponent>("PlayerEquipmentComp");
-
+	// 플레이어 메쉬 프로필
 	GetMesh()->SetCollisionProfileName(TEXT("PlayerMeshColl"));
 	GetMesh()->SetGenerateOverlapEvents(true);
-
+	// 플레이어 캡슐 프로필
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerColl"));
 	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
-
-
+	// 플레이어 상태 컴포넌트
 	CharacterStatusComponent = CreateDefaultSubobject<UCharacterStatusComponent>("CharacterStatusComp");
-
+	// 인터렉션 범위
 	InteractDistance = 400.f;
 	InteractionComp = CreateDefaultSubobject<UDBInteractionComponent>("InteractionComp");
-
+	// 버프 컴포넌트
 	EffectComp = CreateDefaultSubobject<UDBEffectComponent>("EffectComp");
 }
 
@@ -50,22 +47,19 @@ ADBCharacter::ADBCharacter()
 void ADBCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	//ProjectileSpawnPos->GetComponentLocation()
-	AActor* actor = GetOwner();
 	// 내 것이라면 
 	if (IsLocallyControlled())
 	{
 		//get APlayerController
 		APlayerController* playerContoller = Cast<APlayerController>(GetController());
-
 		if (playerContoller == nullptr) return;
 		//get subSystem
 		UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerContoller->GetLocalPlayer());
 
-
 		//서브시스템을 가져왔다면
 		if (subSystem)
 		{
+			//imc 맵핑
 			subSystem->AddMappingContext(imc_DBMapping, 0);
 		}
 		//클라들은 여기서 모두 위젯을 생성한다
@@ -200,41 +194,23 @@ void ADBCharacter::PossessedBy(AController* NewController)
 }
 
 void ADBCharacter::EnhancedMove(const struct FInputActionValue& value)
-{
+{	// 방향
 	FVector2D dir = value.Get<FVector2D>();
 	FVector originVec = FVector(dir.Y, dir.X, 0);
 	FVector newVec = GetTransform().TransformVector(originVec);
 
 	if (InteractionComp && InteractionComp->IsInteracting())
 		return;
-
 	AddMovementInput(newVec);
 }
 
 void ADBCharacter::EnhancedJump(const struct FInputActionValue& value)
 {
-	//Jump();
 	ServerRPC_DoubleJump();
-
 }
 
-void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
-{
-	StopJumping();
-
-}
-
-void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
-{
-	FVector2D dir = value.Get<FVector2D>();
-
-	AddControllerYawInput(dir.X);
-	AddControllerPitchInput(dir.Y);
-
-}
 void ADBCharacter::ServerRPC_DoubleJump_Implementation()
 {
-
 	MultiRPC_DoubleJump();
 }
 
@@ -246,13 +222,25 @@ void ADBCharacter::MultiRPC_DoubleJump_Implementation()
 	if (RogueAnim->isFalling && !RogueAnim->isDoubleJumping)
 	{
 		RogueAnim->AnimNotify_DoubleJumpStart();
-		// 문제 : 공중제비를 다 돌기전에 true를 맥이면 fall loop로 넘어가지 않는다
 	}
 	// 바닥이고 덮점 했으면
 	else if (!RogueAnim->isFalling && RogueAnim->isDoubleJumping)
 	{
 		RogueAnim->AnimNotify_DoubleJumpEnd();
 	}
+}
+
+void ADBCharacter::EnhancedStopJump(const struct FInputActionValue& value)
+{
+	StopJumping();
+}
+
+void ADBCharacter::EnhancedLook(const struct FInputActionValue& value)
+{
+	FVector2D dir = value.Get<FVector2D>();
+
+	AddControllerYawInput(dir.X);
+	AddControllerPitchInput(dir.Y);
 }
 
 void ADBCharacter::EnhancedInteract(const FInputActionValue& value)
@@ -322,7 +310,7 @@ void ADBCharacter::CreatePlayerWidget()
 	PlayerWidget = Cast<UDBPlayerWidget>(CreateWidget(GetWorld(), PlayerWidgetClass));
 	PlayerWidget->AddToViewport();
 }
-
+// 플레이어 위젯의 HP바 갱신
 void ADBCharacter::OnRep_CurrHP()
 {
 	// 플레이어 위젯이 없으면 리턴

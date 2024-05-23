@@ -48,7 +48,6 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 
 	ThrowKnifeVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Aura"));
 	ThrowKnifeVFX->SetupAttachment(SMComp);
-
 }
 
 void ARogueThrowingKnife::BeginPlay()
@@ -81,7 +80,6 @@ void ARogueThrowingKnife::BeginPlay()
 		timelineOffset = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);
 		// 랜덤한 스타트 지점으로 시작한다.
 		CurveTimeline.SetPlaybackPosition(timelineOffset, false);
-
 	}
 }
 
@@ -115,13 +113,12 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 {
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
-
 	//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
 	
 	// 캐릭터의 GetOnwer로 인스턴스를 가져와 나의 플레이어 애님 인스턴스로 가져온다
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(Cast<ACharacter>(GetOwner())->GetMesh()->GetAnimInstance());
 
-	UE_LOG(LogTemp, Warning, TEXT("--- %s %s"), *OtherActor->GetActorNameOrLabel(), *OtherComp->GetFName().ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("--- %s %s"), *OtherActor->GetActorNameOrLabel(), *OtherComp->GetFName().ToString());
 
 	// 만약 내 자신이 부딫혔다면
 	if (OtherActor == GetOwner())
@@ -132,21 +129,13 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 	// 만약 내 자신이 아닌 액터가 부딫혔다면
 	if (OtherActor != GetOwner())
 	{
-
 		// 공격중이면
 		if (MyCharacterAnim->isAttacking)
 		{
 			ServerRPC_OnOverlapBegin(OtherActor);
-
 		}
-		
-		ServerRPC_WallOnOnerlapBegin(OtherActor);
-		
+		ServerRPC_WallOnOnerlapBegin(OtherActor);	
 	}
-	
-	
-	
-	
 }
 
 void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
@@ -154,10 +143,8 @@ void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* 
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
 	AEnemyBase* OtherEnemy = Cast<AEnemyBase>(OtherActor);
 
-	
 	if(OtherPlayer|| OtherEnemy)
 	{
-		
 		FString Level = GetWorld()->GetMapName();
 		Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
 		if (Level != TEXT("Level_Lobby"))
@@ -183,7 +170,6 @@ void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* 
 
 void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
 {	
-	
 	if (Cast<ADBCharacter>(OtherActor))
 	{
 		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
@@ -213,7 +199,6 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 		// 충돌한 액터의 hitting
 		OtherPlayerAnim->isHitting = true;
 	}
-	
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
 	//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -233,7 +218,6 @@ void ARogueThrowingKnife::MultiRPC_WallOnOverlapBegin_Implementation(class AActo
 		 //blood VFX
 			 UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitWallVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
 		 Destroy();
-		
 	}
 }
 
@@ -263,14 +247,12 @@ void ARogueThrowingKnife::UpdateKnifeLocation(float DeltaTime)
 	TKFirstRotation = RogueCharacter->ThrowKnifePos->GetUpVector().Rotation();
 	TKFirstRotation.Normalize();
 	SetActorRotation(TKFirstRotation);
-	//SetActorLocationAndRotation(TKPosition, TKFirstRotation);
 }
 
 //Timeline
 void ARogueThrowingKnife::TimelineProgress(float value)
 {
 	// 러프 : value는 Float curve클래스의 값
-
 	FVector NewNewLocation = FMath::Lerp(TKPosition, TKEndPos, value);
 	SetActorLocation(NewNewLocation);
 }
@@ -297,7 +279,6 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation(bool isL
 	isThrowing = true;
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	projectileComponent->ProjectileGravityScale = 0.0f;
-	//projectileComponent->InitialSpeed = 3000;
 	projectileComponent->SetActive(true, true);
 	projectileComponent->SetVelocityInLocalSpace(FVector(3000, 0, 0));
 	//UGameplayStatics::PlaySoundAtLocation(GetWorld(), ThrowSound, RogueCharacter->GetActorLocation());
