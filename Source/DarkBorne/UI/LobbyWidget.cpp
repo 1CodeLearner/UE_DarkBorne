@@ -9,3 +9,9 @@ void ULobbyWidget::DisplayMessage(FString message)
 	FText text = FText::FromString(message);
 	Text_Message->SetText(text);
 }
+
+void ULobbyWidget::DisplayTimer(float Time)
+{
+	FText TimeText = FText::FromString(FString::Printf(TEXT("Time remaining: %.0f"), Time));
+	Text_Timer->SetText(TimeText);
+}

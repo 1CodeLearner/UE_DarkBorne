@@ -27,6 +27,9 @@ void UDBGameInstance::Init()
 	FGuid guid;
 	roomName = guid.NewGuid().ToString();
 	maxPlayer = 3;
+
+	DestroyMySession();
+
 }
 
 void UDBGameInstance::CreateMySession()
@@ -63,6 +66,8 @@ void UDBGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 {
 	if (bWasSuccessful)
 	{
+		OnCreateComplete.ExecuteIfBound(true);
+
 		UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete Success -- %s"), *SessionName.ToString());
 		// Battle Map 으로 이동하자
 		FString Option = FString::Printf(TEXT("/Game/DBMaps/LobbyMap?listen?MaxPlayers=%d"), maxPlayer);
@@ -70,6 +75,7 @@ void UDBGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 	}
 	else
 	{
+		OnCreateComplete.ExecuteIfBound(false);
 		UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete Fail"));
 	}
 }
@@ -96,7 +102,7 @@ void UDBGameInstance::FindOtherSession()
 	sessionSearch = MakeShared<FOnlineSessionSearch>();
 
 	sessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
-	
+
 	sessionSearch->MaxSearchResults = 10;
 
 	auto PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -113,8 +119,7 @@ void UDBGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 	{
 		auto results = sessionSearch->SearchResults;
 		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionComplete Success - count : %d"), results.Num());
-		onSearchComplete.ExecuteIfBound(results.Num());
-		
+
 		int roomIndex = -1;
 
 		for (int32 i = 0; i < results.Num(); i++)
@@ -135,15 +140,19 @@ void UDBGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 			break;
 		}
 
-		if (roomIndex == -1)
-			CreateMySession();
-		else
+		if (roomIndex != -1)
+		{
+			OnFindComplete.ExecuteIfBound(true, true);
 			JoinOtherSession(roomIndex);
+		}
+		else {
+			OnFindComplete.ExecuteIfBound(true, false);
+		}
 	}
 	else
 	{
-		onSearchComplete.ExecuteIfBound(-1);
 		UE_LOG(LogTemp, Warning, TEXT("OnFindSessionComplete Fail"));
+		OnFindComplete.ExecuteIfBound(false, false);
 	}
 }
 
@@ -167,6 +176,8 @@ void UDBGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCom
 {
 	if (result == EOnJoinSessionCompleteResult::Success)
 	{
+		OnJoinSessionEvent.ExecuteIfBound(true);
+
 		UE_LOG(LogTemp, Warning, TEXT("OnJoinSessionComplete Success : %s"), *SessionName.ToString());
 		FString url;
 		// 참여해야 하는 Listen 서버 URL을 받아 오자
@@ -182,6 +193,7 @@ void UDBGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCom
 	}
 	else
 	{
+		OnJoinSessionEvent.ExecuteIfBound(false);
 		UE_LOG(LogTemp, Warning, TEXT("OnJoinSessionComplete Fail : %d"), result);
 	}
 }
