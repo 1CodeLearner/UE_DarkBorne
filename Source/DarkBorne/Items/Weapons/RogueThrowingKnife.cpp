@@ -70,8 +70,6 @@ void ARogueThrowingKnife::BeginPlay()
 		{
 			Server_Timeline(timelineOffset);
 		}
-		//OnRep_Timeline();
-	
 	}
 }
 
@@ -181,7 +179,6 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 				RogueSkillComponent->DeactiveRogueQSkill();
 			}
 		}
-
 	}
 	else if (Cast<AEnemyBase>(OtherActor))
 	{
@@ -195,7 +192,6 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
 	//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 }
 
 
@@ -282,15 +278,9 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation(bool isL
 
 void ARogueThrowingKnife::Server_Timeline_Implementation(float timelineOff)
 {
-	UE_LOG(LogTemp, Warning, TEXT("111 : %f"), timelineOffset);
-
-
 	timelineOffset = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);
-
-	UE_LOG(LogTemp, Warning, TEXT("333 : %f"), timelineOffset);
-	// 서버플레이어를 위한 호출
+	// 서버플레이어를 위한 호출 t(서버RPC에서 호출해줘야함)
 	OnRep_Timeline();
-	
 }
 
 
@@ -309,7 +299,6 @@ void ARogueThrowingKnife::OnRep_Timeline()
 	// timelineOffset : 랜덤한 시간값을 가져온다
 	//timelineOffset = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);
 	// 랜덤한 스타트 지점으로 시작한다.
-	UE_LOG(LogTemp, Warning, TEXT("222 : %f"), timelineOffset);
 	CurveTimeline.SetPlaybackPosition(timelineOffset, false);
 }
 
