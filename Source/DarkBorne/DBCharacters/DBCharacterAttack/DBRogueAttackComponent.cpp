@@ -78,19 +78,19 @@ void UDBRogueAttackComponent::RogueAttack()
 	if(InteractionComp && InteractionComp->IsInteracting())
 		return;
 
-	// 수리검 스킬 수리검 남아있으면 
+	// 마법 수리검 스폰되어있으면 마법 수리검 공격으로
 	if (RogueSkillComponent->isSpawnKnife)
 	{
-		// 만약 탄창이 비었다면
+		// 탄창이 비어있으면 리턴
 		if (RogueSkillComponent->TKMagazine.IsEmpty()) return;
 		RogueThrowKnifeAttack();
 	}
-	// 다시 기본공격으로
-	// E스킬 쓰고있지않고 && 무기 꺼내고 있지 있으면 
+	// 다시 기본공격으로 / E스킬 쓰고있지않고 && 무기 꺼내고 있으면 
 	else if (!RogueSkillComponent->isSpawnKnife && RogueWeaponComponent->hasWeapon)
 	{
 		ServerRPC_RogueAttack();
 	}
+	// 아이템 있고 && 아이템 무기 슬롯에 무기 있으면 -> 아이템 사용
 	else if (RogueWeaponComponent->RogueItems && RogueWeaponComponent->RogueItems->GetItemObject()->GetSlotType() != ESlotType::WEAPON)
 	{
 		UseItem();
@@ -270,13 +270,10 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 	UDBEquipmentComponent* RogueEquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
-	// equipcomp -> getslots.isempty
-	//if (RoguePlayer->RogueWeaponComp->EquipSlotArray.IsEmpty()) return;
+	// 슬롯 비어있으면 리턴
 	if(RogueEquipComponent->GetSlots().IsEmpty()) return;
-	// 단검을 들고 있으면 
-
 	if (RoguePlayer->RogueWeaponComp->RogueItems == nullptr) return;
-	//if (RoguePlayer->RogueWeaponComp->EquipSlotArray[0] && RoguePlayer->RogueWeaponComp->EquipSlotArray[0]->GetItemActor() == RoguePlayer->RogueWeaponComp->RogueItems)
+	
 	if(RogueEquipComponent->GetSlots()[0] && (RogueEquipComponent->GetSlots()[0]->GetItemActor() == RoguePlayer->RogueWeaponComp->RogueItems))
 	{
 		// 은신 상태면 은신 풀어주자
@@ -316,7 +313,6 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 				RoguePlayer->RogueWeaponComp->RogueItems->PlayMontage(RoguePlayer, FName("Attack3"));
 			}
 		}
-
 	}
 }
 
@@ -332,59 +328,66 @@ void UDBRogueAttackComponent::UpdateComboCount(float DeltaTime)
 		{
 			// 콤보 카운트를 초기화 시켜라 -> 콤보 처음부터 시작하기 위해서
 			comboCnt = 0;
-
 		}
 	}
 }
 
-// 각자 위치값을 -> 서버 -> 멀티 순으로 넘겨준다
+// 각자 위치값을 여기서 계산하고 -> 서버 -> 멀티 순으로 넘겨준다
 void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 {
 	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-
+	//if(RogueSkillComponent == nullptr) return;
 	FHitResult hitInfo;
-	// 카메라 현재 위치
-	FVector startPos = RogueCharacter->camera->GetComponentLocation();
-	//
-	FVector endPos = startPos + RogueCharacter->camera->GetForwardVector() * 10000;
+	// 카메라 시작 위치
+	FVector CameraStartPos = RogueCharacter->camera->GetComponentLocation();
+	// 칼 스폰 위치
+	//if(RogueSkillComponent->TKMagazine[KnifeCount] == nullptr) return;
+	//여기서 크래쉬 현상
+	FVector KnifeStartPos = RogueSkillComponent->TKMagazine[KnifeCount]->GetActorLocation();
+	//FVector endPos = startPos + RogueCharacter->camera->GetForwardVector() * 10000;
+	// endPos : 트레이스 검출 지점 => 칼 스폰 위치 + 카메라의 앞벡터 * 범위
+	FVector endPos = KnifeStartPos + RogueCharacter->camera->GetForwardVector() * 10000;
 	FCollisionQueryParams params;
-	bool isLineHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECollisionChannel::ECC_Visibility, params);
+	
 
-	// 히트 시 빨간색, 히트하지 않으면 초록색
-	//FColor LineColor = isLineHit ? FColor::Red : FColor::Green;
-	//DrawDebugLine(GetWorld(), startPos, endPos, LineColor, false, 5.0f, 0, 1.0f);
+	bool isLineHit = GetWorld()->LineTraceSingleByChannel(hitInfo, CameraStartPos, endPos, ECollisionChannel::ECC_Visibility, params);
+
+	// 히트 시 빨간색, 히트하지 않으면 초록색 
+	FColor LineColor = isLineHit ? FColor::Red : FColor::Green;
+	DrawDebugLine(GetWorld(), KnifeStartPos, hitInfo.ImpactPoint, LineColor, false, 5.0f, 0, 1.0f);
+	DrawDebugSphere(GetWorld(), hitInfo.ImpactPoint, 12.f, 24, LineColor, false, 5.0f, 0, 1.0f);
 
 	// 트레이스 맞았다면
 	if (isLineHit)
-	{
+	{	
 		// ImpactPoint : 트레이스 충돌 된 지점
-		FVector HitLocation = hitInfo.ImpactPoint;
-		// 충돌 위치 - 현재 칼의 위치 빼고 정규화
-		FVector Direction = (HitLocation - RogueSkillComponent->TKMagazine[KnifeCount]->GetActorLocation()).GetSafeNormal();
-		// 그 값의 로테이션
+		// Direction : 충돌 위치 - 현재 칼의 위치 -> 충돌 지점과 칼 위치의 거리
+		FVector Direction = (hitInfo.ImpactPoint - KnifeStartPos);
+		Direction.Normalize();
+		// EndRotation : Dirction 의 방향값
 		FRotator EndRotation = Direction.Rotation();
+		//EndRotation.Normalize();
 
-		ServerRPC_RogueThrowKnifeAttack(isLineHit, EndRotation);
+		UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *EndRotation.ToString());
+		ServerRPC_RogueThrowKnifeAttack(isLineHit, EndRotation, KnifeStartPos);
 	}
 	else
 	{
 		FRotator TKRotation = RogueCharacter->camera->GetForwardVector().Rotation();
 		TKRotation.Normalize();
-
-		ServerRPC_RogueThrowKnifeAttack(isLineHit, TKRotation);
+	
+		UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *TKRotation.ToString());
+		ServerRPC_RogueThrowKnifeAttack(isLineHit, TKRotation, KnifeStartPos);
 	}
-
 }
 
-void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation(bool isLineHit, FRotator EndRotation)
+void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation(bool isLineHit, FRotator EndRotation, FVector startPos)
 {
-	// 패키지 테스트 시에 여기서 크래쉬 현상있음
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-	
-	RogueSkillComponent->TKMagazine[KnifeCount]->MultiRPC_RogueThrowKnifeAttack(isLineHit, EndRotation);
+	if(RogueSkillComponent == nullptr) return;
+	RogueSkillComponent->TKMagazine[KnifeCount]->MultiRPC_RogueThrowKnifeAttack(isLineHit, EndRotation, startPos);
 	KnifeCount++;
-
 
 	if (KnifeCount == RogueSkillComponent->magazineCnt)
 	{
@@ -408,7 +411,7 @@ void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation(boo
 	//	
 	//}
 }
-
+// 수리검에 맞았을때 은신 스킬, 게임플레이 위젯의 상태를 업데이트
 void UDBRogueAttackComponent::MultiRPC_RogueThrowKnifeAttack_Update_Implementation(bool isSpawn)
 {
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());

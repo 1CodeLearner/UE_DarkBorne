@@ -37,7 +37,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_WallOnOverlapBegin(class AActor* OtherActor);
 
-
 public:
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* BloodVFX;
@@ -77,13 +76,12 @@ public:
 	UFUNCTION()
 	void TimelineProgress(float value);
 
-	
-
 	UPROPERTY()
 	FTimeline CurveTimeline;
 
 	UPROPERTY()
 	float ZOffset = 50;
+	UPROPERTY(ReplicatedUsing = OnRep_Timeline)
 	float timelineOffset = 0;
 
 	UPROPERTY()
@@ -98,9 +96,14 @@ public:
 public:
 	void UpdateKnifeLocation(float DeltaTime);
 
-
 	UFUNCTION(NetMulticast, Reliable)
-	void MultiRPC_RogueThrowKnifeAttack(bool isLineHit, FRotator EndRotation);
+	void MultiRPC_RogueThrowKnifeAttack(bool isLineHit, FRotator EndRotation, FVector startPos);
 
-	
+public:
+	UFUNCTION(Server, Reliable)
+	void Server_Timeline(float timelineOff);
+
+	UFUNCTION()
+	void OnRep_Timeline();
+
 };

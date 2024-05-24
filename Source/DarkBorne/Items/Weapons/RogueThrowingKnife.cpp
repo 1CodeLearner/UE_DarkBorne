@@ -48,7 +48,6 @@ ARogueThrowingKnife::ARogueThrowingKnife()
 
 	ThrowKnifeVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Aura"));
 	ThrowKnifeVFX->SetupAttachment(SMComp);
-
 }
 
 void ARogueThrowingKnife::BeginPlay()
@@ -66,22 +65,13 @@ void ARogueThrowingKnife::BeginPlay()
 	//Timeline
 	//커브가 있다면
 	if (KnifeCurve)
-	{
-		//타임라인의 특정 포인트에서 float 이 갱신될때 호출되는 델리게이트
-		FOnTimelineFloat TimelineProgress;
-
-		//TimelineProgress 델리게이트 바인딩
-		TimelineProgress.BindUFunction(this, FName("TimelineProgress"));
-
-		//AddInterpFloat : 타임라인에 벡터 러프 함수 추가
-		CurveTimeline.AddInterpFloat(KnifeCurve, TimelineProgress);
-		CurveTimeline.SetLooping(true);
-		CurveTimeline.PlayFromStart();
-		// timelineOffset : 랜덤한 시간값을 가져온다
-		timelineOffset = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);
-		// 랜덤한 스타트 지점으로 시작한다.
-		CurveTimeline.SetPlaybackPosition(timelineOffset, false);
-
+	{	
+		if (GetOwner<ACharacter>()->IsLocallyControlled())
+		{
+			Server_Timeline(timelineOffset);
+		}
+		//OnRep_Timeline();
+	
 	}
 }
 
@@ -109,19 +99,19 @@ void ARogueThrowingKnife::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME(ARogueThrowingKnife, halfValue);
 	DOREPLIFETIME(ARogueThrowingKnife, KnifeNumber);
 	DOREPLIFETIME(ARogueThrowingKnife, isThrowing);
+	DOREPLIFETIME(ARogueThrowingKnife, timelineOffset);
 }
 
 void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
-
 	//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
 	
 	// 캐릭터의 GetOnwer로 인스턴스를 가져와 나의 플레이어 애님 인스턴스로 가져온다
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(Cast<ACharacter>(GetOwner())->GetMesh()->GetAnimInstance());
 
-	UE_LOG(LogTemp, Warning, TEXT("--- %s %s"), *OtherActor->GetActorNameOrLabel(), *OtherComp->GetFName().ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("--- %s %s"), *OtherActor->GetActorNameOrLabel(), *OtherComp->GetFName().ToString());
 
 	// 만약 내 자신이 부딫혔다면
 	if (OtherActor == GetOwner())
@@ -132,21 +122,13 @@ void ARogueThrowingKnife::OnOverlapBegin(class UPrimitiveComponent* OverlappedCo
 	// 만약 내 자신이 아닌 액터가 부딫혔다면
 	if (OtherActor != GetOwner())
 	{
-
 		// 공격중이면
 		if (MyCharacterAnim->isAttacking)
 		{
 			ServerRPC_OnOverlapBegin(OtherActor);
-
 		}
-		
-		ServerRPC_WallOnOnerlapBegin(OtherActor);
-		
+		ServerRPC_WallOnOnerlapBegin(OtherActor);	
 	}
-	
-	
-	
-	
 }
 
 void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
@@ -154,10 +136,8 @@ void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* 
 	ADBRogueCharacter* OtherPlayer = Cast<ADBRogueCharacter>(OtherActor);
 	AEnemyBase* OtherEnemy = Cast<AEnemyBase>(OtherActor);
 
-	
 	if(OtherPlayer|| OtherEnemy)
 	{
-		
 		FString Level = GetWorld()->GetMapName();
 		Level.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
 		if (Level != TEXT("Level_Lobby"))
@@ -183,7 +163,6 @@ void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* 
 
 void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
 {	
-	
 	if (Cast<ADBCharacter>(OtherActor))
 	{
 		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
@@ -213,7 +192,6 @@ void ARogueThrowingKnife::MultiRPC_OnOverlapBegin_Implementation(class AActor* O
 		// 충돌한 액터의 hitting
 		OtherPlayerAnim->isHitting = true;
 	}
-	
 	//blood VFX
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
 	//CapsuleComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -233,7 +211,6 @@ void ARogueThrowingKnife::MultiRPC_WallOnOverlapBegin_Implementation(class AActo
 		 //blood VFX
 			 UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitWallVFX, GetActorLocation(), OtherActor->GetActorRotation() - GetActorRotation());
 		 Destroy();
-		
 	}
 }
 
@@ -263,21 +240,19 @@ void ARogueThrowingKnife::UpdateKnifeLocation(float DeltaTime)
 	TKFirstRotation = RogueCharacter->ThrowKnifePos->GetUpVector().Rotation();
 	TKFirstRotation.Normalize();
 	SetActorRotation(TKFirstRotation);
-	//SetActorLocationAndRotation(TKPosition, TKFirstRotation);
 }
 
 //Timeline
 void ARogueThrowingKnife::TimelineProgress(float value)
 {
 	// 러프 : value는 Float curve클래스의 값
-
 	FVector NewNewLocation = FMath::Lerp(TKPosition, TKEndPos, value);
 	SetActorLocation(NewNewLocation);
 }
 
 
 // 클라에서 각자 로컬 위치 계산
-void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation(bool isLineHit, FRotator EndRotation)
+void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation(bool isLineHit, FRotator EndRotation, FVector startPos)
 {
 	//AActor* RoguePlayer = GetOwner();
 	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(GetOwner());
@@ -285,6 +260,7 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation(bool isL
 	// 트레이스 맞았다면
 	if (isLineHit)
 	{
+		SetActorLocation(startPos);
 		SetActorRotation(EndRotation);
 	}
 	else
@@ -297,11 +273,43 @@ void ARogueThrowingKnife::MultiRPC_RogueThrowKnifeAttack_Implementation(bool isL
 	isThrowing = true;
 	CapsuleComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	projectileComponent->ProjectileGravityScale = 0.0f;
-	//projectileComponent->InitialSpeed = 3000;
 	projectileComponent->SetActive(true, true);
 	projectileComponent->SetVelocityInLocalSpace(FVector(3000, 0, 0));
 	//UGameplayStatics::PlaySoundAtLocation(GetWorld(), ThrowSound, RogueCharacter->GetActorLocation());
 	PlayMontage(RogueCharacter, FName("ESkill_Start"));
 	SetLifeSpan(3);
+}
+
+void ARogueThrowingKnife::Server_Timeline_Implementation(float timelineOff)
+{
+	UE_LOG(LogTemp, Warning, TEXT("111 : %f"), timelineOffset);
+
+
+	timelineOffset = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);
+
+	UE_LOG(LogTemp, Warning, TEXT("333 : %f"), timelineOffset);
+	// 서버플레이어를 위한 호출
+	OnRep_Timeline();
+	
+}
+
+
+void ARogueThrowingKnife::OnRep_Timeline()
+{
+	//타임라인의 특정 포인트에서 float 이 갱신될때 호출되는 델리게이트
+	FOnTimelineFloat TimelineProgress;
+
+	//TimelineProgress 델리게이트 바인딩
+	TimelineProgress.BindUFunction(this, FName("TimelineProgress"));
+
+	//AddInterpFloat : 타임라인에 벡터 러프 함수 추가
+	CurveTimeline.AddInterpFloat(KnifeCurve, TimelineProgress);
+	CurveTimeline.SetLooping(true);
+	CurveTimeline.PlayFromStart();
+	// timelineOffset : 랜덤한 시간값을 가져온다
+	//timelineOffset = UKismetMathLibrary::RandomFloatInRange(0.0f, 1.0f);
+	// 랜덤한 스타트 지점으로 시작한다.
+	UE_LOG(LogTemp, Warning, TEXT("222 : %f"), timelineOffset);
+	CurveTimeline.SetPlaybackPosition(timelineOffset, false);
 }
 
