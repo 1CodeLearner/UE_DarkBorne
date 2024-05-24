@@ -164,7 +164,7 @@ void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* It
 				Items[i] = nullptr;
 			}
 		}
-		OnRep_Items();
+		OnRep_Items(Items);
 	}
 }
 
@@ -313,7 +313,7 @@ void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* Ite
 		}
 
 		ItemObject->TryDestroyItemActor();
-		OnRep_Items();
+		OnRep_Items(Items);
 	}
 	else
 	{

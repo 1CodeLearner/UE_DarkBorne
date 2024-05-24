@@ -12,6 +12,7 @@
 #include "PlayerEquipmentComponent.h"
 #include "../DBCharacters/DBRogueCharacter.h"
 #include "../DBPlayerWidget/DBPlayerWidget.h"
+#include "../Status/CharacterStatusComponent.h"
 
 UDBEquipmentComponent::UDBEquipmentComponent()
 {
@@ -56,9 +57,27 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	}
 }
 
-void UDBEquipmentComponent::OnRep_Items()
+void UDBEquipmentComponent::OnRep_Items(TArray<UItemObject*> Old)
 {
-	Super::OnRep_Items();
+	Super::OnRep_Items(Old);
+
+	if (GetOwner()->HasAuthority())
+	{
+		for (int i = 0; i < Old.Num(); ++i)
+		{
+			if (Old[i] != Items[i])
+			{
+				if (Old[i]) //Remove stats from player
+				{
+					UCharacterStatusComponent::AdjustAddedStats(GetOwner(), Old[i], false);
+				}
+				if (Items[i]) //Add stats to player
+				{
+					UCharacterStatusComponent::AdjustAddedStats(GetOwner(), Items[i], true);
+				}
+			}
+		}
+	}
 
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	if (RoguePlayer->PlayerWidget)
@@ -102,6 +121,8 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 	if (!ensureAlways(ItemObject))
 		return;
 
+	TArray<UItemObject*> Old = Items;
+
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
 	UItemObject* TempItemObj = Items[index];
 	Items[index] = nullptr;
@@ -112,7 +133,7 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 		WeaponComp->TryRemoveRogueItem(TempItemObj);
 	}
 
-	OnRep_Items();
+	OnRep_Items(Old);
 }
 
 bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor)
@@ -170,6 +191,8 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	if (Items.IsEmpty())
 		return;
 
+	TArray<UItemObject*> Old = Items;
+
 	auto PlayerInventoryComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
 	bool bInventoryHasItemObject = false;
 
@@ -193,7 +216,6 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 			}
 			return;
 		}
-
 		PlayerInventoryComp->TryAddItem(EquippedItem, InitiatedActor);
 	}
 
@@ -207,7 +229,7 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 		WeaponComp->PassItem(ItemObject);
 	}
 
-	OnRep_Items();
+	OnRep_Items(Old);
 }
 
 
@@ -229,8 +251,6 @@ void UDBEquipmentComponent::ProcessPressInput(UItemObject* ItemObject, AActor* I
 		auto TaxiToServer = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
 		TaxiToServer->Server_TaxiForProcessPressInput(this, ItemObject, InitiatedActor, InventoryInput);
 	}
-
-
 }
 
 
@@ -272,7 +292,7 @@ void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject*
 		{
 			UDBEquipmentComponent* PlayerEquipment = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
 
-			if (PlayerEquipment) 
+			if (PlayerEquipment)
 			{
 				if (PlayerEquipment != From) //If InitiatedActor is looting ItemObject
 				{
@@ -294,7 +314,7 @@ void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject*
 						From->TryAddItem(ItemObject, InitiatedActor); //Put ItemObject back
 					}
 				}
-				else 
+				else
 				{
 					UItemObject* EquippedItem = GetSlotItem(ItemObject->GetSlotType());
 					if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor))
@@ -305,10 +325,10 @@ void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject*
 			}
 		}
 	}
-	else 
+	else
 	{
 		UDBEquipmentComponent* PlayerEquipment = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
-		
+
 		if (PlayerEquipment && PlayerEquipment != From) //If InitiatedActor is looting ItemObject
 		{
 			UItemObject* ItemLooting = From->GetSlotItem(ItemObject->GetSlotType());

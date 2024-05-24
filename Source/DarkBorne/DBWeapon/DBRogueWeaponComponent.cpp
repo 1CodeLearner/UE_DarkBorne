@@ -15,7 +15,6 @@
 #include "../Framework/Interfaces/ItemInterface.h"
 #include "../Framework/BFL/ItemLibrary.h"
 #include "../DBCharacters/DBCharacterAttack/DBRogueAttackComponent.h"
-#include "../Status/CharacterStatusComponent.h"
 #include "../DBPlayerWidget/DBPlayerWidget.h"
 #include <../../../../../../../Source/Runtime/UMG/Public/Components/Image.h>
 
@@ -85,7 +84,7 @@ void UDBRogueWeaponComponent::AttachWeapon()
 void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 {
 	// ¹«±â ²¨³»°í ÀÖÀ¸¸é Àç½ÇÇà x
-	//if (hasWeapon) return;
+	if (hasWeapon) return;
 
 	if (AttackComp && AttackComp->IsUsingItem()) return;
 
@@ -95,7 +94,6 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 		if (RogueItems != nullptr)
 		{
 			hasWeapon = true;
-			UCharacterStatusComponent::AdjustAddedStats(GetOwner(), RogueItems->GetItemObject(), hasWeapon);
 		}
 		else
 		{
@@ -112,7 +110,7 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 	UE_LOG(LogTemp, Warning, TEXT("Passing Item to DBRogueWeaponComponent: %s"), *GetNameSafe(Item));
 	if (Item->GetSlotType() == ESlotType::WEAPON)
 	{
-		//hasWeapon = false;
+		hasWeapon = false;
 		AttachWeapon();
 	}
 
@@ -148,7 +146,6 @@ void UDBRogueWeaponComponent::TryRemoveRogueItem(UItemObject* Item)
 		if (Item->GetSlotType() == ESlotType::WEAPON)
 		{
 			hasWeapon = false;
-			UCharacterStatusComponent::AdjustAddedStats(GetOwner(), Item, hasWeapon);
 		}
 	}
 }

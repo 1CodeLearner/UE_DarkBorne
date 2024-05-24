@@ -26,7 +26,7 @@ void UItemToolTipWidget::StartInit(UItemObject* ItemObject)
 		FText BaseStatText = ItemObject->GetBaseStatsText();
 		if (!BaseStatText.IsEmpty())
 		{
-			auto BaseStatWidget = CreateWidget<UItemDescriptionWidget>(GetOwningPlayer(), ItemDescriptionWidgetClass);
+			auto BaseStatWidget = CreateWidget<UItemDescriptionWidget>(GetOwningPlayer(), ItemBaseStatsWidgetClass);
 			if (BaseStatWidget)
 			{
 				BaseStatWidget->SetText(BaseStatText);
@@ -38,7 +38,7 @@ void UItemToolTipWidget::StartInit(UItemObject* ItemObject)
 			{
 				for (int i = 0; i < EnchantmentsTexts.Num(); ++i)
 				{
-					auto EnchantmentWidget = CreateWidget<UItemDescriptionWidget>(GetOwningPlayer(), ItemDescriptionWidgetClass);
+					auto EnchantmentWidget = CreateWidget<UItemDescriptionWidget>(GetOwningPlayer(), ItemBaseStatsWidgetClass);
 					if (EnchantmentWidget)
 					{
 						EnchantmentWidget->SetText(EnchantmentsTexts[i]);

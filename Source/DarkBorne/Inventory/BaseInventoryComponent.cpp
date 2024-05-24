@@ -121,7 +121,7 @@ FTransform UBaseInventoryComponent::GetNewTransform(AActor* Instigator, float of
 	return Trans;
 }
 
-void UBaseInventoryComponent::OnRep_Items()
+void UBaseInventoryComponent::OnRep_Items(TArray<UItemObject*> Old)
 {
 	bIsDirty = true;
 
