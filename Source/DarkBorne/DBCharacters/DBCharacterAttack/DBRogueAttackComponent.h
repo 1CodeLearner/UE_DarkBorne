@@ -53,25 +53,28 @@ public:
 	bool IsUsingItem() const;
 	bool IsInItemAction() const;
 	void StopItemAction();
+	void StopInteractionDisplay();
+public:
+	void SetupPlayerInputComponent(class UEnhancedInputComponent* enhancedInputComponent);
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
+protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	void SetupPlayerInputComponent(class UEnhancedInputComponent* enhancedInputComponent);
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-public:
+
+protected:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_DB_Attack;
+
 public:
 	int32 comboCnt = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float comboMinTime = 1.0f;
 	float comboMaxTime = 1.4f;
 	float comboCurrTime = 0;
+
 public:
 	UPROPERTY(Replicated)
 	int32 KnifeCount = 0;

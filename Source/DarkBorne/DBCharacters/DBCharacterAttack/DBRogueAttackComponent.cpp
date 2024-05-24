@@ -78,8 +78,14 @@ void UDBRogueAttackComponent::RogueAttack()
 	if(InteractionComp && InteractionComp->IsInteracting())
 		return;
 
+
+	// 아이템 있고 && 아이템 무기 슬롯에 무기 있으면 -> 아이템 사용
+	if (RogueWeaponComponent->RogueItems && RogueWeaponComponent->RogueItems->GetItemObject()->GetSlotType() != ESlotType::WEAPON)
+	{
+		UseItem();
+	}
 	// 마법 수리검 스폰되어있으면 마법 수리검 공격으로
-	if (RogueSkillComponent->isSpawnKnife)
+	else if (RogueSkillComponent->isSpawnKnife)
 	{
 		// 탄창이 비어있으면 리턴
 		if (RogueSkillComponent->TKMagazine.IsEmpty()) return;
@@ -89,11 +95,6 @@ void UDBRogueAttackComponent::RogueAttack()
 	else if (!RogueSkillComponent->isSpawnKnife && RogueWeaponComponent->hasWeapon)
 	{
 		ServerRPC_RogueAttack();
-	}
-	// 아이템 있고 && 아이템 무기 슬롯에 무기 있으면 -> 아이템 사용
-	else if (RogueWeaponComponent->RogueItems && RogueWeaponComponent->RogueItems->GetItemObject()->GetSlotType() != ESlotType::WEAPON)
-	{
-		UseItem();
 	}
 }
 
@@ -248,6 +249,11 @@ void UDBRogueAttackComponent::StopItemAction()
 {
 	if (ensureAlways(bUsingItem) && ensureAlways(bItemActionStarted))
 		Server_StopItemAction();
+}
+
+void UDBRogueAttackComponent::StopInteractionDisplay()
+{
+	OnEndItemAction.ExecuteIfBound();
 }
 
 void UDBRogueAttackComponent::Server_StopItemAction_Implementation()

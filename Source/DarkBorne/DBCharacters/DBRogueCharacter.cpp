@@ -161,7 +161,7 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 			GetMesh()->SetCollisionProfileName("Item");
 			//set bCanInteract to true
 			SetCanInteract(true);
-
+			
 			EffectComp->RemoveAllEffects();
 			if (RogueAttackComponent->IsInItemAction())
 			{
@@ -179,7 +179,8 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 		if (IsLocallyControlled())
 		{
 			DisplayInventory(false);
-			InteractionComp->DeclareFailedInteraction();
+			InteractionComp->StopInteraction();
+			RogueAttackComponent->StopInteractionDisplay();
 
 			ADBPlayerController* pc = Cast<ADBPlayerController>(GetWorld()->GetFirstPlayerController());
 			//APlayerController* pc = GetWorld()->GetFirstPlayerController();

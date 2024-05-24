@@ -112,6 +112,21 @@ void UDBInteractionComponent::DeclareFailedInteraction()
 	}
 }
 
+void UDBInteractionComponent::StopInteraction()
+{
+	if (bInteracting)
+	{
+		bInteracting = false;
+		ResetTimer();
+		SetCanInteract(OverlappingActor, true);
+		OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::EXECUTEINTERACT);
+
+		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
+		if (Interface)
+			Interface->EndTrace();
+	}
+}
+
 bool UDBInteractionComponent::IsInteracting() const
 {
 	return bInteracting;

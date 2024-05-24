@@ -67,7 +67,7 @@ void UInventoryMainWidget::DisplayInventory(bool bEnabled)
 			}
 		}
 
-		if (ensureAlways(!IsInViewport()))
+		if (!IsInViewport())
 		{
 			AddToViewport();
 		}
@@ -81,17 +81,17 @@ void UInventoryMainWidget::DisplayInventory(bool bEnabled)
 			bLootValid = false;
 		}
 
-		if (ensureAlways(IsInViewport()))
+		if (IsInViewport())
 		{
 			UDragDropOperation* DragDropOperation = UWidgetBlueprintLibrary::GetDragDroppingContent();
 			if (DragDropOperation)
 			{
-				UBaseItemWidget* ItemWidget = Cast<UBaseItemWidget>(DragDropOperation->Payload);
-				if (ItemWidget && IsValid(ItemWidget->GetItemObject()))
+				UItemObject* ItemObject = Cast<UItemObject>(DragDropOperation->Payload);
+				if (IsValid(ItemObject))
 				{
 					if (PlayerEquipmentComp)
 					{
-						PlayerEquipmentComp->Server_SpawnItem(GetOwningPlayerPawn(), ItemWidget->GetItemObject());
+						PlayerEquipmentComp->Server_SpawnItem(GetOwningPlayerPawn(), ItemObject);
 					}
 				}
 				UWidgetBlueprintLibrary::CancelDragDrop();
