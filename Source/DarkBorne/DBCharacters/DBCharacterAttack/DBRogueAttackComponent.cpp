@@ -343,15 +343,14 @@ void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 {
 	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-	//if(RogueSkillComponent == nullptr) return;
+	if(RogueSkillComponent == nullptr) return;
 	FHitResult hitInfo;
 	// 카메라 시작 위치
 	FVector CameraStartPos = RogueCharacter->camera->GetComponentLocation();
 	// 칼 스폰 위치
-	//if(RogueSkillComponent->TKMagazine[KnifeCount] == nullptr) return;
+	if(RogueSkillComponent->TKMagazine[KnifeCount] == nullptr) return;
 	//여기서 크래쉬 현상
 	FVector KnifeStartPos = RogueSkillComponent->TKMagazine[KnifeCount]->GetActorLocation();
-	//FVector endPos = startPos + RogueCharacter->camera->GetForwardVector() * 10000;
 	// endPos : 트레이스 검출 지점 => 칼 스폰 위치 + 카메라의 앞벡터 * 범위
 	FVector endPos = KnifeStartPos + RogueCharacter->camera->GetForwardVector() * 10000;
 	FCollisionQueryParams params;
@@ -360,9 +359,9 @@ void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 	bool isLineHit = GetWorld()->LineTraceSingleByChannel(hitInfo, CameraStartPos, endPos, ECollisionChannel::ECC_Visibility, params);
 
 	// 히트 시 빨간색, 히트하지 않으면 초록색 
-	FColor LineColor = isLineHit ? FColor::Red : FColor::Green;
-	DrawDebugLine(GetWorld(), KnifeStartPos, hitInfo.ImpactPoint, LineColor, false, 5.0f, 0, 1.0f);
-	DrawDebugSphere(GetWorld(), hitInfo.ImpactPoint, 12.f, 24, LineColor, false, 5.0f, 0, 1.0f);
+	//FColor LineColor = isLineHit ? FColor::Red : FColor::Green;
+	//DrawDebugLine(GetWorld(), KnifeStartPos, hitInfo.ImpactPoint, LineColor, false, 5.0f, 0, 1.0f);
+	//DrawDebugSphere(GetWorld(), hitInfo.ImpactPoint, 12.f, 24, LineColor, false, 5.0f, 0, 1.0f);
 
 	// 트레이스 맞았다면
 	if (isLineHit)
