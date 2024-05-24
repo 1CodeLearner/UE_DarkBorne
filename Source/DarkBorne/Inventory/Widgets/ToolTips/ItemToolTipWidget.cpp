@@ -41,7 +41,8 @@ void UItemToolTipWidget::StartInit(UItemObject* ItemObject)
 					auto EnchantmentWidget = CreateWidget<UItemDescriptionWidget>(GetOwningPlayer(), ItemDescriptionWidgetClass);
 					if (EnchantmentWidget)
 					{
-
+						EnchantmentWidget->SetText(EnchantmentsTexts[0]);
+						VerticalBox_ToolTip->AddChild(EnchantmentWidget);
 					}
 				}
 			}
