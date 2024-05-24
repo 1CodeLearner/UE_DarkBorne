@@ -24,8 +24,18 @@ UMorigeshEnemyFSM::UMorigeshEnemyFSM()
 	{
 		montage = tempMontage.Object;
 	}*/
-
-	
+	// 블루프린트 클래스가 제대로 로드되었는지 확인합니다.
+	/*static ConstructorHelpers::FClassFinder<AMorigeshWeapon> WeaponBPClass(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/Enemy/Morigesh/BP_MorigeshDaggerProjectile.BP_MorigeshDaggerProjectile'"));
+	if (WeaponBPClass.Succeeded())
+	{
+		weaponFactory = WeaponBPClass.Class;
+		UE_LOG(LogTemp, Warning, TEXT("Blueprint class found and set successfully."));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Blueprint class not found."));
+	}
+	*/
 
 
 }
