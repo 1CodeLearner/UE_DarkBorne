@@ -330,17 +330,19 @@ void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 {
 	ADBRogueCharacter* RogueCharacter = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
-
+	//if(RogueSkillComponent == nullptr) return;
 	FHitResult hitInfo;
 	// 카메라 시작 위치
 	FVector CameraStartPos = RogueCharacter->camera->GetComponentLocation();
 	// 칼 스폰 위치
+	//if(RogueSkillComponent->TKMagazine[KnifeCount] == nullptr) return;
+	//여기서 크래쉬 현상
 	FVector KnifeStartPos = RogueSkillComponent->TKMagazine[KnifeCount]->GetActorLocation();
-	
 	//FVector endPos = startPos + RogueCharacter->camera->GetForwardVector() * 10000;
 	// endPos : 트레이스 검출 지점 => 칼 스폰 위치 + 카메라의 앞벡터 * 범위
 	FVector endPos = KnifeStartPos + RogueCharacter->camera->GetForwardVector() * 10000;
 	FCollisionQueryParams params;
+	
 
 	bool isLineHit = GetWorld()->LineTraceSingleByChannel(hitInfo, CameraStartPos, endPos, ECollisionChannel::ECC_Visibility, params);
 
@@ -361,7 +363,7 @@ void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 		//EndRotation.Normalize();
 
 		UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *EndRotation.ToString());
-		ServerRPC_RogueThrowKnifeAttack(isLineHit, EndRotation);
+		ServerRPC_RogueThrowKnifeAttack(isLineHit, EndRotation, KnifeStartPos);
 	}
 	else
 	{
@@ -369,15 +371,15 @@ void UDBRogueAttackComponent::RogueThrowKnifeAttack()
 		TKRotation.Normalize();
 	
 		UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *TKRotation.ToString());
-		ServerRPC_RogueThrowKnifeAttack(isLineHit, TKRotation);
+		ServerRPC_RogueThrowKnifeAttack(isLineHit, TKRotation, KnifeStartPos);
 	}
 }
 
-void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation(bool isLineHit, FRotator EndRotation)
+void UDBRogueAttackComponent::ServerRPC_RogueThrowKnifeAttack_Implementation(bool isLineHit, FRotator EndRotation, FVector startPos)
 {
 	UDBRogueSkillComponent* RogueSkillComponent = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 	if(RogueSkillComponent == nullptr) return;
-	RogueSkillComponent->TKMagazine[KnifeCount]->MultiRPC_RogueThrowKnifeAttack(isLineHit, EndRotation);
+	RogueSkillComponent->TKMagazine[KnifeCount]->MultiRPC_RogueThrowKnifeAttack(isLineHit, EndRotation, startPos);
 	KnifeCount++;
 
 	if (KnifeCount == RogueSkillComponent->magazineCnt)

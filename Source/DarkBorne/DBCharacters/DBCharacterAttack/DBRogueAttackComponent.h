@@ -86,7 +86,7 @@ public:
 public:
 	void RogueThrowKnifeAttack();
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_RogueThrowKnifeAttack(bool isLineHit, FRotator EndRotation);
+	void ServerRPC_RogueThrowKnifeAttack(bool isLineHit, FRotator EndRotation, FVector startPos);
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_RogueThrowKnifeAttack_Update(bool isSpawn);
 
