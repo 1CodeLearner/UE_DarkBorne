@@ -40,7 +40,6 @@ public:
 	FInteractTimeUpdateDelegate OnInteractTimeUpdate;
 	void ExecuteInteraction();
 	void DeclareFailedInteraction();
-
 	bool IsInteracting() const;
 
 protected:

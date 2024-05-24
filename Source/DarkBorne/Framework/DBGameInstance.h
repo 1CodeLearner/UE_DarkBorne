@@ -36,12 +36,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void FindOtherSession();
 
+	void DestroyMySession();
+
 protected:
 	virtual void Init() override;
 
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
-
-	void DestroyMySession();
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 
 	void OnFindSessionComplete(bool bWasSuccessful);

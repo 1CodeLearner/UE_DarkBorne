@@ -25,6 +25,8 @@
 #include "Components/Border.h"
 #include "Components/Image.h"
 
+#include "Input/Events.h"
+
 void UInventoryMainWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -81,6 +83,19 @@ void UInventoryMainWidget::DisplayInventory(bool bEnabled)
 
 		if (ensureAlways(IsInViewport()))
 		{
+			UDragDropOperation* DragDropOperation = UWidgetBlueprintLibrary::GetDragDroppingContent();
+			if (DragDropOperation)
+			{
+				UBaseItemWidget* ItemWidget = Cast<UBaseItemWidget>(DragDropOperation->Payload);
+				if (ItemWidget && IsValid(ItemWidget->GetItemObject()))
+				{
+					if (PlayerEquipmentComp)
+					{
+						PlayerEquipmentComp->Server_SpawnItem(GetOwningPlayerPawn(), ItemWidget->GetItemObject());
+					}
+				}
+				UWidgetBlueprintLibrary::CancelDragDrop();
+			}
 			RemoveFromParent();
 		}
 	}

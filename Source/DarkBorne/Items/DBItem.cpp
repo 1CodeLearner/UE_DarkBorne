@@ -48,11 +48,14 @@ void ADBItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	auto character = Cast<ACharacter>(GetOwner());
-	if(character)
+	if (character)
 	{
-		if(character->GetMesh()->GetAnimInstance()->Montage_IsPlaying(AnimMontage))
+		if (AnimMontage && character->GetMesh()->GetAnimInstance())
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Montage playing: %s"), *GetNameSafe(AnimMontage)));
+			if(character->GetMesh()->GetAnimInstance()->Montage_IsPlaying(AnimMontage))
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Montage playing: %s"), *GetNameSafe(AnimMontage)));
+			}
 		}
 	}
 }

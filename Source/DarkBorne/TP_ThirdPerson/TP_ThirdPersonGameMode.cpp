@@ -51,6 +51,7 @@ TArray<FItem> ATP_ThirdPersonGameMode::GenerateItems(FName MonsterName)
 void ATP_ThirdPersonGameMode::OnPlayerDead(APlayerController* PlayerController)
 {
 	auto DBPC = Cast<ADBPlayerController>(PlayerController);
+	UE_LOG(LogTemp,Warning,TEXT("Inside OnPlayerDead"));
 	if (DBPC && ensureAlways(ActivePlayers.Find(DBPC)))
 	{
 		//declare dead
@@ -58,6 +59,7 @@ void ATP_ThirdPersonGameMode::OnPlayerDead(APlayerController* PlayerController)
 		WonPlayer = CheckIfPlayerWon();
 		if (WonPlayer)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Found WonPlayer in OnPlayerDead: %s"), *GetNameSafe(WonPlayer));
 			OnGameEnd.Broadcast(WonPlayer);
 			EndMatch();
 		}
@@ -116,6 +118,8 @@ void ATP_ThirdPersonGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
+	UE_LOG(LogTemp,Warning,TEXT("Inside PostLogin: %s"), *GetNameSafe(NewPlayer));
+
 	auto PC = Cast<ADBPlayerController>(NewPlayer);
 
 	ActivePlayers.Add(PC, true);
@@ -126,6 +130,8 @@ void ATP_ThirdPersonGameMode::PostLogin(APlayerController* NewPlayer)
 void ATP_ThirdPersonGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting);
+	
+	UE_LOG(LogTemp, Warning, TEXT("Inside Logout: %s"), *GetNameSafe(Exiting));
 
 	auto PC = Cast<ADBPlayerController>(Exiting);
 	if (PC)
@@ -136,7 +142,10 @@ void ATP_ThirdPersonGameMode::Logout(AController* Exiting)
 
 		WonPlayer = CheckIfPlayerWon();
 		if (WonPlayer)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Found WonPlayer in Logout: %s"), *GetNameSafe(WonPlayer));
 			EndMatch();
+		}
 	}
 }
 
@@ -159,10 +168,16 @@ void ATP_ThirdPersonGameMode::HandleLeavingMap()
 void ATP_ThirdPersonGameMode::HandleMatchHasEnded()
 {
 	Super::HandleMatchHasEnded();
-	UE_LOG(LogTemp, Warning, TEXT("Player won : %s"), *WonPlayer->GetName());
 
 	for (const auto& what : ActivePlayers)
 	{
+		if (what.Value) 
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Inside HandlematchHasEnded, Player won : %s"), *WonPlayer->GetName());
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("Inside HandlematchHasEnded, Player lost : %s"), *WonPlayer->GetName());
+		}
 		//Tell each controller to display their match state.
 		what.Key->Client_DisplayGameResult(what.Value);
 	}
@@ -180,6 +195,7 @@ ADBPlayerController* ATP_ThirdPersonGameMode::CheckIfPlayerWon()
 			PlayerWon = what.Key;
 		}
 	}
+	UE_LOG(LogTemp,Warning,TEXT("Inside CheckIfPlayerWon"));
 	if (PlayerWon && count == 1) return PlayerWon;
 
 	return nullptr;
