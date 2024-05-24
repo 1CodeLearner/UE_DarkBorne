@@ -62,10 +62,11 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	virtual bool HasItem(UItemObject* ItemObject) const;
-protected:
-
+	
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
+
+protected:
 
 	UFUNCTION(Server, Reliable)
 	virtual void Server_RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor);

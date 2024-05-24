@@ -19,6 +19,10 @@ class UBaseInventoryComponent;
 class UItemObject;
 enum class EEntityType : uint8;
 
+class UBorder;
+class UTextBlock;
+class UImage;
+
 class UInputMappingContext;
 
 UCLASS()
@@ -78,6 +82,15 @@ protected:
 	//Other Entity.
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryLoot_Other;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UBorder> LootBorder;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_Loot;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> Text_WeaponLoot;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> Text_ConsumableLoot;	
 
 	void DisplayPlayerLoot(UPlayerEquipmentComponent* _InventoryComp, UDBEquipmentComponent* _EquipmentComp);
 	void DisplayOtherLoot(UPlayerEquipmentComponent* _InventoryComp);

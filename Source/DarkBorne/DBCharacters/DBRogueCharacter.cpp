@@ -18,6 +18,9 @@
 #include "../Framework/DBPlayerController.h"
 #include "../Status/CharacterStatusComponent.h"
 #include "../Status/DBEffectComponent.h"
+#include "../Inventory/InventoryMainWidget.h"
+#include "../Framework/ActorComponents/DBInteractionComponent.h"
+
 
 
 ADBRogueCharacter::ADBRogueCharacter()
@@ -73,7 +76,7 @@ void ADBRogueCharacter::BeginPlay()
 	//get materials
 	MatArr = GetMesh()->GetMaterials();
 
-	
+
 	// 시작 시 현재 hp 
 	OnRep_CurrHP();
 
@@ -136,7 +139,7 @@ void ADBRogueCharacter::EnhancedInteract(const FInputActionValue& Value)
 {
 	Super::EnhancedInteract(Value);
 
-	if(RogueAttackComponent->IsInItemAction())
+	if (RogueAttackComponent->IsInItemAction())
 	{
 		RogueAttackComponent->StopItemAction();
 	}
@@ -158,9 +161,9 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 			GetMesh()->SetCollisionProfileName("Item");
 			//set bCanInteract to true
 			SetCanInteract(true);
-
+			
 			EffectComp->RemoveAllEffects();
-			if(RogueAttackComponent->IsInItemAction())
+			if (RogueAttackComponent->IsInItemAction())
 			{
 				RogueAttackComponent->StopItemAction();
 			}
@@ -175,6 +178,10 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 
 		if (IsLocallyControlled())
 		{
+			DisplayInventory(false);
+			InteractionComp->StopInteraction();
+			RogueAttackComponent->StopInteractionDisplay();
+
 			ADBPlayerController* pc = Cast<ADBPlayerController>(GetWorld()->GetFirstPlayerController());
 			//APlayerController* pc = GetWorld()->GetFirstPlayerController();
 			//pc->SetShowMouseCursor(true);

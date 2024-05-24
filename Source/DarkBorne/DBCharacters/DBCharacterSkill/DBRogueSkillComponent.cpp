@@ -21,12 +21,8 @@
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
 	SetIsReplicatedByDefault(true);
-	// ...
 }
 
 
@@ -57,10 +53,7 @@ void UDBRogueSkillComponent::SetupPlayerInputComponent(class UEnhancedInputCompo
 	enhancedInputComponent->BindAction(ia_Q_Skill, ETriggerEvent::Triggered, this, &UDBRogueSkillComponent::ActiveRogueQSkill);
 	enhancedInputComponent->BindAction(ia_E_Skill, ETriggerEvent::Triggered, this, &UDBRogueSkillComponent::ActiveRogueESkill);
 	enhancedInputComponent->BindAction(ia_Shift_Skill, ETriggerEvent::Triggered, this, &UDBRogueSkillComponent::ActiveRogueShiftSkill);
-
 }
-
-
 
 void UDBRogueSkillComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -157,7 +150,6 @@ void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
 		{
 			RoguePlayer->PlayerWidget->UpdateQBorder_Active(isVanish);
 		}
-		//UE_LOG(LogTemp, Warning, TEXT("Vanish Cool Time : %.f"), Q_CurrCoolTime);
 	}
 }
 
@@ -176,7 +168,6 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueQSkill_Implementation()
 {
 	// 서버에서 클라이언트들에게 뿌리기
 	MultiRPC_ActiveRogueQSkill();
-
 }
 
 void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
@@ -186,8 +177,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 	{
 		return;
 	}
-
-	//로그 캐릭터 가져오기 
+	
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
@@ -197,13 +187,12 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 	if (isVanish) return;
 	isVanish = true;
 	// 은신을 사용 했다면
-	UE_LOG(LogTemp, Warning, TEXT("Rogue Q Skill"));
 	if (isVanish)
 	{
 		// 나의 것이라면
 		if (RoguePlayer->IsLocallyControlled())
 		{
-			// 화면 회색 처리
+			// 화면 회색 처리 및 카메라 효과, 사운드
 			RoguePlayer->camera->PostProcessSettings.bOverride_ColorSaturation = true;
 			RoguePlayer->camera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
 
@@ -223,7 +212,6 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 			// 로그 캐릭터 머티리얼 인덱스 0 부터 last까지 가져와서
 			for (int32 i = 0; i < RoguePlayer->MatArr.Num(); i++)
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("PlayerMat"));
 				// 기존 캐릭터 메쉬 머티리얼을 투명한 머티리얼로 바꾸자
 				RoguePlayer->GetMesh()->SetMaterial(i, VanishMat);
 			}
@@ -287,7 +275,6 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 	}
 }
 
-
 void UDBRogueSkillComponent::ActiveRogueESkill()
 {
 	// 쿨타임 다 차면 
@@ -314,33 +301,27 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 
 	isSpawnKnife = true;
 	if (isSpawnKnife)
-	{
+	{	// halfValue : 탄창갯수만큼 스폰된 칼의 중앙 위치 식 
 		float halfValue = ((magazineCnt - 1) * 50) / 2.0f;
-
+		// 탄창크기만큼 반복해서 총알 넣고 셋팅
 		for (int32 i = 0; i < magazineCnt; i++)
 		{
-			//FVector NewLoc = RoguePlayer->ThrowKnifePos->GetComponentLocation();
-			//FRotator NewRot = RoguePlayer->ThrowKnifePos->GetForwardVector().Rotation();
-			//NewRot.Normalize();
+			// spawnActorDeferred : BeginPlay가 시작되기전에 실행됨
 			ThrowingKnife = GetWorld()->SpawnActorDeferred<ARogueThrowingKnife>(ThrowingKnifeClass, RoguePlayer->ThrowKnifePos->GetComponentTransform());
 
 			ThrowingKnife->SetOwner(GetOwner());
 			TKMagazine.Add(ThrowingKnife);
 			//스폰 시작
 			UGameplayStatics::FinishSpawningActor(ThrowingKnife, RoguePlayer->ThrowKnifePos->GetComponentTransform());
-			//ThrowingKnife = GetWorld()->SpawnActor<ARogueThrowingKnife>(ThrowingKnifeClass, NewLoc, NewRot);
 
 			// 수리검의 인덱스를 수리검 갯수로 넘겨
 			ThrowingKnife->KnifeNumber = i;
 			// 중앙배치 식을 수리검에 넘기기 
 			ThrowingKnife->halfValue = halfValue;
 			ThrowingKnife->isThrowing = false;
-
 		}
 		MultiRPC_ActiveRogueESkill(isSpawnKnife);
 	}
-	
-
 }
 
 void UDBRogueSkillComponent::MultiRPC_ActiveRogueESkill_Implementation(bool isSpawn)
@@ -350,14 +331,12 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueESkill_Implementation(bool isSp
 	if (RoguePlayer->IsLocallyControlled())
 	{
 		RoguePlayer->PlayerWidget->UpdateEBorder_Active(isSpawn);
-
 	}
-
 }
 
 void UDBRogueSkillComponent::UpdateRogueESkill(float DeltaTime)
 {
-	// 탄창 배열이 isEmpty 라면
+	// 탄창 배열 없으면
 	if (TKMagazine.IsEmpty())
 	{
 		// 현재 타임을 맥스가 될때까지 더한다
@@ -366,7 +345,6 @@ void UDBRogueSkillComponent::UpdateRogueESkill(float DeltaTime)
 			E_CurrCoolTime += DeltaTime;
 			//서버 플레이어를 위한 호출
 			OnRep_CurrESkill();
-			//UE_LOG(LogTemp, Warning, TEXT("throw skill cool is : %.f"), E_CurrCoolTime);
 		}
 	}
 }
@@ -379,7 +357,6 @@ void UDBRogueSkillComponent::ActiveRogueShiftSkill()
 void UDBRogueSkillComponent::ServerRPC_ActiveRogueShiftSkill_Implementation()
 {
 	MultiRPC_ActiveRogueShiftSkill();
-
 }
 
 void UDBRogueSkillComponent::MultiRPC_ActiveRogueShiftSkill_Implementation()
@@ -389,7 +366,6 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueShiftSkill_Implementation()
 	{
 		return;
 	}
-
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
@@ -404,7 +380,6 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueShiftSkill_Implementation()
 	{
 		DeactiveRogueQSkill();
 	}
-
 	if (weaponComponent->hasWeapon && RogueAnim->isCastingShift)
 	{
 		RoguePlayer->PlayAnimMontage(AM_RogueShiftSkill, 1.f, FName("Shift_Start"));

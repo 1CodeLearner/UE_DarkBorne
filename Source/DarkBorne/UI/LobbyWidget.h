@@ -15,8 +15,15 @@ class DARKBORNE_API ULobbyWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
+	void EnableMessage(bool bEnabled);
+	void EnableTimer(bool bEnabled);
+
 	void DisplayMessage(FString message);
+	void DisplayTimer(float Time);
 protected:
-	UPROPERTY(meta=(BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> Text_Message;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> Text_Timer;
 };

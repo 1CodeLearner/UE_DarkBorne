@@ -109,7 +109,7 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 	auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	if (WeaponComp)
 	{
-		WeaponComp->TryRemoveRogueItem(ItemObject);
+		WeaponComp->TryRemoveRogueItem(TempItemObj);
 	}
 
 	OnRep_Items();
@@ -272,29 +272,50 @@ void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject*
 		{
 			UDBEquipmentComponent* PlayerEquipment = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
 
-			if (PlayerEquipment && PlayerEquipment != From) //If InitiatedActor is looting ItemObject
+			if (PlayerEquipment) 
 			{
-				UItemObject* EquippedItem = PlayerEquipment->GetSlotItem(ItemObject->GetSlotType());
+				if (PlayerEquipment != From) //If InitiatedActor is looting ItemObject
+				{
+					UItemObject* EquippedItem = PlayerEquipment->GetSlotItem(ItemObject->GetSlotType());
 
-				if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor)) //if adding equipped item to player's inventory was successful
-				{
-					PlayerEquipment->RemoveItem(EquippedItem, InitiatedActor);
-					From->RemoveItem(ItemObject, InitiatedActor);
-					PlayerEquipment->AddItem(ItemObject, InitiatedActor); //Equip ItemObject 
+					if (!EquippedItem)
+					{
+						From->RemoveItem(ItemObject, InitiatedActor);
+						PlayerEquipment->AddItem(ItemObject, InitiatedActor);
+					}
+					else if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor)) //if adding equipped item to player's inventory was successful
+					{
+						PlayerEquipment->RemoveItem(EquippedItem, InitiatedActor);
+						From->RemoveItem(ItemObject, InitiatedActor);
+						PlayerEquipment->AddItem(ItemObject, InitiatedActor); //Equip ItemObject 
+					}
+					else
+					{
+						From->TryAddItem(ItemObject, InitiatedActor); //Put ItemObject back
+					}
 				}
-				else
+				else 
 				{
-					From->TryAddItem(ItemObject, InitiatedActor); //Put ItemObject back
+					UItemObject* EquippedItem = GetSlotItem(ItemObject->GetSlotType());
+					if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor))
+					{
+						From->RemoveItem(EquippedItem, InitiatedActor);
+					}
 				}
 			}
 		}
 	}
-	else
+	else 
 	{
-		UItemObject* EquippedItem = GetSlotItem(ItemObject->GetSlotType());
-		if (PlayerInventory->TryAddItem(EquippedItem, InitiatedActor))
+		UDBEquipmentComponent* PlayerEquipment = InitiatedActor->GetComponentByClass<UDBEquipmentComponent>();
+		
+		if (PlayerEquipment && PlayerEquipment != From) //If InitiatedActor is looting ItemObject
 		{
-			From->RemoveItem(EquippedItem, InitiatedActor);
+			UItemObject* ItemLooting = From->GetSlotItem(ItemObject->GetSlotType());
+			if (PlayerInventory->TryAddItem(ItemLooting, InitiatedActor))
+			{
+				From->RemoveItem(ItemLooting, InitiatedActor);
+			}
 		}
 	}
 }

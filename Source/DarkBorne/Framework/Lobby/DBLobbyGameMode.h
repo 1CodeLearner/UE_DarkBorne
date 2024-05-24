@@ -15,19 +15,25 @@ UCLASS()
 class DARKBORNE_API ADBLobbyGameMode : public AGameMode
 {
 	GENERATED_BODY()
-
 public:
-	UPROPERTY(BlueprintReadOnly)
-	TObjectPtr<ADBDropItemManager> DropItemManager;
+	ADBLobbyGameMode();
+	ADBDropItemManager* GetItemManager() const;
+
 protected:
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Exiting) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	TSubclassOf<ADBDropItemManager> DropItemManagerClass;
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<ADBDropItemManager> DropItemManager;
 private:
+	void StartGame(FString Message);
+	void StopTravelToGame();
+	 
 	TArray<APlayerController*> ActivePlayers;
 	int32 MaxPlayers;
 	void BroadcastMessage(FString msg);
@@ -38,4 +44,8 @@ private:
 
 	UFUNCTION()
 	void StartTravel();
+
+	float MaxWaitTime;
+	float RemainingTime;
+	bool bStartCountDown;
 };

@@ -11,6 +11,102 @@
 #include "../../Inventory/ItemObject.h"
 #include "../../DBCharacters/DBCharacter.h"
 #include "../../Inventory/DBEquipmentComponent.h"
+#include "../DBDropItemManager.h"
+#include "Net/UnrealNetwork.h"
+
+
+ADBLobbyPlayerController::ADBLobbyPlayerController()
+{
+	MaxWaitTime = 0.f;
+	CountDownInt = 0;
+	bStartCountDown = false;
+
+	CurrSyncTime = 0.f;
+	MaxSyncTime = 3.f;
+
+	ServerClientDeltaTime = 0.f;
+
+	LobbyState = ELobbyState::COUNTDOWN;
+}
+
+void ADBLobbyPlayerController::Init(float _MaxWaitTime)
+{
+	MaxWaitTime = _MaxWaitTime;
+}
+
+void ADBLobbyPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (IsLocalPlayerController())
+	{
+		UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
+		SetShowMouseCursor(false);
+	}
+}
+
+void ADBLobbyPlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+	if (HasAuthority()) {
+		UItemObject* ItemObject = nullptr;
+
+		auto LobbyGM = GetWorld()->GetAuthGameMode<ADBLobbyGameMode>();
+		if (LobbyGM && LobbyGM->GetItemManager()) {
+			FItem Item = LobbyGM->GetItemManager()->GenerateItemByName(FName("Dagger"), EItemType::WEAPON);
+			if (Item.IsValid()) {
+				ItemObject = NewObject<UItemObject>(this);
+				ItemObject->Initialize(Item);
+			}
+		}
+
+		if (!ItemObject) return;
+
+		auto Charac = Cast<ADBCharacter>(aPawn);
+		if (Charac) {
+			auto EquipComp = Charac->GetComponentByClass<UDBEquipmentComponent>();
+			if (EquipComp) {
+				EquipComp->Server_AddItem(ItemObject, Charac);
+			}
+		}
+	}
+}
+
+void ADBLobbyPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Ticking...")));
+	if (IsLocalPlayerController())
+	{
+		if (bStartCountDown) {
+			UpdateCountDownTimer(DeltaSeconds);
+		}
+
+		if (!HasAuthority())
+		{
+			CurrSyncTime += DeltaSeconds;
+			if (CurrSyncTime > MaxSyncTime)
+			{
+				CurrSyncTime = 0.f;
+				SyncWithServerTime();
+			}
+		}
+	}
+}
+
+void ADBLobbyPlayerController::ReceivedPlayer()
+{
+	Super::ReceivedPlayer();
+	SyncWithServerTime();
+}
+
+void ADBLobbyPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ADBLobbyPlayerController, MaxWaitTime, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ADBLobbyPlayerController, LobbyState, COND_OwnerOnly);
+}
 
 void ADBLobbyPlayerController::Client_DisplayMessage_Implementation(const FString& msg)
 {
@@ -26,44 +122,82 @@ void ADBLobbyPlayerController::Client_DisplayMessage_Implementation(const FStrin
 	}
 }
 
-void ADBLobbyPlayerController::BeginPlay()
+void ADBLobbyPlayerController::UpdateCountDownTimer(float DeltaTime)
 {
-	Super::BeginPlay();
-
-	if (IsLocalPlayerController())
+	uint32 CurrWaitTimeInt = FMath::CeilToInt(MaxWaitTime - GetServerTime());
+	if (LobbyWidget && CountDownInt != CurrWaitTimeInt)
 	{
-		/*UE_LOG(LogTemp, Warning, TEXT("YEs %s"), GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"));*/
-		UWidgetBlueprintLibrary::SetInputMode_GameOnly(this);
-		SetShowMouseCursor(false);
+		LobbyWidget->DisplayTimer(float(CurrWaitTimeInt));
+		CountDownInt = CurrWaitTimeInt;
 	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("NOOE"));
+
+	if (CountDownInt == 0)
+	{
+		LobbyWidget->DisplayTimer(float(0));
 	}
 }
 
-void ADBLobbyPlayerController::OnPossess(APawn* aPawn)
+float ADBLobbyPlayerController::GetServerTime() const
 {
-	Super::OnPossess(aPawn);
-	if (HasAuthority()) {
-		UItemObject* ItemObject = nullptr;
+	if (HasAuthority()) return GetWorld()->GetTimeSeconds();
+	else return ServerClientDeltaTime + GetWorld()->GetTimeSeconds();
+}
 
-		auto LobbyGM = GetWorld()->GetAuthGameMode<ADBLobbyGameMode>();
-		if (LobbyGM) {
-			FItem Item = LobbyGM->DropItemManager->GenerateItemByName(FName("Dagger"), EItemType::WEAPON);
-			if (Item.IsValid()) {
-				ItemObject = NewObject<UItemObject>(this);
-				ItemObject->Initialize(Item);
-			}
-		}
+void ADBLobbyPlayerController::SyncWithServerTime()
+{
+	Server_RequestTime(GetWorld()->GetTimeSeconds());
+}
 
-		if (!ItemObject) return;
-		
-		auto Charac = Cast<ADBCharacter>(aPawn);
-		if (Charac) {
-			auto EquipComp = Charac->GetComponentByClass<UDBEquipmentComponent>();
-			if (EquipComp) {
-				EquipComp->Server_AddItem(ItemObject, Charac);
-			}
+void ADBLobbyPlayerController::SetLobbyState(ELobbyState CurrLobbyState)
+{
+	LobbyState = CurrLobbyState;
+	OnRep_LobbyState();
+}
+
+void ADBLobbyPlayerController::OnRep_LobbyState()
+{
+	switch (LobbyState)
+	{
+	case ELobbyState::COUNTDOWN:
+	{
+		if (LobbyWidget)
+		{
+			LobbyWidget->EnableMessage(true);
+			LobbyWidget->EnableTimer(true);
 		}
+		bStartCountDown = true;
+		EnableInput(this);
+		break;
+	}
+	case ELobbyState::STARTGAME:
+	{
+		if (LobbyWidget)
+		{
+			LobbyWidget->EnableMessage(true);
+			LobbyWidget->EnableTimer(false);
+		}
+		bStartCountDown = false;
+		DisableInput(this);
+		break;
+	}
+	}
+}
+
+void ADBLobbyPlayerController::Server_RequestTime_Implementation(float ClientRequestTime)
+{
+	Client_RespondTime(GetWorld()->GetTimeSeconds(), ClientRequestTime);
+}
+
+void ADBLobbyPlayerController::Client_RespondTime_Implementation(float ServerTime, float ClientRequestTime)
+{
+	float EstimatedHalfTravelTime = (GetWorld()->GetTimeSeconds() - ClientRequestTime) / 2.f;
+
+	ServerClientDeltaTime = (ServerTime - EstimatedHalfTravelTime) - GetWorld()->GetTimeSeconds();
+
+	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Blue, FString::Printf(TEXT("DeltaTime : %f"), ServerClientDeltaTime));
+
+	if (!bStartCountDown)
+	{
+		bStartCountDown = true;
 	}
 }

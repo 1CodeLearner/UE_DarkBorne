@@ -47,6 +47,17 @@ void ADBItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 void ADBItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	auto character = Cast<ACharacter>(GetOwner());
+	if (character)
+	{
+		if (AnimMontage && character->GetMesh()->GetAnimInstance())
+		{
+			if(character->GetMesh()->GetAnimInstance()->Montage_IsPlaying(AnimMontage))
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Montage playing: %s"), *GetNameSafe(AnimMontage)));
+			}
+		}
+	}
 }
 
 void ADBItem::Initialize(UItemObject* ItemObject)
@@ -142,6 +153,27 @@ bool ADBItem::PlayMontage(ACharacter* PlayerCharacter, FName SectionName)
 	}
 	else
 		return false;
+}
+
+bool ADBItem::IsMontagePlaying(ACharacter* PlayerCharacter) const
+{
+	if (AnimMontage && PlayerCharacter)
+		return PlayerCharacter->GetMesh()->GetAnimInstance()->Montage_IsActive(AnimMontage);
+
+	return false;
+}
+
+void ADBItem::StopMontage(ACharacter* PlayerCharacter)
+{
+	if (AnimMontage && PlayerCharacter)
+	{
+		PlayerCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(.1f, AnimMontage);
+	}
+}
+
+UAnimMontage* ADBItem::GetMontage() const
+{
+	return AnimMontage;
 }
 
 void ADBItem::Pickup(AActor* InteractingActor)

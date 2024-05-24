@@ -53,25 +53,23 @@ public:
 	bool IsUsingItem() const;
 	bool IsInItemAction() const;
 	void StopItemAction();
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
+	void StopInteractionDisplay();
 public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	void SetupPlayerInputComponent(class UEnhancedInputComponent* enhancedInputComponent);
 
+protected:
+	virtual void BeginPlay() override;
+
+protected:
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-public:
+
+protected:
 	UPROPERTY(EditAnywhere)
 	class UInputAction* ia_DB_Attack;
 
 public:
 	int32 comboCnt = 0;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float comboMinTime = 1.0f;
 	float comboMaxTime = 1.4f;
@@ -80,7 +78,6 @@ public:
 public:
 	UPROPERTY(Replicated)
 	int32 KnifeCount = 0;
-
 public:
 	void RogueAttack();
 	UFUNCTION(Server, Reliable)
@@ -89,13 +86,10 @@ public:
 	void MultiRPC_RogueAttack();
 
 	void UpdateComboCount(float DeltaTime);
-
 public:
 	void RogueThrowKnifeAttack();
-
 	UFUNCTION(Server, Reliable)
-	void ServerRPC_RogueThrowKnifeAttack(bool isLineHit, FRotator EndRotation);
-
+	void ServerRPC_RogueThrowKnifeAttack(bool isLineHit, FRotator EndRotation, FVector startPos);
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_RogueThrowKnifeAttack_Update(bool isSpawn);
 
@@ -117,7 +111,8 @@ protected:
 	void Multicast_StopMontage();
 
 private:
-	FScriptDelegate Delegate;
+	FScriptDelegate MontageDelegate;
+	UAnimMontage* ActiveItemMontage;
 
 	UFUNCTION()
 	void OnRep_bItemActionStarted();

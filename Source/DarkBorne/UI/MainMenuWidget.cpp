@@ -3,39 +3,96 @@
 
 #include "MainMenuWidget.h"
 #include "Components/Button.h"
-#include "../Framework/DBGameInstance.h"
 #include "Components/TextBlock.h"
+
+
+#include "OnlineSubsystem.h"
+#include "OnlineSessionSettings.h"
+#include "Online/OnlineSessionNames.h"
+#include "../Framework/DBGameInstance.h"
+
+
 
 void UMainMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	Button_StartGame->OnPressed.AddDynamic(this, &UMainMenuWidget::OnPressed);
+
+	Button_CreateSession->OnPressed.AddDynamic(this, &UMainMenuWidget::OnCreatePressed);
+
+	Button_JoinSession->OnPressed.AddDynamic(this, &UMainMenuWidget::OnJoinPressed);
+
 	GI = GetWorld()->GetGameInstance<UDBGameInstance>();
-	GI->onSearchComplete.BindUObject(this, &UMainMenuWidget::OnSearchComplete);
+	GI->OnFindComplete.BindUObject(this, &UMainMenuWidget::OnFindComplete);
+	GI->OnCreateComplete.BindUObject(this, &UMainMenuWidget::OnCreateSessionComplete);
+	GI->OnJoinSessionEvent.BindUObject(this, &UMainMenuWidget::OnJoinSessionEvent);
 }
 
-void UMainMenuWidget::OnPressed()
+void UMainMenuWidget::OnCreatePressed()
 {
-	if (GI) 
+	if (GI)
 	{
+		Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Creating new session..."))));
+		GI->CreateMySession();
+		Button_CreateSession->SetIsEnabled(false);
+		Button_JoinSession->SetIsEnabled(false);
+	}
+}
+
+void UMainMenuWidget::OnJoinPressed()
+{
+	if (GI)
+	{
+		Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Finding session to join..."))));
 		GI->FindOtherSession();
-		Button_StartGame->SetIsEnabled(false);
+		Button_CreateSession->SetIsEnabled(false);
+		Button_JoinSession->SetIsEnabled(false);
 	}
 }
 
-void UMainMenuWidget::OnSearchComplete(int32 TotalSessions)
+void UMainMenuWidget::OnFindComplete(bool bWasSuccessful, bool bCanJoinSession)
 {
-	if (TotalSessions > 0) 
+	if (bWasSuccessful)
 	{
-		Text_StartGame->SetText(FText::FromString(FString::Printf(TEXT("Joining Session..."))));
+		if (bCanJoinSession) 
+		{
+			Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Find session successful"))));
+		}
+		else 
+		{
+			Text_Message->SetText(FText::FromString(FString::Printf(TEXT("No available sessions to join"))));
+			Button_CreateSession->SetIsEnabled(true);
+			Button_JoinSession->SetIsEnabled(true);
+		}
 	}
-	else if ( TotalSessions == -1 )
-	{	
-		Text_StartGame->SetText(FText::FromString(FString::Printf(TEXT("Search Session Failed"))));
-		Button_StartGame->SetIsEnabled(true);
-	}
-	else 
+	else
 	{
-		Text_StartGame->SetText(FText::FromString(FString::Printf(TEXT("Creating Session..."))));
+		Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Find session unsuccessful"))));
+	}
+}
+
+void UMainMenuWidget::OnJoinSessionEvent(bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Joining session..."))));
+	}
+	else
+	{
+		Button_CreateSession->SetIsEnabled(true);
+		Button_JoinSession->SetIsEnabled(true);
+		UE_LOG(LogTemp, Warning, TEXT("Join session Failed"));
+	}
+}
+
+void UMainMenuWidget::OnCreateSessionComplete(bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Create session successful, traveling as host..."))));
+	}
+	else {
+		Button_CreateSession->SetIsEnabled(true);
+		Button_JoinSession->SetIsEnabled(true);
+		Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Create session unsuccessful"))));
 	}
 }

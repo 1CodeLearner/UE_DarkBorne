@@ -15,27 +15,16 @@ class DARKBORNE_API UDBRogueAnimInstance : public UAnimInstance
 	GENERATED_BODY()
 
 public:
-
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float dirH;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float dirV;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float jumpVelocity;
-
-	UPROPERTY()
-	class ADBRogueCharacter* RoguePlayer;
-
-	UPROPERTY()
-	class ADBWeapon_CloseRange* WeaponDagger;
-
-	UPROPERTY()
-	class UCharacterMovementComponent* MovementComponent;
 
 	UPROPERTY(BlueprintReadOnly)
 	float pitchAngle;
@@ -89,5 +78,4 @@ public:
 	void AnimNotify_Start_Shift();
 	UFUNCTION()
 	void AnimNotify_End_Shift();
-
 };

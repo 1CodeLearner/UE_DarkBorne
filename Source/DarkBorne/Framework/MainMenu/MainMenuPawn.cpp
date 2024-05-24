@@ -4,6 +4,7 @@
 #include "MainMenuPawn.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "../DBGameInstance.h"
 
 // Sets default values
 AMainMenuPawn::AMainMenuPawn()
@@ -28,7 +29,14 @@ void AMainMenuPawn::BeginPlay()
 	{
 		subSystem->AddMappingContext(IMC_MainMenu, 0);
 	}
-
+	if (IsLocallyControlled()) 
+	{
+		auto GI = GetWorld()->GetGameInstance<UDBGameInstance>();
+		if (GI) 
+		{
+			GI->DestroyMySession();
+		}
+	}
 }
 
 // Called every frame
