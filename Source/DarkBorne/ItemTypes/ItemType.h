@@ -130,6 +130,12 @@ struct FRarity
 		Type = (uint8)RarityType;
 	}
 
+	uint8 GetRarityType() const
+	{
+		return (uint8)RarityType;
+	}
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ERarityType RarityType = ERarityType::NONE;
 
