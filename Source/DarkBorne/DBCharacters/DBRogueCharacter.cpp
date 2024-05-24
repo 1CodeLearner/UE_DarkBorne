@@ -44,7 +44,7 @@ ADBRogueCharacter::ADBRogueCharacter()
 	springArm->TargetArmLength = 200;
 	springArm->ProbeChannel = ECollisionChannel::ECC_Visibility;
 	springArm->bUsePawnControlRotation = true;
-	springArm->SocketOffset = FVector(0, 0, 150);
+	springArm->SocketOffset = FVector(40, 35, 155);
 	springArm->bDoCollisionTest = false;
 	// camera setting
 	camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
