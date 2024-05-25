@@ -73,6 +73,8 @@ void UDBInteractionComponent::OnInteract()
 
 			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 			Interface->InterruptInteract();
+
+			OverlappingActor = nullptr;
 		}
 	}
 }

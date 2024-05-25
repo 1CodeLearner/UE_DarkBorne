@@ -121,7 +121,7 @@ void ADBCharacter::BeginTrace()
 
 void ADBCharacter::EndTrace()
 {
-	GetMesh()->SetRenderCustomDepth(true);
+	GetMesh()->SetRenderCustomDepth(false);
 }
 
 bool ADBCharacter::CanInteract() const

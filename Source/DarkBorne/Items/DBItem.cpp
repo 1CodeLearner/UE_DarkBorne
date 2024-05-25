@@ -53,7 +53,7 @@ void ADBItem::Tick(float DeltaTime)
 	{
 		if (AnimMontage && character->GetMesh()->GetAnimInstance())
 		{
-			if(character->GetMesh()->GetAnimInstance()->Montage_IsPlaying(AnimMontage))
+			if (character->GetMesh()->GetAnimInstance()->Montage_IsPlaying(AnimMontage))
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Montage playing: %s"), *GetNameSafe(AnimMontage)));
 			}
@@ -86,14 +86,20 @@ void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharact
 	auto Inventory = DBCharacter->GetComponentByClass<UPlayerEquipmentComponent>();
 	auto Equipment = DBCharacter->GetComponentByClass<UDBEquipmentComponent>();
 
-	if (Inventory->TryAddItem(ItemObj, DBCharacter))
+	//If player is already equipping an item
+	if (Equipment->GetSlotItem(ItemObj->GetSlotType()))
 	{
-
+		//if player still fails to place the ItemObj in their inventory
+		if (!Inventory->TryAddItem(ItemObj, DBCharacter))
+		{
+			InteractionComp->DeclareFailedInteraction();
+		}
 	}
 	else
 	{
-		InteractionComp->DeclareFailedInteraction();
+		Equipment->AddItem(ItemObj, DBCharacter);
 	}
+
 }
 
 void ADBItem::InterruptInteract()
