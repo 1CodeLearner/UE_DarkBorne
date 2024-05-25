@@ -52,6 +52,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UMaterialInstance* MI_Wedge_Active;
 public:
+	UPROPERTY(meta = (BindWidget))
+	class UImage* DamageUI;
+	float currOpacity = 0;
+	bool isShowDamageUI = false;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (BindWidgetAnim), Transient)
+	class UWidgetAnimation* DamageAnim;
+
+public:
 	void UpdateHeathBar(float currHP, float maxHP);
 	void UpdateQSkillBar(float Q_CurrCoolTime, float Q_MaxCoolTime);
 	void UpdateESkillBar(float E_CurrCoolTime, float E_MaxCoolTime);
@@ -61,7 +70,11 @@ public:
 	void UpdateQBorder_Active(bool isVanish);
 	void UpdateEBorder(float E_CurrCoolTime, float E_MaxCoolTime);
 	void UpdateEBorder_Active(bool isSpawnKnife);
+
 private:
 	void UpdateWeaponSlot(TArray<UItemObject*> EquipSlotArray);
 	void UpdateConsumeSlot(TArray<UItemObject*> EquipSlotArray);
+
+public:
+	void ShowDamageUI();
 };
