@@ -11,7 +11,8 @@
  */
 
 class UTextBlock;
-
+class UImage;
+class UMaterialInterface;
 UCLASS()
 class DARKBORNE_API UItemDescriptionWidget : public UUserWidget
 {
@@ -19,7 +20,11 @@ class DARKBORNE_API UItemDescriptionWidget : public UUserWidget
 public:
 	void SetText(FString String);
 	void SetText(FText Text);
+	void SetImageMaterial(UMaterialInterface* MI_Rarity);
+
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_ItemDescription;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_Rarity;
 };
