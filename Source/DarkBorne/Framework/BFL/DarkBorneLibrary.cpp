@@ -7,6 +7,56 @@
 #include "../../DBAnimInstance/DBRogueAnimInstance.h"
 #include "../../DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
 
+float UDarkBorneLibrary::GetDamage(AActor* Instigated)
+{
+	auto InstigatedStat = Instigated->GetComponentByClass<UCharacterStatusComponent>();
+	auto SkillComp = Instigated->GetComponentByClass<UDBRogueSkillComponent>();
+	UDBRogueAnimInstance* InstigatedAnimInstance = nullptr;
+
+	{
+		if (!(InstigatedStat && SkillComp))
+			return 0;
+
+		auto DBCharacter = Cast<ADBCharacter>(Instigated);
+
+		if (DBCharacter)
+		{
+			auto AnimInstance = DBCharacter->GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				InstigatedAnimInstance = Cast<UDBRogueAnimInstance>(AnimInstance);
+			}
+			else return 0;
+		}
+	}
+
+	float FinalDamage = 0;
+
+	if (ensureAlways(InstigatedAnimInstance->isAttacking))
+	{
+		FFinalStat InstigatedFinalStat = InstigatedStat->GetFinalStat();
+
+		float WeaponDamage = InstigatedFinalStat.WeaponDamage;
+		float Strength = InstigatedFinalStat.Attributes[(int8)EAttributeType::STRENGTH].Range.min;
+		float PhysicalDamageBonus = InstigatedFinalStat.PhysDamages[(int8)EPhysicalDamageType::PHYSICALDAMAGEBONUS].Range.min / 100.f;
+
+		if (SkillComp->isSpawnKnife)
+		{
+			FinalDamage = WeaponDamage + Strength;
+		}
+		else
+		{
+			FinalDamage = (WeaponDamage * PhysicalDamageBonus) + WeaponDamage + Strength;
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("WeaponDamage : %f"), WeaponDamage);
+		UE_LOG(LogTemp, Warning, TEXT("Strength : %f"), Strength);
+		UE_LOG(LogTemp, Warning, TEXT("PhysicalDamageBonus : %f"), PhysicalDamageBonus);
+	}
+
+	return FinalDamage;
+}
+
 float UDarkBorneLibrary::CalculateDamage(AActor* Instigated, AActor* Received)
 {
 	auto InstigatedStat = Instigated->GetComponentByClass<UCharacterStatusComponent>();

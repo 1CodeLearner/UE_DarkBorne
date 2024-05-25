@@ -54,6 +54,9 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 {
 	if (CurrHP <= 0) return;
 	UE_LOG(LogTemp, Warning, TEXT("DamageProcess %f"), damage);
+
+	float finalDamage = damage;
+
 	if (!MyActor->HasAuthority() || MyActor == nullptr)
 	{
 		return;
@@ -61,21 +64,21 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 
 	if (AEnemyBase* enemy = Cast<AEnemyBase>(MyActor))
 	{
+		if (From) //if Enemy was attacked by another player or entity
+		{
+			finalDamage = UDarkBorneLibrary::GetDamage(From);
+		}
 
 		UE_LOG(LogTemp, Warning, TEXT("EnemyHit"));
-		enemy->DamageProcess(damage, From);
-
-
+		enemy->DamageProcess(finalDamage, From);
 	}
 	else if (ADBCharacter* player = Cast<ADBCharacter>(MyActor))
 	{
-		float finalDamage = damage;
-
 		if (From) // if player was attacked by another player
 		{
 			finalDamage = UDarkBorneLibrary::CalculateDamage(From, player);
 		}
-		UE_LOG(LogTemp, Warning, TEXT("FinalDamage : %f"), finalDamage);
+		UE_LOG(LogTemp, Warning, TEXT("PlayerHit"));
 
 		CurrHP -= finalDamage;
 		if (CurrHP < 0)
@@ -87,6 +90,8 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 			CurrHP = MaxHP;
 		}
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("FinalDamage : %f"), finalDamage);
 }
 
 bool UCharacterStatusComponent::IsAlive() const
@@ -123,7 +128,7 @@ void UCharacterStatusComponent::Initialize()
 			{
 				for (int32 i = 0; i < CharacterBaseStat->Attributes.Num(); ++i)
 					BaseStat.Attributes[i] += CharacterBaseStat->Attributes[i];
-				
+
 				MaxHP = CharacterBaseStat->health;
 				CurrHP = MaxHP;
 			}
@@ -146,14 +151,14 @@ const FBaseStat& UCharacterStatusComponent::GetBaseStat() const
 FFinalStat UCharacterStatusComponent::GetFinalStat() const
 {
 	float WeaponDmg = AddedStat.WeaponDamage;
-	
+
 	TArray<FAttribute> AddedAttributes;
-	for(int i = 0; i < AddedStat.Attributes.Num(); ++i)
+	for (int i = 0; i < AddedStat.Attributes.Num(); ++i)
 	{
 		FAttribute Added = AddedStat.Attributes[i] + BaseStat.Attributes[i];
 		AddedAttributes.Add(Added);
 	}
-	
+
 	return FFinalStat(WeaponDmg, AddedAttributes, AddedStat.PhysDamages, AddedStat.DamageBlockAmt);
 }
 
