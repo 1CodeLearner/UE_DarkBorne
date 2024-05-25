@@ -65,7 +65,16 @@ float UDarkBorneLibrary::CalculateDamage(AActor* Instigated, AActor* Received)
 
 float UDarkBorneLibrary::CalculateInteractionTime(AActor* Instigated)
 {
-	return 0.0f;
+	float Dexterity = 0.f;
+
+	auto StatusComp = Instigated->GetComponentByClass<UCharacterStatusComponent>();
+	if (StatusComp)
+	{
+		Dexterity = StatusComp->GetAddedStat().Attributes[(uint8)EAttributeType::DEXTERITY].Range.min;
+		Dexterity += StatusComp->GetBaseStat().Attributes[(uint8)EAttributeType::DEXTERITY].Range.min;
+	}
+
+	return Dexterity;
 }
 
 bool UDarkBorneLibrary::ApplyDamage(AActor* Received, AActor* Instigated)

@@ -11,6 +11,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "../../Inventory/InventoryMainWidget.h"
 #include "../../DBCharacters/DBCharacterAttack/DBRogueAttackComponent.h"
+#include "../BFL/DarkBorneLibrary.h"
 
 static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
 
@@ -48,11 +49,19 @@ void UDBInteractionComponent::OnInteract()
 			{
 				bInteracting = true;
 				IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
-
-				OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGININTERACT);
-
 				SetCanInteract(OverlappingActor, true);
 				Interface->BeginInteract(this);
+				
+				if(Interface->GetInteractionTime() > 0.f)
+				{
+					float InteractStat = UDarkBorneLibrary::CalculateInteractionTime(GetOwner());
+					interactSpeed =  Interface->GetInteractionTime() - InteractStat;
+					OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGININTERACT);
+				}
+				else
+				{
+					ExecuteInteraction();
+				}
 			}
 		}
 		else if (bInteracting) {

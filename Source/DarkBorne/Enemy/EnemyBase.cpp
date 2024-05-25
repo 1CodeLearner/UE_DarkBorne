@@ -52,6 +52,7 @@ AEnemyBase::AEnemyBase()
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+	SetInteractionTime(31.f);
 }
 
 // Called every frame

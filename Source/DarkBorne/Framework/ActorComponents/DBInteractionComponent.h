@@ -38,7 +38,6 @@ public:
 
 	FInteractActorUpdateDelegate OnInteractActorUpdate;
 	FInteractTimeUpdateDelegate OnInteractTimeUpdate;
-	void ExecuteInteraction();
 	void DeclareFailedInteraction();
 	void StopInteraction();
 	bool IsInteracting() const;
@@ -58,7 +57,7 @@ protected:
 
 private:
 	void OnInteract();
-	
+	void ExecuteInteraction();
 	bool IsDead();
 
 	UPROPERTY()

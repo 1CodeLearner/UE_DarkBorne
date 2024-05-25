@@ -35,6 +35,7 @@ void ADBItem::BeginPlay()
 		SMComp->SetSimulatePhysics(true);
 		bCanInteract = true;
 	}
+	SetInteractionTime(0.f);
 }
 
 void ADBItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -73,7 +74,6 @@ UItemObject* ADBItem::GetItemObject() const
 
 void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp)
 {
-	InteractionComp->ExecuteInteraction();
 }
 
 void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character)

@@ -37,6 +37,8 @@ void UCharacterStatusComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	DOREPLIFETIME(UCharacterStatusComponent, MyActor);
 	DOREPLIFETIME(UCharacterStatusComponent, MaxHP);
 	DOREPLIFETIME(UCharacterStatusComponent, CurrHP);
+	DOREPLIFETIME(UCharacterStatusComponent, BaseStat);
+	DOREPLIFETIME(UCharacterStatusComponent, AddedStat);
 }
 
 // Called every frame

@@ -10,17 +10,17 @@ class ACharacter;
 class UDBInteractionComponent;
 
 USTRUCT()
-struct FDisplayInfo 
+struct FDisplayInfo
 {
 	GENERATED_BODY();
 	FDisplayInfo() = default;
-	FDisplayInfo(FString _Action, FString _Name) 
+	FDisplayInfo(FString _Action, FString _Name)
 	{
 		Action = _Action;
 		Name = _Name;
 	}
 	UPROPERTY()
-	FString Action; 
+	FString Action;
 	UPROPERTY()
 	FString Name;
 };
@@ -33,7 +33,7 @@ class UInteractionInterface : public UInterface
 };
 
 /**
- * 
+ *
  */
 class DARKBORNE_API IInteractionInterface
 {
@@ -41,7 +41,10 @@ class DARKBORNE_API IInteractionInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	
+	IInteractionInterface();
+	float GetInteractionTime() const;
+	void SetInteractionTime(float InteractTime);
+
 	virtual void BeginInteract(UDBInteractionComponent* InteractionComp) = 0;
 	virtual void ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character) = 0;
 	virtual void InterruptInteract() = 0;
@@ -53,4 +56,6 @@ public:
 	virtual void SetCanInteract(bool bAllowInteract) = 0;
 
 	virtual FDisplayInfo GetDisplayInfo() const = 0;
+private:
+	float InteractionTime;
 };
