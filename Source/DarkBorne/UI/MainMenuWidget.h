@@ -29,12 +29,20 @@ protected:
 	TObjectPtr<UButton> Button_JoinSession;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UButton> Button_ExitGame;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	TObjectPtr<UTextBlock> Text_Message;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	TObjectPtr<UUserWidget> WBP_SessionUI;
 
 	UFUNCTION()
 	void OnCreatePressed();
 	UFUNCTION()
 	void OnJoinPressed();
+	UFUNCTION()
+	void OnExitPressed();
 
 	void OnFindComplete(bool bWasSuccessful, bool bCanJoinSession);
 	void OnJoinSessionEvent(bool bWasSuccessful);

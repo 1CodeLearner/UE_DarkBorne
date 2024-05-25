@@ -10,16 +10,17 @@
 #include "OnlineSessionSettings.h"
 #include "Online/OnlineSessionNames.h"
 #include "../Framework/DBGameInstance.h"
-
-
+#include "Kismet/KismetSystemLibrary.h"
 
 void UMainMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	Button_CreateSession->OnPressed.AddDynamic(this, &UMainMenuWidget::OnCreatePressed);
+	Button_CreateSession->OnClicked.AddDynamic(this, &UMainMenuWidget::OnCreatePressed);
 
-	Button_JoinSession->OnPressed.AddDynamic(this, &UMainMenuWidget::OnJoinPressed);
+	Button_JoinSession->OnClicked.AddDynamic(this, &UMainMenuWidget::OnJoinPressed);
+
+	Button_ExitGame->OnClicked.AddDynamic(this, &UMainMenuWidget::OnExitPressed);
 
 	GI = GetWorld()->GetGameInstance<UDBGameInstance>();
 	GI->OnFindComplete.BindUObject(this, &UMainMenuWidget::OnFindComplete);
@@ -47,6 +48,11 @@ void UMainMenuWidget::OnJoinPressed()
 		Button_CreateSession->SetIsEnabled(false);
 		Button_JoinSession->SetIsEnabled(false);
 	}
+}
+
+void UMainMenuWidget::OnExitPressed()
+{
+	UKismetSystemLibrary::QuitGame(GetOwningPlayer(), GetOwningPlayer(),EQuitPreference::Quit, true);
 }
 
 void UMainMenuWidget::OnFindComplete(bool bWasSuccessful, bool bCanJoinSession)
