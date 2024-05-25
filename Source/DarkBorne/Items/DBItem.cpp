@@ -86,12 +86,7 @@ void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharact
 	auto Inventory = DBCharacter->GetComponentByClass<UPlayerEquipmentComponent>();
 	auto Equipment = DBCharacter->GetComponentByClass<UDBEquipmentComponent>();
 
-	//Replace this with server and client RPCs that call these in server
-	if (Equipment->TryAddItem(ItemObj, DBCharacter))
-	{
-
-	}
-	else if (Inventory->TryAddItem(ItemObj, DBCharacter))
+	if (Inventory->TryAddItem(ItemObj, DBCharacter))
 	{
 
 	}
