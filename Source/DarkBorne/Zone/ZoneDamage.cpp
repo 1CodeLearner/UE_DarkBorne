@@ -75,16 +75,15 @@ void UZoneDamage::Tick(float DeltaTime)
 		{
 			if (IsValid(Character) && Character->CharacterStatusComponent->CurrHP > 0.f)
 			{
-				if (UDarkBorneLibrary::ApplyDamageAmount(Character, damageAmt))
+				Character->CharacterStatusComponent->DamageProcess(damageAmt);
+				Character->CharacterStatusComponent->OnRep_CurrHP();
+				auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
+				if (ensure(GM) && Character->CharacterStatusComponent->CurrHP <= 0.f)
 				{
-					auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
-					if (ensure(GM) && Character->CharacterStatusComponent->CurrHP <= 0.f)
+					auto PC = Character->GetOwner<APlayerController>();
+					if (PC)
 					{
-						auto PC = Character->GetOwner<APlayerController>();
-						if (PC)
-						{
-							GM->OnPlayerDead(PC);
-						}
+						GM->OnPlayerDead(PC);
 					}
 				}
 			}

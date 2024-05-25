@@ -19,6 +19,24 @@ void UItemToolTipWidget::StartInit(UItemObject* ItemObject)
 		if (TitleWidget)
 		{
 			TitleWidget->SetText(ItemObject->GetDisplayName());
+			switch (ItemObject->GetRarity().RarityType)
+			{
+			case ERarityType::COMMON:
+			{
+				TitleWidget->SetImageMaterial(MI_Common);
+				break;
+			}
+			case ERarityType::RARE:
+			{
+				TitleWidget->SetImageMaterial(MI_Rare);
+				break;
+			}
+			case ERarityType::EPIC:
+			{
+				TitleWidget->SetImageMaterial(MI_Epic);
+				break;
+			}
+			}
 			VerticalBox_ToolTip->AddChild(TitleWidget);
 		}
 

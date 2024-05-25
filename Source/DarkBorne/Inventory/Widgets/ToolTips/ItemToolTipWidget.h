@@ -36,6 +36,13 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UVerticalBox> VerticalBox_ToolTip;
 
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMaterialInterface> MI_Common;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMaterialInterface> MI_Rare;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UMaterialInterface> MI_Epic;
+
 private:
 	void CreateSeparator();
 };
