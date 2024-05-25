@@ -74,6 +74,7 @@ UItemObject* ADBItem::GetItemObject() const
 
 void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp)
 {
+	SMComp->SetRenderCustomDepth(false);
 }
 
 void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character)
@@ -102,15 +103,16 @@ void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharact
 
 void ADBItem::InterruptInteract()
 {
-
 }
 
 void ADBItem::BeginTrace()
 {
+	SMComp->SetRenderCustomDepth(true);
 }
 
 void ADBItem::EndTrace()
 {
+	SMComp->SetRenderCustomDepth(false);
 }
 
 FDisplayInfo ADBItem::GetDisplayInfo() const

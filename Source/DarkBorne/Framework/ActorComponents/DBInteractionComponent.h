@@ -54,7 +54,7 @@ protected:
 	float InteractRadius;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	float interactSpeed;
-
+	
 private:
 	void OnInteract();
 	void ExecuteInteraction();

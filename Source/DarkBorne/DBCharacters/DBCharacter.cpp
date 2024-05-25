@@ -84,6 +84,7 @@ void ADBCharacter::PostInitializeComponents()
 
 void ADBCharacter::BeginInteract(UDBInteractionComponent* InteractionComponent)
 {
+	GetMesh()->SetRenderCustomDepth(false);
 }
 
 void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* OtherCharacter)
@@ -115,10 +116,12 @@ void ADBCharacter::InterruptInteract()
 
 void ADBCharacter::BeginTrace()
 {
+	GetMesh()->SetRenderCustomDepth(true);
 }
 
 void ADBCharacter::EndTrace()
 {
+	GetMesh()->SetRenderCustomDepth(true);
 }
 
 bool ADBCharacter::CanInteract() const
