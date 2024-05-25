@@ -75,6 +75,7 @@ void UDBInteractionComponent::OnInteract()
 			Interface->InterruptInteract();
 
 			OverlappingActor = nullptr;
+			OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::ENDTRACE);
 		}
 	}
 }
