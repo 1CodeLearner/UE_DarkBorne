@@ -316,6 +316,7 @@ void ADBCharacter::OnRep_CurrHP()
 	// 플레이어 위젯이 없으면 리턴
 	if (PlayerWidget == nullptr) return;
 	PlayerWidget->UpdateHeathBar(CharacterStatusComponent->CurrHP, CharacterStatusComponent->MaxHP);
+	PlayerWidget->ShowDamageUI();
 	UE_LOG(LogTemp, Warning, TEXT("Testing:%f"), CharacterStatusComponent->CurrHP);
 }
 
