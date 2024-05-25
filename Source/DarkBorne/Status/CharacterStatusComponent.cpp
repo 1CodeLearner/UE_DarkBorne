@@ -127,6 +127,9 @@ void UCharacterStatusComponent::Initialize()
 			{
 				for (int32 i = 0; i < CharacterBaseStat->Attributes.Num(); ++i)
 					BaseStat.Attributes[i] += CharacterBaseStat->Attributes[i];
+				
+				MaxHP = CharacterBaseStat->health;
+				CurrHP = MaxHP;
 			}
 		}
 

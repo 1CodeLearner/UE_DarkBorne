@@ -63,6 +63,11 @@ float UDarkBorneLibrary::CalculateDamage(AActor* Instigated, AActor* Received)
 
 }
 
+float UDarkBorneLibrary::CalculateInteractionTime(AActor* Instigated)
+{
+	return 0.0f;
+}
+
 bool UDarkBorneLibrary::ApplyDamage(AActor* Received, AActor* Instigated)
 {
 	return false;
