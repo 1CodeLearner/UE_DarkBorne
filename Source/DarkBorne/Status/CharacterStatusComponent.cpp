@@ -79,6 +79,7 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 
 			finalDamage = UDarkBorneLibrary::CalculateDamage(From, player);
 		}
+		UE_LOG(LogTemp, Warning, TEXT("FinalDamage : %f"), finalDamage);
 
 		CurrHP -= finalDamage;
 		if (CurrHP < 0)
@@ -143,6 +144,20 @@ const FBaseStat& UCharacterStatusComponent::GetBaseStat() const
 	return BaseStat;
 }
 
+FFinalStat UCharacterStatusComponent::GetFinalStat() const
+{
+	float WeaponDmg = AddedStat.WeaponDamage;
+	
+	TArray<FAttribute> AddedAttributes;
+	for(int i = 0; i < AddedStat.Attributes.Num(); ++i)
+	{
+		FAttribute Added = AddedStat.Attributes[i] + BaseStat.Attributes[i];
+		AddedAttributes.Add(Added);
+	}
+	
+	return FFinalStat(WeaponDmg, AddedAttributes, AddedStat.PhysDamages, AddedStat.DamageBlockAmt);
+}
+
 UCharacterStatusComponent* UCharacterStatusComponent::Get(ADBCharacter* Character)
 {
 	if (Character)
@@ -180,6 +195,11 @@ void UCharacterStatusComponent::AddStats(const UItemObject* ItemObject)
 {
 	const FItem& Item = ItemObject->GetItem();
 
+	if (ItemObject->GetSlotType() == ESlotType::WEAPON)
+	{
+		AddedStat.WeaponDamage += ItemObject->GetRarityValue();
+	}
+
 	for (int i = 0; i < Item.Enchantments.Attributes.Num(); ++i) {
 		int32 index = (int32)Item.Enchantments.Attributes[i].AttributeType;
 		AddedStat.Attributes[index] += Item.Enchantments.Attributes[i];
@@ -193,6 +213,11 @@ void UCharacterStatusComponent::AddStats(const UItemObject* ItemObject)
 void UCharacterStatusComponent::RemoveStats(const UItemObject* ItemObject)
 {
 	const FItem& Item = ItemObject->GetItem();
+
+	if (ItemObject->GetSlotType() == ESlotType::WEAPON)
+	{
+		AddedStat.WeaponDamage -= ItemObject->GetRarityValue();
+	}
 
 	for (int i = 0; i < Item.Enchantments.Attributes.Num(); ++i) {
 		int32 index = (int32)Item.Enchantments.Attributes[i].AttributeType;

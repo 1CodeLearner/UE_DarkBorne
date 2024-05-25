@@ -58,6 +58,8 @@ public:
 	const FAddedStat& GetAddedStat() const;
 	UFUNCTION(BlueprintCallable)
 	const FBaseStat& GetBaseStat() const;
+	UFUNCTION(BlueprintCallable)
+	FFinalStat GetFinalStat() const;
 
 	UFUNCTION(BlueprintCallable)
 	static UCharacterStatusComponent* Get(ADBCharacter* Character);
@@ -82,6 +84,6 @@ private:
 		
 	void AddStats(const UItemObject* ItemObject);
 	void RemoveStats(const UItemObject* ItemObject);
-
+	
 	void PrintStats();
 };

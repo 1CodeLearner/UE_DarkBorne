@@ -13,6 +13,7 @@
 class UButton;
 class UDBGameInstance;
 class UTextBlock;
+class USessionUIWidget;
 
 UCLASS()
 class DARKBORNE_API UMainMenuWidget : public UUserWidget
@@ -35,7 +36,13 @@ protected:
 	TObjectPtr<UTextBlock> Text_Message;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	TObjectPtr<UUserWidget> WBP_SessionUI;
+	TObjectPtr<USessionUIWidget> WBP_SessionUI;
+	FScriptDelegate CloseButtonDelegate;
+	UFUNCTION()
+	void OnCloseButtonPressed();
+	FScriptDelegate CreateSessionDelegate;
+	UFUNCTION()
+	void OnCreateSessionPressed();
 
 	UFUNCTION()
 	void OnCreatePressed();
@@ -47,7 +54,10 @@ protected:
 	void OnFindComplete(bool bWasSuccessful, bool bCanJoinSession);
 	void OnJoinSessionEvent(bool bWasSuccessful);
 	void OnCreateSessionComplete(bool bWasSuccessful);
-	
+
 	TObjectPtr<UDBGameInstance> GI;
-	
+
+private:
+	void DisplayOptions();
+	void HideOptions();
 };

@@ -16,7 +16,7 @@ float UDarkBorneLibrary::CalculateDamage(AActor* Instigated, AActor* Received)
 
 	{
 		if (!(InstigatedStat && ReceivedStat && SkillComp))
-			return -1;
+			return 0;
 
 		auto DBCharacter = Cast<ADBCharacter>(Instigated);
 
@@ -27,32 +27,39 @@ float UDarkBorneLibrary::CalculateDamage(AActor* Instigated, AActor* Received)
 			{
 				InstigatedAnimInstance = Cast<UDBRogueAnimInstance>(AnimInstance);
 			}
-			else return -1;
+			else return 0;
 		}
 	}
 
+	float FinalDamage = 0;
 
+	if (ensureAlways(InstigatedAnimInstance->isAttacking))
+	{
+		FFinalStat InstigatedFinalStat = InstigatedStat->GetFinalStat();
+		FFinalStat ReceivedFinalStat = ReceivedStat->GetFinalStat();
 
-	if (InstigatedAnimInstance->isAttacking)
-	{	
-		if (InstigatedAnimInstance->isCastingShift)
+		float WeaponDamage = InstigatedFinalStat.WeaponDamage;
+		float DamageBlockAmount = ReceivedFinalStat.DamageBlockAmt;
+		float Strength = InstigatedFinalStat.Attributes[(int8)EAttributeType::STRENGTH].Range.min;
+		float PhysicalDamageBonus = InstigatedFinalStat.PhysDamages[(int8)EPhysicalDamageType::PHYSICALDAMAGEBONUS].Range.min / 100.f;
+
+		if (SkillComp->isSpawnKnife)
 		{
-
-		}
-		else if (SkillComp->isSpawnKnife)
-		{
-
+			FinalDamage = FMath::Max(0.f, (WeaponDamage + Strength) - DamageBlockAmount);
 		}
 		else
 		{
-
+			FinalDamage = (WeaponDamage * PhysicalDamageBonus) + FMath::Max(0.f, (WeaponDamage + Strength) - DamageBlockAmount);
 		}
+
+		UE_LOG(LogTemp, Warning, TEXT("WeaponDamage : %f"), WeaponDamage);
+		UE_LOG(LogTemp, Warning, TEXT("DamageBlockAmount : %f"), DamageBlockAmount);
+		UE_LOG(LogTemp, Warning, TEXT("Strength : %f"), Strength);
+		UE_LOG(LogTemp, Warning, TEXT("PhysicalDamageBonus : %f"), PhysicalDamageBonus);
 	}
 
 
-
-
-	return -1.f;
+	return FinalDamage;
 
 }
 

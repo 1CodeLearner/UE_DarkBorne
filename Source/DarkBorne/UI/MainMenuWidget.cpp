@@ -11,6 +11,7 @@
 #include "Online/OnlineSessionNames.h"
 #include "../Framework/DBGameInstance.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "SessionUIWidget.h"
 
 void UMainMenuWidget::NativeConstruct()
 {
@@ -26,16 +27,43 @@ void UMainMenuWidget::NativeConstruct()
 	GI->OnFindComplete.BindUObject(this, &UMainMenuWidget::OnFindComplete);
 	GI->OnCreateComplete.BindUObject(this, &UMainMenuWidget::OnCreateSessionComplete);
 	GI->OnJoinSessionEvent.BindUObject(this, &UMainMenuWidget::OnJoinSessionEvent);
+	if (WBP_SessionUI)
+	{
+		CloseButtonDelegate.BindUFunction(this, "OnCloseButtonPressed");
+		WBP_SessionUI->BindWithCloseWindow(CloseButtonDelegate);
+
+		CreateSessionDelegate.BindUFunction(this, "OnCreateSessionPressed");
+		WBP_SessionUI->BindWithCreateSession(CreateSessionDelegate);
+	}
+	WBP_SessionUI->SetVisibility(ESlateVisibility::Collapsed);
+}
+
+void UMainMenuWidget::OnCloseButtonPressed()
+{
+	WBP_SessionUI->SetVisibility(ESlateVisibility::Collapsed);
+	DisplayOptions();
+}
+
+void UMainMenuWidget::OnCreateSessionPressed()
+{
+	WBP_SessionUI->SetVisibility(ESlateVisibility::Collapsed);
+	DisplayOptions();
+	Button_CreateSession->SetIsEnabled(false);
+	Button_JoinSession->SetIsEnabled(false);
+	Button_ExitGame->SetIsEnabled(false);
+	Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Creating new session..."))));
+	
+	FSessionInfo SessionInfo = WBP_SessionUI->GetSessionInfo();
+	
+	GI->CreateMySession(SessionInfo.PlayerCount, SessionInfo.CountdownTime);
 }
 
 void UMainMenuWidget::OnCreatePressed()
 {
 	if (GI)
 	{
-		Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Creating new session..."))));
-		GI->CreateMySession();
-		Button_CreateSession->SetIsEnabled(false);
-		Button_JoinSession->SetIsEnabled(false);
+		WBP_SessionUI->SetVisibility(ESlateVisibility::Visible);
+		HideOptions();
 	}
 }
 
@@ -47,32 +75,37 @@ void UMainMenuWidget::OnJoinPressed()
 		GI->FindOtherSession();
 		Button_CreateSession->SetIsEnabled(false);
 		Button_JoinSession->SetIsEnabled(false);
+		Button_ExitGame->SetIsEnabled(false);
 	}
 }
 
 void UMainMenuWidget::OnExitPressed()
 {
-	UKismetSystemLibrary::QuitGame(GetOwningPlayer(), GetOwningPlayer(),EQuitPreference::Quit, true);
+	UKismetSystemLibrary::QuitGame(GetOwningPlayer(), GetOwningPlayer(), EQuitPreference::Quit, true);
 }
 
 void UMainMenuWidget::OnFindComplete(bool bWasSuccessful, bool bCanJoinSession)
 {
 	if (bWasSuccessful)
 	{
-		if (bCanJoinSession) 
+		if (bCanJoinSession)
 		{
 			Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Find session successful"))));
 		}
-		else 
+		else
 		{
 			Text_Message->SetText(FText::FromString(FString::Printf(TEXT("No available sessions to join"))));
 			Button_CreateSession->SetIsEnabled(true);
 			Button_JoinSession->SetIsEnabled(true);
+			Button_ExitGame->SetIsEnabled(true);
 		}
 	}
 	else
 	{
 		Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Find session unsuccessful"))));
+		Button_CreateSession->SetIsEnabled(true);
+		Button_JoinSession->SetIsEnabled(true);
+		Button_ExitGame->SetIsEnabled(true);
 	}
 }
 
@@ -86,6 +119,7 @@ void UMainMenuWidget::OnJoinSessionEvent(bool bWasSuccessful)
 	{
 		Button_CreateSession->SetIsEnabled(true);
 		Button_JoinSession->SetIsEnabled(true);
+		Button_ExitGame->SetIsEnabled(true);
 		UE_LOG(LogTemp, Warning, TEXT("Join session Failed"));
 	}
 }
@@ -99,6 +133,23 @@ void UMainMenuWidget::OnCreateSessionComplete(bool bWasSuccessful)
 	else {
 		Button_CreateSession->SetIsEnabled(true);
 		Button_JoinSession->SetIsEnabled(true);
+		Button_ExitGame->SetIsEnabled(true);
 		Text_Message->SetText(FText::FromString(FString::Printf(TEXT("Create session unsuccessful"))));
 	}
+}
+
+void UMainMenuWidget::DisplayOptions()
+{
+	Button_CreateSession->SetVisibility(ESlateVisibility::Visible);
+	Button_JoinSession->SetVisibility(ESlateVisibility::Visible);
+	Button_ExitGame->SetVisibility(ESlateVisibility::Visible);
+	Text_Message->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMainMenuWidget::HideOptions()
+{
+	Button_CreateSession->SetVisibility(ESlateVisibility::Collapsed);
+	Button_JoinSession->SetVisibility(ESlateVisibility::Collapsed);
+	Button_ExitGame->SetVisibility(ESlateVisibility::Collapsed);
+	Text_Message->SetVisibility(ESlateVisibility::Collapsed);
 }

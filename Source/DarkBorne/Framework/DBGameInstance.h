@@ -30,7 +30,7 @@ public:
 
 	// 세션 만드는 함수
 	UFUNCTION(BlueprintCallable)
-	void CreateMySession();
+	void CreateMySession(int32 PlayerCount, float CountdownTime);
 			
 	// 세션을 검색 함수
 	UFUNCTION(BlueprintCallable)
@@ -62,4 +62,5 @@ protected:
 
 	FString roomName;
 	int32 maxPlayer;
+	float CountdownTime;
 };

@@ -20,6 +20,8 @@ void ADBLobbyGameMode::InitGame(const FString& MapName, const FString& Options, 
 	Super::InitGame(MapName, Options, ErrorMessage);
 
 	MaxPlayers = UGameplayStatics::GetIntOption(Options, TEXT("MaxPlayers"), 0);
+	MaxWaitTime = UGameplayStatics::GetIntOption(Options, TEXT("CountdownTime"), 0);
+	
 	startGameWait = 5.f;
 	bIsGameStarting = false;
 
