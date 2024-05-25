@@ -70,15 +70,9 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 	else if (ADBCharacter* player = Cast<ADBCharacter>(MyActor))
 	{
 		float finalDamage = damage;
-		//float BlockAmount = GetAddedStat().DamageBlockAmt;
 
 		if (From) // if player was attacked by another player
 		{
-			//if (BlockAmount < finalDamage)
-			//	finalDamage -= BlockAmount;
-			//else
-			//	finalDamage = 0.f;
-
 			finalDamage = UDarkBorneLibrary::CalculateDamage(From, player);
 		}
 		UE_LOG(LogTemp, Warning, TEXT("FinalDamage : %f"), finalDamage);
