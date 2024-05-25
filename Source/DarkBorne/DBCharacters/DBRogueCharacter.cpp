@@ -78,7 +78,7 @@ void ADBRogueCharacter::BeginPlay()
 
 
 	// 시작 시 현재 hp 
-	OnRep_CurrHP();
+	//OnRep_CurrHP();
 
 }
 
