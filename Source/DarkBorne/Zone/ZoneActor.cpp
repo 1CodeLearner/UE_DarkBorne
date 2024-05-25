@@ -12,7 +12,7 @@
 #include "Net/UnrealNetwork.h"
 #include "../DBCharacters/DBCharacter.h"
 #include <DarkBorne/DBCharacters/DBRogueCharacter.h>
-
+#include "Components/AudioComponent.h"
 
 static TAutoConsoleVariable<bool> cVarStopZoneMovement(TEXT("su.StopZoneMovement"), false, TEXT("Stops Zone from Moving at start"), ECVF_Cheat);
 
@@ -38,6 +38,14 @@ AZoneActor::AZoneActor()
 
 	bIsFirstStarting = true;
 	StartingNode = nullptr;
+
+	AudioComp_OverlapZone = CreateDefaultSubobject<UAudioComponent>("AudioComponent_OverlapZone");
+	AudioComp_OverlapZone->SetupAttachment(RootComponent);
+	AudioComp_InZone = CreateDefaultSubobject<UAudioComponent>("AudioComponent_InZone");
+	AudioComp_InZone->SetupAttachment(RootComponent);
+
+	bIsWithinZone = true;
+	bIsGameEnd = false;
 }
 
 void AZoneActor::BeginPlay()
@@ -114,6 +122,22 @@ void AZoneActor::BeginPlay()
 
 		maxWaitTime = ZoneSetting->GetPhases()[0].DisplayTime;
 	}
+
+	currLoc = GetActorLocation();
+	currLoc.Z = 0.f;
+
+	for (FConstPlayerControllerIterator Iter = GetWorld()->GetPlayerControllerIterator(); Iter; ++Iter)
+	{
+		if (Iter)
+		{
+			APawn* Pawn = (*Iter)->GetPawn();
+			if (Pawn && Pawn->IsLocallyControlled())
+			{
+				LocallyControlledCharacter = Pawn;
+				break;
+			}
+		}
+	}
 }
 
 void AZoneActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -121,6 +145,7 @@ void AZoneActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AZoneActor, TransformZone);
+	DOREPLIFETIME(AZoneActor, bIsGameEnd);
 }
 
 void AZoneActor::Tick(float DeltaTime)
@@ -155,13 +180,58 @@ void AZoneActor::Tick(float DeltaTime)
 		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Magenta, FString::Printf(TEXT("currMoveTime %f"), currMoveTime));
 	}
 
-	if (HasAuthority() && ensure(CheckSizes()))
+	if (HasAuthority() && ensureAlways(CheckSizes()))
 	{
 		UpdateMovement(DeltaTime);
-		UpdatePlayerOverlapped();
 		UpdatePlayerDamaged();
+		UpdatePlayerOverlapped();
 	}
 
+	UpdateSoundAndUI();
+}
+
+void AZoneActor::UpdateSoundAndUI()
+{
+	if (LocallyControlledCharacter)
+	{
+		FVector Location = LocallyControlledCharacter->GetActorLocation();
+		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan, FString::Printf(TEXT("[%s] LocallyControlledCharacter: %s"),
+			bIsWithinZone ? TEXT("INSIDE") : TEXT("OUTSIDE"),
+			*GetNameSafe(LocallyControlledCharacter)));
+		if (!IsWithinZone(Location))
+		{
+			if (bIsWithinZone)
+			{
+				if (!bIsGameEnd)
+				{
+					AudioComp_InZone->Play();
+				}
+				AudioComp_OverlapZone->Play();
+				bIsWithinZone = false;
+			}
+		}
+		else
+		{
+			if (!bIsWithinZone)
+			{
+				if (!bIsGameEnd)
+				{
+					AudioComp_InZone->StopDelayed(.2f);
+				}
+				AudioComp_OverlapZone->Play();
+				bIsWithinZone = true;
+			}
+		}
+	}
+}
+
+void AZoneActor::OnRep_bIsGameEnd()
+{
+	if (bIsGameEnd)
+	{
+		AudioComp_InZone->Stop();
+		AudioComp_OverlapZone->Stop();
+	}
 }
 
 bool AZoneActor::CheckSizes() const
@@ -279,11 +349,13 @@ void AZoneActor::UpdatePlayerOverlapped()
 		if (!IsWithinZone(CharacterLoc) && *playerOverlapped.Find(Character.Key) == false) {
 			//Set player as out of bounds
 			*playerOverlapped.Find(Character.Key) = true;
+
 		}
 		//if player is within the zone and player was set as out of bounds
 		else if (IsWithinZone(CharacterLoc) && *playerOverlapped.Find(Character.Key) == true) {
 			//Set player as within bounds
 			*playerOverlapped.Find(Character.Key) = false;
+
 		}
 	}
 }
@@ -351,6 +423,9 @@ void AZoneActor::OnGameEnd(ADBPlayerController* PlayerWon)
 	ZoneDamage->StopTick();
 	playerDamaged.Remove(PlayerWon);
 	ActiveCharacters.Remove(PlayerWon);
+
+	bIsGameEnd = true;
+	OnRep_bIsGameEnd();
 }
 
 void AZoneActor::OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn)
@@ -380,6 +455,9 @@ void AZoneActor::OnRep_TransformZone()
 {
 	SetActorLocation(TransformZone.Loc);
 	SetActorRelativeScale3D(TransformZone.Scale);
+	currLoc.X = TransformZone.Loc.X;
+	currLoc.Y = TransformZone.Loc.Y;
+	currLoc.Z = 0.f;
 }
 
 bool AZoneActor::IsWithinZone(FVector Other) const
