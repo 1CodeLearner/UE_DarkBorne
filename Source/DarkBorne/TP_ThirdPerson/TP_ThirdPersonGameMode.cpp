@@ -28,7 +28,7 @@ void ATP_ThirdPersonGameMode::AddItemTo(AActor* Actor, FName LootName)
 	auto InventoryComp = Actor->GetComponentByClass<UBaseInventoryComponent>();
 	if (InventoryComp)
 	{
-		TArray<FItem> Items = GenerateItems("LootChest");
+		TArray<FItem> Items = GenerateItems(LootName);
 		for (int i = 0; i < Items.Num(); ++i)
 		{
 			auto ItemObject = NewObject<UItemObject>(this);
