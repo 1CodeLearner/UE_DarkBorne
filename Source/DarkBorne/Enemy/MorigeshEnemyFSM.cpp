@@ -53,6 +53,15 @@ void UMorigeshEnemyFSM::BeginPlay()
 	//애님 인스턴스
 	anim = Cast<UAnimMorigeshEnemy>(animInstance);
 
+	if (Cast<AMorigeshEnemy>(myActor))
+	{
+		if(Cast<AMorigeshEnemy>(myActor)->SoundBoard != nullptr)
+		{ 
+			this->SoundBoard = Cast<AMorigeshEnemy>(myActor)->SoundBoard;
+		}
+	}
+
+
 
 
 
@@ -216,6 +225,8 @@ void UMorigeshEnemyFSM::FireWeapon(FVector targetPos)
 	if (weapon)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Weapon spawned at position: %s"), *weapon->GetActorLocation().ToString());
+		weapon->SetOwner(myActor);
+		
 	}
 	else
 	{

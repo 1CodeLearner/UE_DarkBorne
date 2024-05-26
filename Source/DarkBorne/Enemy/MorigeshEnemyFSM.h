@@ -50,6 +50,9 @@ public:
 	UPROPERTY(Replicated,EditAnywhere, BlueprintReadWrite)
 	class UAnimMontage* montage;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class UMorigeshSoundBoardComponent* SoundBoard;
+
 	//UPROPERTY(EditAnywhere)
 	//TSubclassOf<class AActor> attackProjectileFactory;
 
@@ -65,6 +68,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector ThrowPos;
+
+	
 
 
 public:
