@@ -95,9 +95,6 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_Items, VisibleAnywhere)
 	FInventoryItems InventoryItems;
 
-	/*UPROPERTY(ReplicatedUsing = OnRep_Items, VisibleAnywhere)
-	TArray<UItemObject*> Items;*/
-
 	UFUNCTION()
 	virtual void OnRep_Items(FInventoryItems Old);
 

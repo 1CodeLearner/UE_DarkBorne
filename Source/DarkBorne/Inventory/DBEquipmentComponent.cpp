@@ -63,7 +63,6 @@ void UDBEquipmentComponent::OnRep_Items(FInventoryItems Old)
 {
 	Super::OnRep_Items(Old);
 
-
 	for (int i = 0; i < Old.Items.Num(); ++i)
 	{
 		if (Old.Items[i] != InventoryItems.Items[i])
@@ -86,9 +85,17 @@ void UDBEquipmentComponent::OnRep_Items(FInventoryItems Old)
 				if (bIsGameOnGoing)
 				{
 					auto Pawn = Cast<APawn>(GetOwner());
-					if (ensure(Pawn) && Pawn->IsLocallyControlled())
+					if (Pawn && Pawn->IsLocallyControlled())
 					{
 						UGameplayStatics::PlaySound2D(GetOwner(), InventoryItems.Items[i]->GetEquipSound());
+					}
+					else
+					{
+						Pawn = Cast<APawn>(InventoryItems.InteractingActor);
+						if (Pawn && Pawn->IsLocallyControlled())
+						{
+							UGameplayStatics::PlaySound2D(GetOwner(), InventoryItems.Items[i]->GetInventorySound());
+						}
 					}
 				}
 				else
@@ -146,6 +153,7 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
 	UItemObject* TempItemObj = InventoryItems.Items[index];
 	InventoryItems.Items[index] = nullptr;
+	InventoryItems.InteractingActor = InitiatedActor;
 
 	auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	if (WeaponComp)
@@ -240,6 +248,7 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	}
 
 	InventoryItems.Items[index] = ItemObject;
+	InventoryItems.InteractingActor = InitiatedActor;
 
 	ItemObject->TryDestroyItemActor();
 

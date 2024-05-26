@@ -92,28 +92,6 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject, AActor* Init
 	return false;
 }
 
-void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor)
-{
-	if (!InitiatedActor) return;
-	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
-		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
-		return;*/
-
-	if (HasItem(ItemObject))
-	{
-		if (GetOwner()->HasNetOwner())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
-			Server_RemoveItem(ItemObject, InitiatedActor);
-		}
-		else {
-			UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
-			auto PEComp = InitiatedActor->GetComponentByClass<UPlayerEquipmentComponent>();
-			PEComp->Server_TaxiForRemoveItem(this, ItemObject, InitiatedActor);
-		}
-	}
-}
-
 void UPlayerEquipmentComponent::AddItemAt(UItemObject* ItemObject, int32 index, AActor* InitiatedActor)
 {
 	if (!IsValid(ItemObject)) return;
@@ -142,6 +120,73 @@ void UPlayerEquipmentComponent::Server_TaxiForAddItemAt_Implementation(UBaseInve
 	}
 }
 
+void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* ItemObject, int32 TopLeftIndex, AActor* InitiatedActor)
+{
+	////ForEachIndex
+	if (!ItemObject)
+		return;
+
+	FInventoryItems Old = InventoryItems;
+
+	//If inventory already has ItemObject, remove it from inventory.
+	if (HasItem(ItemObject))
+	{
+		RemoveItem(ItemObject, InitiatedActor);
+	}
+
+	if (IsRoomAvailable(ItemObject, TopLeftIndex))
+	{
+		FTile refTile = IndexToTile(TopLeftIndex);
+		FIntPoint dimentions = ItemObject->GetDimentions();
+		FTile newTile;
+
+		for (int32 i = refTile.X; i < refTile.X + (dimentions.X); i++)
+		{
+			for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y); j++)
+			{
+				newTile.X = i;
+				newTile.Y = j;
+				InventoryItems.Items[TileToIndex(newTile)] = ItemObject;
+			}
+		}
+
+		ItemObject->TryDestroyItemActor();
+
+		InventoryItems.InteractingActor = InitiatedActor;
+
+		OnRep_Items(Old);
+	}
+	else
+	{
+		//Re-add it back to inventory.
+		TryAddItem(ItemObject, InitiatedActor);
+	}
+
+
+}
+
+void UPlayerEquipmentComponent::RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor)
+{
+	if (!InitiatedActor) return;
+	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
+		this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
+		return;*/
+
+	if (HasItem(ItemObject))
+	{
+		if (GetOwner()->HasNetOwner())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Has NetOwner()"));
+			Server_RemoveItem(ItemObject, InitiatedActor);
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("Has no NetOwner()"));
+			auto PEComp = InitiatedActor->GetComponentByClass<UPlayerEquipmentComponent>();
+			PEComp->Server_TaxiForRemoveItem(this, ItemObject, InitiatedActor);
+		}
+	}
+}
+
 void UPlayerEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	auto TaxiedPEComp = Cast<UPlayerEquipmentComponent>(TaxiedInventoryComp);
@@ -166,6 +211,8 @@ void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* It
 				InventoryItems.Items[i] = nullptr;
 			}
 		}
+		InventoryItems.InteractingActor = InitiatedActor;
+
 		OnRep_Items(Old);
 	}
 }
@@ -286,48 +333,6 @@ int32 UPlayerEquipmentComponent::GetRow() const
 	return Rows;
 }
 
-void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* ItemObject, int32 TopLeftIndex, AActor* InitiatedActor)
-{
-	////ForEachIndex
-	if (!ItemObject)
-		return;
-
-	FInventoryItems Old = InventoryItems;
-
-	//If inventory already has ItemObject, remove it from inventory.
-	if (HasItem(ItemObject))
-	{
-		RemoveItem(ItemObject, InitiatedActor);
-	}
-
-	if (IsRoomAvailable(ItemObject, TopLeftIndex))
-	{
-		FTile refTile = IndexToTile(TopLeftIndex);
-		FIntPoint dimentions = ItemObject->GetDimentions();
-		FTile newTile;
-
-		for (int32 i = refTile.X; i < refTile.X + (dimentions.X); i++)
-		{
-			for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y); j++)
-			{
-				newTile.X = i;
-				newTile.Y = j;
-				InventoryItems.Items[TileToIndex(newTile)] = ItemObject;
-			}
-		}
-
-		ItemObject->TryDestroyItemActor();
-		OnRep_Items(Old);
-	}
-	else
-	{
-		//Re-add it back to inventory.
-		TryAddItem(ItemObject, InitiatedActor);
-	}
-
-
-}
-
 TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems() const
 {
 	TMap<UItemObject*, FTile> AllItems;
@@ -423,13 +428,17 @@ void UPlayerEquipmentComponent::OnRep_Items(FInventoryItems Old)
 		if (Size == ItemUpdated.Num())
 		{
 			auto Pawn = Cast<APawn>(GetOwner());
-			if (!Pawn)
-			{
-
-			}
-			else if(Pawn->IsLocallyControlled())
+			if (Pawn && Pawn->IsLocallyControlled())
 			{
 				UGameplayStatics::PlaySound2D(GetOwner(), ItemUpdated[0]->GetInventorySound());
+			}
+			else
+			{
+				Pawn = Cast<APawn>(InventoryItems.InteractingActor);
+				if (Pawn && Pawn->IsLocallyControlled())
+				{
+					UGameplayStatics::PlaySound2D(GetOwner(), ItemUpdated[0]->GetInventorySound());
+				}
 			}
 		}
 	}
