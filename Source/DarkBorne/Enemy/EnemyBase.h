@@ -42,6 +42,9 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable)
 	void DamageProcess(float damage, AActor* attackSource);
+
+
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UEnemyFSMBase* baseFSM;
@@ -52,6 +55,10 @@ public:
 	UPROPERTY(EditAnywhere, Category="Settings")
 	TObjectPtr<ULootInventoryComponent> LootInventoryComp;
 
+
+
+
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float maxHP = 100;
@@ -61,6 +68,9 @@ public:
 	
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	EEnemyAttackType enemyAttackType = EEnemyAttackType::MELEE;
+
+
+
 
 public:
 	UFUNCTION()
@@ -83,5 +93,5 @@ public:
 	virtual void SetCanInteract(bool bAllowInteract) override;
 
 	virtual FDisplayInfo GetDisplayInfo() const override;
-
+	
 };
