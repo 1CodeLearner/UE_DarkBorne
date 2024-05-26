@@ -79,6 +79,9 @@ void ADBCharacter::PostInitializeComponents()
 	if (CharacterStatusComponent)
 	{
 		CharacterStatusComponent->Initialize();
+
+		MaxHP = CharacterStatusComponent->MaxHP;
+		CurrHP = MaxHP;
 	}
 }
 
@@ -317,12 +320,19 @@ void ADBCharacter::CreatePlayerWidget()
 	PlayerWidget->AddToViewport();
 }
 // 플레이어 위젯의 HP바 갱신
-void ADBCharacter::OnRep_CurrHP()
+void ADBCharacter::OnRep_CurrHP(float Old)
 {
 	// 플레이어 위젯이 없으면 리턴
+
+	UE_LOG(LogTemp, Warning, TEXT("Old:%f"), Old);
+	UE_LOG(LogTemp, Warning, TEXT("New:%f"), CurrHP);
+
 	if (PlayerWidget == nullptr) return;
+	
 	PlayerWidget->UpdateHeathBar(CharacterStatusComponent->CurrHP, CharacterStatusComponent->MaxHP);
-	PlayerWidget->ShowDamageUI();
+	if (CurrHP < Old) {
+		PlayerWidget->ShowDamageUI();
+	}
 	UE_LOG(LogTemp, Warning, TEXT("Testing:%f"), CharacterStatusComponent->CurrHP);
 }
 

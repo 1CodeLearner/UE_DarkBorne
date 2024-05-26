@@ -76,7 +76,7 @@ void UZoneDamage::Tick(float DeltaTime)
 			if (IsValid(Character) && Character->CharacterStatusComponent->CurrHP > 0.f)
 			{
 				Character->CharacterStatusComponent->DamageProcess(damageAmt);
-				Character->CharacterStatusComponent->OnRep_CurrHP();
+				//Character->CharacterStatusComponent->OnRep_CurrHP();
 				auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
 				if (ensure(GM) && Character->CharacterStatusComponent->CurrHP <= 0.f)
 				{

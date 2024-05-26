@@ -14,7 +14,7 @@ void UEffect_SurgicalKit::StartTick()
 	if(StatusComp->CurrHP > 0.f)
 	{
 		StatusComp->DamageProcess(-StatusComp->MaxHP);
-		StatusComp->OnRep_CurrHP();
+		//StatusComp->OnRep_CurrHP();
 	}
 
 	GetEffectComponent()->RemoveEffect(this);
