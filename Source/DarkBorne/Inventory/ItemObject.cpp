@@ -218,6 +218,11 @@ USoundBase* UItemObject::GetInventorySound() const
 	return ItemData.Item.SlotHolder.InventorySound;
 }
 
+USoundBase* UItemObject::GetDropSound() const
+{
+	return ItemData.Item.SlotHolder.DropSound;
+}
+
 float UItemObject::GetRarityValue() const
 {
 	return ItemData.Item.GetDefaultValue();

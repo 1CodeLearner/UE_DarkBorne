@@ -10,6 +10,7 @@
 #include "Net/UnrealNetwork.h"
 #include "../Framework/ActorComponents/DBInteractionComponent.h"
 #include "../Inventory/DBEquipmentComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 ADBItem::ADBItem()
 {
@@ -33,7 +34,8 @@ void ADBItem::BeginPlay()
 	if (HasAuthority() && !GetOwner())
 	{
 		SMComp->SetSimulatePhysics(true);
-		bCanInteract = true;
+		bCanInteract = true;		
+		Multicast_ItemDropped();
 	}
 	SetInteractionTime(0.f);
 }
@@ -70,6 +72,14 @@ void ADBItem::Initialize(UItemObject* ItemObject)
 UItemObject* ADBItem::GetItemObject() const
 {
 	return ItemObj;
+}
+
+void ADBItem::Multicast_ItemDropped_Implementation()
+{
+	if (ItemObj)
+	{
+		UGameplayStatics::PlaySound2D(this, ItemObj->GetDropSound());
+	}
 }
 
 void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp)

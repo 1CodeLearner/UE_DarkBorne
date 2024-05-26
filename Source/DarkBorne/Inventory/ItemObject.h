@@ -77,6 +77,8 @@ public:
 	USoundBase* GetEquipSound() const;
 	UFUNCTION(BlueprintCallable)
 	USoundBase* GetInventorySound() const;
+	UFUNCTION(BlueprintCallable)
+	USoundBase* GetDropSound() const;
 
 	UFUNCTION(BlueprintCallable)
 	float GetRarityValue() const;

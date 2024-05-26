@@ -23,6 +23,7 @@ void FItem::Initialize()
 		SlotHolder.SlotType = ItemSlot->SlotType;
 		SlotHolder.SlotDimension = ItemSlot->SlotDimension;
 		SlotHolder.EquipSound = ItemSlot->EquipSound;
+		SlotHolder.DropSound = ItemSlot->DropSound;
 		SlotHolder.ItemType = ItemSlot->ItemType;
 		SlotHolder.ItemClass = ItemSlot->ItemClass;
 

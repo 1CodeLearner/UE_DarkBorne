@@ -37,6 +37,10 @@ protected:
 	TObjectPtr<USceneComponent> SceneComp;
 
 protected:
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_ItemDropped();
+
+protected:
 	virtual void BeginInteract(UDBInteractionComponent* InteractionComp) override;
 	virtual void ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character) override;
 	virtual void InterruptInteract() override;

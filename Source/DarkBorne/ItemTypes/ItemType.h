@@ -103,6 +103,10 @@ struct FSlotHolder
 	UPROPERTY(BlueprintReadOnly)
 	USoundBase* EquipSound;
 
+	//아이탬 떨어트릴때 내는 소리
+	UPROPERTY(BlueprintReadOnly)
+	USoundBase* DropSound;
+
 	UPROPERTY(BlueprintReadOnly)
 	EItemType ItemType;
 

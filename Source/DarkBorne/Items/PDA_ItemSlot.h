@@ -65,6 +65,9 @@ public:
 	USoundBase* EquipSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+	USoundBase* DropSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	EItemType ItemType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
