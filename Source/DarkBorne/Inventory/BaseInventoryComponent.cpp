@@ -29,14 +29,14 @@ void UBaseInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UBaseInventoryComponent, Items);
+	DOREPLIFETIME(UBaseInventoryComponent, InventoryItems);
 }
 
 bool UBaseInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
 {
 	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
 
-	for (UItemObject* ItemObject : Items)
+	for (UItemObject* ItemObject : InventoryItems.Items)
 	{
 		WroteSomething |= Channel->ReplicateSubobject(ItemObject, *Bunch, *RepFlags);
 	}
@@ -126,7 +126,7 @@ FTransform UBaseInventoryComponent::GetNewTransform(AActor* Instigator, float of
 	return Trans;
 }
 
-void UBaseInventoryComponent::OnRep_Items(TArray<UItemObject*> Old)
+void UBaseInventoryComponent::OnRep_Items(FInventoryItems Old)
 {
 	bIsDirty = true;
 }

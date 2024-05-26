@@ -25,7 +25,7 @@ bool UPlayerEquipmentComponent::HasRoomFor(UItemObject* ItemObject) const
 {
 	if (!IsValid(ItemObject)) return false;
 
-	for (int i = 0; i < Items.Num(); i++)
+	for (int i = 0; i < InventoryItems.Items.Num(); i++)
 	{
 		//		UE_LOG(LogTemp, Warning, TEXT("TaxiToServer and this are diff"));
 		if (IsRoomAvailable(ItemObject, i))
@@ -44,9 +44,9 @@ bool UPlayerEquipmentComponent::HasItem(UItemObject* ItemObject) const
 	int32 total = dim.X * dim.Y;
 
 	int32 count = 0;
-	for (int32 i = 0; i < Items.Num(); i++)
+	for (int32 i = 0; i < InventoryItems.Items.Num(); i++)
 	{
-		if (Items[i] == ItemObject)
+		if (InventoryItems.Items[i] == ItemObject)
 		{
 			count++;
 		}
@@ -58,7 +58,7 @@ bool UPlayerEquipmentComponent::HasItem(UItemObject* ItemObject) const
 void UPlayerEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	Items.SetNum(Columns * Rows);
+	InventoryItems.Items.SetNum(Columns * Rows);
 }
 
 bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor)
@@ -69,7 +69,7 @@ bool UPlayerEquipmentComponent::TryAddItem(UItemObject* ItemObject, AActor* Init
 	//	this->GetOwner()->HasNetOwner(), TEXT("ensure this function has a reference to object that has owning connection for RPC call")))
 	//	return false;
 
-	for (int i = 0; i < Items.Num(); i++)
+	for (int i = 0; i < InventoryItems.Items.Num(); i++)
 	{
 		//		UE_LOG(LogTemp, Warning, TEXT("TaxiToServer and this are diff"));
 		if (IsRoomAvailable(ItemObject, i))
@@ -154,16 +154,19 @@ void UPlayerEquipmentComponent::Server_TaxiForRemoveItem_Implementation(UBaseInv
 void UPlayerEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	if (!IsValid(ItemObject)) return;
+
+	FInventoryItems Old = InventoryItems;
+
 	if (HasItem(ItemObject))
 	{
-		for (int32 i = 0; i < Items.Num(); i++)
+		for (int32 i = 0; i < InventoryItems.Items.Num(); i++)
 		{
-			if (Items[i] == ItemObject)
+			if (InventoryItems.Items[i] == ItemObject)
 			{
-				Items[i] = nullptr;
+				InventoryItems.Items[i] = nullptr;
 			}
 		}
-		OnRep_Items(Items);
+		OnRep_Items(Old);
 	}
 }
 
@@ -289,6 +292,8 @@ void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* Ite
 	if (!ItemObject)
 		return;
 
+	FInventoryItems Old = InventoryItems;
+
 	//If inventory already has ItemObject, remove it from inventory.
 	if (HasItem(ItemObject))
 	{
@@ -307,12 +312,12 @@ void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* Ite
 			{
 				newTile.X = i;
 				newTile.Y = j;
-				Items[TileToIndex(newTile)] = ItemObject;
+				InventoryItems.Items[TileToIndex(newTile)] = ItemObject;
 			}
 		}
 
 		ItemObject->TryDestroyItemActor();
-		OnRep_Items(Items);
+		OnRep_Items(Old);
 	}
 	else
 	{
@@ -328,9 +333,9 @@ TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems() const
 	TMap<UItemObject*, FTile> AllItems;
 	UItemObject* CurrentItemObject;
 
-	for (int i = 0; i < Items.Num(); i++)
+	for (int i = 0; i < InventoryItems.Items.Num(); i++)
 	{
-		CurrentItemObject = Items[i];
+		CurrentItemObject = InventoryItems.Items[i];
 		if (IsValid(CurrentItemObject) && !AllItems.Contains(CurrentItemObject))
 		{
 			AllItems.Add(CurrentItemObject, IndexToTile(i));
@@ -394,18 +399,18 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 	return true;
 }
 
-void UPlayerEquipmentComponent::OnRep_Items(TArray<UItemObject*> Old)
+void UPlayerEquipmentComponent::OnRep_Items(FInventoryItems Old)
 {
 	Super::OnRep_Items(Old);
 
 	TArray<UItemObject*> ItemUpdated;
-	for (int i = 0; i < Old.Num(); ++i)
+	for (int i = 0; i < Old.Items.Num(); ++i)
 	{
-		if (Old[i] != Items[i])
+		if (Old.Items[i] != InventoryItems.Items[i])
 		{
-			if (Items[i])
+			if (InventoryItems.Items[i])
 			{
-				ItemUpdated.Add(Items[i]);
+				ItemUpdated.Add(InventoryItems.Items[i]);
 			}
 		}
 	}
@@ -432,8 +437,8 @@ void UPlayerEquipmentComponent::OnRep_Items(TArray<UItemObject*> Old)
 
 inline TTuple<bool, UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index) const
 {
-	if (ensureAlways(Items.IsValidIndex(Index)))
-		return MakeTuple(IsValid(Items[Index]), Items[Index]);
+	if (ensureAlways(InventoryItems.Items.IsValidIndex(Index)))
+		return MakeTuple(IsValid(InventoryItems.Items[Index]), InventoryItems.Items[Index]);
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("index out of bounds: %d"), Index);

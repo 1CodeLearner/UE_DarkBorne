@@ -39,7 +39,7 @@ void UDBEquipmentComponent::BeginPlay()
 		{
 			ESlotType slotNum = ESlotType::NONE;
 			int32 size = (int32)slotNum - 1;
-			Items.SetNum(size, false);
+			InventoryItems.Items.SetNum(size, false);
 
 			int val = 10;
 		}
@@ -50,37 +50,37 @@ void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (Items[0])
+	if (InventoryItems.Items[0])
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
 			*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
-			*Items[0]->GetItem().SlotHolder.DisplayName.ToString(), Items.Num())
+			*InventoryItems.Items[0]->GetItem().SlotHolder.DisplayName.ToString(), InventoryItems.Items.Num())
 		);
 	}
 }
 
-void UDBEquipmentComponent::OnRep_Items(TArray<UItemObject*> Old)
+void UDBEquipmentComponent::OnRep_Items(FInventoryItems Old)
 {
 	Super::OnRep_Items(Old);
 
 
-	for (int i = 0; i < Old.Num(); ++i)
+	for (int i = 0; i < Old.Items.Num(); ++i)
 	{
-		if (Old[i] != Items[i])
+		if (Old.Items[i] != InventoryItems.Items[i])
 		{
-			if (Old[i]) //Remove stats from player
+			if (Old.Items[i]) //Remove stats from player
 			{
 				if (GetOwner()->HasAuthority())
 				{
-					UCharacterStatusComponent::AdjustAddedStats(GetOwner(), Old[i], false);
+					UCharacterStatusComponent::AdjustAddedStats(GetOwner(), Old.Items[i], false);
 				}
 			}
 
-			if (Items[i]) //Add stats to player
+			if (InventoryItems.Items[i]) //Add stats to player
 			{
 				if (GetOwner()->HasAuthority())
 				{
-					UCharacterStatusComponent::AdjustAddedStats(GetOwner(), Items[i], true);
+					UCharacterStatusComponent::AdjustAddedStats(GetOwner(), InventoryItems.Items[i], true);
 				}
 
 				if (bIsGameOnGoing)
@@ -88,7 +88,7 @@ void UDBEquipmentComponent::OnRep_Items(TArray<UItemObject*> Old)
 					auto Pawn = Cast<APawn>(GetOwner());
 					if (ensure(Pawn) && Pawn->IsLocallyControlled())
 					{
-						UGameplayStatics::PlaySound2D(GetOwner(), Items[i]->GetEquipSound());
+						UGameplayStatics::PlaySound2D(GetOwner(), InventoryItems.Items[i]->GetEquipSound());
 					}
 				}
 				else
@@ -108,7 +108,7 @@ void UDBEquipmentComponent::RemoveItem(UItemObject* ItemObject, AActor* Initiate
 {
 	if (!IsValid(ItemObject)) return;
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	if (ItemObject != Items[index])
+	if (ItemObject != InventoryItems.Items[index])
 		return;
 
 	/*if (!ensureAlwaysMsgf(TaxiToServer->GetOwner()->HasNetOwner() ||
@@ -141,11 +141,11 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 	if (!ensureAlways(ItemObject))
 		return;
 
-	TArray<UItemObject*> Old = Items;
+	FInventoryItems Old = InventoryItems;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	UItemObject* TempItemObj = Items[index];
-	Items[index] = nullptr;
+	UItemObject* TempItemObj = InventoryItems.Items[index];
+	InventoryItems.Items[index] = nullptr;
 
 	auto WeaponComp = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 	if (WeaponComp)
@@ -158,16 +158,16 @@ void UDBEquipmentComponent::Server_RemoveItem_Implementation(UItemObject* ItemOb
 
 bool UDBEquipmentComponent::TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
-	if (!IsValid(ItemObject) || Items.IsEmpty())
+	if (!IsValid(ItemObject) || InventoryItems.Items.IsEmpty())
 		return false;
 	if (!InitiatedActor)
 		return false;
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	if (Items[index])
+	if (InventoryItems.Items[index])
 	{
 		auto PlayerInventoryComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
-		if (PlayerInventoryComp && !PlayerInventoryComp->HasRoomFor(Items[index]))
+		if (PlayerInventoryComp && !PlayerInventoryComp->HasRoomFor(InventoryItems.Items[index]))
 			return false;
 	}
 
@@ -208,10 +208,10 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 		return;
 
 
-	if (Items.IsEmpty())
+	if (InventoryItems.Items.IsEmpty())
 		return;
 
-	TArray<UItemObject*> Old = Items;
+	FInventoryItems Old = InventoryItems;
 
 	auto PlayerInventoryComp = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
 	bool bInventoryHasItemObject = false;
@@ -224,7 +224,7 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 	}
 
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	UItemObject* EquippedItem = Items[index];
+	UItemObject* EquippedItem = InventoryItems.Items[index];
 	if (EquippedItem)
 	{
 		if (PlayerInventoryComp && !PlayerInventoryComp->HasRoomFor(EquippedItem))
@@ -239,7 +239,7 @@ void UDBEquipmentComponent::Server_AddItem_Implementation(UItemObject* ItemObjec
 		PlayerInventoryComp->TryAddItem(EquippedItem, InitiatedActor);
 	}
 
-	Items[index] = ItemObject;
+	InventoryItems.Items[index] = ItemObject;
 
 	ItemObject->TryDestroyItemActor();
 
@@ -362,20 +362,20 @@ void UDBEquipmentComponent::Server_ProcessPressInput_Implementation(UItemObject*
 
 const TArray<UItemObject*> UDBEquipmentComponent::GetSlots() const
 {
-	return Items;
+	return InventoryItems.Items;
 }
 
 UItemObject* UDBEquipmentComponent::GetSlotItem(ESlotType SlotType) const
 {
 	int32 index = UItemLibrary::GetSlotIndexByEnum(SlotType);
-	if (Items.IsEmpty()) return nullptr;
-	return Items[index];
+	if (InventoryItems.Items.IsEmpty()) return nullptr;
+	return InventoryItems.Items[index];
 }
 
 bool UDBEquipmentComponent::IsSlotVacant(UItemObject* ItemObject) const
 {
 	int32 index = UItemLibrary::GetSlotIndexByObject(ItemObject);
-	if (Items.IsValidIndex(index) && Items[index])
+	if (InventoryItems.Items.IsValidIndex(index) && InventoryItems.Items[index])
 		return false;
 
 	return true;
@@ -383,9 +383,9 @@ bool UDBEquipmentComponent::IsSlotVacant(UItemObject* ItemObject) const
 
 bool UDBEquipmentComponent::HasItem(UItemObject* ItemObject) const
 {
-	for (int32 i = 0; i < Items.Num(); ++i)
+	for (int32 i = 0; i < InventoryItems.Items.Num(); ++i)
 	{
-		if (ItemObject == Items[i])
+		if (ItemObject == InventoryItems.Items[i])
 			return true;
 	}
 	return false;

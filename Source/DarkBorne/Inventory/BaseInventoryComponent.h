@@ -22,6 +22,17 @@ struct FInventoryInput
 	bool bHasShiftClicked;
 };
 
+USTRUCT()
+struct FInventoryItems
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	AActor* InteractingActor;
+	
+	UPROPERTY()
+	TArray<UItemObject*> Items;
+};
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryChangedDel);
 
@@ -80,11 +91,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float TileSize;
 
+
 	UPROPERTY(ReplicatedUsing = OnRep_Items, VisibleAnywhere)
-	TArray<UItemObject*> Items;
+	FInventoryItems InventoryItems;
+
+	/*UPROPERTY(ReplicatedUsing = OnRep_Items, VisibleAnywhere)
+	TArray<UItemObject*> Items;*/
 
 	UFUNCTION()
-	virtual void OnRep_Items(TArray<UItemObject*> Old);
+	virtual void OnRep_Items(FInventoryItems Old);
 
 	bool bIsDirty;
 

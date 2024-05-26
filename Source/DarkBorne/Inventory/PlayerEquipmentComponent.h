@@ -99,5 +99,5 @@ private:
 	UFUNCTION(BlueprintCallable)
 	bool IsRoomAvailable(UItemObject* ItemObject, int32 TopLeftIndex) const;
 
-	virtual void OnRep_Items(TArray<UItemObject*> Old) override;
+	virtual void OnRep_Items(FInventoryItems Old) override;
 };
