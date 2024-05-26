@@ -13,6 +13,7 @@
 #include "../DBCharacters/DBCharacter.h"
 #include <DarkBorne/DBCharacters/DBRogueCharacter.h>
 #include "Components/AudioComponent.h"
+#include <../../../../../../../Source/Runtime/Engine/Classes/Camera/CameraComponent.h>
 
 static TAutoConsoleVariable<bool> cVarStopZoneMovement(TEXT("su.StopZoneMovement"), false, TEXT("Stops Zone from Moving at start"), ECVF_Cheat);
 
@@ -207,6 +208,14 @@ void AZoneActor::UpdateSoundAndUI()
 					AudioComp_InZone->Play();
 				}
 				AudioComp_OverlapZone->Play();
+				ADBRogueCharacter* Player = Cast<ADBRogueCharacter>(LocallyControlledCharacter);
+				
+				Player->camera->PostProcessSettings.bOverride_LocalExposureDetailStrength = true;
+				Player->camera->PostProcessSettings.LocalExposureDetailStrength = 4.0f;
+
+				//Player->camera->PostProcessSettings.bOverride_LocalExposureBlurredLuminanceBlend = true;
+				//Player->camera->PostProcessSettings.LocalExposureBlurredLuminanceBlend = 50;
+
 				bIsWithinZone = false;
 			}
 		}
@@ -219,6 +228,9 @@ void AZoneActor::UpdateSoundAndUI()
 					AudioComp_InZone->StopDelayed(.2f);
 				}
 				AudioComp_OverlapZone->Play();
+				ADBRogueCharacter* Player = Cast<ADBRogueCharacter>(LocallyControlledCharacter);
+
+				Player->camera->PostProcessSettings.bOverride_LocalExposureDetailStrength = false;
 				bIsWithinZone = true;
 			}
 		}
