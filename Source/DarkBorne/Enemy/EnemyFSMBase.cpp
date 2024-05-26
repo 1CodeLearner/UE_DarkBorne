@@ -17,6 +17,8 @@
 #include "DarkBorne/DBCharacters/DBRogueCharacter.h"
 #include "DarkBorne/DBAnimInstance/DBRogueAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "DarkBorne/DBCharacters/DBCharacterSkill/DBRogueSkillComponent.h"
+#include "DarkBorne/DBCharacters/DBRogueCharacter.h"
 
 // FSM공통 부분 추가 발생시 추가할 스크립트
 //당장은 쓰이지 않음
@@ -226,7 +228,7 @@ void UEnemyFSMBase::UpdateIdle()
 
 void UEnemyFSMBase::UpdateMove()
 {
-	if (IsOutRangeCheck())
+	if (IsOutRangeCheck()|| IsTargetSightOut())
 	{
 		ChangeState(EEnemyState::IDLE);
 		return;
@@ -255,20 +257,25 @@ void UEnemyFSMBase::UpdatePatrol()
 
 void UEnemyFSMBase::UpdateAttack()
 {
-		ChangeState(EEnemyState::ATTACK_DELAY);
-	
-	
+	ChangeState(EEnemyState::ATTACK_DELAY);
 }
 
 void UEnemyFSMBase::UpdateAttackDelay()
 {
+	if (IsTargetSightOut())
+	{
+		ChangeState(EEnemyState::IDLE);
+	}
 	if (IsWaitComplete(attackDelayTime))
 	{
 		if (IsTargetDeath(nowTarget))
 		{
 			ChangeState(EEnemyState::IDLE);
 		}
-		
+		else if (IsTargetSightOut())
+		{
+			ChangeState(EEnemyState::IDLE);
+		}
 		//교전거리 0, 보임 0
 		else if (IsEngageRangeCheck() && CanVisibleAttack())
 		{
@@ -305,6 +312,7 @@ void UEnemyFSMBase::UpdateDie()
 
 void UEnemyFSMBase::EyeOnTarget()
 {
+	if(nowTarget == nullptr) return;
 	FVector camForward = (nowTarget->GetActorLocation() - myActor->GetActorLocation()).GetSafeNormal();
 	FVector camUp = (nowTarget->GetActorLocation() - myActor->GetActorLocation()).GetSafeNormal();
 	FRotator rot = UKismetMathLibrary::MakeRotFromXZ(camForward, camUp);
@@ -362,6 +370,25 @@ bool UEnemyFSMBase::IsOutRangeCheck()
 	return false;
 }
 
+bool UEnemyFSMBase::IsTargetSightOut()
+{
+	if(nowTarget == nullptr) return false;
+	
+	if (Cast<ADBRogueCharacter>(nowTarget) != nullptr)
+	{
+		ADBRogueCharacter* target = Cast<ADBRogueCharacter>(nowTarget);
+		//return (currCoolTIme != maxCoolTime) ? true : false;
+		if (target->RogueSkillComponent->isVanish)
+		{
+			nowTarget = nullptr;
+			//ChangeState(EEnemyState::IDLE);
+			return true;
+		}
+		
+	}
+	return false;
+}
+
 /// <summary>
 /// 처음 시야 감지용
 /// </summary>
@@ -409,7 +436,7 @@ bool UEnemyFSMBase::IsVisibleCheck()
 	else
 	{
 		nowTarget = selectTarget;
-		return true;
+		return !IsTargetSightOut();
 	}
 
 

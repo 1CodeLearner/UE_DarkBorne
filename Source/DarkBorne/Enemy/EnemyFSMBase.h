@@ -71,6 +71,9 @@ public:
 	virtual bool IsEngageRangeCheck();
 	//거리 벗어 났는지 체크해서 안쫒아갈 용도
 	virtual bool IsOutRangeCheck();
+	//
+	virtual bool IsTargetSightOut();
+
 	//처음에 시야 에 들어와서 추적 체크 할 용도
 	virtual bool IsVisibleCheck();
 	//원거리 사격 가능 하게끔 시야에 보이는지

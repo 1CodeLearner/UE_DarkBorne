@@ -2,6 +2,7 @@
 
 
 #include "DarkBorne/Enemy/MorigeshSoundBoardComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 UMorigeshSoundBoardComponent::UMorigeshSoundBoardComponent()
@@ -18,6 +19,7 @@ UMorigeshSoundBoardComponent::UMorigeshSoundBoardComponent()
 void UMorigeshSoundBoardComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	
 
 	// ...
 	
@@ -30,5 +32,21 @@ void UMorigeshSoundBoardComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UMorigeshSoundBoardComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+void UMorigeshSoundBoardComponent::Local_PlaySoundAtLocation(USoundBase* soundBase, FVector Location)
+{
+	MultiRPC_PlaySoundAtLocation(soundBase,Location);
+}
+
+
+void UMorigeshSoundBoardComponent::MultiRPC_PlaySoundAtLocation_Implementation(USoundBase* soundBase, FVector Location)
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), soundBase, Location);
 }
 

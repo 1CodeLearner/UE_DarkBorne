@@ -3,6 +3,7 @@
 
 #include "../Enemy/MorigeshEnemy.h"
 #include "MorigeshEnemyFSM.h"
+#include "DarkBorne/Enemy/MorigeshSoundBoardComponent.h"
 #include <Components/CapsuleComponent.h>
 
 
@@ -23,11 +24,14 @@ AMorigeshEnemy::AMorigeshEnemy()
 	baseFSM->SetNetAddressable();
 	baseFSM->SetIsReplicated(true);
 
+	SoundBoard = CreateDefaultSubobject<UMorigeshSoundBoardComponent>(TEXT("SoundBoard"));
+
 }
 
 void AMorigeshEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
 void AMorigeshEnemy::Tick(float DeltaTime)

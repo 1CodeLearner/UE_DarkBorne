@@ -34,5 +34,8 @@ public:
 	UPROPERTY()
 	class USkeletalMeshComponent* myMesh;
 
+	UPROPERTY()
+	class UMorigeshSoundBoardComponent* SoundBoard;
+
 	virtual FDisplayInfo GetDisplayInfo() const override;
 };
