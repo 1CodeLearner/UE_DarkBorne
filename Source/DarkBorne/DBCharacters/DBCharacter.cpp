@@ -308,8 +308,11 @@ void ADBCharacter::DisplayInventory(bool bEnabled)
 
 			PC->bShowMouseCursor = true;
 
-			EnhancedInputSubSystem->AddMappingContext(IMC_Inventory, 0);
-			EnhancedInputSubSystem->RemoveMappingContext(imc_DBMapping);
+			if (InvMainWidget->IsLootValid())
+			{
+				EnhancedInputSubSystem->AddMappingContext(IMC_Inventory, 0);
+				EnhancedInputSubSystem->RemoveMappingContext(imc_DBMapping);
+			}
 		}
 		InvMainWidget->DisplayInventory(true);
 	}
@@ -322,8 +325,11 @@ void ADBCharacter::DisplayInventory(bool bEnabled)
 			UWidgetBlueprintLibrary::SetFocusToGameViewport();
 			PC->bShowMouseCursor = false;
 
-			EnhancedInputSubSystem->AddMappingContext(imc_DBMapping, 0);
-			EnhancedInputSubSystem->RemoveMappingContext(IMC_Inventory);
+			if (InvMainWidget->IsLootValid())
+			{
+				EnhancedInputSubSystem->AddMappingContext(imc_DBMapping, 0);
+				EnhancedInputSubSystem->RemoveMappingContext(IMC_Inventory);
+			}
 		}
 		InvMainWidget->DisplayInventory(false);
 	}

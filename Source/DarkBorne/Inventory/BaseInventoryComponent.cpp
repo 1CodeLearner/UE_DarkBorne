@@ -13,6 +13,9 @@ UBaseInventoryComponent::UBaseInventoryComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 	bIsDirty = false;
+	Columns = 10;
+	Rows = 4;
+	TileSize = 62.5f;
 }
 
 void UBaseInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

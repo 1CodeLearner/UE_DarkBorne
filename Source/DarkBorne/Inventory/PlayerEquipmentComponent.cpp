@@ -16,9 +16,6 @@ UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 	bIsDirty = false;
-	Columns = 8;
-	Rows = 5;
-	TileSize = 50.f;
 }
 
 bool UPlayerEquipmentComponent::HasRoomFor(UItemObject* ItemObject) const

@@ -20,8 +20,6 @@ UDBEquipmentComponent::UDBEquipmentComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	bInvalidSlot = false;
 	bOccupiedSlot = false;
-	Columns = 2;
-	Rows = 2;
 	bIsGameOnGoing = false;
 }
 
