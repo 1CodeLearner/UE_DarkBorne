@@ -47,8 +47,8 @@ public:
 	virtual void Server_TaxiForProcessPressInput(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput);
 	UFUNCTION(Server, Reliable)
 	virtual void Server_ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput);
-	
-	
+
+
 	UFUNCTION(BlueprintCallable)
 	virtual bool TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor);
 	UFUNCTION(BlueprintCallable)
@@ -59,10 +59,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FVector2D GetSize() const;
-	
+
 	UFUNCTION(BlueprintCallable)
 	virtual bool HasItem(UItemObject* ItemObject) const;
-	
+
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
 
@@ -89,4 +89,8 @@ protected:
 	bool bIsDirty;
 
 	FTransform GetNewTransform(AActor* Instigator, float offset);
+
+private:
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess),  Category="Settings")
+	TObjectPtr<USoundBase> ItemDropSound;
 };

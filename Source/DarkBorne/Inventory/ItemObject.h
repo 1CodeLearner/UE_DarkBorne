@@ -73,8 +73,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FText GetCategoryText() const;
 
-
-
+	UFUNCTION(BlueprintCallable)
+	USoundBase* GetEquipSound() const;
+	UFUNCTION(BlueprintCallable)
+	USoundBase* GetInventorySound() const;
 
 	UFUNCTION(BlueprintCallable)
 	float GetRarityValue() const;

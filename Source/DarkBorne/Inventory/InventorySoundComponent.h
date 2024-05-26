@@ -6,27 +6,18 @@
 #include "Components/ActorComponent.h"
 #include "InventorySoundComponent.generated.h"
 
-USTRUCT()
-struct FInvenSound
+
+
+UENUM()
+enum class EInvenEquipType
 {
-	GENERATED_BODY()
-public:
-	FInvenSound() 
-	{
-		EquipSound = nullptr;
-		InventorySound = nullptr;
-		bPlaySound = false;
-	}
-
-	UPROPERTY()
-	TObjectPtr<USoundBase> EquipSound;
-	
-	UPROPERTY()
-	TObjectPtr<USoundBase> InventorySound;
-
-	UPROPERTY()
-	bool bPlaySound;
+	None UMETA(DisplayName="None"),
+	Equip UMETA(DisplayName="Equip"),
+	Inventory UMETA(DisplayName="Inventory"),
+	Spawn UMETA(DisplayName="Spawn")
 };
+
+class UItemObject;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DARKBORNE_API UInventorySoundComponent : public UActorComponent
@@ -35,15 +26,7 @@ class DARKBORNE_API UInventorySoundComponent : public UActorComponent
 
 public:
 	UInventorySoundComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	void DeclareSoundType(EInvenEquipType Type, UItemObject* ItemObject);
 
-protected:
-	virtual void BeginPlay() override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-private:
-	UPROPERTY(ReplicatedUsing = "Onrep_InvenSound")
-	FInvenSound InvenSound;
-	UFUNCTION()
-	void Onrep_InvenSound();
 };

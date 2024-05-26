@@ -20,6 +20,7 @@ class UDBInteractionComponent;
 
 class UDBEffectComponent;
 
+
 UCLASS()
 class DARKBORNE_API ADBCharacter : public ACharacter, public IInteractionInterface
 {

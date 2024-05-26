@@ -11,7 +11,6 @@
 #include "../DBCharacters/DBCharacter.h"
 #include "DBEquipmentComponent.h"
 
-
 UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -393,6 +392,42 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 	}
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, FString::Printf(TEXT("Valid")));
 	return true;
+}
+
+void UPlayerEquipmentComponent::OnRep_Items(TArray<UItemObject*> Old)
+{
+	Super::OnRep_Items(Old);
+
+	TArray<UItemObject*> ItemUpdated;
+	for (int i = 0; i < Old.Num(); ++i)
+	{
+		if (Old[i] != Items[i])
+		{
+			if (Items[i])
+			{
+				ItemUpdated.Add(Items[i]);
+			}
+		}
+	}
+
+	if (ItemUpdated.Num() > 0)
+	{
+		FIntPoint Dimension = ItemUpdated[0]->GetDimentions();
+		int Size = Dimension.X * Dimension.Y;
+
+		if (Size == ItemUpdated.Num())
+		{
+			auto Pawn = Cast<APawn>(GetOwner());
+			if (!Pawn)
+			{
+
+			}
+			else if(Pawn->IsLocallyControlled())
+			{
+				UGameplayStatics::PlaySound2D(GetOwner(), ItemUpdated[0]->GetInventorySound());
+			}
+		}
+	}
 }
 
 inline TTuple<bool, UItemObject*> UPlayerEquipmentComponent::GetItematIndex(int32 Index) const

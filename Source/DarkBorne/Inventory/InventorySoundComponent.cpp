@@ -3,38 +3,43 @@
 
 #include "InventorySoundComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
+#include "InventorySoundComponent.h"
+#include "ItemObject.h"
 
 UInventorySoundComponent::UInventorySoundComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
-void UInventorySoundComponent::BeginPlay()
+void UInventorySoundComponent::DeclareSoundType(EInvenEquipType Type, UItemObject* ItemObject)
 {
-	Super::BeginPlay();
-	
-}
-
-void UInventorySoundComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION(UInventorySoundComponent, InvenSound, COND_OwnerOnly);
-}
-
-void UInventorySoundComponent::Onrep_InvenSound()
-{
-	if (InvenSound.bPlaySound) 
+	if(!ItemObject)
 	{
-		InvenSound.bPlaySound = false;
-		
+		return;
+	}
+
+	auto Pawn = Cast<APawn>(GetOwner());
+	if (Pawn && Pawn->IsLocallyControlled())
+	{
+		switch (Type)
+		{
+		case EInvenEquipType::Equip:
+		{
+			UE_LOG(LogTemp, Error, TEXT("DeclareSoundType : Equip"));
+			break;
+		}
+		case EInvenEquipType::Inventory:
+		{
+			UE_LOG(LogTemp, Error, TEXT("DeclareSoundType : Inventory"));
+			break;
+		}
+		case EInvenEquipType::Spawn:
+		{
+			UE_LOG(LogTemp, Error, TEXT("DeclareSoundType : Spawn"));
+			break;
+		}
+		}
 	}
 }
-
-
-void UInventorySoundComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-

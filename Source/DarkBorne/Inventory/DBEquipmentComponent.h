@@ -60,4 +60,5 @@ protected:
 
 private:
 	virtual void OnRep_Items(TArray<UItemObject*> Old) override;
+	bool bIsGameOnGoing;
 };

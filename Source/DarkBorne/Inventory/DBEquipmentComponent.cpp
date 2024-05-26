@@ -13,6 +13,7 @@
 #include "../DBCharacters/DBRogueCharacter.h"
 #include "../DBPlayerWidget/DBPlayerWidget.h"
 #include "../Status/CharacterStatusComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 UDBEquipmentComponent::UDBEquipmentComponent()
 {
@@ -21,6 +22,7 @@ UDBEquipmentComponent::UDBEquipmentComponent()
 	bOccupiedSlot = false;
 	Columns = 2;
 	Rows = 2;
+	bIsGameOnGoing = false;
 }
 
 void UDBEquipmentComponent::BeginPlay()
@@ -61,19 +63,37 @@ void UDBEquipmentComponent::OnRep_Items(TArray<UItemObject*> Old)
 {
 	Super::OnRep_Items(Old);
 
-	if (GetOwner()->HasAuthority())
+
+	for (int i = 0; i < Old.Num(); ++i)
 	{
-		for (int i = 0; i < Old.Num(); ++i)
+		if (Old[i] != Items[i])
 		{
-			if (Old[i] != Items[i])
+			if (Old[i]) //Remove stats from player
 			{
-				if (Old[i]) //Remove stats from player
+				if (GetOwner()->HasAuthority())
 				{
 					UCharacterStatusComponent::AdjustAddedStats(GetOwner(), Old[i], false);
 				}
-				if (Items[i]) //Add stats to player
+			}
+
+			if (Items[i]) //Add stats to player
+			{
+				if (GetOwner()->HasAuthority())
 				{
 					UCharacterStatusComponent::AdjustAddedStats(GetOwner(), Items[i], true);
+				}
+
+				if (bIsGameOnGoing)
+				{
+					auto Pawn = Cast<APawn>(GetOwner());
+					if (ensure(Pawn) && Pawn->IsLocallyControlled())
+					{
+						UGameplayStatics::PlaySound2D(GetOwner(), Items[i]->GetEquipSound());
+					}
+				}
+				else
+				{
+					bIsGameOnGoing = true;
 				}
 			}
 		}

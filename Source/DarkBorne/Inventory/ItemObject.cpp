@@ -208,6 +208,16 @@ FText UItemObject::GetCategoryText() const
 	return CategoryText;
 }
 
+USoundBase* UItemObject::GetEquipSound() const
+{
+	return ItemData.Item.SlotHolder.EquipSound;
+}
+
+USoundBase* UItemObject::GetInventorySound() const
+{
+	return ItemData.Item.SlotHolder.InventorySound;
+}
+
 float UItemObject::GetRarityValue() const
 {
 	return ItemData.Item.GetDefaultValue();
