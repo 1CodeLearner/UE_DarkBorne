@@ -47,6 +47,9 @@ ADBCharacter::ADBCharacter()
 void ADBCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetInteractionTime(31.f);
+
 	// 내 것이라면 
 	if (IsLocallyControlled())
 	{
@@ -81,6 +84,7 @@ void ADBCharacter::PostInitializeComponents()
 
 void ADBCharacter::BeginInteract(UDBInteractionComponent* InteractionComponent)
 {
+	GetMesh()->SetRenderCustomDepth(false);
 }
 
 void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* OtherCharacter)
@@ -112,10 +116,12 @@ void ADBCharacter::InterruptInteract()
 
 void ADBCharacter::BeginTrace()
 {
+	GetMesh()->SetRenderCustomDepth(true);
 }
 
 void ADBCharacter::EndTrace()
 {
+	GetMesh()->SetRenderCustomDepth(false);
 }
 
 bool ADBCharacter::CanInteract() const
@@ -316,6 +322,7 @@ void ADBCharacter::OnRep_CurrHP()
 	// 플레이어 위젯이 없으면 리턴
 	if (PlayerWidget == nullptr) return;
 	PlayerWidget->UpdateHeathBar(CharacterStatusComponent->CurrHP, CharacterStatusComponent->MaxHP);
+	PlayerWidget->ShowDamageUI();
 	UE_LOG(LogTemp, Warning, TEXT("Testing:%f"), CharacterStatusComponent->CurrHP);
 }
 

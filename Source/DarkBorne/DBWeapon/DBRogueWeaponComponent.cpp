@@ -15,7 +15,6 @@
 #include "../Framework/Interfaces/ItemInterface.h"
 #include "../Framework/BFL/ItemLibrary.h"
 #include "../DBCharacters/DBCharacterAttack/DBRogueAttackComponent.h"
-#include "../Status/CharacterStatusComponent.h"
 #include "../DBPlayerWidget/DBPlayerWidget.h"
 #include <../../../../../../../Source/Runtime/UMG/Public/Components/Image.h>
 
@@ -94,14 +93,11 @@ void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 		hasWeapon = HandleAttach(UItemLibrary::GetSlotIndexByEnum(ESlotType::WEAPON));
 		if (RogueItems != nullptr)
 		{
-		hasWeapon = true;
-		UCharacterStatusComponent::AdjustAddedStats(GetOwner(), RogueItems->GetItemObject(), hasWeapon);
-		
+			hasWeapon = true;
 		}
 		else
 		{
-		hasWeapon = false;
-
+			hasWeapon = false;
 		}
 		// 서버 플레이어를 위한 호출
 		//OnRep_hasWeapon();
@@ -117,7 +113,7 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 		hasWeapon = false;
 		AttachWeapon();
 	}
-	
+
 
 	switch (Item->GetSlotType())
 	{
@@ -142,16 +138,15 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 // 슬롯에서 아이템 떨어졌을때
 void UDBRogueWeaponComponent::TryRemoveRogueItem(UItemObject* Item)
 {
-	if (Item && RogueItems && Item->GetItemActor() == RogueItems)
+	if (Item && RogueItems && Item == RogueItems->GetItemObject())
 	{
 		RogueItems->GetItemObject()->TryDestroyItemActor();
 		RogueItems = nullptr;
 
-		if (Item->GetSlotType() == ESlotType::WEAPON) 
+		if (Item->GetSlotType() == ESlotType::WEAPON)
 		{
 			hasWeapon = false;
 		}
-		
 	}
 }
 
@@ -169,7 +164,7 @@ void UDBRogueWeaponComponent::Server_AttachConsumable_Implementation()
 	{
 		if (HandleAttach(UItemLibrary::GetSlotIndexByEnum(ESlotType::CONSUMABLE)))
 		{
-			hasWeapon = false;			
+			hasWeapon = false;
 		}
 	}
 }
@@ -191,13 +186,8 @@ bool UDBRogueWeaponComponent::HandleAttach(int32 SlotIndex)
 	{
 		if (Slots[SlotIndex]->GetItemActor() == nullptr)
 		{
-			if (RogueItems) 
+			if (RogueItems)
 			{
-				if (RogueItems->GetItemObject()->GetSlotType() == ESlotType::WEAPON)
-				{
-					UCharacterStatusComponent::AdjustAddedStats(GetOwner(), RogueItems->GetItemObject(), false);
-				}
-
 				RogueItems->GetItemObject()->TryDestroyItemActor();
 			}
 

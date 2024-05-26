@@ -104,8 +104,8 @@ FItem ADBDropItemManager::CreateItem(UDataTable* Table, FName RowName)
 	FItem tempItem = *item;
 
 	AssignRarity(tempItem);
-	AssignEnchantment(tempItem);
 	AssignSlotHolder(tempItem);
+	AssignEnchantment(tempItem);
 
 	return tempItem;
 }
@@ -149,7 +149,7 @@ void ADBDropItemManager::AssignRarity(FItem& Item)
 
 void ADBDropItemManager::AssignEnchantment(FItem& Item)
 {
-	if (!ensureAlways(!Item.IsValid())) return;
+	if (!ensureAlways(Item.IsValid())) return;
 
 	if (!ensureAlwaysMsgf(Item.Rarities.Num() > 0, TEXT("Ensure AssignRarity() is called before AssignEnhancement()")))
 		return;
@@ -161,6 +161,9 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 		return;
 
 	uint8 EnchantmentNum = 0;
+	FRarity temp = Item.Rarities[0];
+	int32 temp2 = int32(temp.RarityType);
+	EnchantmentNum = Item.GetRarities()[0].GetRarityType();
 	Item.GetRarities()[0].GetRarityType(EnchantmentNum);
 		
 	std::vector<bool> attributeCheck;

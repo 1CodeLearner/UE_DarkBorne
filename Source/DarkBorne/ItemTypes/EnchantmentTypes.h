@@ -10,7 +10,7 @@ struct FRange
 {
 	GENERATED_USTRUCT_BODY()
 
-	FRange operator+(const FRange& other) {
+	FRange operator+(const FRange& other) const {
 		return FRange(min + other.min, max + other.max);
 	}
 	FRange operator-(const FRange& other) {
@@ -88,7 +88,7 @@ struct FAttribute
 {
 	GENERATED_USTRUCT_BODY()
 
-	FAttribute operator+(const FAttribute& other) {
+	FAttribute operator+(const FAttribute& other) const {
 		ensureAlways(AttributeType == other.AttributeType);
 		return FAttribute({ AttributeType, Range + other.Range });
 	}
@@ -199,26 +199,44 @@ struct FDarkBorneStats
 	TArray<FPhysicalDamage> PhysicalDamages;
 };
 
-//USTRUCT(BlueprintType)
-//struct FAttributeStat
-//{
-//	GENERATED_USTRUCT_BODY()
-//
-//	float Strength;
-//	float Dexterity;
-//	float Knowledge;
-//};
-//
-//USTRUCT(Blueprintable)
-//struct FPhysicalDamageStat
-//{
-//	GENERATED_USTRUCT_BODY()
-//
-//	float PhysicalDamageBonus;
-//};
 
 /// <summary>
-/// Stats used for damage calculation and UI display. Elements of each Array are sorted by their enum types
+/// Stats used in damage calculations;
+/// </summary>
+USTRUCT(Blueprintable)
+struct FFinalStat
+{
+	GENERATED_BODY();
+
+	FFinalStat()
+	{
+		WeaponDamage = 0.f;
+		DamageBlockAmt = 0.f;
+	}
+
+	FFinalStat(float WeaponDmg, TArray<FAttribute> Attris, TArray<FPhysicalDamage> PhysDmgs, float DamageBlockAmount)
+	{
+		WeaponDamage = WeaponDmg; 
+		Attributes = std::move(Attris);
+		PhysDamages = std::move(PhysDmgs);
+		DamageBlockAmt = DamageBlockAmount;
+	}
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float WeaponDamage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<FAttribute> Attributes;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TArray<FPhysicalDamage> PhysDamages;
+
+	UPROPERTY(VisibleAnywhere)
+	float DamageBlockAmt;
+};
+
+/// <summary>
+/// Stats accumulated with equipped items in UDBEquipmentComponent. Elements of each Array are sorted in enum types
 /// </summary>
 USTRUCT(Blueprintable)
 struct FAddedStat
@@ -239,6 +257,9 @@ struct FAddedStat
 	}
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float WeaponDamage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<FAttribute> Attributes;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -248,11 +269,15 @@ struct FAddedStat
 	float DamageBlockAmt;
 };
 
+
+/// <summary>
+/// Base stats setup in DataTable using FCharacterBaseStat are assigned to this.
+/// </summary>
 USTRUCT(BlueprintType)
 struct FBaseStat
 {
 	GENERATED_USTRUCT_BODY()
-	
+
 	FBaseStat()
 	{
 		Attributes.Add({ EAttributeType::STRENGTH, {0.f, 0.f} });

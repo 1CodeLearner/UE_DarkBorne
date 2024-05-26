@@ -27,6 +27,7 @@ void ALootChestActor::BeginPlay()
 
 void ALootChestActor::BeginInteract(UDBInteractionComponent* InteractionComp)
 {
+	SMComp->SetRenderCustomDepth(false);
 }
 
 void ALootChestActor::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character)
@@ -48,11 +49,12 @@ void ALootChestActor::InterruptInteract()
 
 void ALootChestActor::BeginTrace()
 {
+	SMComp->SetRenderCustomDepth(true);
 }
 
 void ALootChestActor::EndTrace()
 {
-
+	SMComp->SetRenderCustomDepth(false);
 }
 
 bool ALootChestActor::CanInteract() const

@@ -13,7 +13,20 @@ void UDBPlayerWidget::NativeConstruct()
 
 void UDBPlayerWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
-
+	if (isShowDamageUI)
+	{
+		// 데미지 UI 를 서서히 보이지 않게 하자.	
+		// 1. currOpacity 를 줄어들게 하자
+		currOpacity -= InDeltaTime;
+		// 2. 그 값을 데미지 UI 의 opacity 값으로 설정
+		DamageUI->SetRenderOpacity(currOpacity);
+		// 3. currOpacity 가 0보다 같거나 작아지면
+		if (currOpacity <= 0)
+		{
+			// 4. 데미지 UI 를 안보이게 하자
+			isShowDamageUI = false;
+		}
+	}
 }
 
 
@@ -120,4 +133,11 @@ void UDBPlayerWidget::UpdateConsumeSlot(TArray<UItemObject*> EquipSlotArray)
 		UTexture2D* ConsumeImage = EquipSlotArray[7]->GetIconTexture();
 		ConsumeSlot->SetBrushFromTexture(ConsumeImage);
 	}
+}
+
+void UDBPlayerWidget::ShowDamageUI()
+{
+	isShowDamageUI = true;
+	currOpacity = 1;
+	PlayAnimation(DamageAnim);
 }

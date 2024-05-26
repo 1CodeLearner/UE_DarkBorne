@@ -32,7 +32,7 @@ void UDBGameInstance::Init()
 
 }
 
-void UDBGameInstance::CreateMySession()
+void UDBGameInstance::CreateMySession(int32 PlayerCount, float _CountdownTime)
 {
 	FOnlineSessionSettings sessionSettings;
 
@@ -49,7 +49,7 @@ void UDBGameInstance::CreateMySession()
 	sessionSettings.bAllowJoinViaPresence = true;
 
 	// 인원 수 
-	sessionSettings.NumPublicConnections = maxPlayer;
+	sessionSettings.NumPublicConnections = PlayerCount;
 
 	sessionSettings.Set(FName("ROOM_NAME"), roomName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
@@ -59,6 +59,8 @@ void UDBGameInstance::CreateMySession()
 
 	int32 rand = FMath::RandRange(1, 100000);
 	mySessionName += FString::Printf(TEXT("%d"), rand);
+	maxPlayer = PlayerCount;
+	CountdownTime = _CountdownTime;
 	sessionInterface->CreateSession(*netID, FName(mySessionName), sessionSettings);
 }
 
@@ -70,7 +72,7 @@ void UDBGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 
 		UE_LOG(LogTemp, Warning, TEXT("OnCreateSessionComplete Success -- %s"), *SessionName.ToString());
 		// Battle Map 으로 이동하자
-		FString Option = FString::Printf(TEXT("/Game/DBMaps/LobbyMap?listen?MaxPlayers=%d"), maxPlayer);
+		FString Option = FString::Printf(TEXT("/Game/DBMaps/LobbyMap?listen?MaxPlayers=%d?CountdownTime=%f"), maxPlayer, CountdownTime);
 		GetWorld()->ServerTravel(Option);
 	}
 	else

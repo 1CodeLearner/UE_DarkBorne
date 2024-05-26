@@ -19,6 +19,24 @@ void UItemToolTipWidget::StartInit(UItemObject* ItemObject)
 		if (TitleWidget)
 		{
 			TitleWidget->SetText(ItemObject->GetDisplayName());
+			switch (ItemObject->GetRarity().RarityType)
+			{
+			case ERarityType::COMMON:
+			{
+				TitleWidget->SetImageMaterial(MI_Common);
+				break;
+			}
+			case ERarityType::RARE:
+			{
+				TitleWidget->SetImageMaterial(MI_Rare);
+				break;
+			}
+			case ERarityType::EPIC:
+			{
+				TitleWidget->SetImageMaterial(MI_Epic);
+				break;
+			}
+			}
 			VerticalBox_ToolTip->AddChild(TitleWidget);
 		}
 
@@ -26,7 +44,7 @@ void UItemToolTipWidget::StartInit(UItemObject* ItemObject)
 		FText BaseStatText = ItemObject->GetBaseStatsText();
 		if (!BaseStatText.IsEmpty())
 		{
-			auto BaseStatWidget = CreateWidget<UItemDescriptionWidget>(GetOwningPlayer(), ItemDescriptionWidgetClass);
+			auto BaseStatWidget = CreateWidget<UItemDescriptionWidget>(GetOwningPlayer(), ItemBaseStatsWidgetClass);
 			if (BaseStatWidget)
 			{
 				BaseStatWidget->SetText(BaseStatText);
@@ -38,10 +56,11 @@ void UItemToolTipWidget::StartInit(UItemObject* ItemObject)
 			{
 				for (int i = 0; i < EnchantmentsTexts.Num(); ++i)
 				{
-					auto EnchantmentWidget = CreateWidget<UItemDescriptionWidget>(GetOwningPlayer(), ItemDescriptionWidgetClass);
+					auto EnchantmentWidget = CreateWidget<UItemDescriptionWidget>(GetOwningPlayer(), ItemBaseStatsWidgetClass);
 					if (EnchantmentWidget)
 					{
-
+						EnchantmentWidget->SetText(EnchantmentsTexts[i]);
+						VerticalBox_ToolTip->AddChild(EnchantmentWidget);
 					}
 				}
 			}

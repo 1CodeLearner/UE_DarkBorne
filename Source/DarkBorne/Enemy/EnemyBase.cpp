@@ -59,6 +59,7 @@ AEnemyBase::AEnemyBase()
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+	SetInteractionTime(31.f);
 }
 
 // Called every frame
@@ -132,6 +133,7 @@ void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 
 void AEnemyBase::BeginInteract(UDBInteractionComponent* InteractionComp)
 {
+	GetMesh()->SetRenderCustomDepth(false);
 }
 
 void AEnemyBase::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* OtherCharacter)
@@ -153,10 +155,12 @@ void AEnemyBase::InterruptInteract()
 
 void AEnemyBase::BeginTrace()
 {
+	GetMesh()->SetRenderCustomDepth(true);
 }
 
 void AEnemyBase::EndTrace()
 {
+	GetMesh()->SetRenderCustomDepth(false);
 }
 
 bool AEnemyBase::CanInteract() const

@@ -11,6 +11,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "../../Inventory/InventoryMainWidget.h"
 #include "../../DBCharacters/DBCharacterAttack/DBRogueAttackComponent.h"
+#include "../BFL/DarkBorneLibrary.h"
 
 static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
 
@@ -18,9 +19,9 @@ UDBInteractionComponent::UDBInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
-	InteractDistance = 2000.f;
-	InteractRadius = 50.f;
-	interactSpeed = 3.f;
+	InteractDistance = 400.f;
+	InteractRadius = 10.f;
+	interactSpeed = 60.f;
 	bInteracting = false;
 
 	currTime = 0.f;
@@ -48,11 +49,19 @@ void UDBInteractionComponent::OnInteract()
 			{
 				bInteracting = true;
 				IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
-
-				OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGININTERACT);
-
 				SetCanInteract(OverlappingActor, true);
 				Interface->BeginInteract(this);
+
+				if (Interface->GetInteractionTime() > 0.f)
+				{
+					float InteractStat = UDarkBorneLibrary::CalculateInteractionTime(GetOwner());
+					interactSpeed = Interface->GetInteractionTime() - InteractStat;
+					OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGININTERACT);
+				}
+				else
+				{
+					ExecuteInteraction();
+				}
 			}
 		}
 		else if (bInteracting) {
@@ -64,6 +73,9 @@ void UDBInteractionComponent::OnInteract()
 
 			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 			Interface->InterruptInteract();
+
+			OverlappingActor = nullptr;
+			OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::ENDTRACE);
 		}
 	}
 }
@@ -229,6 +241,9 @@ void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
 		FVector Start = Character->GetPawnViewLocation();
 		FVector End = Start + GetOwner()->GetActorForwardVector() * InteractDistance;
 
+		FVector WorldLoc;
+		FVector WorldDir;
+
 		auto PC = Character->GetController<APlayerController>();
 		if (PC)
 		{
@@ -236,8 +251,6 @@ void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
 			int32 ViewportSizeY;
 			PC->GetViewportSize(ViewportSizeX, ViewportSizeY);
 			FVector2D ScreenLoc = FVector2D(ViewportSizeX / 2, ViewportSizeY / 2);
-			FVector WorldLoc;
-			FVector WorldDir;
 			if (PC->DeprojectScreenPositionToWorld(ScreenLoc.X, ScreenLoc.Y, WorldLoc, WorldDir))
 			{
 				Start = WorldLoc;
@@ -263,49 +276,66 @@ void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
 
 		if (bHit)
 		{
-			for (auto Hit : Hits)
+
+			AActor* ActorOnFocus = nullptr;
+			float LargestDotValue = -100.f;
+			for (int i = Hits.Num() - 1; i >= 0; --i)
 			{
 				if (bDebugDraw)
 				{
-					DrawDebugSphere(GetWorld(), Hit.ImpactPoint, InteractRadius, 32, FColor::Blue, false, 0.0f);
+					DrawDebugSphere(GetWorld(), Hits[i].ImpactPoint, InteractRadius, 32, FColor::Blue, false, 0.0f);
 				}
 
-				AActor* HitActor = Hit.GetActor();
-				if (HitActor && HitActor->Implements<UInteractionInterface>())
+				FVector ImpactVector = Hits[i].ImpactPoint;
+				FVector DistVector = ImpactVector - WorldLoc;
+
+				DistVector.Normalize();
+				FVector WorldDirTemp = WorldDir;
+
+				DistVector.Z = 0.f;
+				WorldDirTemp.Z = 0.f;
+
+				float DotResult = FVector::DotProduct(DistVector, WorldDirTemp);
+				if(DotResult > LargestDotValue)
 				{
-					if (!Cast<IInteractionInterface>(HitActor)->CanInteract())
-					{
-						if (OverlappingActor) {
-							IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
-							Interface->EndTrace();
-							OverlappingActor = nullptr;
-							OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::ENDTRACE);
-						}
-						break;
-					};
-
-					if (!OverlappingActor)
-					{
-						OverlappingActor = HitActor;
-
-						auto Interface = Cast<IInteractionInterface>(OverlappingActor);
-						Interface->BeginTrace();
-						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGINTRACE);
-					}
-					else if (OverlappingActor != HitActor)
-					{
-						IInteractionInterface* prevActor = Cast<IInteractionInterface>(OverlappingActor);
-						prevActor->EndTrace();
-						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::ENDTRACE);
-
-						OverlappingActor = HitActor;
-
-						IInteractionInterface* currActor = Cast<IInteractionInterface>(OverlappingActor);
-						currActor->BeginTrace();
-						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGINTRACE);
-					}
+					ActorOnFocus = Hits[i].GetActor();
+					LargestDotValue = DotResult; 
 				}
-				break;
+			}
+			
+			if (ActorOnFocus && ActorOnFocus->Implements<UInteractionInterface>())
+			{
+				if (!Cast<IInteractionInterface>(ActorOnFocus)->CanInteract())
+				{
+					if (OverlappingActor) {
+						IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
+						Interface->EndTrace();
+						OverlappingActor = nullptr;
+						OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::ENDTRACE);
+					}
+					return;
+				};
+
+				if (!OverlappingActor)
+				{
+					OverlappingActor = ActorOnFocus;
+
+					auto Interface = Cast<IInteractionInterface>(OverlappingActor);
+					Interface->BeginTrace();
+					OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGINTRACE);
+				}
+				else if (OverlappingActor != ActorOnFocus)
+				{
+					IInteractionInterface* prevActor = Cast<IInteractionInterface>(OverlappingActor);
+					prevActor->EndTrace();
+					OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::ENDTRACE);
+
+					OverlappingActor = ActorOnFocus;
+
+					IInteractionInterface* currActor = Cast<IInteractionInterface>(OverlappingActor);
+					currActor->BeginTrace();
+					OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGINTRACE);
+				}
 			}
 		}
 		else if (OverlappingActor) {

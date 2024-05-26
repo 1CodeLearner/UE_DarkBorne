@@ -115,13 +115,18 @@ FTransform UBaseInventoryComponent::GetNewTransform(AActor* Instigator, float of
 	FTransform Trans;
 
 	Trans.SetLocation(SpawnLoc);
-	Trans.SetRotation(FQuat::Identity);
+	FRotator Rotation = Instigator->GetActorRotation();
+	float PitchRand = FMath::RandRange(-30.f, 30.f);
+	float RollRand = FMath::RandRange(-30.f, 30.f);
+	Rotation.Pitch += PitchRand;
+	Rotation.Roll += RollRand;
+	Trans.SetRotation(Rotation.Quaternion());
 	Trans.SetScale3D(FVector::OneVector);
 
 	return Trans;
 }
 
-void UBaseInventoryComponent::OnRep_Items()
+void UBaseInventoryComponent::OnRep_Items(TArray<UItemObject*> Old)
 {
 	bIsDirty = true;
 

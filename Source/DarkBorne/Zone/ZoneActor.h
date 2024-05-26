@@ -53,6 +53,7 @@ class UCapsuleComponent;
 class ADBPlayerController;
 class UZoneDamage;
 class ADBCharacter;
+class UAudioComponent;
 
 static TAutoConsoleVariable<bool> cVarDisplayZoneDebugMsg(TEXT("su.DisplayZoneDebugMsg"), false, TEXT("Display Zone Actor Debug info"), ECVF_Cheat);
 
@@ -74,6 +75,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TObjectPtr<UCapsuleComponent> CapsuleComp;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UAudioComponent> AudioComp_OverlapZone; 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UAudioComponent> AudioComp_InZone; 
+
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -83,12 +89,22 @@ protected:
 
 private:
 	UPROPERTY()
+	TObjectPtr<APawn> LocallyControlledCharacter;
+	UFUNCTION()
+	void UpdateSoundAndUI();
+	//Only used for updating sound and UI post processing
+	bool bIsWithinZone; 
+	UPROPERTY(ReplicatedUsing = "OnRep_bIsGameEnd")
+	bool bIsGameEnd;
+	UFUNCTION()
+	void OnRep_bIsGameEnd();
+
+	UPROPERTY()
 	TMap<ADBPlayerController*, ADBCharacter*> ActiveCharacters;
 	UPROPERTY()
 	TMap<ADBPlayerController*, bool> playerOverlapped;
 	UPROPERTY()
 	TMap<ADBPlayerController*, UZoneDamage*> playerDamaged;
-
 
 	//used to check if a given player is within the zone
 	FVector currLoc;

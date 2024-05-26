@@ -59,5 +59,5 @@ protected:
 	virtual bool HasItem(UItemObject* ItemObject) const override;
 
 private:
-	virtual void OnRep_Items() override;
+	virtual void OnRep_Items(TArray<UItemObject*> Old) override;
 };

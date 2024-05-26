@@ -35,6 +35,7 @@ void ADBItem::BeginPlay()
 		SMComp->SetSimulatePhysics(true);
 		bCanInteract = true;
 	}
+	SetInteractionTime(0.f);
 }
 
 void ADBItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -52,7 +53,7 @@ void ADBItem::Tick(float DeltaTime)
 	{
 		if (AnimMontage && character->GetMesh()->GetAnimInstance())
 		{
-			if(character->GetMesh()->GetAnimInstance()->Montage_IsPlaying(AnimMontage))
+			if (character->GetMesh()->GetAnimInstance()->Montage_IsPlaying(AnimMontage))
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, FString::Printf(TEXT("Montage playing: %s"), *GetNameSafe(AnimMontage)));
 			}
@@ -73,7 +74,7 @@ UItemObject* ADBItem::GetItemObject() const
 
 void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp)
 {
-	InteractionComp->ExecuteInteraction();
+	SMComp->SetRenderCustomDepth(false);
 }
 
 void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character)
@@ -85,32 +86,34 @@ void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharact
 	auto Inventory = DBCharacter->GetComponentByClass<UPlayerEquipmentComponent>();
 	auto Equipment = DBCharacter->GetComponentByClass<UDBEquipmentComponent>();
 
-	//Replace this with server and client RPCs that call these in server
-	if (Equipment->TryAddItem(ItemObj, DBCharacter))
+	//If player is already equipping an item
+	if (Equipment->GetSlotItem(ItemObj->GetSlotType()))
 	{
-
-	}
-	else if (Inventory->TryAddItem(ItemObj, DBCharacter))
-	{
-
+		//if player still fails to place the ItemObj in their inventory
+		if (!Inventory->TryAddItem(ItemObj, DBCharacter))
+		{
+			InteractionComp->DeclareFailedInteraction();
+		}
 	}
 	else
 	{
-		InteractionComp->DeclareFailedInteraction();
+		Equipment->AddItem(ItemObj, DBCharacter);
 	}
+
 }
 
 void ADBItem::InterruptInteract()
 {
-
 }
 
 void ADBItem::BeginTrace()
 {
+	SMComp->SetRenderCustomDepth(true);
 }
 
 void ADBItem::EndTrace()
 {
+	SMComp->SetRenderCustomDepth(false);
 }
 
 FDisplayInfo ADBItem::GetDisplayInfo() const

@@ -58,6 +58,8 @@ public:
 	const FAddedStat& GetAddedStat() const;
 	UFUNCTION(BlueprintCallable)
 	const FBaseStat& GetBaseStat() const;
+	UFUNCTION(BlueprintCallable)
+	FFinalStat GetFinalStat() const;
 
 	UFUNCTION(BlueprintCallable)
 	static UCharacterStatusComponent* Get(ADBCharacter* Character);
@@ -74,14 +76,14 @@ protected:
 	FName RowName;
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Settings")
+	UPROPERTY(VisibleAnywhere, Replicated, Category = "Settings")
 	FBaseStat BaseStat;
-	UPROPERTY(VisibleAnywhere, Category = "Settings")
+	UPROPERTY(VisibleAnywhere, Replicated, Category = "Settings")
 	FAddedStat AddedStat;
 	bool bInitialized;
 		
 	void AddStats(const UItemObject* ItemObject);
 	void RemoveStats(const UItemObject* ItemObject);
-
+	
 	void PrintStats();
 };

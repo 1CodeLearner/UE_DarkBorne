@@ -38,7 +38,6 @@ public:
 
 	FInteractActorUpdateDelegate OnInteractActorUpdate;
 	FInteractTimeUpdateDelegate OnInteractTimeUpdate;
-	void ExecuteInteraction();
 	void DeclareFailedInteraction();
 	void StopInteraction();
 	bool IsInteracting() const;
@@ -55,10 +54,10 @@ protected:
 	float InteractRadius;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	float interactSpeed;
-
+	
 private:
 	void OnInteract();
-	
+	void ExecuteInteraction();
 	bool IsDead();
 
 	UPROPERTY()

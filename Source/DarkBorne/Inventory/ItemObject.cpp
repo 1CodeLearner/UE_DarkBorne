@@ -123,12 +123,17 @@ TArray<FText> UItemObject::GetEnchantmentsTexts() const
 		const TArray<FAttribute> Attributes = Enchantments.Attributes;
 		for (int i = 0; i < Attributes.Num(); ++i)
 		{
-			EAttributeType AttributeType = Attributes[i].AttributeType;
 			FText AttributeTypeText;
-
+			EAttributeType AttributeType = Attributes[i].AttributeType;
 			UEnum::GetDisplayValueAsText(AttributeType, AttributeTypeText);
-			
-			EnchantmentsTexts.Add(AttributeTypeText);
+
+			FText AttributeValueText;
+			float RangeValue = Attributes[i].Range.min;
+			AttributeValueText = FText::FromString(FString::Printf(TEXT("%.0f"), RangeValue));
+
+			FText FinalText = FText::Format(FText::FromString("{0} {1}"), AttributeValueText, AttributeTypeText);
+
+			EnchantmentsTexts.Add(FinalText);
 		}
 
 		const TArray<FPhysicalDamage> PhysicalDamages = Enchantments.PhysicalDamages;
@@ -136,10 +141,15 @@ TArray<FText> UItemObject::GetEnchantmentsTexts() const
 		{
 			EPhysicalDamageType PhysicalDamageType = PhysicalDamages[i].PhysicalDamageType;
 			FText PhysicalDamageTypeText;
-
 			UEnum::GetDisplayValueAsText(PhysicalDamageType, PhysicalDamageTypeText);
 
-			EnchantmentsTexts.Add(PhysicalDamageTypeText);
+			FText PhysicalDamageValueText;
+			float RangeValue = PhysicalDamages[i].Range.min;
+			PhysicalDamageValueText = FText::FromString(FString::Printf(TEXT("%.0f"), RangeValue));
+			
+			FText FinalText = FText::Format(FText::FromString("{0}% {1}"), PhysicalDamageValueText, PhysicalDamageTypeText);
+
+			EnchantmentsTexts.Add(FinalText);
 		}
 		break;
 	}
