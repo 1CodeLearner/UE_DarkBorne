@@ -92,7 +92,7 @@ void UMorigeshEnemyFSM::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	//DOREPLIFETIME(UMorigeshEnemyFSM, anim);
-	//DOREPLIFETIME(UMorigeshEnemyFSM, montage);
+	DOREPLIFETIME(UMorigeshEnemyFSM, montage);
 }
 
 //트랜지션 과정 + 변환
@@ -120,6 +120,7 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 	
 	anim->state = currState;
 	currTime = 0;
+	//MultiRPC_ChangeState(s);
 	if (myActor->HasAuthority())
 	{
 		
@@ -128,7 +129,7 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 		switch (currState)
 		{
 			case EEnemyState::ATTACK:
-				if (nowTarget == nullptr) return;
+				if (nowTarget == nullptr) break;
 				
 				CapturedThrowPos = nowTarget->GetActorLocation();
 				// 비동기 작업 시작
@@ -161,6 +162,17 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 				GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &UMorigeshEnemyFSM::OnAttackNotify, 1.0f, true);*/
 					
 				break;
+
+			case EEnemyState::DAMAGE:
+			{
+				//1. 랜덤한 값을 뽑는다. (1, 2)
+				int32 rand = FMath::RandRange(1, 4);
+				//2. Damage01, Damage02 란 문자열을 만든다.
+				FString sectionName = FString::Printf(TEXT("Damage0%d"), rand);
+				//3. Montage 플레이
+				myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName));
+			}
+			break;
 		//case EEnemyState::DIE:
 		//{
 		//	// 죽는 애니메이션 플레이
@@ -173,20 +185,7 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 		}
 	}
 	
-	switch (currState)
-	{
-		
-		case EEnemyState::DAMAGE:
-		{
-			//1. 랜덤한 값을 뽑는다. (1, 2)
-			int32 rand = FMath::RandRange(1, 4);
-			//2. Damage01, Damage02 란 문자열을 만든다.
-			FString sectionName = FString::Printf(TEXT("Damage0%d"), rand);
-			//3. Montage 플레이
-			myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName));
-		}
-		break;
-	}
+	
 
 }
 
@@ -275,6 +274,20 @@ void UMorigeshEnemyFSM::OnRep_CurrentState()
 		anim->state = currState;
 
 	}
+	switch (currState)
+	{
+
+		case EEnemyState::DAMAGE:
+		{
+			//1. 랜덤한 값을 뽑는다. (1, 2)
+			int32 rand = FMath::RandRange(1, 4);
+			//2. Damage01, Damage02 란 문자열을 만든다.
+			FString sectionName = FString::Printf(TEXT("Damage0%d"), rand);
+			//3. Montage 플레이
+			myActor->PlayAnimMontage(montage, 1.0f, FName(*sectionName));
+		}
+	break;
+	}
 }
 
 void UMorigeshEnemyFSM::UpdateDamaged(float deltaTime)
@@ -290,3 +303,12 @@ void UMorigeshEnemyFSM::UpdateDamaged(float deltaTime)
 	}
 }
 
+//void UMorigeshEnemyFSM::MultiRPC_ChangeState_Implementation(EEnemyState s)
+//{
+//	
+//	//FString OwnerName = myActor->HasAuthority() ? TEXT("Server") : TEXT("Client");
+//	//UE_LOG(LogTemp, Warning, TEXT("SC: %s"), *OwnerName);
+//	
+//	Super::MultiRPC_ChangeState(s);
+//}
+//

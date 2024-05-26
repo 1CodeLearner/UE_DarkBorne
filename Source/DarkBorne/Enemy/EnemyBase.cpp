@@ -36,6 +36,13 @@ AEnemyBase::AEnemyBase()
 
 	// Capsule ÄÄÆ÷³ÍÆ® CollisonPreset = EnemyProfile (CPPTPSµé°í¿È)
 	// Mesh ÄÄÆ÷³ÍÆ® CollisionPreset = NoCollision
+	/*UCapsuleComponent* TempCapsuleComponent;
+	TempCapsuleComponent = ;
+	if (TempCapsuleComponent != nullptr)
+	{
+		TempCapsuleComponent->
+		myCapsuleComponent = TempCapsuleComponent;
+	}*/
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("PlayerColl"));
 	GetMesh()->SetCollisionProfileName(TEXT("PlayerMeshColl"));
 	CharacterStatusComponent = CreateDefaultSubobject<UCharacterStatusComponent>("CharacterStatusComp");
@@ -88,6 +95,8 @@ void AEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AEnemyBase, currHP);
 	DOREPLIFETIME(AEnemyBase, enemyAttackType);
+	//DOREPLIFETIME(AEnemyBase, myCapsuleComponent);
+
 
 	//DOREPLIFETIME(AEnemyBase, baseFSM);
 }
@@ -168,6 +177,7 @@ FDisplayInfo AEnemyBase::GetDisplayInfo() const
 {
 	return FDisplayInfo(TEXT("Default"), TEXT("Default"));
 }
+
 
 
 

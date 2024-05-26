@@ -47,7 +47,7 @@ public:
 
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(Replicated,EditAnywhere, BlueprintReadWrite)
 	class UAnimMontage* montage;
 
 	//UPROPERTY(EditAnywhere)
@@ -76,6 +76,11 @@ public:
 	virtual void OnRep_CurrentState() override;
 	UFUNCTION()
 	virtual void UpdateDamaged(float deltaTime);
+
+	/*UFUNCTION(NetMulticast, Reliable)
+	virtual void MultiRPC_ChangeState(EEnemyState s) override;*/
+
+
 
 
 	

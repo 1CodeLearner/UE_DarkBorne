@@ -43,7 +43,7 @@ public:
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
-	virtual void ChangeState(EEnemyState e);
+
 
 
 public:
@@ -86,7 +86,13 @@ public:
 	void OnPlayerStatus(class ADBPlayerController* temp,bool temp2);
 
 	bool IsTargetDeath(AActor* target);
+
+	UFUNCTION()
+	virtual void ChangeState(EEnemyState e);
+
+
 	
+	//virtual void MultiRPC_ChangeState(EEnemyState s) {};
 
 
 public:

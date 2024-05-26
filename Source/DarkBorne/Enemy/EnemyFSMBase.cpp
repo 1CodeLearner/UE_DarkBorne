@@ -16,6 +16,7 @@
 #include "AnimMorigeshEnemy.h"
 #include "DarkBorne/DBCharacters/DBRogueCharacter.h"
 #include "DarkBorne/DBAnimInstance/DBRogueAnimInstance.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // FSM공통 부분 추가 발생시 추가할 스크립트
 //당장은 쓰이지 않음
@@ -194,6 +195,7 @@ void UEnemyFSMBase::ChangeState(EEnemyState e)
 		case EEnemyState::DAMAGE:
 			break;
 		case EEnemyState::DIE:
+			
 
 			// 위치 고정
 			break;
@@ -472,6 +474,13 @@ void UEnemyFSMBase::OnRep_CurrentState()
 	{
 		//???? "Item" collision object type ? ??
 		myActor->GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel3);
+		myActor->GetMesh()->SetEnableGravity(false);
+		
+		myActor->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		//이거 해줘야 바닥 뜷고 안떨어짐
+		myActor->GetCharacterMovement()->DisableMovement();
+		
+		
 	}
 }
 
