@@ -34,7 +34,7 @@ void ADBItem::BeginPlay()
 	if (HasAuthority() && !GetOwner())
 	{
 		SMComp->SetSimulatePhysics(true);
-		bCanInteract = true;		
+		bCanInteract = true;
 		Multicast_ItemDropped();
 	}
 	SetInteractionTime(0.f);
@@ -82,7 +82,7 @@ void ADBItem::Multicast_ItemDropped_Implementation()
 	}
 }
 
-void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp )
+void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp)
 {
 	SMComp->SetRenderCustomDepth(false);
 }
@@ -91,6 +91,9 @@ void ADBItem::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharact
 {
 	ADBCharacter* DBCharacter = Cast<ADBCharacter>(Character);
 	if (!DBCharacter)
+		return;
+
+	if (!ItemObj)
 		return;
 
 	auto Inventory = DBCharacter->GetComponentByClass<UPlayerEquipmentComponent>();

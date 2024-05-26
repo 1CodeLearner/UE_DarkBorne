@@ -21,13 +21,16 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
-	TObjectPtr<UStaticMeshComponent> SMComp;
+	TObjectPtr<UStaticMeshComponent> SMComp_ChestBase;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UStaticMeshComponent> SMComp_ChestLid;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TObjectPtr<ULootInventoryComponent> LootInventoryComp;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
-	FName ItemDropName;
 
 	//Being Looted Sound
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
@@ -52,4 +55,10 @@ protected:
 	void SetCanInteract(bool bAllowInteract) override;
 
 	FDisplayInfo GetDisplayInfo() const override;
+
+private:
+	UPROPERTY(ReplicatedUsing = "OnRep_bIsOpened")
+	bool bIsOpened;
+	UFUNCTION()
+	void OnRep_bIsOpened();
 };
