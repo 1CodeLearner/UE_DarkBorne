@@ -84,8 +84,6 @@ protected:
 	UInventoryGridWidget* InventoryLoot_Other;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UBorder> LootBorder;
-	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_Loot;
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> Text_WeaponLoot;
