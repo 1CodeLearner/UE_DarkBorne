@@ -87,7 +87,7 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 			StatusComponent->DamageProcess(WeaponDamage,GetOwner());
 			//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
 			//onRep 함수는 클라에서만 호출되어서 서버에서도 한번 호출해줘야한다
-			StatusComponent->OnRep_CurrHP();
+			//StatusComponent->OnRep_CurrHP();
 
 			//UE_LOG(LogTemp, Warning, TEXT("%s : %.f"),
 			//	GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"), OtherPlayer->CurrHP);

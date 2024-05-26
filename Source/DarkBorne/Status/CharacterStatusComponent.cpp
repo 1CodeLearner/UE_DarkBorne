@@ -74,6 +74,8 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 	}
 	else if (ADBCharacter* player = Cast<ADBCharacter>(MyActor))
 	{
+		float OldHP = CurrHP;
+
 		if (From) // if player was attacked by another player
 		{
 			finalDamage = UDarkBorneLibrary::CalculateDamage(From, player);
@@ -89,6 +91,8 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 		else if (CurrHP > MaxHP) {
 			CurrHP = MaxHP;
 		}
+
+		OnRep_CurrHP(OldHP);
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("FinalDamage : %f"), finalDamage);
@@ -99,13 +103,17 @@ bool UCharacterStatusComponent::IsAlive() const
 	return CurrHP > 0.f;
 }
 
-void UCharacterStatusComponent::OnRep_CurrHP()
+void UCharacterStatusComponent::OnRep_CurrHP(float Old)
 {
 	if (GetOwner())
 	{
 		if (ADBCharacter* player = Cast<ADBCharacter>(GetOwner()))
 		{
-			player->OnRep_CurrHP();
+			if (GetOwner()->HasAuthority())
+			{
+				player->CurrHP = CurrHP;
+				player->OnRep_CurrHP(Old);
+			}
 		}
 	}
 }

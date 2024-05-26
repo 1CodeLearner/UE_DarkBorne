@@ -143,7 +143,7 @@ void ARogueThrowingKnife::ServerRPC_OnOverlapBegin_Implementation(class AActor* 
 			UCharacterStatusComponent* StatusComponent = OtherActor->GetComponentByClass<UCharacterStatusComponent>();
 
 			StatusComponent->DamageProcess(WeaponDamage, GetOwner());
-			StatusComponent->OnRep_CurrHP();
+			//StatusComponent->OnRep_CurrHP();
 			auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
 			if (ensure(GM) && StatusComponent->CurrHP <= 0.f && OtherPlayer != nullptr)
 			{

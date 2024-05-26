@@ -125,7 +125,7 @@ public:
 	float MaxHP;
 	// 현재 체력을 계속 업뎃시키는 함수를 replicate 이거는 클라에서만 호출됨
 	UPROPERTY(Replicated, ReplicatedUsing = OnRep_CurrHP, EditAnywhere)
-	float CurrHP = MaxHP;
+	float CurrHP;
 
 public:
 	//Default 이동 관련 함수들
@@ -146,7 +146,7 @@ public:
 	void CreatePlayerWidget();
 
 	UFUNCTION()
-	void OnRep_CurrHP();
+	void OnRep_CurrHP(float Old);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")

@@ -38,7 +38,7 @@ public:
 	bool IsAlive() const;
 
 	UFUNCTION()
-	void OnRep_CurrHP();
+	void OnRep_CurrHP(float Old);
 
 public:
 	UPROPERTY(Replicated, EditAnywhere)

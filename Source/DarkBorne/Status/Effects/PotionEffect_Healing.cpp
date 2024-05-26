@@ -43,7 +43,7 @@ void UPotionEffect_Healing::Tick(float DeltaTime)
 			totalHealed += healAmount;
 			UE_LOG(LogTemp, Warning, TEXT("TotalHealed:%f"), totalHealed);
 			StatusComp->DamageProcess(-healAmount);
-			StatusComp->OnRep_CurrHP();
+			//StatusComp->OnRep_CurrHP();
 		}
 	}
 
