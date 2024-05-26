@@ -157,7 +157,7 @@ void UMorigeshEnemyFSM::ChangeState(EEnemyState s)
 							{
 								if (!bIsShuttingDown)
 								{
-									UE_LOG(LogTemp, Warning, TEXT("Thread Working"));
+									//UE_LOG(LogTemp, Warning, TEXT("Thread Working"));
 									IsFireTiming = true;
 									ThrowPos = CapturedThrowPos;
 								}
