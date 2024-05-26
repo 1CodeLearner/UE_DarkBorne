@@ -82,7 +82,7 @@ void ADBItem::Multicast_ItemDropped_Implementation()
 	}
 }
 
-void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp)
+void ADBItem::BeginInteract(UDBInteractionComponent* InteractionComp )
 {
 	SMComp->SetRenderCustomDepth(false);
 }

@@ -8,11 +8,22 @@
 IInteractionInterface::IInteractionInterface()
 {
 	InteractionTime = 30.f;
+	InvenEquipType = EInvenEquipType::Default;
 }
 
 void IInteractionInterface::SetInteractionTime(float InteractTime)
 {
 	InteractionTime = InteractTime;
+}
+
+void IInteractionInterface::SetInvenEquipType(EInvenEquipType _InvenEquipType)
+{
+	InvenEquipType = _InvenEquipType;
+}
+
+EInvenEquipType IInteractionInterface::GetInvenEquipType() const
+{
+	return InvenEquipType;
 }
 
 float IInteractionInterface::GetInteractionTime() const

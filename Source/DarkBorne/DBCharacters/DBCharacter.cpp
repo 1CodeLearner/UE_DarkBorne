@@ -19,6 +19,7 @@
 #include "../Framework/ActorComponents/DBInteractionComponent.h"
 #include "../Status/CharacterStatusComponent.h"
 #include "../Status/DBEffectComponent.h"
+#include "Components/AudioComponent.h"
 
 // Sets default values
 ADBCharacter::ADBCharacter()
@@ -41,6 +42,10 @@ ADBCharacter::ADBCharacter()
 	InteractionComp = CreateDefaultSubobject<UDBInteractionComponent>("InteractionComp");
 	// 버프 컴포넌트
 	EffectComp = CreateDefaultSubobject<UDBEffectComponent>("EffectComp");
+
+	AudioComp_Looting = CreateDefaultSubobject<UAudioComponent>("AudioComponent_Looting");
+	AudioComp_Looting->SetupAttachment(RootComponent);
+	AudioComp_Looting->SetAutoActivate(false);
 }
 
 // Called when the game starts or when spawned
@@ -49,6 +54,7 @@ void ADBCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	SetInteractionTime(31.f);
+	SetInvenEquipType(EInvenEquipType::Player);
 
 	// 내 것이라면 
 	if (IsLocallyControlled())
@@ -88,18 +94,27 @@ void ADBCharacter::PostInitializeComponents()
 void ADBCharacter::BeginInteract(UDBInteractionComponent* InteractionComponent)
 {
 	GetMesh()->SetRenderCustomDepth(false);
+	if (AudioComp_Looting && !AudioComp_Looting->IsPlaying())
+	{
+		AudioComp_Looting->Play();
+	}
 }
 
 void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent, ACharacter* OtherCharacter)
 {
 	auto OtherPlayer = Cast<ADBCharacter>(OtherCharacter);
-	if (ensureAlways(OtherPlayer) && OtherPlayer->InvMainWidget)
+	if (OtherPlayer && OtherPlayer->IsLocallyControlled() && OtherPlayer->InvMainWidget && !OtherPlayer->InvMainWidget->IsInViewport())
 	{
 		OtherPlayer->InvMainWidget->InitLootDisplay(this);
 		if (OtherPlayer->InvMainWidget->IsLootValid())
 		{
 			OtherPlayer->DisplayInventory(true);
 		}
+	}
+
+	if (AudioComp_Looting && AudioComp_Looting->IsPlaying())
+	{
+		AudioComp_Looting->Stop();
 	}
 
 	/*if (HasNetOwner())
@@ -115,6 +130,10 @@ void ADBCharacter::ExecuteInteract(UDBInteractionComponent* InteractionComponent
 
 void ADBCharacter::InterruptInteract()
 {
+	if (AudioComp_Looting && AudioComp_Looting->IsPlaying())
+	{
+		AudioComp_Looting->Stop();
+	}
 }
 
 void ADBCharacter::BeginTrace()
@@ -328,7 +347,7 @@ void ADBCharacter::OnRep_CurrHP(float Old)
 	UE_LOG(LogTemp, Warning, TEXT("New:%f"), CurrHP);
 
 	if (PlayerWidget == nullptr) return;
-	
+
 	PlayerWidget->UpdateHeathBar(CharacterStatusComponent->CurrHP, CharacterStatusComponent->MaxHP);
 	if (CurrHP < Old) {
 		PlayerWidget->ShowDamageUI();

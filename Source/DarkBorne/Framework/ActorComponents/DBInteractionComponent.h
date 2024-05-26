@@ -19,6 +19,14 @@ enum class EInteractState : uint8
 	INTERRUPTINTERACT UMETA(DisplayName="InterruptInteract")
 };
 
+UENUM()
+enum class EInteractType : uint8 
+{
+	BeginInteract, 
+	InterruptInteract, 
+	ExecuteInteract
+};
+
 DECLARE_DELEGATE_TwoParams(FInteractActorUpdateDelegate, AActor* /*InteractingCharacter*/, EInteractState /*InteractState*/);
 
 DECLARE_DELEGATE_TwoParams(FInteractTimeUpdateDelegate, float /*CurrentTime*/, float /*MaxTime*/);
@@ -57,6 +65,15 @@ protected:
 	
 private:
 	void OnInteract();
+	UFUNCTION(Server, Reliable)
+	void Server_TaxiToServer(AActor* Taxied, EInteractType InteractType);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_BeginInteract(AActor* Taxied);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_InterruptInteract(AActor* Taxied);
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ExecuteInteract(AActor* Taxied);
+
 	void ExecuteInteraction();
 	bool IsDead();
 
@@ -81,7 +98,7 @@ private:
 	void SetCanInteract(AActor* InteractingActor, bool bCanInteract);
 	UFUNCTION(Server, Reliable)
 	void Server_SetCanInteract(AActor* InteractingActor, bool bCanInteract);
-
+	
 	float currTime;
 	void ResetTimer();
 };

@@ -209,7 +209,7 @@ void AZoneActor::UpdateSoundAndUI()
 				}
 				AudioComp_OverlapZone->Play();
 				ADBRogueCharacter* Player = Cast<ADBRogueCharacter>(LocallyControlledCharacter);
-				
+
 				Player->camera->PostProcessSettings.bOverride_LocalExposureDetailStrength = true;
 				Player->camera->PostProcessSettings.LocalExposureDetailStrength = 4.0f;
 
@@ -432,7 +432,10 @@ void AZoneActor::OnGameEnd(ADBPlayerController* PlayerWon)
 	playerOverlapped.Remove(PlayerWon);
 
 	auto ZoneDamage = *playerDamaged.Find(PlayerWon);
-	ZoneDamage->StopTick();
+	if (ZoneDamage)
+	{
+		ZoneDamage->StopTick();
+	}
 	playerDamaged.Remove(PlayerWon);
 	ActiveCharacters.Remove(PlayerWon);
 

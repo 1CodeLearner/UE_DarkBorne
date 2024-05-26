@@ -7,26 +7,33 @@
 #include "../Framework/Interfaces/InteractionInterface.h"
 #include "LootChestActor.generated.h"
 
-class ULootInventoryComponent; 
+class ULootInventoryComponent;
+class USoundBase;
 
 UCLASS()
 class DARKBORNE_API ALootChestActor : public AActor, public IInteractionInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ALootChestActor();
 	virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TObjectPtr<UStaticMeshComponent> SMComp;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Settings")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TObjectPtr<ULootInventoryComponent> LootInventoryComp;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	FName ItemDropName;
+
+	//Being Looted Sound
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UAudioComponent> AudioComp_Looting;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UAudioComponent> AudioComp_Open;
 
 protected:
 	// Inherited via IInteractionInterface
@@ -45,5 +52,4 @@ protected:
 	void SetCanInteract(bool bAllowInteract) override;
 
 	FDisplayInfo GetDisplayInfo() const override;
-
 };

@@ -27,10 +27,10 @@ struct FInventoryItems
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	AActor* InteractingActor;
 	
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TArray<UItemObject*> Items;
 };
 
@@ -101,8 +101,4 @@ protected:
 	bool bIsDirty;
 
 	FTransform GetNewTransform(AActor* Instigator, float offset);
-
-private:
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess),  Category="Settings")
-	TObjectPtr<USoundBase> ItemDropSound;
 };

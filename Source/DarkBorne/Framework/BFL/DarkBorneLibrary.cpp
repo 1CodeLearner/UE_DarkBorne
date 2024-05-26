@@ -83,7 +83,7 @@ float UDarkBorneLibrary::CalculateDamage(AActor* Instigated, AActor* Received)
 
 	float FinalDamage = 0;
 
-	if (ensureAlways(InstigatedAnimInstance->isAttacking))
+	if (InstigatedAnimInstance->isAttacking)
 	{
 		FFinalStat InstigatedFinalStat = InstigatedStat->GetFinalStat();
 		FFinalStat ReceivedFinalStat = ReceivedStat->GetFinalStat();

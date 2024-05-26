@@ -31,14 +31,19 @@ void UDBInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	auto TempCharacter = GetOwner<ACharacter>();
-	if (TempCharacter && TempCharacter->IsLocallyControlled())
+	if (TempCharacter/* && TempCharacter->IsLocallyControlled()*/)
 	{
 		Character = TempCharacter;
-		DBCharacter = Cast<ADBCharacter>(Character);
-		if (DBCharacter)
-			RogueAttackComp = DBCharacter->GetComponentByClass<UDBRogueAttackComponent>();
+		if (Character->IsLocallyControlled())
+		{
+			DBCharacter = Cast<ADBCharacter>(Character);
+			if (DBCharacter)
+				RogueAttackComp = DBCharacter->GetComponentByClass<UDBRogueAttackComponent>();
+		}
 	}
 }
+
+
 
 void UDBInteractionComponent::OnInteract()
 {
@@ -50,10 +55,26 @@ void UDBInteractionComponent::OnInteract()
 				bInteracting = true;
 				IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 				SetCanInteract(OverlappingActor, true);
-				Interface->BeginInteract(this);
 
 				if (Interface->GetInteractionTime() > 0.f)
 				{
+					Interface->BeginInteract(this);
+
+					/*switch (Interface->GetInvenEquipType())
+					{
+					case EInvenEquipType::Default:
+						break;
+					case EInvenEquipType::Player:
+						break;
+					case EInvenEquipType::Monster:
+						break;
+					case EInvenEquipType::Chest:
+						int what = 10;
+						break;
+					}*/
+
+					Server_TaxiToServer(OverlappingActor, EInteractType::BeginInteract);
+
 					float InteractStat = UDarkBorneLibrary::CalculateInteractionTime(GetOwner());
 					interactSpeed = Interface->GetInteractionTime() - InteractStat;
 					OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::BEGININTERACT);
@@ -74,9 +95,51 @@ void UDBInteractionComponent::OnInteract()
 			IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 			Interface->InterruptInteract();
 
+			Server_TaxiToServer(OverlappingActor, EInteractType::InterruptInteract);
+
 			OverlappingActor = nullptr;
 			OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::ENDTRACE);
 		}
+	}
+}
+
+void UDBInteractionComponent::Server_TaxiToServer_Implementation(AActor* Taxied, EInteractType InteractType)
+{
+	if (Taxied)
+	{
+		switch (InteractType)
+		{
+		case EInteractType::BeginInteract:
+			Multicast_BeginInteract(Taxied);
+			break;
+		case EInteractType::InterruptInteract:
+			Multicast_InterruptInteract(Taxied);
+			break;
+		case EInteractType::ExecuteInteract:
+			Multicast_ExecuteInteract(Taxied);
+			break;
+		}
+	}
+}
+
+void UDBInteractionComponent::Multicast_BeginInteract_Implementation(AActor* Taxied)
+{
+	auto Interface = Cast<IInteractionInterface>(Taxied);
+	Interface->BeginInteract(this);
+}
+
+void UDBInteractionComponent::Multicast_InterruptInteract_Implementation(AActor* Taxied)
+{
+	auto Interface = Cast<IInteractionInterface>(Taxied);
+	Interface->InterruptInteract();
+}
+
+void UDBInteractionComponent::Multicast_ExecuteInteract_Implementation(AActor* Taxied)
+{
+	auto Interface = Cast<IInteractionInterface>(Taxied);
+	if (Character)
+	{
+		Interface->ExecuteInteract(this, Character);
 	}
 }
 
@@ -99,6 +162,9 @@ void UDBInteractionComponent::ExecuteInteraction()
 
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 		Interface->ExecuteInteract(this, Character);
+
+		Server_TaxiToServer(OverlappingActor, EInteractType::ExecuteInteract);
+
 		Interface->SetCanInteract(true);
 	}
 }
@@ -132,6 +198,8 @@ void UDBInteractionComponent::StopInteraction()
 		ResetTimer();
 		SetCanInteract(OverlappingActor, true);
 		OnInteractActorUpdate.ExecuteIfBound(OverlappingActor, EInteractState::EXECUTEINTERACT);
+
+		Server_TaxiToServer(OverlappingActor, EInteractType::InterruptInteract);
 
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 		if (Interface)
@@ -296,13 +364,13 @@ void UDBInteractionComponent::UpdateOverlappingActor(bool bDebugDraw)
 				WorldDirTemp.Z = 0.f;
 
 				float DotResult = FVector::DotProduct(DistVector, WorldDirTemp);
-				if(DotResult > LargestDotValue)
+				if (DotResult > LargestDotValue)
 				{
 					ActorOnFocus = Hits[i].GetActor();
-					LargestDotValue = DotResult; 
+					LargestDotValue = DotResult;
 				}
 			}
-			
+
 			if (ActorOnFocus && ActorOnFocus->Implements<UInteractionInterface>())
 			{
 				if (!Cast<IInteractionInterface>(ActorOnFocus)->CanInteract())

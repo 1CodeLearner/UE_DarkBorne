@@ -12,10 +12,11 @@ UENUM(BlueprintType)
 enum class EEnemyAttackType : uint8
 {
 	MELEE,
-	RANGED 
+	RANGED
 };
 
 class ULootInventoryComponent;
+class USoundBase;
 
 UCLASS()
 class DARKBORNE_API AEnemyBase : public ACharacter, public IInteractionInterface
@@ -29,7 +30,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -51,13 +52,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
 	class UCharacterStatusComponent* CharacterStatusComponent;
-	
-	UPROPERTY(EditAnywhere, Category="Settings")
+
+	UPROPERTY(EditAnywhere, Category = "Settings")
 	TObjectPtr<ULootInventoryComponent> LootInventoryComp;
 
-
-
-
+	//Being Looted Sound
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UAudioComponent> AudioComp_Looting;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -65,7 +66,7 @@ public:
 
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	float currHP = 0;
-	
+
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	EEnemyAttackType enemyAttackType = EEnemyAttackType::MELEE;
 
@@ -93,5 +94,4 @@ public:
 	virtual void SetCanInteract(bool bAllowInteract) override;
 
 	virtual FDisplayInfo GetDisplayInfo() const override;
-	
 };

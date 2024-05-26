@@ -25,6 +25,15 @@ struct FDisplayInfo
 	FString Name;
 };
 
+UENUM()
+enum class EInvenEquipType : uint8
+{
+	Default UMETA(DisplayName = "Default"),
+	Player UMETA(DisplayName = "Player"),
+	Monster UMETA(DisplayName = "Monster"),
+	Chest UMETA(DisplayName = "Chest")
+};
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UInteractionInterface : public UInterface
@@ -44,6 +53,8 @@ public:
 	IInteractionInterface();
 	float GetInteractionTime() const;
 	void SetInteractionTime(float InteractTime);
+	void SetInvenEquipType(EInvenEquipType _InvenEquipType);
+	EInvenEquipType GetInvenEquipType() const;
 
 	virtual void BeginInteract(UDBInteractionComponent* InteractionComp) = 0;
 	virtual void ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* Character) = 0;
@@ -58,4 +69,5 @@ public:
 	virtual FDisplayInfo GetDisplayInfo() const = 0;
 private:
 	float InteractionTime;
+	EInvenEquipType InvenEquipType;
 };

@@ -7,16 +7,6 @@
 #include "InventorySoundComponent.generated.h"
 
 
-
-UENUM()
-enum class EInvenEquipType
-{
-	None UMETA(DisplayName="None"),
-	Equip UMETA(DisplayName="Equip"),
-	Inventory UMETA(DisplayName="Inventory"),
-	Spawn UMETA(DisplayName="Spawn")
-};
-
 class UItemObject;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -27,6 +17,6 @@ class DARKBORNE_API UInventorySoundComponent : public UActorComponent
 public:
 	UInventorySoundComponent();
 	
-	void DeclareSoundType(EInvenEquipType Type, UItemObject* ItemObject);
+	//void DeclareSoundType(EInvenEquipType Type, UItemObject* ItemObject);
 
 };

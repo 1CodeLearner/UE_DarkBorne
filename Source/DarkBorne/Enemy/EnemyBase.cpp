@@ -12,7 +12,7 @@
 #include "../Inventory/LootInventoryComponent.h"
 #include "../DBCharacters/DBCharacter.h"
 #include "../Inventory/InventoryMainWidget.h"
-
+#include "Components/AudioComponent.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
@@ -53,6 +53,10 @@ AEnemyBase::AEnemyBase()
 
 
 	LootInventoryComp = CreateDefaultSubobject<ULootInventoryComponent>("LootInventoryComp");
+
+	AudioComp_Looting = CreateDefaultSubobject<UAudioComponent>("AudioComponent_Looting");
+	AudioComp_Looting->SetupAttachment(RootComponent);
+	AudioComp_Looting->SetAutoActivate(false);
 }
 
 // Called when the game starts or when spawned
@@ -60,6 +64,7 @@ void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
 	SetInteractionTime(31.f);
+	SetInvenEquipType(EInvenEquipType::Monster);
 }
 
 // Called every frame
@@ -108,9 +113,9 @@ void AEnemyBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 /// <returns>죽었는가 리턴 받아서 FSM에서 애니메이션 처리</returns>
 void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 {
-	
+
 	baseFSM->nowTarget = attackSource;
-	UE_LOG(LogTemp,Warning,TEXT("nowTargetDam : %s"), *baseFSM->nowTarget->GetActorNameOrLabel());
+	UE_LOG(LogTemp, Warning, TEXT("nowTargetDam : %s"), *baseFSM->nowTarget->GetActorNameOrLabel());
 
 	CharacterStatusComponent->CurrHP -= damage;
 
@@ -120,7 +125,7 @@ void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 		baseFSM->nowTarget = nullptr;
 		CharacterStatusComponent->CurrHP = 0;
 
-		
+
 		baseFSM->ChangeState(EEnemyState::DIE);
 	}
 	else
@@ -134,12 +139,16 @@ void AEnemyBase::DamageProcess(float damage, AActor* attackSource)
 void AEnemyBase::BeginInteract(UDBInteractionComponent* InteractionComp)
 {
 	GetMesh()->SetRenderCustomDepth(false);
+	if (AudioComp_Looting && !AudioComp_Looting->IsPlaying())
+	{
+		AudioComp_Looting->Play();
+	}
 }
 
 void AEnemyBase::ExecuteInteract(UDBInteractionComponent* InteractionComp, ACharacter* OtherCharacter)
 {
 	auto OtherPlayer = Cast<ADBCharacter>(OtherCharacter);
-	if (ensureAlways(OtherPlayer) && OtherPlayer->InvMainWidget)
+	if (OtherPlayer && OtherPlayer->IsLocallyControlled() && OtherPlayer->InvMainWidget && !OtherPlayer->InvMainWidget->IsInViewport())
 	{
 		OtherPlayer->InvMainWidget->InitLootDisplay(this);
 		if (OtherPlayer->InvMainWidget->IsLootValid())
@@ -147,10 +156,19 @@ void AEnemyBase::ExecuteInteract(UDBInteractionComponent* InteractionComp, AChar
 			OtherPlayer->DisplayInventory(true);
 		}
 	}
+
+	if (AudioComp_Looting && AudioComp_Looting->IsPlaying())
+	{
+		AudioComp_Looting->Stop();
+	}
 }
 
 void AEnemyBase::InterruptInteract()
 {
+	if (AudioComp_Looting && AudioComp_Looting->IsPlaying())
+	{
+		AudioComp_Looting->Stop();
+	}
 }
 
 void AEnemyBase::BeginTrace()
@@ -177,7 +195,6 @@ FDisplayInfo AEnemyBase::GetDisplayInfo() const
 {
 	return FDisplayInfo(TEXT("Default"), TEXT("Default"));
 }
-
 
 
 

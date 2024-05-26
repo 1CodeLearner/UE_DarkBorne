@@ -20,6 +20,7 @@ class UDBInteractionComponent;
 
 class UDBEffectComponent;
 
+class USoundBase;
 
 UCLASS()
 class DARKBORNE_API ADBCharacter : public ACharacter, public IInteractionInterface
@@ -92,6 +93,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
 	TObjectPtr<UDBEffectComponent> EffectComp;
 
+	//Being Looted Sound
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Settings")
+	TObjectPtr<UAudioComponent> AudioComp_Looting;
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UDBPlayerWidget* PlayerWidget;
@@ -152,4 +157,5 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 	float InteractDistance;
+
 };

@@ -13,33 +13,33 @@ UInventorySoundComponent::UInventorySoundComponent()
 }
 
 
-void UInventorySoundComponent::DeclareSoundType(EInvenEquipType Type, UItemObject* ItemObject)
-{
-	if(!ItemObject)
-	{
-		return;
-	}
-
-	auto Pawn = Cast<APawn>(GetOwner());
-	if (Pawn && Pawn->IsLocallyControlled())
-	{
-		switch (Type)
-		{
-		case EInvenEquipType::Equip:
-		{
-			UE_LOG(LogTemp, Error, TEXT("DeclareSoundType : Equip"));
-			break;
-		}
-		case EInvenEquipType::Inventory:
-		{
-			UE_LOG(LogTemp, Error, TEXT("DeclareSoundType : Inventory"));
-			break;
-		}
-		case EInvenEquipType::Spawn:
-		{
-			UE_LOG(LogTemp, Error, TEXT("DeclareSoundType : Spawn"));
-			break;
-		}
-		}
-	}
-}
+//void UInventorySoundComponent::DeclareSoundType(EInvenEquipType Type, UItemObject* ItemObject)
+//{
+//	if(!ItemObject)
+//	{
+//		return;
+//	}
+//
+//	auto Pawn = Cast<APawn>(GetOwner());
+//	if (Pawn && Pawn->IsLocallyControlled())
+//	{
+//		switch (Type)
+//		{
+//		case EInvenEquipType::Equip:
+//		{
+//			UE_LOG(LogTemp, Error, TEXT("DeclareSoundType : Equip"));
+//			break;
+//		}
+//		case EInvenEquipType::Inventory:
+//		{
+//			UE_LOG(LogTemp, Error, TEXT("DeclareSoundType : Inventory"));
+//			break;
+//		}
+//		case EInvenEquipType::Spawn:
+//		{
+//			UE_LOG(LogTemp, Error, TEXT("DeclareSoundType : Spawn"));
+//			break;
+//		}
+//		}
+//	}
+//}
