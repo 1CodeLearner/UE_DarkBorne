@@ -103,11 +103,6 @@ float UDarkBorneLibrary::CalculateDamage(AActor* Instigated, AActor* Received)
 		FinalDamage = (WeaponDamage * PhysicalDamageBonus) + FMath::Max(0.f, (WeaponDamage + Strength) - DamageBlockAmount);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("WeaponDamage : %f"), WeaponDamage);
-	UE_LOG(LogTemp, Warning, TEXT("DamageBlockAmount : %f"), DamageBlockAmount);
-	UE_LOG(LogTemp, Warning, TEXT("Strength : %f"), Strength);
-	UE_LOG(LogTemp, Warning, TEXT("PhysicalDamageBonus : %f"), PhysicalDamageBonus);
-
 	return FinalDamage;
 }
 
