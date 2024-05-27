@@ -138,6 +138,6 @@ void UDBPlayerWidget::UpdateConsumeSlot(TArray<UItemObject*> EquipSlotArray)
 void UDBPlayerWidget::ShowDamageUI()
 {
 	isShowDamageUI = true;
-	currOpacity = 1;
+	currOpacity = 0.8f;
 	PlayAnimation(DamageAnim);
 }

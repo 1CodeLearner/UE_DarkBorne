@@ -211,10 +211,7 @@ void AZoneActor::UpdateSoundAndUI()
 				ADBRogueCharacter* Player = Cast<ADBRogueCharacter>(LocallyControlledCharacter);
 
 				Player->camera->PostProcessSettings.bOverride_LocalExposureDetailStrength = true;
-				Player->camera->PostProcessSettings.LocalExposureDetailStrength = 4.0f;
-
-				//Player->camera->PostProcessSettings.bOverride_LocalExposureBlurredLuminanceBlend = true;
-				//Player->camera->PostProcessSettings.LocalExposureBlurredLuminanceBlend = 50;
+				Player->camera->PostProcessSettings.LocalExposureDetailStrength = 0;
 
 				bIsWithinZone = false;
 			}
@@ -231,6 +228,7 @@ void AZoneActor::UpdateSoundAndUI()
 				ADBRogueCharacter* Player = Cast<ADBRogueCharacter>(LocallyControlledCharacter);
 
 				Player->camera->PostProcessSettings.bOverride_LocalExposureDetailStrength = false;
+
 				bIsWithinZone = true;
 			}
 		}
