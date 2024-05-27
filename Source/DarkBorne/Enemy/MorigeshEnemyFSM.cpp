@@ -219,6 +219,7 @@ void UMorigeshEnemyFSM::FireWeapon(FVector targetPos)
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.bNoFail = true;
+	SpawnParams.Owner = myActor;
 
 	FRotator rot = UKismetMathLibrary::MakeRotFromXZ(spawnForward, spawnUp);
 	AMorigeshWeapon* weapon = GetWorld()->SpawnActor<AMorigeshWeapon>(weaponFactory, spawnPos, rot, SpawnParams);
