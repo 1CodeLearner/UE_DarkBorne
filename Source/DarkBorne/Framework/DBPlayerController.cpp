@@ -14,6 +14,14 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/SpectatorPawn.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h>
 
+ADBPlayerController::ADBPlayerController()
+{
+	// 기본 마우스 커서 변경
+	DefaultMouseCursor = EMouseCursor::Default;
+	// 현재 마우스 커서 변경
+	CurrentMouseCursor = EMouseCursor::Default;
+}
+
 void ADBPlayerController::Client_DisplayGameResult_Implementation(bool bHasWon)
 {
 	if (ensureAlways(GameEndWidgetClass) && !GameEndWidget)

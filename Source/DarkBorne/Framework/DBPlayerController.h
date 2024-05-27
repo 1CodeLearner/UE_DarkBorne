@@ -15,6 +15,8 @@ class DARKBORNE_API ADBPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 public:
+	ADBPlayerController();
+public:
 	UFUNCTION(Client, Reliable, BlueprintCallable)
 	void Client_DisplayGameResult(bool bHasWon);
 protected:
