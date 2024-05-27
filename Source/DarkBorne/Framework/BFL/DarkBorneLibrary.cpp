@@ -31,28 +31,28 @@ float UDarkBorneLibrary::GetDamage(AActor* Instigated)
 	}
 
 	float FinalDamage = 0;
-
-	if (ensureAlways(InstigatedAnimInstance->isAttacking))
+	if (InstigatedAnimInstance->isAttacking)
 	{
-		FFinalStat InstigatedFinalStat = InstigatedStat->GetFinalStat();
-
-		float WeaponDamage = InstigatedFinalStat.WeaponDamage;
-		float Strength = InstigatedFinalStat.Attributes[(int8)EAttributeType::STRENGTH].Range.min;
-		float PhysicalDamageBonus = InstigatedFinalStat.PhysDamages[(int8)EPhysicalDamageType::PHYSICALDAMAGEBONUS].Range.min / 100.f;
-
-		if (SkillComp->isSpawnKnife)
-		{
-			FinalDamage = WeaponDamage + Strength;
-		}
-		else
-		{
-			FinalDamage = (WeaponDamage * PhysicalDamageBonus) + WeaponDamage + Strength;
-		}
-
-		UE_LOG(LogTemp, Warning, TEXT("WeaponDamage : %f"), WeaponDamage);
-		UE_LOG(LogTemp, Warning, TEXT("Strength : %f"), Strength);
-		UE_LOG(LogTemp, Warning, TEXT("PhysicalDamageBonus : %f"), PhysicalDamageBonus);
 	}
+
+	FFinalStat InstigatedFinalStat = InstigatedStat->GetFinalStat();
+
+	float WeaponDamage = InstigatedFinalStat.WeaponDamage;
+	float Strength = InstigatedFinalStat.Attributes[(int8)EAttributeType::STRENGTH].Range.min;
+	float PhysicalDamageBonus = InstigatedFinalStat.PhysDamages[(int8)EPhysicalDamageType::PHYSICALDAMAGEBONUS].Range.min / 100.f;
+
+	if (SkillComp->isSpawnKnife)
+	{
+		FinalDamage = WeaponDamage + Strength;
+	}
+	else
+	{
+		FinalDamage = (WeaponDamage * PhysicalDamageBonus) + WeaponDamage + Strength;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("WeaponDamage : %f"), WeaponDamage);
+	UE_LOG(LogTemp, Warning, TEXT("Strength : %f"), Strength);
+	UE_LOG(LogTemp, Warning, TEXT("PhysicalDamageBonus : %f"), PhysicalDamageBonus);
 
 	return FinalDamage;
 }
@@ -82,35 +82,33 @@ float UDarkBorneLibrary::CalculateDamage(AActor* Instigated, AActor* Received)
 	}
 
 	float FinalDamage = 0;
-
 	if (InstigatedAnimInstance->isAttacking)
 	{
-		FFinalStat InstigatedFinalStat = InstigatedStat->GetFinalStat();
-		FFinalStat ReceivedFinalStat = ReceivedStat->GetFinalStat();
-
-		float WeaponDamage = InstigatedFinalStat.WeaponDamage;
-		float DamageBlockAmount = ReceivedFinalStat.DamageBlockAmt;
-		float Strength = InstigatedFinalStat.Attributes[(int8)EAttributeType::STRENGTH].Range.min;
-		float PhysicalDamageBonus = InstigatedFinalStat.PhysDamages[(int8)EPhysicalDamageType::PHYSICALDAMAGEBONUS].Range.min / 100.f;
-
-		if (SkillComp->isSpawnKnife)
-		{
-			FinalDamage = FMath::Max(0.f, (WeaponDamage + Strength) - DamageBlockAmount);
-		}
-		else
-		{
-			FinalDamage = (WeaponDamage * PhysicalDamageBonus) + FMath::Max(0.f, (WeaponDamage + Strength) - DamageBlockAmount);
-		}
-
-		UE_LOG(LogTemp, Warning, TEXT("WeaponDamage : %f"), WeaponDamage);
-		UE_LOG(LogTemp, Warning, TEXT("DamageBlockAmount : %f"), DamageBlockAmount);
-		UE_LOG(LogTemp, Warning, TEXT("Strength : %f"), Strength);
-		UE_LOG(LogTemp, Warning, TEXT("PhysicalDamageBonus : %f"), PhysicalDamageBonus);
 	}
 
+	FFinalStat InstigatedFinalStat = InstigatedStat->GetFinalStat();
+	FFinalStat ReceivedFinalStat = ReceivedStat->GetFinalStat();
+
+	float WeaponDamage = InstigatedFinalStat.WeaponDamage;
+	float DamageBlockAmount = ReceivedFinalStat.DamageBlockAmt;
+	float Strength = InstigatedFinalStat.Attributes[(int8)EAttributeType::STRENGTH].Range.min;
+	float PhysicalDamageBonus = InstigatedFinalStat.PhysDamages[(int8)EPhysicalDamageType::PHYSICALDAMAGEBONUS].Range.min / 100.f;
+
+	if (SkillComp->isSpawnKnife)
+	{
+		FinalDamage = FMath::Max(0.f, (WeaponDamage + Strength) - DamageBlockAmount);
+	}
+	else
+	{
+		FinalDamage = (WeaponDamage * PhysicalDamageBonus) + FMath::Max(0.f, (WeaponDamage + Strength) - DamageBlockAmount);
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("WeaponDamage : %f"), WeaponDamage);
+	UE_LOG(LogTemp, Warning, TEXT("DamageBlockAmount : %f"), DamageBlockAmount);
+	UE_LOG(LogTemp, Warning, TEXT("Strength : %f"), Strength);
+	UE_LOG(LogTemp, Warning, TEXT("PhysicalDamageBonus : %f"), PhysicalDamageBonus);
 
 	return FinalDamage;
-
 }
 
 float UDarkBorneLibrary::CalculateInteractionTime(AActor* Instigated)
