@@ -55,6 +55,9 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 	if (CurrHP <= 0) return;
 	UE_LOG(LogTemp, Warning, TEXT("DamageProcess %f"), damage);
 
+
+	//UE_LOG(LogTemp, Warning, TEXT("OwnerName %s"), (FString)From->GetOwner()->GetName());
+
 	float finalDamage = damage;
 
 	if (!MyActor->HasAuthority() || MyActor == nullptr)
@@ -75,8 +78,11 @@ void UCharacterStatusComponent::DamageProcess(float damage, AActor* From)
 	else if (ADBCharacter* player = Cast<ADBCharacter>(MyActor))
 	{
 		float OldHP = CurrHP;
-
-		if (From) // if player was attacked by another player
+		if (Cast<AEnemyBase>(From))
+		{
+			finalDamage = damage;
+		}
+		else if (From) // if player was attacked by another player
 		{
 			finalDamage = UDarkBorneLibrary::CalculateDamage(From, player);
 		}
