@@ -145,6 +145,14 @@ void ADBRogueCharacter::EnhancedInteract(const FInputActionValue& Value)
 	}
 }
 
+void ADBRogueCharacter::EnhancedInventory(const FInputActionValue& value)
+{
+	if (RogueAttackComponent && RogueAttackComponent->IsUsingItem())
+		return;
+
+	Super::EnhancedInventory(value);
+}
+
 void ADBRogueCharacter::ServerRPC_DeathProcess_Implementation()
 {
 	MultiRPC_DeathProcess();
@@ -161,7 +169,7 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 			GetMesh()->SetCollisionProfileName("Item");
 			//set bCanInteract to true
 			SetCanInteract(true);
-			
+
 			EffectComp->RemoveAllEffects();
 			if (RogueAttackComponent->IsInItemAction())
 			{

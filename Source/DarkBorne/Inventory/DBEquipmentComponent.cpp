@@ -20,7 +20,7 @@ UDBEquipmentComponent::UDBEquipmentComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	bInvalidSlot = false;
 	bOccupiedSlot = false;
-	bIsGameOnGoing = false;
+	bHasGameStarted = false;
 }
 
 void UDBEquipmentComponent::BeginPlay()
@@ -80,7 +80,7 @@ void UDBEquipmentComponent::OnRep_Items(FInventoryItems Old)
 					UCharacterStatusComponent::AdjustAddedStats(GetOwner(), InventoryItems.Items[i], true);
 				}
 
-				if (bIsGameOnGoing)
+				if (bHasGameStarted)
 				{
 					auto Pawn = Cast<APawn>(GetOwner());
 					if (Pawn && Pawn->IsLocallyControlled())
@@ -96,9 +96,9 @@ void UDBEquipmentComponent::OnRep_Items(FInventoryItems Old)
 						}
 					}
 				}
-				else
+				else 
 				{
-					bIsGameOnGoing = true;
+					bHasGameStarted = true;
 				}
 			}
 		}

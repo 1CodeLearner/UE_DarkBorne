@@ -59,4 +59,5 @@ public:
 	FVector knifePos;
 protected:
 	virtual void EnhancedInteract(const struct FInputActionValue& Value) override;
+	virtual void EnhancedInventory(const struct FInputActionValue& value) override;
 };

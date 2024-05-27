@@ -60,5 +60,5 @@ protected:
 
 private:
 	virtual void OnRep_Items(FInventoryItems Old) override;
-	bool bIsGameOnGoing;
+	bool bHasGameStarted = false;
 };

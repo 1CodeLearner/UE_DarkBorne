@@ -7,6 +7,7 @@
 #include "../../Items/Weapons/RogueThrowingKnife.h"
 #include "DBRogueSkillComponent.generated.h"
 
+class ADBCharacter;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DARKBORNE_API UDBRogueSkillComponent : public UActorComponent
@@ -119,4 +120,7 @@ public:
 	// 쉬프트 스킬 몽타지
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* AM_RogueShiftSkill;
+
+	UPROPERTY()
+	ADBCharacter* MyCharacter;
 };
