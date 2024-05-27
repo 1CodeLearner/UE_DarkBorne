@@ -14,6 +14,7 @@
 #include "../BFL/DarkBorneLibrary.h"
 
 static TAutoConsoleVariable<bool> CVarDebugDrawInteraction(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
+static TAutoConsoleVariable<bool> CVarImmediateInteract(TEXT("su.ImmediateInteract"), false, TEXT("No Interaction wait time."), ECVF_Cheat);
 
 UDBInteractionComponent::UDBInteractionComponent()
 {
@@ -56,7 +57,9 @@ void UDBInteractionComponent::OnInteract()
 				IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 				SetCanInteract(OverlappingActor, true);
 
-				if (Interface->GetInteractionTime() > 0.f)
+				bool immediatelyInteract = CVarImmediateInteract.GetValueOnGameThread();
+
+				if (Interface->GetInteractionTime() > 0.f && !immediatelyInteract)
 				{
 					Interface->BeginInteract(this);
 

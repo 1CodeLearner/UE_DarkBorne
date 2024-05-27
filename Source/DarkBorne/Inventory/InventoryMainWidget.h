@@ -74,14 +74,17 @@ protected:
 	Other Player/Entity's Widgets for looting.
 	Other Player.*/
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
-	UInventoryGridWidget* InventoryLoot_Player;
+	TObjectPtr<UInventoryGridWidget> InventoryLoot_Player;
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
-	UEquipmentGridWidget* EquipmentLoot_Weapon;
+	TObjectPtr<UEquipmentGridWidget> EquipmentLoot_Weapon;
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
-	UEquipmentGridWidget* EquipmentLoot_Consumable;
+	TObjectPtr<UEquipmentGridWidget> EquipmentLoot_Consumable;
+
 	//Other Entity.
 	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
 	UInventoryGridWidget* InventoryLoot_Other;
+	UPROPERTY(meta = (BindWidget), BlueprintReadOnly)
+	TObjectPtr<UImage> Image_LootOther;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_Loot;
