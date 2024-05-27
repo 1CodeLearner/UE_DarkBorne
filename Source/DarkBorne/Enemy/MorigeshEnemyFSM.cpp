@@ -219,14 +219,14 @@ void UMorigeshEnemyFSM::FireWeapon(FVector targetPos)
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.bNoFail = true;
-	SpawnParams.Owner = myActor;
+	//SpawnParams.Owner = myActor;
 
 	FRotator rot = UKismetMathLibrary::MakeRotFromXZ(spawnForward, spawnUp);
 	AMorigeshWeapon* weapon = GetWorld()->SpawnActor<AMorigeshWeapon>(weaponFactory, spawnPos, rot, SpawnParams);
 	if (weapon)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Weapon spawned at position: %s"), *weapon->GetActorLocation().ToString());
-		weapon->SetOwner(myActor);
+		//weapon->SetOwner(myActor);
 		
 	}
 	else
