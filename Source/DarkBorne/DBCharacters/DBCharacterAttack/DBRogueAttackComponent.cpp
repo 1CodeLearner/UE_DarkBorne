@@ -77,7 +77,9 @@ void UDBRogueAttackComponent::RogueAttack()
 
 	if(InteractionComp && InteractionComp->IsInteracting())
 		return;
-
+	
+	if(RoguePlayer && RoguePlayer->IsInventoryInViewport())
+		return;
 
 	// 아이템 있고 && 아이템 무기 슬롯에 무기 있으면 -> 아이템 사용
 	if (RogueWeaponComponent->RogueItems && RogueWeaponComponent->RogueItems->GetItemObject()->GetSlotType() != ESlotType::WEAPON)

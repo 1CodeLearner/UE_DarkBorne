@@ -425,14 +425,14 @@ void UPlayerEquipmentComponent::OnRep_Items(FInventoryItems Old)
 		if (Size == ItemUpdated.Num())
 		{
 			auto Pawn = Cast<APawn>(GetOwner());
-			if (Pawn && Pawn->IsLocallyControlled())
+			if (Pawn && Pawn->IsPlayerControlled() && Pawn->IsLocallyControlled())
 			{
 				UGameplayStatics::PlaySound2D(GetOwner(), ItemUpdated[0]->GetInventorySound());
 			}
 			else
 			{
 				Pawn = Cast<APawn>(InventoryItems.InteractingActor);
-				if (Pawn && Pawn->IsLocallyControlled())
+				if (Pawn && Pawn->IsPlayerControlled() && Pawn->IsLocallyControlled())
 				{
 					UGameplayStatics::PlaySound2D(GetOwner(), ItemUpdated[0]->GetInventorySound());
 				}

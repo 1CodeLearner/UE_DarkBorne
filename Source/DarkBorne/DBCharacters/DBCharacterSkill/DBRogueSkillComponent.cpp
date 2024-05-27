@@ -17,6 +17,7 @@
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetMathLibrary.h>
 #include "../DBCharacterAttack/DBRogueAttackComponent.h"
 #include "../../Inventory/DBEquipmentComponent.h"
+#include "../../Inventory/InventoryMainWidget.h"
 
 // Sets default values for this component's properties
 UDBRogueSkillComponent::UDBRogueSkillComponent()
@@ -36,6 +37,8 @@ void UDBRogueSkillComponent::BeginPlay()
 
 	OnRep_CurrQSkill();
 	OnRep_CurrESkill();
+
+	MyCharacter = Cast<ADBCharacter>(GetOwner());
 }
 
 
@@ -158,6 +161,9 @@ void UDBRogueSkillComponent::ActiveRogueQSkill()
 	// curr cooltime >= max time이 되었다면
 	if (Q_CurrCoolTime >= Q_MaxCoolTime)
 	{
+		if (MyCharacter && MyCharacter->IsInventoryInViewport())
+			return;
+
 		// q skill 활성화
 		//서버 함수 실행
 		ServerRPC_ActiveRogueQSkill();
@@ -177,7 +183,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 	{
 		return;
 	}
-	
+
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 	UDBRogueAnimInstance* RogueAnim = Cast<UDBRogueAnimInstance>(RoguePlayer->GetMesh()->GetAnimInstance());
 	UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
@@ -280,6 +286,9 @@ void UDBRogueSkillComponent::ActiveRogueESkill()
 	// 쿨타임 다 차면 
 	if (E_CurrCoolTime >= E_MaxCoolTime)
 	{
+		if (MyCharacter && MyCharacter->IsInventoryInViewport())
+			return;
+
 		ServerRPC_ActiveRogueESkill();
 	}
 }
@@ -327,7 +336,7 @@ void UDBRogueSkillComponent::ServerRPC_ActiveRogueESkill_Implementation()
 void UDBRogueSkillComponent::MultiRPC_ActiveRogueESkill_Implementation(bool isSpawn)
 {
 	ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
-	if(RoguePlayer->PlayerWidget == nullptr) return;
+	if (RoguePlayer->PlayerWidget == nullptr) return;
 	if (RoguePlayer->IsLocallyControlled())
 	{
 		RoguePlayer->PlayerWidget->UpdateEBorder_Active(isSpawn);
@@ -351,6 +360,9 @@ void UDBRogueSkillComponent::UpdateRogueESkill(float DeltaTime)
 
 void UDBRogueSkillComponent::ActiveRogueShiftSkill()
 {
+	if (MyCharacter && MyCharacter->IsInventoryInViewport())
+		return;
+
 	ServerRPC_ActiveRogueShiftSkill();
 }
 

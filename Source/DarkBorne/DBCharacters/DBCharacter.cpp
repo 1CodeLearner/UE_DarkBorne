@@ -48,6 +48,11 @@ ADBCharacter::ADBCharacter()
 	AudioComp_Looting->SetAutoActivate(false);
 }
 
+bool ADBCharacter::IsInventoryInViewport() const
+{
+	return (InvMainWidget && InvMainWidget->IsInViewport());
+}
+
 // Called when the game starts or when spawned
 void ADBCharacter::BeginPlay()
 {
@@ -280,6 +285,7 @@ void ADBCharacter::EnhancedInteract(const FInputActionValue& value)
 void ADBCharacter::EnhancedInventory(const FInputActionValue& value)
 {
 	bool input = value.Get<bool>();
+
 	if (ensureAlways(InvMainWidget))
 	{
 		if (InteractionComp && InteractionComp->IsInteracting())

@@ -209,6 +209,7 @@ void UInventoryMainWidget::DisplayPlayerLoot(UPlayerEquipmentComponent* _Invento
 	Image_Loot->SetVisibility(ESlateVisibility::Visible);
 
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Collapsed);
+	Image_LootOther->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UInventoryMainWidget::DisplayOtherLoot(UPlayerEquipmentComponent* _InventoryComp)
@@ -216,6 +217,7 @@ void UInventoryMainWidget::DisplayOtherLoot(UPlayerEquipmentComponent* _Inventor
 	InventoryLoot_Other->StartInit(_InventoryComp/*, EGridWidgetType::LOOTINVENTORY*/);
 
 	InventoryLoot_Other->SetVisibility(ESlateVisibility::Visible);
+	Image_LootOther->SetVisibility(ESlateVisibility::Visible);
 
 	Image_Loot->SetVisibility(ESlateVisibility::Collapsed);
 
@@ -237,4 +239,6 @@ void UInventoryMainWidget::HideLoots()
 	Text_WeaponLoot->SetVisibility(ESlateVisibility::Collapsed);
 	Text_ConsumableLoot->SetVisibility(ESlateVisibility::Collapsed);
 	Image_Loot->SetVisibility(ESlateVisibility::Collapsed);
+	Image_LootOther->SetVisibility(ESlateVisibility::Collapsed);
+
 }

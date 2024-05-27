@@ -31,6 +31,8 @@ public:
 	// Sets default values for this character's properties
 	ADBCharacter();
 
+	bool IsInventoryInViewport() const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -147,7 +149,7 @@ public:
 	void MultiRPC_DoubleJump();
 
 	virtual void EnhancedInteract(const struct FInputActionValue& value);
-	void EnhancedInventory(const struct FInputActionValue& value);
+	virtual void EnhancedInventory(const struct FInputActionValue& value);
 public:
 	void CreatePlayerWidget();
 

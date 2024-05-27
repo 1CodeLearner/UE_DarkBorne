@@ -15,7 +15,7 @@ UBaseInventoryComponent::UBaseInventoryComponent()
 	bIsDirty = false;
 	Columns = 10;
 	Rows = 4;
-	TileSize = 62.5f;
+	TileSize = 50.f;
 }
 
 void UBaseInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
