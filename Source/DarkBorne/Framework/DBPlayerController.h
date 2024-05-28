@@ -17,6 +17,9 @@ class DARKBORNE_API ADBPlayerController : public APlayerController
 public:
 	UFUNCTION(Client, Reliable, BlueprintCallable)
 	void Client_DisplayGameResult(bool bHasWon);
+
+	UFUNCTION()
+	void ReturnToMenu();
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* aPawn) override;

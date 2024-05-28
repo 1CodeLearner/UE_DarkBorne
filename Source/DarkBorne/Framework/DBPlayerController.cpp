@@ -13,6 +13,7 @@
 #include "../TP_ThirdPerson/TP_ThirdPersonGameMode.h"
 #include <../../../../../../../Source/Runtime/Engine/Classes/GameFramework/SpectatorPawn.h>
 #include <../../../../../../../Source/Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h>
+#include "Kismet/GameplayStatics.h"
 
 void ADBPlayerController::Client_DisplayGameResult_Implementation(bool bHasWon)
 {
@@ -31,7 +32,16 @@ void ADBPlayerController::Client_DisplayGameResult_Implementation(bool bHasWon)
 
 		GameEndWidget->AddToViewport();
 	}
+
+	FTimerHandle Handle;
+	GetWorld()->GetTimerManager().SetTimer(Handle, this, &ADBPlayerController::ReturnToMenu, 7.f, false);
 }
+
+void ADBPlayerController::ReturnToMenu()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), "MainMenuMap", true);
+}
+
 
 void ADBPlayerController::BeginPlay()
 {
