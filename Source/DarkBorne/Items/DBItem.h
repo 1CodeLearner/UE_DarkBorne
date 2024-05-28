@@ -72,10 +72,9 @@ protected:
 	UPROPERTY(Replicated)
 	TObjectPtr<UItemObject> ItemObj;
 
-	UFUNCTION()
-	void OnRep_bCanInteract();
-
 private:
 	UPROPERTY(ReplicatedUsing = "OnRep_bCanInteract")
 	bool bCanInteract;
+	UFUNCTION()
+	void OnRep_bCanInteract();
 };
