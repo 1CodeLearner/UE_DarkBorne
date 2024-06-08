@@ -10,7 +10,6 @@
 
 void UEquipmentGridWidget::StartInit(UDBEquipmentComponent* EquipmentComp, ESlotType _SlotType/*, EGridWidgetType _GridWidgetType*/)
 {
-	bIsBeingHeld = false;
 	EquipmentComponent = EquipmentComp;
 	TileSize = EquipmentComponent->GetTileSize();
 	SlotType = _SlotType;
