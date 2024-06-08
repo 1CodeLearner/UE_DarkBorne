@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -28,7 +28,7 @@ struct FInventoryItems
 	GENERATED_BODY()
 
 	UPROPERTY()
-	AActor* InteractingActor;
+	AActor* InteractingActor; // 
 	
 	UPROPERTY(VisibleInstanceOnly)
 	TArray<UItemObject*> Items;
@@ -53,6 +53,7 @@ protected:
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
 public:
+	//키보드 + 마우스 입력 처리
 	UFUNCTION(BlueprintCallable)
 	virtual void ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput);
 	UFUNCTION(Server, Reliable)
@@ -60,15 +61,19 @@ public:
 	UFUNCTION(Server, Reliable)
 	virtual void Server_ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput);
 
-
+	//아이템 추가 처리
 	UFUNCTION(BlueprintCallable)
 	virtual bool TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor);
+	
+	//아이템 제거 처리
 	UFUNCTION(BlueprintCallable)
 	virtual void RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor);
 
+	//아이템 소유 확인
 	UFUNCTION(BlueprintCallable)
 	virtual bool HasItem(UItemObject* ItemObject) const;
 
+	//아이템 스폰 
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_SpawnItem(AActor* Initiator, UItemObject* ItemObject, bool bSetOwner = false, float forwardOffset = 200.f);
 
@@ -76,6 +81,7 @@ protected:
 	UFUNCTION(Server, Reliable)
 	virtual void Server_RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor);
 
+	//소유하는 아이템 정보 보관 
 	UPROPERTY(ReplicatedUsing = OnRep_Items, VisibleAnywhere)
 	FInventoryItems InventoryItems;
 
