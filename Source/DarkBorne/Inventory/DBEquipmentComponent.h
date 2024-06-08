@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -21,6 +21,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	//아이템 추가 처리
 	virtual bool TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor) override;
 	UFUNCTION(BlueprintCallable)
 	void AddItem(UItemObject* ItemObject, AActor* InitiatedActor);
@@ -29,11 +30,13 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_AddItem(UItemObject* ItemObject, AActor* InitiatedActor);
 
+	//아이템 제거 처리
 	virtual void RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor) override;
 	UFUNCTION(Server, Reliable)
 	void Server_TaxiForRemoveItem(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor);
 	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject, AActor* InitiatedActor) override;
 
+	//키보드 + 마우스 입력 처리
 	virtual void ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput) override;
 	virtual void Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput) override;
 	virtual void Server_ProcessPressInput_Implementation(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput) override;
