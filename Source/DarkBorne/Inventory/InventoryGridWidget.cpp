@@ -9,7 +9,7 @@
 void UInventoryGridWidget::StartInit(UPlayerEquipmentComponent* InventoryComp/*, EGridWidgetType _GridWidgetType*/)
 {
 	InventoryComponent = InventoryComp;
-	TileSize = InventoryComponent->GetTileSize();
+	TileSize = UPlayerEquipmentComponent::GetTileSize(InventoryComp);
 
 	UCanvasPanelSlot* CanvasPanel = UWidgetLayoutLibrary::SlotAsCanvasSlot(GridBorder);
 

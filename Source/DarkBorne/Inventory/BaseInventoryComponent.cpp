@@ -13,9 +13,6 @@ UBaseInventoryComponent::UBaseInventoryComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 	bIsDirty = false;
-	Columns = 10;
-	Rows = 4;
-	TileSize = 50.f;
 }
 
 void UBaseInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -73,18 +70,6 @@ bool UBaseInventoryComponent::TryAddItem(UItemObject* ItemObject, AActor* Initia
 void UBaseInventoryComponent::RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor)
 {
 	return;
-}
-
-float UBaseInventoryComponent::GetTileSize() const
-{
-	return TileSize;
-}
-
-FVector2D UBaseInventoryComponent::GetSize() const
-{
-	int32 x = Columns * TileSize;
-	int32 y = Rows * TileSize;
-	return FVector2D(x, y);
 }
 
 void UBaseInventoryComponent::Server_RemoveItem_Implementation(UItemObject* ItemObject, AActor* InitiatedActor)

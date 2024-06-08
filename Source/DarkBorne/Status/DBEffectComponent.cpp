@@ -43,13 +43,6 @@ bool UDBEffectComponent::ReplicateSubobjects(class UActorChannel* Channel, class
 	return WroteSomething;
 }
 
-
-void UDBEffectComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Black, FString::Printf(TEXT("Effects:%d"), Effects.Num()));
-}
-
 void UDBEffectComponent::AddEffect(ADBCharacter* Instigated, ADBConsumable* ItemToActivate)
 {
 	Server_AddEffect(Instigated, ItemToActivate);

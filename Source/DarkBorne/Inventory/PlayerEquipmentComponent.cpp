@@ -15,7 +15,10 @@ UPlayerEquipmentComponent::UPlayerEquipmentComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
-	bIsDirty = false;
+
+	Columns = 10;
+	Rows = 4;
+	TileSize = 50.f;
 }
 
 bool UPlayerEquipmentComponent::HasRoomFor(UItemObject* ItemObject) const
@@ -328,6 +331,30 @@ int32 UPlayerEquipmentComponent::GetColumn() const
 int32 UPlayerEquipmentComponent::GetRow() const
 {
 	return Rows;
+}
+
+float UPlayerEquipmentComponent::GetTileSize(UBaseInventoryComponent* BaseInventoryComp)
+{
+	if (BaseInventoryComp)
+	{
+		auto Owner = BaseInventoryComp->GetOwner();
+		if (Owner)
+		{
+			auto InventoryComp = Owner->GetComponentByClass<UPlayerEquipmentComponent>();
+			if (InventoryComp)
+			{
+				return InventoryComp->TileSize;
+			}
+		}
+	}
+	return 0.0f;
+}
+
+FVector2D UPlayerEquipmentComponent::GetSize() const
+{
+	int32 x = Columns * TileSize;
+	int32 y = Rows * TileSize;
+	return FVector2D(x, y);
 }
 
 TMap<class UItemObject*, FTile> UPlayerEquipmentComponent::GetAllItems() const

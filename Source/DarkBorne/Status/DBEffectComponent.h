@@ -24,7 +24,6 @@ class DARKBORNE_API UDBEffectComponent : public UActorComponent
 
 public:
 	UDBEffectComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void AddEffect(ADBCharacter* Instigated, ADBConsumable* ItemToActivate);
 

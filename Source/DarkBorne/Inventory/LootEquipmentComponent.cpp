@@ -14,13 +14,6 @@ void ULootEquipmentComponent::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ULootEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-
-}
-
 void ULootEquipmentComponent::DisplayLoot(AActor* OtherActor, EEntityType EntityType)
 {
 }

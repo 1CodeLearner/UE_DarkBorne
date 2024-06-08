@@ -29,10 +29,6 @@ void UDBEquipmentComponent::BeginPlay()
 
 	if (GetOwner())
 	{
-		auto PEC = GetOwner()->GetComponentByClass<UPlayerEquipmentComponent>();
-		if (ensureAlways(PEC))
-			PlayerEquipComp = PEC;
-
 		if (GetOwner()->HasAuthority())
 		{
 			ESlotType slotNum = ESlotType::NONE;
@@ -41,19 +37,6 @@ void UDBEquipmentComponent::BeginPlay()
 
 			int val = 10;
 		}
-	}
-}
-
-void UDBEquipmentComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (InventoryItems.Items[0])
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow, FString::Printf(TEXT("EquipComp: %s [%s]: %s, Num:%d"),
-			*GetNameSafe(GetOwner()), (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server")),
-			*InventoryItems.Items[0]->GetItem().SlotHolder.DisplayName.ToString(), InventoryItems.Items.Num())
-		);
 	}
 }
 
