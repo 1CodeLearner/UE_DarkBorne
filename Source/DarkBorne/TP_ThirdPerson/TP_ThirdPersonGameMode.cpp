@@ -26,26 +26,23 @@ ATP_ThirdPersonGameMode::ATP_ThirdPersonGameMode()
 void ATP_ThirdPersonGameMode::AddItemTo(AActor* Actor, FName LootName)
 {	
 	auto InventoryComp = Actor->GetComponentByClass<UBaseInventoryComponent>();
-	if (InventoryComp)
+	if (Actor && InventoryComp)
 	{
-		TArray<FItem> Items = GenerateItems(LootName);
+		TArray<UItemObject*> Items = GenerateItems(LootName);
 		for (int i = 0; i < Items.Num(); ++i)
 		{
-			auto ItemObject = NewObject<UItemObject>(this);
-			ItemObject->Initialize(Items[i]);
-
-			UE_LOG(LogTemp, Warning, TEXT("Yes it works"));
-			InventoryComp->TryAddItem(ItemObject, Actor);
+			UE_LOG(LogTemp, Warning, TEXT("Adding item %s to %s"), *Items[i]->GetDisplayName().ToString(), *Actor->GetName());
+			InventoryComp->TryAddItem(Items[i], Actor);
 		}
 	}
 }
 
-TArray<FItem> ATP_ThirdPersonGameMode::GenerateItems(FName MonsterName)
+TArray<UItemObject*> ATP_ThirdPersonGameMode::GenerateItems(FName MonsterName)
 {
 	if (ensureAlways(DropItemManager)) {
 		return DropItemManager->GenerateItems(MonsterName);
 	}
-	return TArray<FItem>();
+	return TArray<UItemObject*>();
 }
 
 void ATP_ThirdPersonGameMode::OnPlayerDead(APlayerController* PlayerController)
