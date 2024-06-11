@@ -34,7 +34,7 @@ struct FItemData
 };
 
 UCLASS(BlueprintAble)
-class DARKBORNE_API UItemObject : public UObject, public FTickableGameObject
+class DARKBORNE_API UItemObject : public UObject
 {
 	GENERATED_BODY()
 
@@ -52,7 +52,7 @@ public:
 	void SetItemActor(ADBItem* _ItemActor);
 	UFUNCTION(BlueprintCallable)
 	bool HasItemActor() const;
-	ADBItem* GetItemActor() const;
+	bool HasItemActor(ADBItem* ItemToCheck) const;
 	void TryDestroyItemActor();
 
 	UFUNCTION(BlueprintCallable)
@@ -88,7 +88,7 @@ public:
 	FDarkBorneStats GetEnchantments() const;
 	
 	UFUNCTION(BlueprintCallable)
-	FIntPoint GetDimentions() const;  // Ã¶ÀÚ ¼öÁ¤
+	FIntPoint GetDimensions() const;  // Ã¶ÀÚ ¼öÁ¤
 	UFUNCTION(BlueprintCallable)
 	UMaterialInterface* GetIcon() const;
 	UFUNCTION(BlueprintCallable)
@@ -99,7 +99,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ESlotType GetSlotType() const;
 
-	const FItem& GetItem() const;
+	const FItem& GetItemData() const;
 
 	/*UFUNCTION(Server, Reliable, BlueprintCallable)
 	void Server_SpawnItem(AActor* Initiator, float forwardOffset = 200.f, bool bSetOwner = false);*/
@@ -107,10 +107,6 @@ public:
 protected:
 	UFUNCTION()
 	virtual UWorld* GetWorld() const override;
-
-	/** return the stat id to use for this tickable **/
-	virtual TStatId GetStatId() const override;
-	virtual void Tick(float DeltaTime) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const;
 
@@ -125,7 +121,4 @@ protected:
 private:
 	UPROPERTY(Replicated)
 	FItemData ItemData;
-
-	FIntPoint _dimentions;  // Ã¶ÀÚ ¼öÁ¤
-	class UMaterial* Icon;
 };

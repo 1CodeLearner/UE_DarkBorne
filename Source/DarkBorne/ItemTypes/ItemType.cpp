@@ -9,6 +9,11 @@ bool FItem::IsValid() const
 	return bIsValid;
 }
 
+const TArray<FRarity>& FItem::GetRaritiesFromItemSlot() const
+{
+	return ItemSlot->Rarities;
+}
+
 void FItem::Initialize()
 {
 	if (ItemSlot)
@@ -32,14 +37,6 @@ void FItem::Initialize()
 	}
 }
 
-const TArray<FRarity>& FItem::GetRarities() const
-{
-	if (!bIsValid)
-		return ItemSlot->Rarities;
-	else
-		return Rarities;
-}
-
 const ESlotType FItem::GetSlotType() const
 {
 	if (!bIsValid)
@@ -48,12 +45,37 @@ const ESlotType FItem::GetSlotType() const
 		return SlotHolder.SlotType;
 }
 
+const FRarity& FItem::GetRarity() const
+{
+	return Rarity;
+}
+
 float FItem::GetDefaultValue() const
 {
-	if (bIsValid && ensureAlways(Rarities.Num() == 1))
+	if (bIsValid)
 	{
-		return Rarities[0].Range.min;
+		return Rarity.Range.min;
 	}
 
 	return -1.f;
+}
+
+const FSlotHolder& FItem::GetSlotHolder() const
+{
+	return SlotHolder;
+}
+
+const FDarkBorneStats& FItem::GetEnchantments() const
+{
+	return Enchantments;
+}
+
+void FItem::SetRarity(const FRarity& _Rarity)
+{
+	Rarity = _Rarity;
+}
+
+void FItem::SetEnchantments(const FDarkBorneStats& _Enchantments)
+{
+	Enchantments = _Enchantments;
 }

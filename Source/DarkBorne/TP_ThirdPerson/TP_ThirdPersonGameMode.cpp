@@ -4,7 +4,6 @@
 #include "TP_ThirdPersonCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "../Framework/DBDropItemManager.h"
-#include "../ItemTypes/ItemType.h"
 #include "../ItemTypes/EnchantmentTypes.h"
 #include "../Framework/DBPlayerController.h"
 #include "../DBCharacters/DBCharacter.h"

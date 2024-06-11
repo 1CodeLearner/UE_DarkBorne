@@ -40,7 +40,7 @@ bool UPlayerEquipmentComponent::HasRoomFor(UItemObject* ItemObject) const
 
 bool UPlayerEquipmentComponent::HasItem(UItemObject* ItemObject) const
 {
-	FIntPoint dim = ItemObject->GetDimentions();
+	FIntPoint dim = ItemObject->GetDimensions();
 	int32 total = dim.X * dim.Y;
 
 	int32 count = 0;
@@ -137,12 +137,12 @@ void UPlayerEquipmentComponent::Server_AddItemAt_Implementation(UItemObject* Ite
 	if (IsRoomAvailable(ItemObject, TopLeftIndex))
 	{
 		FTile refTile = IndexToTile(TopLeftIndex);
-		FIntPoint dimentions = ItemObject->GetDimentions();
+		FIntPoint dimensions = ItemObject->GetDimensions();
 		FTile newTile;
 
-		for (int32 i = refTile.X; i < refTile.X + (dimentions.X); i++)
+		for (int32 i = refTile.X; i < refTile.X + (dimensions.X); i++)
 		{
-			for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y); j++)
+			for (int32 j = refTile.Y; j < refTile.Y + (dimensions.Y); j++)
 			{
 				newTile.X = i;
 				newTile.Y = j;
@@ -391,11 +391,11 @@ bool UPlayerEquipmentComponent::IsRoomAvailable(UItemObject* ItemObject, int32 T
 {
 	//ForEachIndex
 	FTile refTile = IndexToTile(TopLeftIndex);
-	FIntPoint dimentions = ItemObject->GetDimentions();
+	FIntPoint dimension = ItemObject->GetDimensions();
 	FTile newTile;
-	for (int32 i = refTile.X; i < refTile.X + (dimentions.X); i++)
+	for (int32 i = refTile.X; i < refTile.X + (dimension.X); i++)
 	{
-		for (int32 j = refTile.Y; j < refTile.Y + (dimentions.Y); j++)
+		for (int32 j = refTile.Y; j < refTile.Y + (dimension.Y); j++)
 		{
 			newTile.X = i;
 			newTile.Y = j;
@@ -446,8 +446,8 @@ void UPlayerEquipmentComponent::OnRep_Items(FInventoryItems Old)
 
 	if (ItemUpdated.Num() > 0)
 	{
-		FIntPoint Dimension = ItemUpdated[0]->GetDimentions();
-		int Size = Dimension.X * Dimension.Y;
+		FIntPoint Dimensions = ItemUpdated[0]->GetDimensions();
+		int Size = Dimensions.X * Dimensions.Y;
 
 		if (Size == ItemUpdated.Num())
 		{

@@ -170,22 +170,32 @@ protected:
 	UPDA_ItemSlot* ItemSlot;
 	UPROPERTY()
 	bool bIsValid = false;
-public:
-	bool IsValid() const;
-	void Initialize();
-	const TArray<FRarity>& GetRarities() const;
-	const ESlotType GetSlotType() const;
-	float GetDefaultValue() const;
-
-
+	
 	UPROPERTY(BlueprintReadOnly)
 	FSlotHolder SlotHolder;
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FRarity> Rarities;
+	FRarity Rarity;
 
 	UPROPERTY(BlueprintReadOnly)
 	FDarkBorneStats Enchantments;
+
+public:
+	//Initializers (초기화)
+	void Initialize();
+	bool IsValid() const;
+	const TArray<FRarity>& GetRaritiesFromItemSlot() const;
+
+	//Getters
+	const FSlotHolder& GetSlotHolder() const;	
+	const FDarkBorneStats& GetEnchantments() const;
+	const FRarity& GetRarity() const;
+	float GetDefaultValue() const;	
+	const ESlotType GetSlotType() const;
+			
+	//Setters
+	void SetRarity(const FRarity& _Rarity);
+	void SetEnchantments(const FDarkBorneStats& _Enchantments);
 };
 
 

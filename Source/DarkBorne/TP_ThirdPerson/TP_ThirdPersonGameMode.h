@@ -7,7 +7,6 @@
 #include "TP_ThirdPersonGameMode.generated.h"
 
 class ADBDropItemManager;
-struct FItem;
 class ADBItem;
 class ADBPlayerController;
 class UItemObject;

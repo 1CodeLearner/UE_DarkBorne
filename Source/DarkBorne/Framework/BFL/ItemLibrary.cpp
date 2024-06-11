@@ -8,7 +8,7 @@
 
 int32 UItemLibrary::GetSlotIndexByObject(UItemObject* ItemObj)
 {
-	ESlotType Slot = ItemObj->GetItem().SlotHolder.SlotType;
+	ESlotType Slot = ItemObj->GetItemData().GetSlotHolder().SlotType;
 	return GetSlotIndexByEnum(Slot);
 }
 

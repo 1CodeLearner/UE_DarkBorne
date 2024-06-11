@@ -150,22 +150,21 @@ void ADBDropItemManager::AssignSlotHolder(FItem& Item)
 void ADBDropItemManager::AssignRarity(FItem& Item)
 {
 	if (!ensureAlways(Item.IsValid() == false)) return;
-	int max = Item.GetRarities().Num() - 1;
+	int max = Item.GetRaritiesFromItemSlot().Num() - 1;
 	int rand = FMath::RandRange(0, max);
 
-	FRarity Rarity = Item.GetRarities()[rand];
+	FRarity Rarity = Item.GetRaritiesFromItemSlot()[rand];
 
 	GenerateStatFromRange(Rarity.Range);
-
-	Item.Rarities.Empty();
-	Item.Rarities.Add(Rarity);
+		
+	Item.SetRarity(Rarity);
 }
 
 void ADBDropItemManager::AssignEnchantment(FItem& Item)
 {
 	if (!ensureAlways(Item.IsValid())) return;
 
-	if (!ensureAlwaysMsgf(Item.Rarities.Num() > 0, TEXT("Ensure AssignRarity() is called before AssignEnhancement()")))
+	if (!ensureAlwaysMsgf(Item.GetRarity().GetRarityType() != (uint8)ERarityType::NONE, TEXT("Ensure AssignRarity() is called before AssignEnhancement()")))
 		return;
 
 	if (!ensureAlways(!Enchantments.IsEmpty()))
@@ -175,10 +174,7 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 		return;
 
 	uint8 EnchantmentNum = 0;
-	FRarity temp = Item.Rarities[0];
-	int32 temp2 = int32(temp.RarityType);
-	EnchantmentNum = Item.GetRarities()[0].GetRarityType();
-	Item.GetRarities()[0].GetRarityType(EnchantmentNum);
+	EnchantmentNum = Item.GetRarity().GetRarityType();
 
 	std::vector<bool> attributeCheck;
 	TArray<FAttribute> AttributesGenerated;
@@ -225,6 +221,6 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 
 	holder.PhysicalDamages = PhysicalDamageGenerated;
 
-	Item.Enchantments = holder;
+	Item.SetEnchantments(holder);
 }
 
