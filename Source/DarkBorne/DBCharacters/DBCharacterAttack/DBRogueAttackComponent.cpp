@@ -282,7 +282,7 @@ void UDBRogueAttackComponent::MultiRPC_RogueAttack_Implementation()
 	if(RogueEquipComponent->GetSlots().IsEmpty()) return;
 	if (RoguePlayer->RogueWeaponComp->RogueItems == nullptr) return;
 	
-	if(RogueEquipComponent->GetSlots()[0] && (RogueEquipComponent->GetSlots()[0]->GetItemActor() == RoguePlayer->RogueWeaponComp->RogueItems))
+	if(RogueEquipComponent->GetSlots()[0] && (RogueEquipComponent->GetSlots()[0]->HasItemActor(RoguePlayer->RogueWeaponComp->RogueItems)))
 	{
 		// 은신 상태면 은신 풀어주자
 		if (RogueSkillComponent->isVanish)

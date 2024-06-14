@@ -7,12 +7,12 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "InventoryGridWidget.h"
+#include "PlayerEquipmentComponent.h"
 
 void UEquipmentGridWidget::StartInit(UDBEquipmentComponent* EquipmentComp, ESlotType _SlotType/*, EGridWidgetType _GridWidgetType*/)
 {
-	bIsBeingHeld = false;
 	EquipmentComponent = EquipmentComp;
-	TileSize = EquipmentComponent->GetTileSize();
+	TileSize = UPlayerEquipmentComponent::GetTileSize(EquipmentComp);
 	SlotType = _SlotType;
 
 	Refresh();

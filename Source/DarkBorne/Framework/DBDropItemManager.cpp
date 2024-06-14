@@ -5,6 +5,7 @@
 #include "Interfaces/ItemInterface.h"
 #include "../Framework/BFL/ItemLibrary.h"
 #include "../Items/PDA_ItemSlot.h"
+#include "../Inventory/ItemObject.h"
 
 ADBDropItemManager::ADBDropItemManager()
 {
@@ -27,9 +28,9 @@ void ADBDropItemManager::BeginPlay()
 /// <returns>
 /// Returns instances of generated items. Returns empty if an error occured.
 /// </returns>
-TArray<FItem> ADBDropItemManager::GenerateItems(FName MonsterName)
+TArray<UItemObject*> ADBDropItemManager::GenerateItems(FName MonsterName)
 {
-	TArray<FItem> ItemsToGenerate;
+	TArray<UItemObject*> ItemsToGenerate;
 	ItemsToGenerate.Empty();
 
 	if (ensureAlways(DT_DropRate && !MonsterName.IsNone()))
@@ -37,10 +38,10 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName MonsterName)
 		FDropRate* dropRate = DT_DropRate->FindRow<FDropRate>(MonsterName, FString::Printf(TEXT("Context")));
 
 		if (!ensureAlwaysMsgf(dropRate, TEXT("Could not find RowName")))
-			return TArray<FItem>();
+			return TArray<UItemObject*>();
 
 		if (!FindCumulativeProbability(dropRate))
-			return TArray<FItem>();
+			return TArray<UItemObject*>();
 
 
 		const int amount = dropRate->Amount;
@@ -66,35 +67,48 @@ TArray<FItem> ADBDropItemManager::GenerateItems(FName MonsterName)
 				TArray<FName> RowNames = ItemTable->GetRowNames();
 
 				int rand = FMath::RandRange(0, RowNames.Num() - 1);
-				//FItem item = *ItemTable->FindRow<FItem>(RowNames[rand], FString::Printf(TEXT("Context")));
 
-				//AssignRarity(item);
-				//AssignEnchantment(item);
-				//AssignSlotHolder(item);
-				FItem tempItem = CreateItem(ItemTable, RowNames[rand]);
+				FItem tempItem = CreateItemData(ItemTable, RowNames[rand]);
 				if (tempItem.IsValid())
-					ItemsToGenerate.Add(tempItem);
+				{
+					auto ItemObject = NewObject<UItemObject>(this);
+					if (ItemObject)
+					{
+						ItemObject->Initialize(tempItem);
+						ItemsToGenerate.Add(ItemObject);
+					}
+				}
+
 				else
-					UE_LOG(LogTemp, Warning, TEXT("Invalid Item generated. Item will be ignored"));
+					UE_LOG(LogTemp, Warning, TEXT("Invalid Item generated. Generated Item will be discarded"));
 			}
-			else return TArray<FItem>();
+			else return TArray<UItemObject*>();
 		}
 	}
-	else return TArray<FItem>();
+	else return TArray<UItemObject*>();
+
 	return ItemsToGenerate;
 }
 
-FItem ADBDropItemManager::GenerateItemByName(FName ItemName, EItemType Type)
+UItemObject* ADBDropItemManager::GenerateItemByName(FName ItemName, EItemType Type)
 {
 	UDataTable* DT = *ItemTableMap.Find(Type);
 
-	if(DT && DT->FindRow<FItem>(ItemName,FString::Printf(TEXT("Context"))))
-		return CreateItem(DT, ItemName);
-	else 
-		return FItem();
+	if (DT && DT->FindRow<FItem>(ItemName, FString::Printf(TEXT("Context"))))
+	{
+		FItem ItemData = CreateItemData(DT, ItemName);
+		auto ItemObject = NewObject<UItemObject>(this);
+		if (ItemObject)
+		{
+			ItemObject->Initialize(ItemData);
+			return ItemObject;
+		}
+	}
+
+	return nullptr;
 }
 
-FItem ADBDropItemManager::CreateItem(UDataTable* Table, FName RowName)
+FItem ADBDropItemManager::CreateItemData(UDataTable* Table, FName RowName)
 {
 	GetWorld();
 	FItem* item = Table->FindRow<FItem>(RowName, FString::Printf(TEXT("Context")));
@@ -136,22 +150,21 @@ void ADBDropItemManager::AssignSlotHolder(FItem& Item)
 void ADBDropItemManager::AssignRarity(FItem& Item)
 {
 	if (!ensureAlways(Item.IsValid() == false)) return;
-	int max = Item.GetRarities().Num() - 1;
+	int max = Item.GetRaritiesFromItemSlot().Num() - 1;
 	int rand = FMath::RandRange(0, max);
 
-	FRarity Rarity = Item.GetRarities()[rand];
+	FRarity Rarity = Item.GetRaritiesFromItemSlot()[rand];
 
 	GenerateStatFromRange(Rarity.Range);
-
-	Item.Rarities.Empty();
-	Item.Rarities.Add(Rarity);
+		
+	Item.SetRarity(Rarity);
 }
 
 void ADBDropItemManager::AssignEnchantment(FItem& Item)
 {
 	if (!ensureAlways(Item.IsValid())) return;
 
-	if (!ensureAlwaysMsgf(Item.Rarities.Num() > 0, TEXT("Ensure AssignRarity() is called before AssignEnhancement()")))
+	if (!ensureAlwaysMsgf(Item.GetRarity().GetRarityType() != (uint8)ERarityType::NONE, TEXT("Ensure AssignRarity() is called before AssignEnhancement()")))
 		return;
 
 	if (!ensureAlways(!Enchantments.IsEmpty()))
@@ -161,11 +174,8 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 		return;
 
 	uint8 EnchantmentNum = 0;
-	FRarity temp = Item.Rarities[0];
-	int32 temp2 = int32(temp.RarityType);
-	EnchantmentNum = Item.GetRarities()[0].GetRarityType();
-	Item.GetRarities()[0].GetRarityType(EnchantmentNum);
-		
+	EnchantmentNum = Item.GetRarity().GetRarityType();
+
 	std::vector<bool> attributeCheck;
 	TArray<FAttribute> AttributesGenerated;
 
@@ -211,6 +221,6 @@ void ADBDropItemManager::AssignEnchantment(FItem& Item)
 
 	holder.PhysicalDamages = PhysicalDamageGenerated;
 
-	Item.Enchantments = holder;
+	Item.SetEnchantments(holder);
 }
 

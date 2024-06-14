@@ -180,7 +180,7 @@ bool UDBRogueWeaponComponent::HandleAttach(int32 SlotIndex)
 
 	if (ensureAlways(!Slots.IsEmpty()) && Slots[SlotIndex])
 	{
-		if (Slots[SlotIndex]->GetItemActor() == nullptr)
+		if (!Slots[SlotIndex]->HasItemActor())
 		{
 			if (RogueItems)
 			{

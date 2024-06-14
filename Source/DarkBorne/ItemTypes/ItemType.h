@@ -129,16 +129,10 @@ struct FRarity
 {
 	GENERATED_BODY()
 
-	void GetRarityType(uint8& Type) const
-	{
-		Type = (uint8)RarityType;
-	}
-
 	uint8 GetRarityType() const
 	{
 		return (uint8)RarityType;
 	}
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ERarityType RarityType = ERarityType::NONE;
@@ -170,22 +164,32 @@ protected:
 	UPDA_ItemSlot* ItemSlot;
 	UPROPERTY()
 	bool bIsValid = false;
-public:
-	bool IsValid() const;
-	void Initialize();
-	const TArray<FRarity>& GetRarities() const;
-	const ESlotType GetSlotType() const;
-	float GetDefaultValue() const;
-
-
+	
 	UPROPERTY(BlueprintReadOnly)
 	FSlotHolder SlotHolder;
 
 	UPROPERTY(BlueprintReadOnly)
-	TArray<FRarity> Rarities;
+	FRarity Rarity;
 
 	UPROPERTY(BlueprintReadOnly)
 	FDarkBorneStats Enchantments;
+
+public:
+	//Initializers (초기화)
+	void Initialize();
+	bool IsValid() const;
+	const TArray<FRarity>& GetRaritiesFromItemSlot() const;
+
+	//Getters
+	const FSlotHolder& GetSlotHolder() const;	
+	const FDarkBorneStats& GetEnchantments() const;
+	const FRarity& GetRarity() const;
+	float GetDefaultValue() const;	
+	const ESlotType GetSlotType() const;
+			
+	//Setters
+	void SetRarity(const FRarity& _Rarity);
+	void SetEnchantments(const FDarkBorneStats& _Enchantments);
 };
 
 

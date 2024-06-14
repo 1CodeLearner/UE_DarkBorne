@@ -211,40 +211,40 @@ void UCharacterStatusComponent::AdjustAddedStats(AActor* Instigated, const UItem
 
 void UCharacterStatusComponent::AddStats(const UItemObject* ItemObject)
 {
-	const FItem& Item = ItemObject->GetItem();
+	const FItem& Item = ItemObject->GetItemData();
 
 	if (ItemObject->GetSlotType() == ESlotType::WEAPON)
 	{
 		AddedStat.WeaponDamage += ItemObject->GetRarityValue();
 	}
 
-	for (int i = 0; i < Item.Enchantments.Attributes.Num(); ++i) {
-		int32 index = (int32)Item.Enchantments.Attributes[i].AttributeType;
-		AddedStat.Attributes[index] += Item.Enchantments.Attributes[i];
+	for (int i = 0; i < Item.GetEnchantments().Attributes.Num(); ++i) {
+		int32 index = (int32)Item.GetEnchantments().Attributes[i].AttributeType;
+		AddedStat.Attributes[index] += Item.GetEnchantments().Attributes[i];
 	}
-	for (int i = 0; i < Item.Enchantments.PhysicalDamages.Num(); ++i) {
-		int32 index = (int32)Item.Enchantments.PhysicalDamages[i].PhysicalDamageType;
-		AddedStat.PhysDamages[index] += Item.Enchantments.PhysicalDamages[i];
+	for (int i = 0; i < Item.GetEnchantments().PhysicalDamages.Num(); ++i) {
+		int32 index = (int32)Item.GetEnchantments().PhysicalDamages[i].PhysicalDamageType;
+		AddedStat.PhysDamages[index] += Item.GetEnchantments().PhysicalDamages[i];
 	}
 }
 
 void UCharacterStatusComponent::RemoveStats(const UItemObject* ItemObject)
 {
-	const FItem& Item = ItemObject->GetItem();
+	const FItem& Item = ItemObject->GetItemData();
 
 	if (ItemObject->GetSlotType() == ESlotType::WEAPON)
 	{
 		AddedStat.WeaponDamage -= ItemObject->GetRarityValue();
 	}
 
-	for (int i = 0; i < Item.Enchantments.Attributes.Num(); ++i) {
-		int32 index = (int32)Item.Enchantments.Attributes[i].AttributeType;
-		AddedStat.Attributes[index] -= Item.Enchantments.Attributes[i];
+	for (int i = 0; i < Item.GetEnchantments().Attributes.Num(); ++i) {
+		int32 index = (int32)Item.GetEnchantments().Attributes[i].AttributeType;
+		AddedStat.Attributes[index] -= Item.GetEnchantments().Attributes[i];
 	}
 
-	for (int i = 0; i < Item.Enchantments.PhysicalDamages.Num(); ++i) {
-		int32 index = (int32)Item.Enchantments.PhysicalDamages[i].PhysicalDamageType;
-		AddedStat.PhysDamages[index] -= Item.Enchantments.PhysicalDamages[i];
+	for (int i = 0; i < Item.GetEnchantments().PhysicalDamages.Num(); ++i) {
+		int32 index = (int32)Item.GetEnchantments().PhysicalDamages[i].PhysicalDamageType;
+		AddedStat.PhysDamages[index] -= Item.GetEnchantments().PhysicalDamages[i];
 	}
 }
 

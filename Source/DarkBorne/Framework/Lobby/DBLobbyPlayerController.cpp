@@ -7,7 +7,6 @@
 #include "DBLobbyGameMode.h"
 #include "../DBDropItemManager.h"
 #include "../../ItemTypes/EnchantmentTypes.h"
-#include "../../ItemTypes/ItemType.h"
 #include "../../Inventory/ItemObject.h"
 #include "../../DBCharacters/DBCharacter.h"
 #include "../../Inventory/DBEquipmentComponent.h"
@@ -53,11 +52,7 @@ void ADBLobbyPlayerController::OnPossess(APawn* aPawn)
 
 		auto LobbyGM = GetWorld()->GetAuthGameMode<ADBLobbyGameMode>();
 		if (LobbyGM && LobbyGM->GetItemManager()) {
-			FItem Item = LobbyGM->GetItemManager()->GenerateItemByName(FName("Dagger"), EItemType::WEAPON);
-			if (Item.IsValid()) {
-				ItemObject = NewObject<UItemObject>(this);
-				ItemObject->Initialize(Item);
-			}
+			ItemObject = LobbyGM->GetItemManager()->GenerateItemByName(FName("Dagger"), EItemType::WEAPON);
 		}
 
 		if (!ItemObject) return;

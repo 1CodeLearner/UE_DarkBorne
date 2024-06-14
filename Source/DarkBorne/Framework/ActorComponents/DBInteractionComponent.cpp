@@ -166,7 +166,8 @@ void UDBInteractionComponent::ExecuteInteraction()
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(OverlappingActor);
 		Interface->ExecuteInteract(this, Character);
 
-		Server_TaxiToServer(OverlappingActor, EInteractType::ExecuteInteract);
+		if(!GetOwner()->HasAuthority())
+			Server_TaxiToServer(OverlappingActor, EInteractType::ExecuteInteract);
 
 		Interface->SetCanInteract(true);
 	}

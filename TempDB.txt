@@ -1,0 +1,4 @@
+/*
+InitiatedActor is a DBCharacter that is controlled by active player
+InitiatedActor는 현재 플레이어가 제어하고 있는 DBCharacter
+*/

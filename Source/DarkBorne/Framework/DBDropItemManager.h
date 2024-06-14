@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "../ItemTypes/ItemType.h"
 #include "DBDropItemManager.generated.h"
 
 enum class EItemType : uint8;
 struct FDropRate;
 struct FEffect;
+class UItemObject;
 
 UCLASS()
 class DARKBORNE_API ADBDropItemManager : public AActor
@@ -24,10 +26,10 @@ public:
 
 protected:
 	UFUNCTION(BlueprintCallable)
-	TArray<FItem> GenerateItems(FName MonsterName);
+	TArray<UItemObject*> GenerateItems(FName MonsterName);
 
 	UFUNCTION(BlueprintCallable)
-	FItem GenerateItemByName(FName ItemName, EItemType Type);
+	UItemObject* GenerateItemByName(FName ItemName, EItemType Type);
 
 protected:
 	virtual void BeginPlay() override;
@@ -41,7 +43,7 @@ protected:
 	TArray<UDataTable*> Enchantments;
 
 private:
-	FItem CreateItem(UDataTable* Table, FName RowName);
+	FItem CreateItemData(UDataTable* Table, FName RowName);
 
 	bool FindCumulativeProbability(const FDropRate* DropRate);
 	void AssignSlotHolder(FItem& Item);

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -42,14 +42,23 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent), Blueprintabl
 class DARKBORNE_API UPlayerEquipmentComponent : public UBaseInventoryComponent
 {
 	GENERATED_BODY()
+
 	friend class ULootInventoryComponent;
 
-public:
+public:	
 	UPlayerEquipmentComponent();
+	
+	UFUNCTION(BlueprintCallable)
+	static float GetTileSize(UBaseInventoryComponent* BaseInventoryComp);
 
+protected:
+	virtual void BeginPlay() override;
+
+public:
 	bool HasRoomFor(UItemObject* ItemObject) const;
 	virtual bool HasItem(UItemObject* ItemObject) const override;
-		
+
+	//아이템 추가 처리
 	virtual bool TryAddItem(UItemObject* ItemObject, AActor* InitiatedActor) override;
 	UFUNCTION(BlueprintCallable)
 	void AddItemAt(UItemObject* ItemObject, int32 TopLeftIndex, AActor* InitiatedActor);
@@ -58,11 +67,13 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_TaxiForAddItemAt(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, int32 TopLeftIndex, AActor* InitiatedActor);
 
+	//아이템 제거 처리
 	virtual void RemoveItem(UItemObject* ItemObject, AActor* InitiatedActor) override;
 	UFUNCTION(Server, Reliable)
 	void Server_TaxiForRemoveItem(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor);
 	virtual void Server_RemoveItem_Implementation(UItemObject* ItemObject, AActor* InitiatedActor) override;
 
+	//키보드 + 마우스 입력 처리
 	virtual void ProcessPressInput(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput) override;
 	virtual void Server_ProcessPressInput_Implementation(UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput) override;
 	virtual void Server_TaxiForProcessPressInput_Implementation(UBaseInventoryComponent* TaxiedInventoryComp, UItemObject* ItemObject, AActor* InitiatedActor, FInventoryInput InventoryInput) override;
@@ -73,14 +84,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 GetRow() const;
 
-	//Holds ItemObject until mouse button is released
-	/*UPROPERTY(BlueprintReadOnly)
-	UItemObject* ItemObjectHolder;*/
-
-protected:
-	virtual void BeginPlay() override;
-
-public:
+	UFUNCTION(BlueprintCallable)
+	FVector2D GetSize() const;
+		
 	UFUNCTION(BlueprintCallable)
 	TMap<UItemObject*, FTile> GetAllItems() const;
 
@@ -94,6 +100,16 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsTileValid(FTile tile) const;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Columns = -1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Rows = -1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float TileSize;
 
 private:
 	UFUNCTION(BlueprintCallable)

@@ -7,9 +7,10 @@
 #include "TP_ThirdPersonGameMode.generated.h"
 
 class ADBDropItemManager;
-struct FItem;
 class ADBItem;
 class ADBPlayerController;
+class UItemObject;
+
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FPlayerUpdateDelegate, ADBPlayerController* /*Player*/, bool /*bExit*/);
 
@@ -56,7 +57,7 @@ protected:
 	
 
 	UFUNCTION(BlueprintCallable)
-	TArray<FItem> GenerateItems(FName MonsterName);
+	TArray<UItemObject*> GenerateItems(FName MonsterName);
 
 protected:
 	UPROPERTY(EditAnywhere, Category = "Settings")

@@ -11,16 +11,15 @@
  */
 UCLASS()
 class DARKBORNE_API ULootEquipmentComponent : public UDBEquipmentComponent
-{
+{	
+	GENERATED_BODY()
+
 public:
 	ULootEquipmentComponent();
-
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	virtual void BeginPlay() override;
 
-	GENERATED_BODY()
 	UFUNCTION(BlueprintCallable)
 	void DisplayLoot(AActor* OtherActor, EEntityType EntityType);
 
