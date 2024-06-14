@@ -129,16 +129,10 @@ struct FRarity
 {
 	GENERATED_BODY()
 
-	void GetRarityType(uint8& Type) const
-	{
-		Type = (uint8)RarityType;
-	}
-
 	uint8 GetRarityType() const
 	{
 		return (uint8)RarityType;
 	}
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ERarityType RarityType = ERarityType::NONE;

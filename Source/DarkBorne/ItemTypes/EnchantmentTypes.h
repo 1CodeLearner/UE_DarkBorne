@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -47,7 +47,8 @@ enum class ESlotType : uint8
 	GLOVES UMETA(DisplayName = "Gloves"),
 	BOOTS UMETA(DisplayName = "Boots"),
 
-	//Any elements beyond _EnchantmentMark_ cannot have enchantments 
+	//Any elements beyond _EnchantmentMark_ cannot have enchantments. 
+	//_Enchantment Mark_ 후의 enum 는 추가 스탯을 가질 수 없습니다.
 	_ENCHANTMENTMARK_ UMETA(DisplayName = "_EnchantmentMark_"),
 
 	UTILITY UMETA(DisplayName = "Utility"),
