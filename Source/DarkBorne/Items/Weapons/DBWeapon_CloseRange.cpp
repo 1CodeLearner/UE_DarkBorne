@@ -39,11 +39,8 @@ void ADBWeapon_CloseRange::BeginPlay()
 
 void ADBWeapon_CloseRange::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//UE_LOG(LogTemp,Warning,TEXT("HERE2"));
 	//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 	ACharacter* OtherPlayer = Cast<ACharacter>(OtherActor);
-	//UE_LOG(LogTemp, Warning, TEXT("Testing here: %s"), *GetNameSafe(GetOwner()));
-	//UDBRogueAnimInstance* OtherPlayerAnim = Cast<UDBRogueAnimInstance>(OtherPlayer->GetMesh()->GetAnimInstance());
 
 	// 캐릭터의 GetOnwer로 인스턴스를 가져와 나의 플레이어 애님 인스턴스로 가져온다
 	UDBRogueAnimInstance* MyCharacterAnim = Cast<UDBRogueAnimInstance>(Cast<ACharacter>(GetOwner())->GetMesh()->GetAnimInstance());
@@ -84,11 +81,10 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 		UCharacterStatusComponent* StatusComponent = OtherActor->GetComponentByClass<UCharacterStatusComponent>();
 		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅
 		//로비 체크
-			StatusComponent->DamageProcess(WeaponDamage,GetOwner());
+		// 
 			//플레이어의 현재 체력에서 무기데미지만큼 데미지를 준다
-			//onRep 함수는 클라에서만 호출되어서 서버에서도 한번 호출해줘야한다
-			//StatusComponent->OnRep_CurrHP();
-
+			StatusComponent->DamageProcess(WeaponDamage,GetOwner());
+			
 			//UE_LOG(LogTemp, Warning, TEXT("%s : %.f"),
 			//	GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"), OtherPlayer->CurrHP);
 			auto GM = GetWorld()->GetAuthGameMode<ATP_ThirdPersonGameMode>();
@@ -106,11 +102,9 @@ void ADBWeapon_CloseRange::ServerRPC_OnOverlapBegin_Implementation(class AActor*
 }
 
 
-// 클라에서 충돌처리...
+// 클라에서 충돌처리
 void ADBWeapon_CloseRange::MultiRPC_OnOverlapBegin_Implementation(class AActor* OtherActor)
 {
-	
-
 	if (Cast<ADBCharacter>(OtherActor))
 	{
 		//내가 아닌 다른 로그 플레이어를 otherActor로 캐스팅

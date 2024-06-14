@@ -76,6 +76,11 @@ public:
 	UFUNCTION()
 	void TimelineProgress(float value);
 
+	UFUNCTION(Server, Reliable)
+	void Server_Timeline(float timelineOff);
+
+	UFUNCTION()
+	void OnRep_Timeline();
 	UPROPERTY()
 	FTimeline CurveTimeline;
 
@@ -93,17 +98,11 @@ public:
 	UPROPERTY()
 	FRotator TKFirstRotation;
 
+
 public:
 	void UpdateKnifeLocation(float DeltaTime);
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MultiRPC_RogueThrowKnifeAttack(bool isLineHit, FRotator EndRotation, FVector startPos);
-
-public:
-	UFUNCTION(Server, Reliable)
-	void Server_Timeline(float timelineOff);
-
-	UFUNCTION()
-	void OnRep_Timeline();
 
 };

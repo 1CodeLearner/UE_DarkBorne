@@ -99,19 +99,19 @@ void UDBRogueSkillComponent::OnRep_CurrESkill()
 }
 
 void UDBRogueSkillComponent::UpdateRogueQSkill(float DeltaTime)
-{
+{	//은신 상태가 되었다면
 	if (isVanish)
 	{
 		UDBRogueWeaponComponent* weaponComponent = GetOwner()->GetComponentByClass<UDBRogueWeaponComponent>();
 		ADBRogueCharacter* RoguePlayer = Cast<ADBRogueCharacter>(GetOwner());
 		UDBEquipmentComponent* RogueEquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
-
+		// 내 입장에서는 스킬 위젯만 업데이트 시킨다.
 		if (RoguePlayer->IsLocallyControlled())
 		{
 			RoguePlayer->PlayerWidget->UpdateQBorder_Active(isVanish);
 		}
 
-		// 상대 입장에서만 무기를 투명화 시키자
+		// 상대 입장에서만 무기를 투명화 시킨다.
 		if (!RoguePlayer->IsLocallyControlled())
 		{
 			// 무기 가지고 있으면
@@ -172,7 +172,7 @@ void UDBRogueSkillComponent::ActiveRogueQSkill()
 
 void UDBRogueSkillComponent::ServerRPC_ActiveRogueQSkill_Implementation()
 {
-	// 서버에서 클라이언트들에게 뿌리기
+	// 서버->클라이언트 전달.
 	MultiRPC_ActiveRogueQSkill();
 }
 
@@ -212,7 +212,7 @@ void UDBRogueSkillComponent::MultiRPC_ActiveRogueQSkill_Implementation()
 			RoguePlayer->camera->PostProcessSettings.ChromaticAberrationStartOffset = 0;
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), VanishStartSFX, RoguePlayer->GetActorLocation());
 		}
-		// 다른 캐릭터들한텐
+		//!IsLocallyControlled()
 		else
 		{
 			// 로그 캐릭터 머티리얼 인덱스 0 부터 last까지 가져와서
@@ -261,7 +261,7 @@ void UDBRogueSkillComponent::DeactiveRogueQSkill()
 		}
 		else
 		{
-			//로그 캐릭터 머티리얼 가져와서
+			// 캐릭터 머티리얼 가져와서
 			// 머티리얼 인덱스 0 부터 last까지 가져와서
 			for (int32 i = 0; i < RoguePlayer->MatArr.Num(); i++)
 			{

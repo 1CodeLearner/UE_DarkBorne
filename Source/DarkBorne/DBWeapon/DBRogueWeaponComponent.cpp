@@ -83,7 +83,6 @@ void UDBRogueWeaponComponent::AttachWeapon()
 
 void UDBRogueWeaponComponent::ServerRPC_AttachWeapon_Implementation()
 {
-	// ¹«±â ²¨³»°í ÀÖÀ¸¸é Àç½ÇÇà x
 	if (hasWeapon) return;
 
 	if (AttackComp && AttackComp->IsUsingItem()) return;
@@ -113,7 +112,6 @@ void UDBRogueWeaponComponent::PassItem(UItemObject* Item)
 		hasWeapon = false;
 		AttachWeapon();
 	}
-
 
 	switch (Item->GetSlotType())
 	{
@@ -178,10 +176,8 @@ bool UDBRogueWeaponComponent::HandleAttach(int32 SlotIndex)
 	UDBEquipmentComponent* EquipComponent = GetOwner()->GetComponentByClass<UDBEquipmentComponent>();
 	UDBRogueSkillComponent* SkillComp = GetOwner()->GetComponentByClass<UDBRogueSkillComponent>();
 
-	//ÀåÂø ½½·Ô ¹è¿­ °¡Á®¿À±â
 	TArray<UItemObject*> Slots = EquipComponent->GetSlots();
 
-	// ¹«±â½½·Ô¿¡ ¹«±âµ¥ÀÌÅÍ°¡ ÀÖÀ¸¸é
 	if (ensureAlways(!Slots.IsEmpty()) && Slots[SlotIndex])
 	{
 		if (Slots[SlotIndex]->GetItemActor() == nullptr)
@@ -191,27 +187,22 @@ bool UDBRogueWeaponComponent::HandleAttach(int32 SlotIndex)
 				RogueItems->GetItemObject()->TryDestroyItemActor();
 			}
 
-			// ¹«±â ¿ùµå¿¡ ½ºÆù delay
-			// SpawnActorDeferred : BeginPlay°¡ ½ÇÇàµÇ±â Àü¿¡ ¼ÂÆÃ
+			
+			// SpawnActorDeferred : BeginPlay
 			RogueItems = GetWorld()->SpawnActorDeferred<ADBItem>(Slots[SlotIndex]->GetItemClass(), GetComponentTransform(), GetOwner());
 			RogueItemSMMat = RogueItems->SMComp->GetMaterials();
 			RogueItems->Initialize(Slots[SlotIndex]);
 
-			// ¹«±âÀÇ ¸ÓÆ¼¸®¾ó °¡Á®¿À±â
 			//RogueItems = GetWorld()->SpawnActor<ADBItem>(Slots[0]->GetItemClass(), GetComponentLocation(), GetComponentRotation());
 
-			//½ºÆù ½ÃÀÛ
 			UGameplayStatics::FinishSpawningActor(RogueItems, GetComponentTransform());
 
-			// ¹«±â¸¦ ÀÌ ÄÄÆ÷³ÍÆ®¿¡ ºÙÀÎ´Ù 
 			RogueItems->AttachToComponent(this, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
-			// ¹«±â ¿À³Ê ¼ÂÆÃ
 			RogueItems->SetOwner(GetOwner());
 
 			//다른 로직에 필요한 준비
 			Slots[SlotIndex]->SetItemActor(RogueItems);
-
 
 			//OnRep_RogueItems();
 		}

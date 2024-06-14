@@ -45,7 +45,7 @@ public:
 	ACharacter* MyActor;
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	float MaxHP = 100;
-	// 현재 체력을 계속 업뎃시키는 함수를 replicate 이거는 클라에서만 호출됨
+	// 현재 체력을 계속 업뎃시키는 함수를 replicate 클라에서만 호출됨
 	UPROPERTY(Replicated, ReplicatedUsing = OnRep_CurrHP, EditAnywhere,BlueprintReadWrite)
 	float CurrHP = MaxHP;
 

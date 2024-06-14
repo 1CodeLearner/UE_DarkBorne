@@ -64,8 +64,6 @@ void UDBPlayerWidget::UpdateQBorder(float Q_CurrCoolTime, float Q_MaxCoolTime)
 	{
 		Q_Border->SetBrushFromTexture(BlankImage);
 	}
-
-	
 }
 
 void UDBPlayerWidget::UpdateQBorder_Active(bool isVanish)

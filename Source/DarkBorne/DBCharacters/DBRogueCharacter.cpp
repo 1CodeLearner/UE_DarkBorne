@@ -73,7 +73,7 @@ void ADBRogueCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//get materials
+	//캐릭터의 메쉬
 	MatArr = GetMesh()->GetMaterials();
 
 
@@ -180,7 +180,6 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 		MyCharacterAnim->isDeath = true;
 		UE_LOG(LogTemp, Warning, TEXT("%s"), GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("Client") : TEXT("Server"));
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		//GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		GetCharacterMovement()->DisableMovement();
 		bUseControllerRotationYaw = false;
 
@@ -191,7 +190,6 @@ void ADBRogueCharacter::MultiRPC_DeathProcess_Implementation()
 			RogueAttackComponent->StopInteractionDisplay();
 
 			ADBPlayerController* pc = Cast<ADBPlayerController>(GetWorld()->GetFirstPlayerController());
-			//APlayerController* pc = GetWorld()->GetFirstPlayerController();
 			//pc->SetShowMouseCursor(true);
 			DisableInput(pc);
 
